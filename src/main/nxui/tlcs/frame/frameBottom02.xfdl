@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form background="#fcfcfc" height="36" id="frameBottom" titletext="frameBottom" width="1598">
+    <Layouts>
+      <Layout height="36" width="1598">
+        <Div background="#b2b6c5" height="28" id="divBottom" left="30" maxwidth="" right="30" taborder="1" text="div00" top="0" visible="false">
+          <Layouts>
+            <Layout>
+              <Static domainId="T1616" height="28" id="stcStatus" left="17" right="400" taborder="0" text="로딩이완료되었습니다." top="0"/>
+              <Static bottom="0" id="stcMenuId" right="20" taborder="1" textAlign="right" top="0" width="250"/>
+            </Layout>
+          </Layouts>
+        </Div>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  컨설팅 표준화 작업
+*  @MenuPath 
+*  @FileName 		frameBottom.xfdl 
+*  @Creator 			soojeong
+*  @CreateDate 	2017.01.23
+*  @LastModifier  
+*  @LastModifyDate  
+*  @Version 		1.0
+*  @Outline 		
+*  @Desction   
+************** 소스 수정 이력 *************************************************
+*    date          		Modifier            Description
+*******************************************************************************
+*  2017.01.23     	soojeong 	           최초 생성 
+*******************************************************************************
+*/
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+
+/***********************************************************************************************
+* FORM EVENT 영역(onload)
+/***********************************************************************************************/
+
+]]></Script>
+  </Form>
+</FDL>
