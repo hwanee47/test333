@@ -252,7 +252,7 @@
         };
         
         // User Script
-        this.registerScript("frameWork_copy.xfdl", function() {
+        this.registerScript("frameWorkPop.xfdl", function() {
         /**
         *  컨설팅 표준화 작업
         *  @MenuPath       	frame > frameTop
@@ -937,7 +937,7 @@
             this.webAlarm.addEventHandler("onusernotify",this.webAlarm_onusernotify,this);
         };
 
-        this.loadIncludeScript("frameWork_copy.xfdl");
+        this.loadIncludeScript("frameWorkPop.xfdl");
         this.loadPreloadList();
         
         // Remove Reference

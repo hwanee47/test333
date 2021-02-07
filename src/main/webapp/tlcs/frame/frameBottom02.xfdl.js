@@ -54,7 +54,7 @@
         };
         
         // User Script
-        this.registerScript("frameBottom_copy.xfdl", function() {
+        this.registerScript("frameBottom02.xfdl", function() {
 
         });
         
@@ -64,7 +64,7 @@
 
         };
 
-        this.loadIncludeScript("frameBottom_copy.xfdl");
+        this.loadIncludeScript("frameBottom02.xfdl");
         this.loadPreloadList();
         
         // Remove Reference
