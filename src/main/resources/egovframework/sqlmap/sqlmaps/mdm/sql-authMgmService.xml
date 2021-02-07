@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="authMgmService">
+
+	<select id="checkParentMenu" resultClass="int">
+		/* [sql-authMgmService.xml][authMgmService.checkParentMenu][권한 상세에 등록하려는 메뉴의 부모메뉴가 등록되어있는지 체크][2020.02.26][kjh] */
+		SELECT
+			COUNT(*)
+		FROM
+			TMDM_KFR_AUTH_DETAIL
+		WHERE
+			AUTH_CD = #AUTH_CD#
+		AND MENU_CD = #MENU_CD#
+	</select>
+	
+	
+	<select id="checkDeletedChildMenuAll" resultClass="int">
+		/* [sql-authMgmService.xml][authMgmService.checkParentMenu][권한 상세에 삭제하려는 메뉴에 해당하는 부모메뉴의 자식메뉴가 전부 삭제되었는지 체크][2020.02.26][kjh] */
+		SELECT
+			COUNT(*)
+		FROM
+			TMDM_KFR_AUTH_DETAIL
+		WHERE
+			AUTH_CD = #AUTH_CD#
+		AND MENU_CD IN ( SELECT MENU_CD FROM TMDM_KFR_MENU WHERE MSTR_MENU_CD = #MSTR_MENU_CD#)
+	</select>
+
+<!-- 개발가이드 1.2 명명규칙에 따라 조회 get + 의미있는명사 + List -->
+    <select id="getAuthList" resultClass="java.util.HashMap">
+		SELECT /* [sql-authMgmService.xml][authMgmService.getAuthList][권한 조회 asis 정렬조건을 동일하게 사용][2020.02.26][kjh] */
+		       '0' AS CHK     /** 선택 CHECKBOX **/
+		      ,TKA.AUTH_CD    /** 권한 그룹 코드 **/
+		      ,TKA.AUTH_NM    /** 권한 그룹 명   **/
+		      ,TKA.AUTH_DESC  /** 권한 그룹 설명 **/
+		      ,TKA.CONFIRM_YN /** 승인 권한 여부 **/
+		      ,TKA.MODIFY_YN  /** 권한 수정 여부 **/
+		      ,TKA.REG_ID     /** 등록자 **/
+		      ,DATE_FORMAT(TKA.REG_DT, '%Y-%m-%d %H:%i:%s') AS REG_DT /** 생성일자	**/
+		      ,TKA.USE_YN     /** 사용 여부      **/
+		      ,TKA.DEL_YN     /** 삭제 여부      **/
+		      ,TKA.MOD_ID 
+		      ,DATE_FORMAT(TKA.MOD_DT, '%Y-%m-%d %H:%i:%s') AS MOD_DT /** 수정일자	**/
+		      ,TKA.AUTH_DV
+		FROM   TMDM_KFR_AUTH TKA  /** 권한관리  **/
+		WHERE  TKA.USE_YN = 'Y'
+		AND IFNULL(TKA.DEL_YN, 'N') = 'N'
+		<isNotEmpty prepend="AND" property="AUTH_NM">
+		TKA.AUTH_NM LIKE CONCAT('%', #AUTH_NM#, '%') /** 권한 그룹 명   param **/
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="CONFIRM_YN">
+		TKA.CONFIRM_YN = #CONFIRM_YN#        /** 승인 권한 여부 param **/
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="USE_YN">
+		TKA.USE_YN     = #USE_YN#            /** 사용 여부      param **/
+		</isNotEmpty>
+		<isNotEqual prepend="AND" property="gv_userType" compareValue="SUPER">
+			IFNULL(TKA.AUTH_DV,'') NOT IN ('SUPER', 'ADMIN')	/*SUPER시스템관리자만 관리자권한 조회가능 */
+		</isNotEqual>
+		ORDER BY REG_DT
+    </select>
+
+    <select id="getAuthDetailList" resultClass="java.util.HashMap">
+    	/* [sql-authMgmService.xml][authMgmService.getAuthDetailList][권한 상세조회][2020.02.26][kjh] */
+		SELECT
+			'' AS CHK
+		    ,A.AUTH_CD
+		    ,B.MSTR_MENU_CD AS PARENT_MENU_CD
+		    ,C.MENU_NM AS PARENT_MENU_NM
+		    ,A.MENU_CD
+		    ,B.MENU_NM
+		    ,TKA.AUTH_DV
+		FROM
+			TMDM_KFR_AUTH TKA
+		    ,TMDM_KFR_AUTH_DETAIL A
+		    ,TMDM_KFR_MENU B
+		    ,TMDM_KFR_MENU C
+		WHERE
+			TKA.AUTH_CD = A.AUTH_CD
+		AND	A.MENU_CD = B.MENU_CD
+		AND B.MSTR_MENU_CD = C.MENU_CD
+		AND IFNULL(B.USE_YN,'') = 'Y'
+		AND IFNULL(B.DEL_YN,'') = 'N'
+		AND IFNULL(B.MSTR_MENU_CD,'') <![CDATA[<>]]> '' 
+		AND A.AUTH_CD = #AUTH_CD#
+		ORDER BY PARENT_MENU_CD
+    </select>
+    
+
+    <select id="getMenuBtnAuthList" resultClass="java.util.HashMap">
+    	/* [sql-authMgmService.xml][authMgmService.getMenuBtnAuthList][메뉴별 버튼권한 리스트 조회][2020.07.21][kjh] */
+		SELECT
+			TKADB.AUTH_CD
+			,B.MSTR_MENU_CD AS PARENT_MENU_CD
+			,C.MENU_NM AS PARENT_MENU_NM
+			,TKADB.MENU_CD
+			,B.MENU_NM
+			,TKADB.SEL_YN
+			,TKADB.ADD_YN
+			,TKADB.SAV_YN
+			,TKADB.DEL_YN
+			,TKADB.PRT_YN
+			,TKADB.XLS_YN
+			,(CASE WHEN TKADB.SEL_YN='1' AND 
+                  		TKADB.ADD_YN='1' AND
+                  		TKADB.SAV_YN='1' AND
+                  		TKADB.DEL_YN='1' AND
+                  		TKADB.PRT_YN='1' AND
+                  		TKADB.XLS_YN='1' THEN '1' ELSE '0'
+        	  END) AS ALL_YN
+		FROM
+			TMDM_KFR_MENU B
+			,TMDM_KFR_MENU C
+			,TMDM_KFR_AUTH_DETAIL TKAD
+			,TMDM_KFR_AUTH_DETAIL_BTN TKADB
+		WHERE
+			B.MSTR_MENU_CD = C.MENU_CD
+		AND B.MENU_CD = TKADB.MENU_CD
+		AND TKAD.AUTH_CD = TKADB.AUTH_CD
+		AND TKAD.MENU_CD = TKADB.MENU_CD
+		AND IFNULL(B.USE_YN,'') = 'Y'
+		AND IFNULL(B.DEL_YN,'') = 'N'
+		AND IFNULL(B.MSTR_MENU_CD,'') <![CDATA[<>]]> '' 
+		AND	TKADB.AUTH_CD = #AUTH_CD#
+		ORDER BY PARENT_MENU_CD
+    </select>
+    
+    
+    <select id="getMenuList" resultClass="java.util.HashMap">
+    	/* [sql-authMgmService.xml][authMgmService.getMenuList][권한에 등록되지 않은 메뉴 조회][2020.02.26][kjh] */
+    	SELECT
+    		'' AS CHK
+    		,#AUTH_CD# AS AUTH_CD
+		    ,A.MSTR_MENU_CD AS PARENT_MENU_CD
+		    ,B.MENU_NM	AS PARENT_MENU_NM
+		    ,A.MENU_CD
+		    ,A.MENU_NM
+		FROM
+		    TMDM_KFR_MENU A
+		    ,TMDM_KFR_MENU B
+		WHERE
+			A.MSTR_MENU_CD = B.MENU_CD
+		AND IFNULL(A.MSTR_MENU_CD,'') <![CDATA[<>]]> ''
+		AND IFNULL(A.USE_YN,'') = 'Y'
+		AND IFNULL(A.DEL_YN,'') = 'N'
+		AND A.MENU_CD NOT IN ( SELECT MENU_CD FROM TMDM_KFR_AUTH_DETAIL WHERE AUTH_CD = #AUTH_CD#)
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			/* 사용자유형이 시스템관리자가 아닌경우 로그인 계정에 부여된 메뉴만보여준다. */
+			AND A.MENU_CD IN ( SELECT DISTINCT MENU_CD FROM TMDM_KFR_AUTH_DETAIL WHERE AUTH_CD IN (SELECT AUTH_CD FROM TB_WMS_USER_PER_GRP_AUTH_C WHERE USER_ID=#gv_userId#) )
+		</isNotEqual>
+		ORDER BY PARENT_MENU_CD
+    </select>
+    
+    
+    <delete id="deleteAuthMaster">
+    	DELETE /* [sql-authMgmService.xml][authMgmService.deleteAuthMaster][권한 삭제.][2018.8.14][itoh] */
+    	       FROM TMDM_KFR_AUTH
+		WHERE  AUTH_CD = #AUTH_CD#
+    </delete>
+    
+    
+    <update id="updateAuthDelYn">
+    	/** [sql-authMgmService.xml][authMgmService.updateAuthDelYn]
+		 *  [권한 삭제여부 업데이트]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		UPDATE TMDM_KFR_AUTH
+		SET
+    		DEL_YN = 'Y'
+			,MOD_ID = #gv_userId#
+    		,MOD_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		WHERE
+			AUTH_CD = #AUTH_CD# 
+		 
+    </update>
+    
+    
+    
+    <select id="getAuthSeq" resultClass="java.util.HashMap">
+		SELECT /* [sql-authMgmService.xml][authMgmService.getAuthSeq][시퀀스조회][2018.8.14][itoh] */
+		       ('A' || LPAD(SEQ_TMDM_KFR_AUTH.NEXTVAL, 7, 0)) AS AUTH_CD FROM DUAL
+    </select>
+    
+    <update id="mergeAuthMaster">
+		/* [sql-authMgmService.xml][authMgmService.mergeAuthMaster][Master 권한등록.][2018.8.14][itoh] */
+		MERGE INTO TMDM_KFR_AUTH MST
+		USING (    SELECT #AUTH_CD#    AS AUTH_CD
+		                 ,#AUTH_NM#    AS AUTH_NM
+		                 ,#CONFIRM_YN# AS CONFIRM_YN
+		                 ,#MODIFY_YN#  AS MODIFY_YN
+		                 ,#USE_YN#     AS USE_YN
+		                 ,#DEL_YN#     AS DEL_YN
+		                 ,'USER_ID'    AS USER_ID /** TODO-세션값으로 대체예정 **/
+			             ,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') AS P_DATE
+		            FROM  DUAL ) DTL
+		ON    ( MST.AUTH_CD = DTL.AUTH_CD )
+		WHEN MATCHED THEN UPDATE SET
+		     MST.AUTH_NM       = DTL.AUTH_NM
+		    ,MST.CONFIRM_YN    = DTL.CONFIRM_YN
+		    ,MST.MODIFY_YN     = 'Y'
+		    ,MST.USE_YN        = DTL.USE_YN
+		    ,MST.MOD_ID        = DTL.USER_ID
+		    ,MST.MOD_DT       = P_DATE
+		WHEN NOT MATCHED THEN INSERT
+		( MST.AUTH_CD , MST.AUTH_NM , MST.CONFIRM_YN , MST.MODIFY_YN , MST.USE_YN , MST.DEL_YN , MST.REG_ID , MST.REG_DT )
+		VALUES
+		( DTL.AUTH_CD , DTL.AUTH_NM , DTL.CONFIRM_YN , 'N'           , DTL.USE_YN , DTL.DEL_YN , DTL.USER_ID, DTL.P_DATE )
+    </update>
+    
+    
+    <insert id="insertAuth">
+    	/* [sql-authMgmService.xml][authMgmService.insertAuth][권한등록.][2020.02.26][kjh] */
+    	INSERT INTO TMDM_KFR_AUTH
+    	(
+    		AUTH_CD
+    		,SITE_CD
+    		,AUTH_NM
+    		,AUTH_DESC
+    		,AUTH_DV
+    		,CONFIRM_YN
+    		,MODIFY_YN
+    		,USE_YN
+    		,DEL_YN
+    		,REG_ID
+    		,REG_DT
+    		,MOD_ID
+    		,MOD_DT
+    	)
+    	VALUES
+    	(
+    		(SELECT CONCAT('A',LPAD(IFNULL(MAX(SUBSTR(TKA.AUTH_CD,2))+1,1),7,'0')) FROM TMDM_KFR_AUTH TKA WHERE TKA.AUTH_CD LIKE 'A%')
+    		,'GWDS'
+    		,#AUTH_NM#
+    		,#AUTH_DESC#
+    		,#AUTH_DV#
+    		,#CONFIRM_YN#
+    		,#MODIFY_YN#
+    		,#USE_YN#
+    		,'N'
+    		,#gv_userId#		
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+			,#gv_userId#
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+    	)
+    </insert>
+    
+    
+    <insert id="updateAuth">
+    	/** [sql-authMgmService.xml][authMgmService.updateAuth]
+		 *  [그룹권한 수정]
+		 *  [KimJinHwan 2020.07.10]
+		 **/
+		
+		UPDATE TMDM_KFR_AUTH
+		SET
+			AUTH_NM = #AUTH_NM#
+			,AUTH_DESC = #AUTH_DESC#
+    		,USE_YN = #USE_YN#
+			,MOD_ID = #gv_userId#
+    		,MOD_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		WHERE
+			AUTH_CD = #AUTH_CD# 
+		 
+    </insert>
+    
+    
+    
+    <insert id="insertAuthDetail">
+		/* [sql-authMgmService.xml][authMgmService.insertAuthDetail][권한에 메뉴 등록][2020.02.26][kjh] */
+		INSERT INTO TMDM_KFR_AUTH_DETAIL
+		(
+		       
+			MENU_CD
+			,AUTH_CD
+			,SITE_CD
+			,REG_SYS
+			,REG_ID
+			,REG_DT
+			,MOD_ID
+			,MOD_DT
+		)
+		VALUES
+		(
+			#MENU_CD#
+			,#AUTH_CD#
+			,'GWDS'
+			,'M'
+			,#gv_userId#	
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+			,#gv_userId#	
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		)
+    </insert>
+    
+    
+    <delete id="deleteAuthDetail">
+    	/* [sql-authMgmService.xml][authMgmService.deleteAuthDetail][권한에 메뉴 삭제][2020.02.26][kjh] */
+    	DELETE FROM TMDM_KFR_AUTH_DETAIL
+		WHERE 
+			AUTH_CD = #AUTH_CD#
+		<isNotEmpty property="MENU_CD">
+			AND MENU_CD = #MENU_CD#
+		</isNotEmpty>
+    </delete>
+    
+    
+    <delete id="deleteAuthDetailParentAll">
+    	/* [sql-authMgmService.xml][authMgmService.deleteAuthDetailParentAll][SUPER 계정으로 삭제시 SUPER권한을 제외한 모든 권한에 부모메뉴 삭제][2020.07.17][kjh] */
+    	DELETE FROM TMDM_KFR_AUTH_DETAIL
+		WHERE 
+			AUTH_CD IN (
+			
+				SELECT
+					TKA.AUTH_CD
+				FROM
+					TMDM_KFR_AUTH TKA
+					,TMDM_KFR_AUTH_DETAIL TAKD
+				WHERE
+					TKA.AUTH_CD = TAKD.AUTH_CD
+				AND IFNULL(TKA.AUTH_DV,'') NOT IN ('SUPER')
+				AND	TKA.AUTH_CD NOT IN (
+						SELECT
+							AUTH_CD
+						FROM
+							TMDM_KFR_AUTH_DETAIL
+						WHERE
+						  MENU_CD IN ( SELECT MENU_CD FROM TMDM_KFR_MENU WHERE MSTR_MENU_CD = #MSTR_MENU_CD#)
+						GROUP BY AUTH_CD
+					)
+				GROUP BY TKA.AUTH_CD
+			
+			)
+		AND MENU_CD = #MSTR_MENU_CD#
+    </delete>
+    
+    <delete id="deleteAuthDetailByMenuCd">
+    	/* [sql-authMgmService.xml][authMgmService.deleteAuthDetailByMenuCd][SUPER 계정으로 삭제시 모든권한에 해당메뉴 삭제][2020.07.16][kjh] */
+    	DELETE FROM TMDM_KFR_AUTH_DETAIL
+		WHERE
+			AUTH_CD IN (
+				SELECT
+					TKA.AUTH_CD
+				FROM
+					TMDM_KFR_AUTH TKA
+					,TMDM_KFR_AUTH_DETAIL TAKD
+				WHERE
+					TKA.AUTH_CD = TAKD.AUTH_CD
+				AND IFNULL(TKA.AUTH_DV,'') NOT IN ('SUPER')
+				GROUP BY TKA.AUTH_CD
+			) 
+		AND MENU_CD = #MENU_CD#
+    </delete>
+    
+    
+    <insert id="mergeMenuBtnAuth">
+    	/** [sql-authMgmService.xml][authMgmService.mergeMenuBtnAuth]
+		 *  [메뉴버튼권한 저장]
+		 *  [KimJinHwan 2020.07.22]
+		 **/
+    	INSERT INTO TMDM_KFR_AUTH_DETAIL_BTN
+    	(
+    		SELECT
+	    		B.AUTH_CD
+	    		,B.MENU_CD
+	    		,''
+	    		,'1'
+	    		,'1'
+				,'1'
+				,'1'
+				,'1'
+				,'1'
+				,#gv_userId#
+				,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+				,#gv_userId#
+				,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+	    	FROM
+	    		TMDM_KFR_AUTH_DETAIL B
+	    	WHERE
+	    		B.AUTH_CD = #AUTH_CD#
+	    	AND B.MENU_CD NOT IN ( SELECT MENU_CD FROM TMDM_KFR_AUTH_DETAIL_BTN C WHERE B.AUTH_CD = C.AUTH_CD)
+	    	<isNotEmpty property="MENU_CD">
+			AND B.MENU_CD = #MENU_CD#
+			</isNotEmpty>	
+	    )
+    	ON DUPLICATE KEY
+		UPDATE
+			MOD_ID = #gv_userId#
+			,MOD_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+    </insert>
+    
+    
+    <update id="updateMenuBtnAuth">
+    	/** [sql-authMgmService.xml][authMgmService.updateMenuBtnAuth]
+		 *  [메뉴버튼권한 저장]
+		 *  [KimJinHwan 2020.07.22]
+		 **/
+		UPDATE TMDM_KFR_AUTH_DETAIL_BTN
+		SET
+			SEL_YN = #SEL_YN#
+			,ADD_YN = #ADD_YN#
+			,SAV_YN = #SAV_YN#
+			,DEL_YN = #DEL_YN#
+			,PRT_YN = #PRT_YN#
+			,XLS_YN = #XLS_YN#
+			,MOD_ID = #gv_userId#
+			,MOD_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		WHERE
+			AUTH_CD = #AUTH_CD#
+		AND MENU_CD = #MENU_CD#
+    </update>
+    
+    
+    <delete id="deleteMenuBtnAuth">
+    	/** [sql-authMgmService.xml][authMgmService.deleteMenuBtnAuth]
+		 *  [메뉴버튼권한 삭제]
+		 *  [KimJinHwan 2020.07.22]
+		 **/
+		DELETE FROM TMDM_KFR_AUTH_DETAIL_BTN
+		WHERE
+			AUTH_CD = #AUTH_CD#
+		AND MENU_CD NOT IN (
+			SELECT MENU_CD FROM TMDM_KFR_AUTH_DETAIL TKAD WHERE TKAD.AUTH_CD = #AUTH_CD#
+		)
+    </delete>
+</sqlMap>

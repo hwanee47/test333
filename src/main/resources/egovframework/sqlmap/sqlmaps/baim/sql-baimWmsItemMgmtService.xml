@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimWmsItemMgmtService">
+	
+	<select id="checkDupItem" resultClass="int">
+		/** [sql-baimWmsItemMgmtService.xml][baimWmsItemMgmtService.checkDupItem]
+		 *  [품목 중복 체크]
+		 *  [KimJinHwan 2020.03.08]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_WMS_ITEM_MGMT_C A
+		WHERE
+			A.SHIPPER_ID = #SHIPPER_ID#
+		AND A.ITEM_CD = #ITEM_CD#
+	</select>
+	
+	<select id="checkDupItemBarcode" resultClass="int">
+		/** [sql-baimWmsItemMgmtService.xml][baimWmsItemMgmtService.checkDupItemBarcode]
+		 *  [품목 바코드 중복 체크]
+		 *  [KimJinHwan 2020.08.20]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_WMS_ITEM_BRCD_C TWIBC
+		WHERE
+			TWIBC.SHIPPER_ID = #SHIPPER_ID#
+		AND TWIBC.ITEM_CD = #ITEM_CD#
+		AND TWIBC.ITEM_BARCODE = #ITEM_BARCODE#
+	</select>
+	
+	
+	<select id="getItemList" resultClass="java.util.HashMap">
+		/** [sql-baimWmsItemMgmtService.xml][baimWmsItemMgmtService.getItemList]
+		 *  [품목정보 조회]
+		 *  [KimJinHwan 2020.03.08]
+		 **/
+		SELECT
+			'' AS CHK
+		    ,A.SHIPPER_ID
+		    ,B.CUST_REPRE_NM AS SHIPPER_NM
+		    ,A.ITEM_CD
+		    ,A.ITEM_NM
+		    ,A.ITEM_GRP_CD
+		    ,C.DESCRIPT AS ITEM_GRP_DESC
+		    ,A.USE_YN
+		    ,A.DESCRIPT
+		    ,A.MGMT_UNIT
+		    ,A.HS_CD
+		    ,A.ITEM_BARCODE
+		    ,A.PRICE
+		    ,A.HEIGHT
+		    ,A.WIDTH
+		    ,A.LEN
+		    ,A.DEPTH
+		    ,A.WT
+		    ,A.VOL
+		    ,A.LEN_UNIT_CD
+		    ,A.WT_UNIT_CD
+		    ,A.VOL_UNIT_CD
+		    ,A.VDT_FLAG
+		    ,A.VDT_PERIOD
+		    ,A.WAREI_VDT_PRMT_PERIOD
+		    ,A.WAREO_VDT_PRMT_PERIOD
+		FROM
+		    TB_WMS_ITEM_MGMT_C A
+		LEFT OUTER JOIN TB_WMS_ITEM_GRP_C C ON (A.ITEM_GRP_CD = C.ITEM_GRP_CD)
+		    ,TB_WMS_CUST_MGMT_C B
+		WHERE
+		    A.SHIPPER_ID = B.CUST_CD
+		<!-- 사용자 고객권한 -->
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 고객만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+				AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C B WHERE B.CUST_ID = A.SHIPPER_ID AND USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="CUST_CD">
+		AND A.SHIPPER_ID = #CUST_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_NM">
+		AND B.CUST_REPRE_NM LIKE CONCAT('%', #CUST_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_CD">
+		AND A.ITEM_CD = #ITEM_CD#
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_NM">
+		AND A.ITEM_NM LIKE CONCAT('%', #ITEM_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="USE_YN">
+		AND A.USE_YN = #USE_YN#
+		</isNotEmpty>
+		ORDER BY SHIPPER_ID, ITEM_CD
+	</select>
+	
+	
+	<select id="getItemListPop" resultClass="java.util.HashMap">
+		/** [sql-baimWmsItemMgmtService.xml][baimWmsItemMgmtService.getItemListPop]
+		 *  [품목정보 조회(팝업)]
+		 *  [KimJinHwan 2020.03.09]
+		 **/
+		SELECT
+			'' AS CHK
+		    ,A.SHIPPER_ID
+		    ,B.CUST_REPRE_NM AS SHIPPER_NM
+		    ,A.ITEM_CD
+		    ,A.ITEM_NM
+		    ,A.ITEM_GRP_CD
+		    ,A.USE_YN
+		    ,A.DESCRIPT
+		    ,A.MGMT_UNIT
+		    ,A.HS_CD
+		    ,A.ITEM_BARCODE
+		    ,A.PRICE
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM A.HEIGHT)) AS HEIGHT
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM A.WIDTH)) AS WIDTH
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM A.LEN)) AS LEN
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM A.DEPTH)) AS DEPTH
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM A.WT)) AS WT
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM A.VOL)) AS VOL
+		    ,A.LEN_UNIT_CD
+		    ,A.WT_UNIT_CD
+		    ,A.VOL_UNIT_CD
+		    ,A.VDT_FLAG
+		    ,A.VDT_PERIOD
+		FROM
+		    TB_WMS_ITEM_MGMT_C A
+		    ,TB_WMS_CUST_MGMT_C B
+		WHERE
+		    A.SHIPPER_ID = B.CUST_CD
+		<!-- 사용자 고객권한 -->
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 고객만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C B WHERE B.CUST_ID = A.SHIPPER_ID AND USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="SHIPPER_ID">
+		AND A.SHIPPER_ID = #SHIPPER_ID#
+		</isNotEmpty>
+		<isNotEmpty property="SHIPPER_NM">
+		AND B.CUST_REPRE_NM LIKE CONCAT('%', #SHIPPER_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_CD">
+		AND A.ITEM_CD = #ITEM_CD#
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_NM">
+		AND A.ITEM_NM LIKE CONCAT('%', #ITEM_NM#, '%')
+		</isNotEmpty>
+		
+	</select>
+	
+	
+	<select id="getWmsCustListPop" resultClass="java.util.HashMap">
+		/** [sql-baimWmsItemMgmtService.xml][baimWmsItemMgmtService.getWmsCustListPop]
+		 *  [고객조회 (팝업)]
+		 *  [KimJinHwan 2020.03.16]
+		 **/
+		SELECT 
+		    A.SHIPPER_ID AS CUST_ID
+		    ,A.CUST_REPRE_NM AS CUST_NM
+		    ,A.ENTRP_REG_NO
+		    ,CONCAT(A.BUSINESTAB_ADDR, ' ', FC_AES_DECRYPT(A.BUSINESTAB_DETAIL_ADDR)) AS ADDR
+		    ,CONCAT(A.BUSINESTAB_TEL_NO_1, '-', A.BUSINESTAB_TEL_NO_2, '-', FC_AES_DECRYPT(A.BUSINESTAB_TEL_NO_3)) AS TEL_NO
+		    ,A.CP_DV
+		    ,A.BUSINESTAB_ZIP_NO AS ZIP_NO
+		FROM
+		    TB_WMS_CUST_MGMT_C A
+		WHERE
+		    USE_YN = 'Y'
+		AND CP_DV IN ('CP01', 'CP02') /*창고고객만 조회*/	
+		<!-- 사용자 고객권한 -->
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 고객만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+		  		AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C B WHERE B.CUST_ID = A.SHIPPER_ID AND USER_ID = #gv_userId#)
+	  		</isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="CUST_ID">
+		AND A.SHIPPER_ID = #CUST_ID#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_NM">
+		AND A.CUST_REPRE_NM LIKE CONCAT('%', #CUST_NM#, '%')
+		</isNotEmpty>    
+		<isNotEmpty property="TEL_NO">
+		AND CONCAT(A.BUSINESTAB_TEL_NO_1, A.BUSINESTAB_TEL_NO_2, FC_AES_DECRYPT(A.BUSINESTAB_TEL_NO_3)) = #TEL_NO#
+		</isNotEmpty>    
+		<isNotEmpty property="CP_DV">
+		AND A.CP_DV = #CP_DV#
+		</isNotEmpty>
+			
+	</select>
+	
+	<insert id="insertItemInfo">
+		/** [sql-baimWmsItemMgmtService.xml][baimWmsItemMgmtService.insertItemInfo]
+		 *  [품목정보 추가]
+		 *  [KimJinHwan 2020.03.08]
+		 **/
+		INSERT INTO TB_WMS_ITEM_MGMT_C
+		(
+			SHIPPER_ID
+			,ITEM_CD
+			,ITEM_NM
+			,DESCRIPT
+			,SUPPLIER_ID
+			,ITEM_GRP_CD
+			,HS_CD
+			,PRICE
+			,HEIGHT
+			,WIDTH
+			,LEN
+			,DEPTH
+			,WT
+			,VOL
+			,MGMT_UNIT
+			,LEN_UNIT_CD
+			,WT_UNIT_CD
+			,VOL_UNIT_CD
+			,ITEM_BARCODE
+			,LOGI_BARCODE
+			,ITEM_STRG_CD
+			,MFER_ID
+			,ITEM_TCD
+			,PUTA_WCELL_NO
+			,STD_BOX_QTY
+			,STD_BOX_WT
+			,STD_PALLET_QTY
+			,STD_PALLET_WT
+			,REM
+			,VDT_FLAG
+			,VDT_PERIOD
+			,WAREI_VDT_PRMT_PERIOD
+		    ,WAREO_VDT_PRMT_PERIOD
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#SHIPPER_ID#
+			,#ITEM_CD#
+			,#ITEM_NM#
+			,#DESCRIPT#
+			,#SUPPLIER_ID#
+			,#ITEM_GRP_CD#
+			,#HS_CD#
+			,#PRICE#
+			,#HEIGHT#
+			,#WIDTH#
+			,#LEN#
+			,#DEPTH#
+			,#WT#
+			,#VOL#
+			,#MGMT_UNIT#
+			,#LEN_UNIT_CD#
+			,#WT_UNIT_CD#
+			,#VOL_UNIT_CD#
+			,#ITEM_BARCODE#
+			,#LOGI_BARCODE#
+			,#ITEM_STRG_CD#
+			,#MFER_ID#
+			,#ITEM_TCD#
+			,#PUTA_WCELL_NO#
+			,#STD_BOX_QTY#
+			,#STD_BOX_WT#
+			,#STD_PALLET_QTY#
+			,#STD_PALLET_WT#
+			,#REM#
+			,#VDT_FLAG#
+			,#VDT_PERIOD#
+			,#WAREI_VDT_PRMT_PERIOD#
+		    ,#WAREO_VDT_PRMT_PERIOD#
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)		
+	</insert>
+
+
+	<update id="updateItemInfo">
+		/** [sql-baimWmsItemMgmtService.xml][baimWmsItemMgmtService.updateItemInfo]
+		 *  [품목정보 수정]
+		 *  [KimJinHwan 2020.03.09]
+		 **/
+		UPDATE TB_WMS_ITEM_MGMT_C
+		SET
+			ITEM_NM = #ITEM_NM#
+			,DESCRIPT = #DESCRIPT#
+			,SUPPLIER_ID = #SUPPLIER_ID#
+			,ITEM_GRP_CD = #ITEM_GRP_CD#
+			,HS_CD = #HS_CD#
+			,PRICE = #PRICE#
+			,HEIGHT = #HEIGHT#
+			,WIDTH = #WIDTH#
+			,LEN = #LEN#
+			,DEPTH = #DEPTH#
+			,WT = #WT#
+			,VOL = #VOL#
+			,MGMT_UNIT = #MGMT_UNIT#
+			,LEN_UNIT_CD = #LEN_UNIT_CD#
+			,WT_UNIT_CD = #WT_UNIT_CD#
+			,VOL_UNIT_CD = #VOL_UNIT_CD#
+			,ITEM_BARCODE = #ITEM_BARCODE#
+			,LOGI_BARCODE = #LOGI_BARCODE#
+			,ITEM_STRG_CD = #ITEM_STRG_CD#
+			,MFER_ID = #MFER_ID#
+			,ITEM_TCD = #ITEM_TCD#
+			,PUTA_WCELL_NO = #PUTA_WCELL_NO#
+			,STD_BOX_QTY = #STD_BOX_QTY#
+			,STD_BOX_WT = #STD_BOX_WT#
+			,STD_PALLET_QTY = #STD_PALLET_QTY#
+			,STD_PALLET_WT = #STD_PALLET_WT#
+			,REM = #REM#
+			,VDT_FLAG = #VDT_FLAG#
+			,VDT_PERIOD = #VDT_PERIOD#
+			,WAREI_VDT_PRMT_PERIOD = #WAREI_VDT_PRMT_PERIOD#
+		    ,WAREO_VDT_PRMT_PERIOD = #WAREO_VDT_PRMT_PERIOD#
+			,USE_YN = #USE_YN#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			SHIPPER_ID = #SHIPPER_ID#
+		AND ITEM_CD = #ITEM_CD#
+	</update>
+	
+	<delete id="deleteItem">
+		/** [sql-baimWmsItemMgmtService.xml][baimWmsItemMgmtService.deleteItem]
+		 *  [품목정보 삭제]
+		 *  [KimJinHwan 2020.03.09]
+		 **/
+		DELETE FROM TB_WMS_ITEM_MGMT_C
+		WHERE
+			SHIPPER_ID = #SHIPPER_ID#
+		AND ITEM_CD = #ITEM_CD#
+	</delete>
+	
+	<delete id="deleteItemBarcode">
+		/** [sql-baimWmsItemMgmtService.xml][baimWmsItemMgmtService.deleteItemBarcode]
+		 *  [품목바코드 삭제]
+		 *  [KimJinHwan 2020.08.20]
+		 **/
+		DELETE FROM TB_WMS_ITEM_BRCD_C
+		WHERE
+			SHIPPER_ID = #SHIPPER_ID#
+		AND ITEM_CD = #ITEM_CD#
+		<isNotEmpty property="ITEM_BARCODE">
+		AND ITEM_BARCODE = #ITEM_BARCODE#
+		</isNotEmpty>
+	</delete>
+	
+	
+	<select id="getItemBarcodeList" resultClass="java.util.HashMap">
+		/** [sql-baimWmsItemMgmtService.xml][baimWmsItemMgmtService.getItemBarcodeList]
+		 *  [품목 바코드 리스트 조회]
+		 *  [KimJinHwan 2020.08.20]
+		 **/
+		SELECT
+			'' AS CHK
+			,TWIBC.SHIPPER_ID
+			,TWIBC.ITEM_CD
+			,TWIBC.ITEM_BARCODE
+		FROM
+		  TB_WMS_ITEM_BRCD_C TWIBC
+		WHERE
+			TWIBC.SHIPPER_ID = #CUST_CD#
+		AND TWIBC.ITEM_CD = #ITEM_CD#
+		<isNotEmpty property="ITEM_BARCODE">
+		AND TWIBC.ITEM_BARCODE = #ITEM_BARCODE#
+		</isNotEmpty>
+	</select>
+	
+	<insert id="insertItemBarcodeInfo">
+		/** [sql-baimWmsItemMgmtService.xml][baimWmsItemMgmtService.insertItemBarcodeInfo]
+		 *  [품목바코드 추가]
+		 *  [KimJinHwan 2020.08.20]
+		 **/
+		INSERT INTO TB_WMS_ITEM_BRCD_C
+		(
+			SHIPPER_ID
+			,ITEM_CD
+			,ITEM_BARCODE
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#SHIPPER_ID#
+			,#ITEM_CD#
+			,#ITEM_BARCODE#
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)		
+	</insert>
+	
+</sqlMap>

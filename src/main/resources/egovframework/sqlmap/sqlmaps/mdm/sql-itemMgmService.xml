@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="itemMgmService">
+	<!--sql-sql-itemMgmService.xml.xml*/-->
+	<!-- MDM물품 목록조회 -->
+    <select id="getMdmItemList" resultClass="java.util.HashMap">
+    	/* [sql-itemMgmService.xml][getMdmItemList][MDM물품 목록조회][2018.08.09][yhkim] */
+		SELECT
+		         TIMI.GOOD_CNTRL_CD /** 물자코드 **/
+		        ,TKMC.CD_NM         /** 물자명 **/
+		        ,TIMI.ITEM_CD       /** 물품코드 **/
+		        ,TIMI.ITEM_NM       /** 물품명 **/
+		        ,TIMI.KX_ITEM_CD    /** 대한통운 물품코드 **/
+		        ,TIMI.KX_ITEM_NM    /** 대한통운 물품명 **/
+		        ,TIMI.AGG_ANAL_CD   /** 집계분석코드 **/
+		        ,TIMI.DEL_YN        /** 삭제여부 **/
+		FROM
+		        TMDM_KFR_MC_CODE TKMC
+		        JOIN TMDM_IT_ITEM_MSTR_IF TIMI
+		            ON  TIMI.GOOD_CNTRL_CD = TKMC.CD
+		            AND TKMC.CD_TCD        = 'CM094'
+		            AND TIMI.ITEM_CCD      = 'B'
+		            AND TIMI.DEL_YN        = 'N'
+		WHERE  1=1
+		<isNotEmpty prepend="AND" property="ITEM_NM">
+		TIMI.ITEM_NM	LIKE '%'||#ITEM_NM#||'%' /**물품 명 검색**/
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="GOODS_CD">
+		TIMI.GOOD_CNTRL_CD		= #GOODS_CD#
+		</isNotEmpty>
+		ORDER BY TIMI.GOOD_CNTRL_CD
+    </select>
+    
+    <!-- 하위물품 목록조회 -->
+    <select id="getSubItemList" resultClass="java.util.HashMap">
+    	/* [sql-itemMgmService.xml][getSubItemList][하위물품물품 목록조회][2018.08.10][yhkim] */
+        SELECT
+                 TIMI.GOOD_CNTRL_CD /** 물자코드 **/
+                ,TKMC.CD_NM         /** 물자명 **/
+                ,TIMI.ITEM_CD       /** 물품코드 **/
+                ,TIMI.ITEM_CCD      /** 물품분류코드 **/
+                ,(SELECT CD_NM FROM TMDM_KFR_MC_CODE TKMCS WHERE TKMCS.CD = TIMI.ITEM_CCD AND TKMCS.CD_TCD = 'ITEM_CCD') AS ITEM_CCD_NM /** 물품분류명 **/
+                ,TIMI.ITEM_NM       /** 물품명 **/
+                ,TIMI.KX_ITEM_CD    /** 대한통운 물품코드 **/
+                ,TIMI.KX_ITEM_NM    /** 대한통운 물품명 **/
+                ,TIMI.AGG_ANAL_CD   /** 집계분석코드 **/
+                ,TIMI.DEL_YN        /** 삭제여부 **/
+        FROM
+                TMDM_KFR_MC_CODE TKMC
+                JOIN TMDM_IT_ITEM_MSTR_IF TIMI
+                    ON  TIMI.GOOD_CNTRL_CD = TKMC.CD
+                    AND TKMC.CD_TCD        = 'CM094'
+                    AND TIMI.DEL_YN        = 'N'
+        WHERE  1=1
+        <isNotEmpty prepend="AND" property="ITEM_CD">
+        TIMI.KX_ITEM_CD = #ITEM_CD#
+        </isNotEmpty>
+    </select>
+    
+	<!-- 공통코드의 물자 목록조회 -->
+    <select id="getCodeSearch" resultClass="java.util.HashMap">
+    	/* [sql-itemMgmService.xml][getCodeSearch][공통코드의 물자 목록조회][2018.08.10][yhkim] */
+    	SELECT
+    			 ''    AS CODE
+    			,'전체' AS VALUE
+		FROM
+				DUAL
+		UNION ALL 
+	    SELECT
+	         CD    AS CODE
+	        ,CD_NM AS VALUE
+		FROM
+		        TMDM_KFR_MC_CODE
+		WHERE
+		        CD_TCD = 'CM094'
+    </select>
+    
+    <!-- 하위물품 등록 -->
+    <insert id="insertItemInfo">
+    	/* [sql-itemMgmService.xml][insertItemInfo][하위물품목록 등록][2018.08.10][yhkim] */
+		INSERT INTO TMDM_IT_ITEM_MSTR_IF
+		    (
+		        SHPR_ID
+		       ,ITEM_CD
+		       ,ITEM_NM
+		       ,ITEM_CCD
+		       ,DEL_YN
+		       ,REG_ID
+		       ,REG_DT
+		       ,REG_IP
+		       ,KX_ITEM_CD         
+		       ,KX_ITEM_NM
+		       ,AGG_ANAL_CD   
+		       ,GOOD_CNTRL_CD             
+		    	
+		    )VALUES(
+		        '10069897'
+		       ,#ITEM_CD_HIDDEN#||'_'||(
+						    	SELECT
+								        NVL(MAX(SUBSTR(ITEM_CD, INSTR(ITEM_CD, '_', 1) + 1 , LENGTH(ITEM_CD))) + 1,1) AS NEXT_NUM
+								FROM
+								        TMDM_IT_ITEM_MSTR_IF
+								WHERE	ITEM_CCD   = 'C'
+								<isNotEmpty prepend="AND" property="KX_ITEM_CD">
+								KX_ITEM_CD = #KX_ITEM_CD#
+								</isNotEmpty>
+		        )
+		       ,#ITEM_NM#
+		       ,'C'
+		       ,'N'
+		       ,#gv_userId#
+			   ,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			   ,#gv_ipAddr#
+			   ,#KX_ITEM_CD#
+			   ,#ITEM_NM#
+			   ,#AGG_ANAL_CD#
+			   ,#GOOD_CNTRL_CD#
+		    )
+    </insert>
+    
+    <!-- 하위물품 수정 -->
+    <update id="updateItemInfo">
+    	/* [sql-itemMgmService.xml][updateItemInfo][하위물품 수정][2018.08.10][yhkim] */
+		UPDATE
+		        TMDM_IT_ITEM_MSTR_IF
+		SET
+		         MOD_ID		= #gv_userId#
+		        ,MOD_DT		= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		        ,MOD_IP		= #gv_ipAddr#
+		        ,ITEM_NM	= #ITEM_NM#
+		WHERE
+		        ITEM_CD = #ITEM_CD#
+    </update>
+    
+    <!-- 하위물품 삭제 (DEL_YN = Y) -->
+    <update id="deleteItemInfo">
+    	/* [sql-itemMgmService.xml][deleteItemInfo][하위물품 삭제][2018.08.13][yhkim] */
+		UPDATE
+		        TMDM_IT_ITEM_MSTR_IF
+		SET
+				 MOD_ID = #gv_userId#
+		        ,MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		        ,MOD_IP	= #gv_ipAddr#
+		        ,DEL_YN = 'Y'
+		WHERE
+		        ITEM_CD = #ITEM_CD#
+    </update>
+</sqlMap>

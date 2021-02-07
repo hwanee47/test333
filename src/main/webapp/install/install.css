@@ -1,0 +1,332 @@
+html, body
+  {
+  	font-family: "Malgun Gothic", Arial, "sans-serif";
+  	background: #F8FAFF;
+  }
+  div.container 
+  {
+  	position: relative;
+  	align-content: center;
+  	text-align: center;
+  	display: block;
+  	color: #555;
+  	top: 60px;
+  	background-color: transparent;
+  	width: 960px;
+      margin: 0 auto;
+      padding: 30px 0px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #ffffff;
+  }
+  
+  div.errorDiv 
+  {
+  	position: relative;
+  	align-content: center;
+  	text-align: center;
+  	display: block;
+  }
+  
+  div.debugDiv 
+  {
+  	position: relative;
+  	display: block;
+  }
+  
+  #launcher 
+  {
+  	display: inline-block;
+  }
+  
+  #nexacro 
+  {
+  	display: inline-block;
+  }
+  
+  .button 
+  {
+  	display: inline-block;
+  	border-radius: 20px;
+  	background-color: #3b3366;
+  	border: 1px solid #3b3366;
+  	color: #FFFFFF;
+  	text-align: left;
+  	font-size: 16px;
+  	padding: 10px 20px;
+  	transition: all 0.5s;
+  	cursor: pointer;
+  	margin: 5px;
+  	text-decoration: none;
+  	font-weight:bold;
+  }
+  
+  .button span 
+  {
+  	cursor: pointer;
+  	display: inline-block;
+  	position: relative;
+  	transition: 0.5s;
+  }
+  
+  .button02 
+  {
+  	display: inline-block;
+  	border-radius: 4px;
+  	background-color: #64a6db;
+  	border: 1px solid #548db9;
+  	color: #FFFFFF;
+  	text-align: left;
+  	font-size: 16px;
+  	padding: 20px 0px 20px 140px;
+  	width: 215px;
+  	transition: all 0.5s;
+  	cursor: pointer;
+  	margin: 5px;
+  	text-decoration: none;
+  	background-image: url("img/btn02.png");
+  	background-repeat: no-repeat;
+  	background-position: 25% center;
+  }
+  
+  .button02 span 
+  {
+  	cursor: pointer;
+  	display: inline-block;
+  	position: relative;
+  	transition: 0.5s;
+  }
+  
+  .button02 span:after 
+  {
+  	content: '\00bb';
+  	position: absolute;
+  	opacity: 0;
+  	top: 0;
+  	right: -20px;
+  	transition: 0.5s;
+  }
+  
+  .button02:hover span 
+  {
+  	padding-right: 25px;
+  }
+  
+  .button02:hover span:after 
+  {
+  	opacity: 1;
+  	right: 0;
+  }
+  
+  .button03 
+  {
+  	display: inline-block;
+      border-radius: 4px;
+      background-color: #ef5b3a;
+      border: 1px solid #b33d23;
+      color: #FFFFFF;
+      text-align: left;
+      font-size: 16px;
+      padding: 20px 0px 20px 140px;
+      width: 215px;
+      margin:20px 0px;
+      transition: all 0.5s;
+      cursor: pointer;
+      margin: 5px;
+      text-decoration: none;
+      background-image: url("img/btn.png");
+  	background-repeat: no-repeat;
+  	background-position: 25% center;
+  }
+  
+  .button03 span 
+  {
+  	cursor: pointer;
+  	display: inline-block;
+  	position: relative;
+  	transition: 0.5s;
+  }
+  
+  .button03 span:after 
+  {
+  	content: '\00bb';
+  	position: absolute;
+  	opacity: 0;
+  	top: 0;
+  	right: -20px;
+  	transition: 0.5s;
+  }
+  
+  .button03:hover span 
+  {
+  	padding-right: 25px;
+  }
+  
+  .button03:hover span:after 
+  {
+  	opacity: 1;
+  	right: 0;
+  }
+  
+  .txt 
+  {
+  	display: inline-block;
+  	border-radius: 4px;
+  	background-color: transparent;
+  	border: none;
+  	color: #555;
+  	text-align: center;
+  	font-size: 24px;
+  	padding: 20px;
+  	width: 400px;
+  	transition: all 0.5s;
+  	margin: 10px;
+  }
+  
+  .download
+  {
+  	background-color: #666;
+      border: 1px solid #666;
+      border-radius: 7px;
+      text-decoration: none;
+      color: #fff;
+      font-size: 12px;
+      padding: 5px 8px;
+  }
+  
+  .title 
+  {
+  	display: inline-block;
+  	color: #333333;
+  	text-align: left;
+  	font-size: 28px;
+  	background-color: transparent;
+  	/* background-image: url("img/install_Logo.png"); */
+  	background-repeat: no-repeat;
+  	background-position: right top;
+  	width: 800px;
+  	padding: 40px 20px 20px 20px;
+  	margin: 10px;
+  	border-bottom:5px solid #3b3366;
+  	font-weight:bold;
+  }
+  
+  .info 
+  {
+  	display: inline-block;
+  	color: #333333;
+  	text-align: left;
+  	font-size: 14px;
+  /* 	background-color: #f2f2f2; */
+  /* 	width: 80%; */
+  	padding: 20px 20px 20px 0;
+  	margin: 5px;
+  	border-radius: 8px;
+  }
+   
+  .info02 
+  {
+  	display: block;
+      color: #333333;
+      text-align: left;
+      font-size: 12px;
+      width: 800px;
+      margin: 5px auto;
+      border-radius: 8px;
+  }
+  
+  .warnnig 
+  {
+  	color: #ff0000;
+  	text-align: left;
+  }
+  
+  .big 
+  {
+  	color: #333;
+  	text-align: left;
+  	font-size: 20px;
+  	font-weight:bold;
+  } 
+  
+  table 
+  {
+  	border-collapse: collapse;
+  	width: 800px;
+      margin:auto;
+  }
+  table th, td
+  {
+  	padding:10px;
+  }
+  table th
+  {
+  	border-top:2px double #ccc;
+  	border-bottom:1px solid #ccc;
+  	border-right:1px solid #ccc;
+  }
+  table th:nth-child(0), table th:nth-child(4) 
+  {
+  	border-top:2px double #ccc;
+  	border-bottom:1px solid #ccc;
+  	border-right:0px solid #ccc;
+  }
+  table td
+  {
+  	border-top:1px solid #ddd;
+  	border-bottom:1px solid #ddd;
+  	border-right:1px solid #ddd;
+  }
+  table td:nth-child(0), table td:nth-child(4) 
+  {
+  	border-top:1px solid #ddd;
+  	border-bottom:1px solid #ddd;
+  	border-right:0px solid #ddd;
+  }
+  table td.left
+  {
+  	text-align:left;
+  }
+  table td.pgmList1
+  {
+  	text-align:left;
+  	padding-left:30px;
+  	//background-image: url("img/TPLSvc_icon.png");
+  	background-position: 5px 10px;
+  	background-repeat: no-repeat;
+  }
+  table td.pgmList2
+  {
+  	text-align:left;
+  	padding-left:30px;
+  	//background-image: url("img/nexacro_icon.png");
+  	background-position: 5px 10px;
+  	background-repeat: no-repeat;
+  }
+  table caption
+  {
+  	text-align:left;
+  	font-size:20px;
+  	color:#e61a16;
+  }
+  .divtxt
+  {
+  /* 	width:800px; */
+  	margin:0 auto;
+  }
+  #installFile
+  {
+  	font-size:14px;
+  	padding: 20px;
+  }
+  .div_info
+  {
+  	width: 800px;
+      display: inline-block;
+      text-align: left;
+  }
+  span.install_stat
+  {
+  	font-size:12px;
+  	font-weight:bold;
+  }

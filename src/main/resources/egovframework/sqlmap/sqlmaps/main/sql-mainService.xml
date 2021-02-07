@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mainService">
+	<select id="getDlvyExpctQty" resultClass="int">
+		SELECT COUNT(*) FROM 
+		TB_RCPT_LIST_C A
+		, TB_PIDV_CRG_ST_C B
+		WHERE A.WAYBILL_NO = B.WAYBILL_NO
+		AND A.ZN_DV = #ZN_DV#
+		AND B.GDS_ST_CD = '11'	/* 배송출발 */
+		AND B.WORK_YMD = DATE_FORMAT(NOW(), '%Y%m%d')
+	</select>
+	
+		<select id="getNoDlvyQty" resultClass="int">
+		SELECT COUNT(*) FROM 
+		TB_RCPT_LIST_C A
+		, TB_PIDV_CRG_ST_C B
+		WHERE A.WAYBILL_NO = B.WAYBILL_NO
+		AND A.ZN_DV = #ZN_DV#
+		AND B.GDS_ST_CD = '11'	/* 배송출발 */
+		AND B.WORK_YMD = DATE_FORMAT(NOW(), '%Y%m%d')
+	</select>
+	
+	<select id="getWareiExpctQty" resultClass="int">
+	SELECT SUM(WAREI_QTY) 
+	FROM (
+		  SELECT NVL(SUM(IB.DECIS_QTY), 0) AS WAREI_QTY
+		  FROM TB_WMS_WAREI_C IB
+		  , TB_WMS_WAREH_MGMT_MST_C A
+		  , TB_BAIM_ROAD_PIDV_ZN_C B
+		  WHERE IB.CENT_CD = A.WAREH_CD
+		    AND A.ZIP_NO = B.ZIP_NO
+		    AND B.ZN_DV = #ZN_DV#
+		    AND IB.ST = '2'
+		    AND STR_TO_DATE(WAREI_EXPCT_YMD,'%Y%m%d%') = STR_TO_DATE(NOW(), '%Y%m%d')
+		  
+		  UNION ALL 
+		  
+		  SELECT NVL(SUM(IB.DECIS_QTY), 0) AS WAREI_QTY
+		  FROM TB_WMS_WAREI_C IB
+		  , TB_WMS_WAREH_MGMT_MST_C A
+		  , TB_BAIM_PIDV_ZN_C B
+		  WHERE IB.CENT_CD = A.WAREH_CD
+		  AND A.ZIP_NO = B.ZIP_NO
+		  AND B.ZN_DV = #ZN_DV#
+		  AND IB.ST = '2'
+		  AND STR_TO_DATE(WAREI_EXPCT_YMD,'%Y%m%d%') = STR_TO_DATE(NOW(), '%Y%m%d') 
+	  ) A
+	</select>
+	
+	<select id="getStckQty" resultClass="int">
+	SELECT SUM(STC_QTY) 
+	FROM (
+	  SELECT NVL(SUM(ST.STC_QTY), 0) AS STC_QTY
+	  FROM TB_WMS_STC_C ST
+	    , TB_WMS_WAREH_MGMT_MST_C A
+	    , TB_BAIM_ROAD_PIDV_ZN_C B
+	    WHERE ST.CENT_CD = A.WAREH_CD
+	    AND A.ZIP_NO = B.ZIP_NO
+	    AND B.ZN_DV = #ZN_DV#
+	   
+	  UNION ALL 
+	  
+	  SELECT NVL(SUM(ST.STC_QTY), 0) AS STC_QTY
+	  FROM TB_WMS_STC_C ST
+	  	, TB_WMS_WAREH_MGMT_MST_C A
+	    , TB_BAIM_PIDV_ZN_C B
+	    WHERE ST.CENT_CD = A.WAREH_CD
+	    AND A.ZIP_NO = B.ZIP_NO
+	    AND B.ZN_DV = #ZN_DV#
+	) A
+	</select>
+</sqlMap>

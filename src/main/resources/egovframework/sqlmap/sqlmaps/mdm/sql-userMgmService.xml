@@ -1,0 +1,4962 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="userMgmService">
+
+    <select id="getUserList" resultClass="java.util.HashMap">
+		/* [userMgmService][getUserList][사용자목록 조회][2018.08.08][jaehyun] */
+		SELECT
+    			  U.SEQ_NO /*일련번호*/
+    			, U.SHPR_ID || U.LSP_ID AS SL_CHECK
+    			, U.JOIN_TYPE /*회원유형*/
+    			, FN_MDM_GET_MC_CODE_NM('CM100', U.JOIN_TYPE) AS JOIN_TYPE_NM
+    			, U.BIZ_TYPE /*사업자종류*/
+    			, FN_MDM_GET_MC_CODE_NM('BIZ_TYPE', U.BIZ_TYPE) AS BIZ_TYPE_NM
+    			, U.BIZ_NM /*사업자명*/
+    			, U.BIZ_REG_NO AS BIZ_REG_NO_ORI
+    			, (CASE WHEN U.BIZ_REG_NO IS NULL THEN '' ELSE substr(U.BIZ_REG_NO, 0, 3) ||'-'|| substr(U.BIZ_REG_NO, 4, 2) || '-' || substr(U.BIZ_REG_NO, 6, 5) END) AS BIZ_REG_NO
+    			, U.ID
+    			, U.MASTER_YN /*마스터 계정 여부*/
+    			, U.RCIV_SMS /*SMS 수신 동의 여부*/
+    			, U.RCIV_EMAIL /*이메일 수신 동의 여부*/
+    			, U.NAME /*담당자명*/
+    			, (CASE WHEN U.TEL2 IS NULL THEN '' ELSE U.TEL1 || '-' || U.TEL2 || '-' || AESDECRYPT(TRIM(U.TEL3)) END) AS TEL
+    			, (CASE WHEN U.TEL2 IS NULL THEN '' ELSE U.TEL1 END) AS TEL1
+    			, (CASE WHEN U.TEL2 IS NULL THEN '' ELSE U.TEL2 END) AS TEL2
+    			, (CASE WHEN U.TEL2 IS NULL THEN '' ELSE AESDECRYPT(TRIM(U.TEL3)) END) AS TEL3
+    			, (CASE WHEN U.MOBILE2 IS NULL THEN '' ELSE U.MOBILE1 || '-' || U.MOBILE2 || '-' || '****' END) AS MOBILE
+    			, (CASE WHEN U.MOBILE2 IS NULL THEN '' ELSE U.MOBILE1 || '-' || U.MOBILE2 || '-' || AESDECRYPT(TRIM(U.MOBILE3)) END) AS MOBILE_ORI
+    			, (CASE WHEN U.MOBILE2 IS NULL THEN '' ELSE U.MOBILE1 END) AS MOBILE1
+    			, (CASE WHEN U.MOBILE2 IS NULL THEN '' ELSE U.MOBILE2 END) AS MOBILE2
+    			, (CASE WHEN U.MOBILE2 IS NULL THEN '' ELSE AESDECRYPT(TRIM(U.MOBILE3)) END) AS MOBILE3
+    			, (CASE WHEN U.EMAIL1 IS NULL THEN  '' ELSE AESDECRYPT(TRIM(U.EMAIL1)) || '@' || U.EMAIL2 END) AS EMAIL
+    			, (CASE WHEN U.EMAIL1 IS NULL THEN  '' ELSE AESDECRYPT(TRIM(U.EMAIL1)) END) AS EMAIL1
+    			, U.EMAIL2
+    			, U.E_CORP_ID AS CORP_ID
+    			, FN_MDM_GET_BP_CORP_NM(NVL(NVL(S.BASE_CORP_ID, L.BASE_CORP_ID), U.CORP_ID)) AS CORP_ID_NM
+    			, U.REG_ID
+    			, U.REG_DT
+    			, U.STATUS
+    			, (CASE WHEN U.STATUS='0' THEN '미승인' ELSE '승인' END) AS STATUS_NM
+    			, NVL(U.SHPR_ID, '-') AS SHPR_ID
+    			, NVL(U.LSP_ID, '-') AS LSP_ID
+				, (CASE WHEN NVL((SELECT COUNT(*) FROM TMDM_KFR_BP_SHPR WHERE DEL_YN = 'N' AND SHPR_ID = U.SHPR_ID), 0)
+					+ NVL((SELECT COUNT(*) FROM TMDM_KFR_BP_LSP WHERE DEL_YN = 'N' AND LSP_ID = U.LSP_ID), 0) = 0 THEN '1'
+					WHEN NVL((SELECT COUNT(*) FROM TMDM_KFR_COMM_FILE WHERE WRK_NO = U.SEQ_NO||''), 0) 
+						+ NVL((SELECT COUNT(*) FROM TBCT_FILE_MNG WHERE id = U.LSP_ID), 0)
+						+ NVL((SELECT COUNT(*) FROM TBCT_FILE_MNG WHERE id = U.SHPR_ID), 0) = 0 THEN '2' ELSE '9' END) as CONFIRM_STATUS
+				, U.SOURCE_NM
+				, U.ATTRIBUTE01
+				, U.ATTRIBUTE02
+				, CASE WHEN U.SHPR_ID IS NOT NULL THEN 'Y' WHEN U.LSP_ID IS NOT NULL THEN 'Y' ELSE 'N' END DETL_YN 
+				, U.ATTRIBUTE04  
+				, U.ATTRIBUTE05
+				, DECODE(U.JOIN_TYPE, 'T04', U.LSP_ID, 'T05', U.LSP_ID, U.SHPR_ID) AS SHPR_LSP_ID
+				, CASE WHEN #SEQ_NO# IS NULL THEN '' 
+						ELSE (
+								SELECT TEMP_VHCL_NO 
+								FROM TMDM_KFR_CT_EQP_TEMP 
+								WHERE TEMP_SEQ_NO = #SEQ_NO# AND TEMP_DEL_YN='N' AND ROWNUM=1) 
+				END TEMP_VHCL_NO
+		FROM
+				TADM_KFR_USER U
+				LEFT JOIN TMDM_KFR_BP_SHPR S
+					ON U.SHPR_ID = S.SHPR_ID
+				LEFT JOIN TMDM_KFR_BP_LSP L
+					ON U.LSP_ID = L.LSP_ID   
+		WHERE
+			1=1    
+        AND U.DEL_YN = 'N'    
+        AND U.STATUS <![CDATA[<>]]> '1'   
+        AND U.MASTER_YN='Y'       
+		<isNotEmpty prepend="AND" property="CORP_ID">
+		    U.E_CORP_ID = #CORP_ID#  /*실행거점*/
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="BIZ_NM">
+		    U.BIZ_NM LIKE '%'||#BIZ_NM#||'%' /*사업자명*/
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="BIZ_REG_NO">
+		    U.BIZ_REG_NO LIKE '%'||#BIZ_REG_NO#||'%'  /*사업자등록번호*/
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="NAME">
+		    U.NAME LIKE '%'||#NAME#||'%'     /*담당자명*/
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="JOIN_TYPE">
+		    U.JOIN_TYPE = #JOIN_TYPE#    /*회원유형*/
+		</isNotEmpty>    
+		<isNotEmpty prepend="AND" property="SEQ_NO">
+		    U.SEQ_NO = #SEQ_NO#    /*회원번호*/
+		</isNotEmpty>        
+    </select>
+    
+
+    <select id="bizNoCertification" resultClass="java.util.HashMap">
+		/* [userMgmService][bizNoCertification][인증 조회][2018.09.18][tyoung] */
+		SELECT
+		    CASE WHEN MAX(USR_CNT) = 0 THEN MAX (USR_CNT) ELSE MAX (USR_CNT)+1 END CNT
+		   ,'' AS MSG
+		FROM (
+		    SELECT
+		        COUNT(*) USR_CNT, 0 AS SHPR_CNT, 0 AS LSP_CNT
+		    FROM TADM_KFR_USER
+		    WHERE BIZ_REG_NO= #BIZ_REG_NO# /**P*/
+		        AND JOIN_TYPE =  #JOIN_TYPE# /**P*/
+		        AND DEL_YN='N'
+		    UNION ALL
+		    SELECT 
+		        0 AS USR_CNT, COUNT(BIZ_REG_NO) AS SHPR_CNT, 0 AS LSP_CNT
+		    FROM TMDM_KFR_BP_SHPR 
+		    WHERE BIZ_REG_NO= #BIZ_REG_NO# 
+		        AND JOIN_TYPE = #JOIN_TYPE# 
+		        AND DEL_YN='N' 
+		    UNION ALL
+		    SELECT
+		         0 AS USR_CNT, 0 AS SHPR_CNT, COUNT(BIZ_REG_NO) AS LSP_CNT
+		    FROM TMDM_KFR_BP_LSP
+		    WHERE BIZ_REG_NO= #BIZ_REG_NO# 
+		        AND DEL_YN='N'
+		) 
+    </select>
+    
+    <select id="getBizNoCheck" resultClass="String">
+	    	    <!-- 고객 중복허용으로 아이디 부여시 USR_CNT가 0이면 USR_CNT로 USR_CNT가 0보다 크면 USR_CNT+1을 가져감 이후 화면단에서 ID부여시 c사업자번호_USR_CNT 형식으로 아이디 지정할 것임-->
+		 SELECT <isEqual property="JOIN_TYPE" compareValue="T01">
+			       CASE WHEN (USR_CNT) = 0 THEN (USR_CNT) ELSE (USR_CNT)+1 END CNT
+			    </isEqual>
+			    <isEqual property="JOIN_TYPE" compareValue="T02">
+			       CASE WHEN (USR_CNT) = 0 THEN (USR_CNT) ELSE (USR_CNT)+1 END CNT
+			    </isEqual>
+			    <isEqual property="JOIN_TYPE" compareValue="T03">
+			       CASE WHEN (USR_CNT) = 0 THEN (USR_CNT) ELSE (USR_CNT)+1 END CNT
+			     </isEqual>
+			     <isEqual property="JOIN_TYPE" compareValue="T04">
+		           (USR_CNT + LSP_CNT) CNT
+		         </isEqual>
+		         <isEqual property="JOIN_TYPE" compareValue="T05">
+		           (USR_CNT + LSP_CNT) CNT
+		         </isEqual>
+		  FROM
+		       (SELECT COUNT(*) USR_CNT ,
+		              (SELECT COUNT(BIZ_REG_NO)
+		                FROM TMDM_KFR_BP_SHPR
+		               WHERE BIZ_REG_NO=#BIZ_REG_NO#
+		                    <isEqual property="JOIN_TYPE" compareValue="T01">
+						       AND JOIN_TYPE = #JOIN_TYPE#
+						     </isEqual>
+						     <isEqual property="JOIN_TYPE" compareValue="T02">
+						       AND JOIN_TYPE = #JOIN_TYPE#
+						     </isEqual>
+						     <isEqual property="JOIN_TYPE" compareValue="T03">
+						       AND JOIN_TYPE = #JOIN_TYPE#
+						     </isEqual>
+
+		                     AND DEL_YN='N'
+		              ) SHPR_CNT,
+		              (SELECT COUNT(BIZ_REG_NO)
+		                FROM TMDM_KFR_BP_LSP
+		               WHERE BIZ_REG_NO=#BIZ_REG_NO#
+		                     AND DEL_YN='N'
+		              ) LSP_CNT
+		         FROM TADM_KFR_USER
+		        WHERE BIZ_REG_NO=#BIZ_REG_NO#
+		               <isEqual property="JOIN_TYPE" compareValue="T01">
+					       AND JOIN_TYPE IN ('T01', 'T02', 'T03')
+					    </isEqual>
+					    <isEqual property="JOIN_TYPE" compareValue="T02">
+					       AND JOIN_TYPE IN ('T01', 'T02', 'T03')
+					    </isEqual>
+					    <isEqual property="JOIN_TYPE" compareValue="T03">
+					       AND JOIN_TYPE IN ('T01', 'T02', 'T03')
+					     </isEqual>
+					     <isEqual property="JOIN_TYPE" compareValue="T04">
+				           AND JOIN_TYPE IN ('T04','T05')
+				         </isEqual>
+				         <isEqual property="JOIN_TYPE" compareValue="T05">
+				           AND JOIN_TYPE IN ('T04','T05')
+				         </isEqual>
+		              AND DEL_YN='N'
+		        GROUP BY BIZ_REG_NO		            
+		       )
+    </select>
+    
+	<select id="getWrongBizCheck" resultClass="String">
+		SELECT
+			COUNT(*) CNT
+		FROM TMDM_IN_CUST_WRONG
+		WHERE
+			1=1
+			AND COMNO = #BIZ_REG_NO#
+			AND WRONGYN ='Y'
+			AND APLDT <![CDATA[<=]]> TO_CHAR(SYSDATE,'YYYYMMDD')
+	</select>
+	
+    <select id="getIdCheck" resultClass="java.util.HashMap">
+		/* [userMgmService][getIdCheck][아이디중복체크][2018.09.18][tyoung] */
+			SELECT
+			*
+			FROM TADM_KFR_USER    
+			WHERE ID =  #U_ID# /**P*/     
+			    AND DEL_YN = 'N' 
+    </select>
+
+	<insert id="createUserMgmTemp">
+	 /* [userMgmService][createUserMgmTemp][개인화주를 제외한 나머지 회원 가입][2018.09.18][tyoung] */
+		INSERT INTO TADM_KFR_USER (
+		    SEQ_NO
+		    ,JOIN_TYPE
+		    ,STATUS
+		    ,ID
+		    ,MASTER_YN
+		    ,MASTER_SEQ
+		    ,BIZ_TYPE
+		    ,BIZ_NM
+		    ,BIZ_REG_NO
+		    ,RCIV_SMS
+		    ,RCIV_EMAIL
+		    ,NAME
+		    ,MOBILE1
+		    ,MOBILE2
+		    ,MOBILE3
+		    ,EMAIL1
+		    ,EMAIL2
+		    ,CORP_ID
+		    ,E_CORP_ID
+		    ,REG_ID
+		    ,REG_DT
+		    ,SOURCE_NM
+		    ,DEL_YN
+		    ,SHPR_ID
+		    ,ATTRIBUTE01
+		    ,ATTRIBUTE02
+		    ,ATTRIBUTE03
+		    ,ATTRIBUTE04
+		    ,ATTRIBUTE05
+		    ,ATTRIBUTE06
+		    ,ATTRIBUTE07
+		    ,ATTRIBUTE08
+		    ,ATTRIBUTE09
+		    ,ATTRIBUTE10
+		) VALUES (
+		    #SEQ_NO#
+		    ,#JOIN_TYPE#
+		    ,'0'
+		    ,#ID#
+		    ,'Y'
+		    ,#SEQ_NO#
+		    ,#BIZ_TYPE#
+		    ,#BIZ_NM#
+		    ,REPLACE(#BIZ_REG_NO#, '-', '')
+		    ,'Y'
+		    ,'Y'
+		    ,#NAME#
+		    ,#MOBILE1#
+		    ,#MOBILE2#
+		    ,AESENCRYPT(TRIM(#MOBILE3#))
+		    ,AESENCRYPT(TRIM(#EMAIL1#))
+		    ,#EMAIL2#
+		    ,#CORP_ID#
+		    ,#CORP_ID#
+		    ,#g_userId#
+		    ,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		    ,#SOURCE_NM#
+		    ,'N'
+		    ,#SHPR_ID#
+		    ,#ATTRIBUTE01#
+		    ,#ATTRIBUTE02#
+		    ,#ATTRIBUTE03#
+		    ,#ATTRIBUTE04#
+		    ,#ATTRIBUTE05#
+		    ,#ATTRIBUTE06#
+		    ,#ATTRIBUTE07#
+		    ,#ATTRIBUTE08#
+		    ,#ATTRIBUTE09#
+		    ,#ATTRIBUTE10#
+		)
+	</insert>
+	
+	<select id="getSeqNo" resultClass="String">
+		SELECT SEQ_NO
+		FROM TADM_KFR_USER
+		WHERE
+			1=1
+			AND BIZ_REG_NO = #BIZ_REG_NO#
+		    AND REG_DT = (SELECT MAX(REG_DT) FROM TADM_KFR_USER)
+	</select>
+
+	<insert id="createUserMgmTemp2">
+	 /* [userMgmService][createUserMgmTemp][개인화주를 제외한 나머지 회원 가입][2018.09.18][tyoung] */
+		INSERT INTO TADM_KFR_USER (
+		    SEQ_NO
+		    ,JOIN_TYPE
+		    ,STATUS
+		    ,ID
+		    ,MASTER_YN
+		    ,MASTER_SEQ
+		    ,BIZ_TYPE
+		    ,BIZ_NM
+		    ,BIZ_REG_NO
+		    ,RCIV_SMS
+		    ,RCIV_EMAIL
+		    ,NAME
+		    ,MOBILE1
+		    ,MOBILE2
+		    ,MOBILE3
+		    ,EMAIL1
+		    ,EMAIL2
+		    ,CORP_ID
+		    ,E_CORP_ID
+		    ,REG_ID
+		    ,REG_DT
+		    ,SOURCE_NM
+		    ,DEL_YN
+		    ,LSP_ID
+		    ,ATTRIBUTE01
+		    ,ATTRIBUTE02
+		    ,ATTRIBUTE03
+		    ,ATTRIBUTE04
+		    ,ATTRIBUTE05
+		    ,ATTRIBUTE06
+		    ,ATTRIBUTE07
+		    ,ATTRIBUTE08
+		    ,ATTRIBUTE09
+		    ,ATTRIBUTE10
+		) VALUES (
+		    #SEQ_NO#
+		    ,#JOIN_TYPE#
+		    ,'0'
+		    ,#ID#
+		    ,'Y'
+		    ,#SEQ_NO#
+		    ,#BIZ_TYPE#
+		    ,#BIZ_NM#
+		    ,REPLACE(#BIZ_REG_NO#, '-', '')
+		    ,'Y'
+		    ,'Y'
+		    ,#NAME#
+		    ,#MOBILE1#
+		    ,#MOBILE2#
+		    ,AESENCRYPT(TRIM(#MOBILE3#))
+		    ,AESENCRYPT(TRIM(#EMAIL1#))
+		    ,#EMAIL2#
+		    ,#CORP_ID#
+		    ,#CORP_ID#
+		    ,#g_userId#
+		    ,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		    ,#SOURCE_NM#
+		    ,'N'
+		    ,#LSP_ID#
+		    ,#ATTRIBUTE01#
+		    ,#ATTRIBUTE02#
+		    ,#ATTRIBUTE03#
+		    ,#ATTRIBUTE04#
+		    ,#ATTRIBUTE05#
+		    ,#ATTRIBUTE06#
+		    ,#ATTRIBUTE07#
+		    ,#ATTRIBUTE08#
+		    ,#ATTRIBUTE09#
+		    ,#ATTRIBUTE10#
+		)
+
+	</insert>
+
+
+    <select id="getUserList1" resultClass="java.util.HashMap">
+    /* [userMgmService][getUserList1][운송고객/가맹점 조회][2018.09.18][tyoung] */
+		SELECT '0' AS CHK
+		     , T.*
+		  FROM (SELECT U.SEQ_NO
+                     , U.ID
+                     , S.MDM_SHPR_ID			                             AS MDM_ID
+                     , S.MDM_SHPR_ID
+                     , ''                                                    AS MDM_LSP_ID
+                     , S.SHPR_LOCAL_NM                                       AS LOCAL_NM
+                     , S.SHPR_LOCAL_NM                                       AS BIZ_NM
+		             , S.BASE_CORP_ID                                        AS CORP_ID
+		             , FN_MDM_GET_BP_CORP_NM(S.BASE_CORP_ID)                 AS CORP_NM
+		             , S.JOIN_TYPE
+		             , FN_MDM_GET_MC_CODE_NM('CM100', S.JOIN_TYPE)           AS JOIN_TYPE_NM
+                     , U.NAME
+                     , S.BIZ_TYPE						                     AS BIZ_TYPE
+		             , U.BIZ_NM                                              AS U_BIZ_NM
+		             , S.BIZ_REG_NO
+		             , S.BIZ_REG_NO					                         AS BIZ_REG_NO_ORI
+		             , U.REG_DT                                              AS REG_DT
+		             , U.MOBILE1                                             AS MOBILE1
+		             , U.MOBILE2                                             AS MOBILE2
+		             , AESDECRYPT(TRIM(U.MOBILE3))                           AS MOBILE3
+			         , U.TEL1 						                         AS TEL1
+			         , U.TEL2						                         AS TEL2
+			         , AESDECRYPT(TRIM(U.TEL3))	                             AS TEL3
+		             , AESDECRYPT(TRIM(U.EMAIL1))                            AS EMAIL1
+		             , U.EMAIL2                                              AS EMAIL2
+		             , U.RCIV_SMS                                            AS RCIV_SMS
+		             , U.RCIV_EMAIL                                          AS RCIV_EMAIL
+		             , U.LOGIN_YN                                            AS LOGIN_YN        
+		             , S.SHPR_ID                                             AS U_SHPR_LSP_ID
+                     , S.SHPR_ID                                             AS SHPR_LSP_ID
+                     , FN_MDM_GET_MC_CODE_NM('BIZ_TYPE', S.BIZ_TYPE)         AS BIZ_TYPE_NM
+		             , S.BIZ_TYP_NM                                          AS BIZ_TYP_NM
+		             , ''                                                    AS CONTRACT_YN
+		             , S.SHPR_GRADE                                          AS GRADE
+		             , S.USE_YN                                              AS USE_YN
+		             , U.ATTRIBUTE04
+		             , U.ATTRIBUTE05
+                     , S.SHPR_NM                                             AS SHPR_LSP_NM
+                     , (CASE WHEN U.STATUS = '1'    THEN '1'
+                             WHEN U.SHPR_ID IS NULL THEN '1'
+                                                    ELSE '0'
+                         END) AS STATUS
+                     , 'N'                                                   AS ARGE_PG_SHOP_ID_YN
+                     , (SELECT 'Y' FROM TBCU_CNTRT_GEN WHERE EXE_CORP_ID = S.BASE_CORP_ID AND SHPR_ID = S.SHPR_ID AND CNTRT_STAT_CD = '30' AND ROWNUM = 1) AS CNTRT_YN
+                     , S.BIZ_CD
+                     , S.SVC_CD
+                     , S.SVC_CD2
+                     , '' AS SOURCE_NM
+		          FROM TMDM_KFR_BP_SHPR S
+                     , TADM_KFR_USER U
+                 WHERE U.JOIN_TYPE(+) IN ('T01' ,'T02', 'T03')
+                   AND U.DEL_YN(+) = 'N'
+                   AND S.DEL_YN    = 'N'
+                   AND S.USE_YN    = 'Y'
+                   AND S.SHPR_ID   = U.SHPR_ID(+)
+		         UNION 
+		        SELECT U.SEQ_NO
+                     , U.ID
+                     , L.MDM_LSP_ID			                                 AS MDM_ID
+                     , ''                                                    AS MDM_SHPR_ID
+                     , L.MDM_LSP_ID
+                     , L.LSP_LOCAL_NM                                        AS LOCAL_NM
+                     , L.LSP_LOCAL_NM                                        AS BIZ_NM
+		             , L.BASE_CORP_ID                                        AS CORP_ID
+		             , FN_MDM_GET_BP_CORP_NM(L.BASE_CORP_ID)                 AS CORP_NM
+		             , L.JOIN_TYPE
+		             , FN_MDM_GET_MC_CODE_NM('CM100', L.JOIN_TYPE)           AS JOIN_TYPE_NM
+                     , U.NAME
+                     , U.BIZ_TYPE						                     AS BIZ_TYPE
+		             , U.BIZ_NM                                              AS U_BIZ_NM
+		             , L.BIZ_REG_NO
+	          	     , L.BIZ_REG_NO					                         AS BIZ_REG_NO_ORI
+	          	     , U.REG_DT                                              AS REG_DT
+	          	     , U.MOBILE1                                             AS MOBILE1
+	          	     , U.MOBILE2                                             AS MOBILE2
+	          	     , AESDECRYPT(TRIM(U.MOBILE3))                           AS MOBILE3
+	          		 , U.TEL1 						                         AS TEL1
+	          		 , U.TEL2						                         AS TEL2
+	          		 , AESDECRYPT(TRIM(U.TEL3))	                             AS TEL3
+	          	     , AESDECRYPT(TRIM(U.EMAIL1))                            AS EMAIL1
+	          	     , U.EMAIL2                                              AS EMAIL2
+	          	     , U.RCIV_SMS                                            AS RCIV_SMS
+	          	     , U.RCIV_EMAIL                                          AS RCIV_EMAIL
+	          	     , U.LOGIN_YN                                            AS LOGIN_YN        
+	          	     , U.LSP_ID                                              AS U_SHPR_LSP_ID
+                     , L.LSP_ID                                              AS SHPR_LSP_ID
+                     , FN_MDM_GET_MC_CODE_NM('BIZ_TYPE', L.BIZ_TYPE)         AS BIZ_TYPE_NM
+	          	     , L.BIZ_TYP_NM                                          AS BIZ_TYP_NM
+	          	     , NVL(L.CONTRACT_YN, 'N')                               AS CONTRACT_YN
+	          	     , L.LSP_GRADE                                           AS GRADE
+	          	     , L.USE_YN                                              AS USE_YN
+	          	     , U.ATTRIBUTE04
+	          	     , U.ATTRIBUTE05
+                     , L.LSP_NM                                              AS SHPR_LSP_NM
+                     , (CASE WHEN U.STATUS = '1'   THEN '1'
+                             WHEN U.LSP_ID IS NULL THEN '1'
+                                                   ELSE '0'
+                         END) AS STATUS
+                     , DECODE(U.ARGE_PG_SHOP_ID_YN,'Y',DECODE(NVL(L.PG_SHOP_ID,'N'),'N','1','2'),'N') AS ARGE_PG_SHOP_ID_YN
+                     , ''                                                    AS CNTRT_YN
+                     , ''                                                    AS BIZ_CD
+                     , ''                                                    AS SVC_CD
+                     , ''                                                    AS SVC_CD2
+                     , U.SOURCE_NM
+	          	  FROM TMDM_KFR_BP_LSP L
+                     , TADM_KFR_USER   U
+                 WHERE U.JOIN_TYPE(+) IN ('T04' ,'T05')
+                   AND U.DEL_YN(+) = 'N'
+                   AND L.DEL_YN    = 'N'
+                   AND L.USE_YN    = 'Y'
+                   AND L.LSP_ID    = U.LSP_ID(+)
+	          	) T
+		 WHERE 1=1
+		   AND T.STATUS = '1'
+		   <isNotEmpty  prepend="AND" property="SEQ_NO">
+		       T.SEQ_NO = #SEQ_NO#
+		   </isNotEmpty>
+		   <isNotEmpty prepend="AND" property="JOIN_TYPE">
+		       T.JOIN_TYPE = #JOIN_TYPE#
+		   </isNotEmpty>
+		   <isNotEmpty prepend="AND" property="CORP_ID">
+		       T.CORP_ID = #CORP_ID#  /*실행거점*/
+		   </isNotEmpty>
+		   <isNotEmpty prepend="AND" property="BIZ_NM">
+		       T.BIZ_NM LIKE '%'||#BIZ_NM#||'%' /*사업자명*/
+		   </isNotEmpty>
+		   <isNotEmpty prepend="AND" property="NAME">
+		       T.NAME LIKE '%'||#NAME#||'%'     /*담당자명*/
+		   </isNotEmpty>    
+		   <isNotEmpty prepend="AND" property="BIZ_REG_NO">
+		       T.BIZ_REG_NO LIKE '%'||#BIZ_REG_NO#||'%'  /*사업자등록번호*/
+		   </isNotEmpty> 
+		   <isNotEmpty prepend="AND" property="MDM_ID">
+		       T.MDM_ID LIKE '%'||#MDM_ID#||'%'  		/*MDM 코드*/
+		   </isNotEmpty>  
+		   <isEqual property="HWAMUL" compareValue="Y">
+		       AND T.SOURCE_NM = 'HMM' 
+ 		   </isEqual>       
+		 ORDER BY T.REG_DT DESC
+    </select>
+    
+    <select id="getAllUserList" resultClass="java.util.HashMap">
+    /* [userMgmService][getAllUserList][삭제여부 상관없이 회원 조회][2018.12.19][yhkim] */
+		SELECT
+		    *
+		FROM (
+		    (SELECT
+		    	'' 								CHK
+		        ,U.SEQ_NO
+		        ,U.ID
+		        ,S.MDM_SHPR_ID					MDM_ID
+		        ,U.CORP_ID
+		        ,FN_MDM_GET_BP_CORP_NM(NVL(S.BASE_CORP_ID, U.CORP_ID)) AS CORP_NM
+		        ,U.JOIN_TYPE
+		        ,FN_MDM_GET_MC_CODE_NM('CM100', U.JOIN_TYPE) AS JOIN_TYPE_NM
+		        ,U.NAME
+		        ,U.BIZ_TYPE						BIZ_TYPE
+		        ,U.BIZ_NM                       U_BIZ_NM
+		        ,U.BIZ_REG_NO
+		        ,U.BIZ_REG_NO					BIZ_REG_NO_ORI
+		        ,U.REG_DT                       REG_DT
+		        ,U.MOBILE1                      MOBILE1
+		        ,U.MOBILE2                      MOBILE2
+		        ,AESDECRYPT(TRIM(U.MOBILE3))    MOBILE3
+			    ,U.TEL1 						TEL1
+			    ,U.TEL2							TEL2
+			    ,AESDECRYPT(TRIM(U.TEL3))		TEL3
+		        ,AESDECRYPT(TRIM(U.EMAIL1))     EMAIL1
+		        ,U.EMAIL2                       EMAIL2
+		        ,U.RCIV_SMS                     RCIV_SMS
+		        ,U.RCIV_EMAIL                   RCIV_EMAIL
+		        ,U.LOGIN_YN                     LOGIN_YN
+		        /* SHPR 정보 */
+		        ,U.SHPR_ID                     U_SHPR_LSP_ID
+		        ,S.SHPR_ID                     SHPR_LSP_ID
+		        , FN_MDM_GET_MC_CODE_NM('BIZ_TYPE', S.BIZ_TYPE) AS BIZ_TYPE_NM /*사업자종류*/
+		        ,(CASE WHEN S.JOIN_TYPE = 'T03' THEN S.PRSNT_NM ELSE U.BIZ_NM END ) AS BIZ_NM /* 개인화주는 대표자명을 사업자명으로 사용 */
+		        ,S.BIZ_TYP_NM                           BIZ_TYP_NM
+		        ,'N'                CONTRACT_YN
+		        ,S.SHPR_GRADE		GRADE
+		        ,S.USE_YN           USE_YN
+		        ,NVL(U.STATUS, '0') AS STATUS
+		    FROM
+		        TADM_KFR_USER U
+		        LEFT JOIN TMDM_KFR_BP_SHPR S
+		            ON U.SHPR_ID = S.SHPR_ID AND U.JOIN_TYPE IN ('T01', 'T02', 'T03')
+		    WHERE
+		        U.JOIN_TYPE IN ( 'T01' ,'T02', 'T03' )
+		    ) UNION (
+		    SELECT
+		    	'' 								CHK
+		        ,U.SEQ_NO
+		        ,U.ID
+		        ,L.MDM_LSP_ID					MDM_ID
+		        ,U.CORP_ID
+		        ,FN_MDM_GET_BP_CORP_NM(NVL(L.BASE_CORP_ID, U.CORP_ID)) AS CORP_NM
+		        ,U.JOIN_TYPE
+		        ,FN_MDM_GET_MC_CODE_NM('CM100', U.JOIN_TYPE) AS JOIN_TYPE_NM
+		        ,U.NAME
+				,U.BIZ_TYPE						BIZ_TYPE
+		        ,U.BIZ_NM                       U_BIZ_NM
+		        ,U.BIZ_REG_NO
+		        ,U.BIZ_REG_NO					BIZ_REG_NO_ORI
+		        ,U.REG_DT                       REG_DT
+		        ,U.MOBILE1                      MOBILE1
+		        ,U.MOBILE2                      MOBILE2
+		        ,AESDECRYPT(TRIM(U.MOBILE3))    MOBILE3
+			    ,U.TEL1 						TEL1
+			    ,U.TEL2							TEL2
+			    ,AESDECRYPT(TRIM(U.TEL3))		TEL3
+		        ,AESDECRYPT(TRIM(U.EMAIL1))     EMAIL1
+		        ,U.EMAIL2                       EMAIL2
+		        ,U.RCIV_SMS                     RCIV_SMS
+		        ,U.RCIV_EMAIL                   RCIV_EMAIL
+		        ,U.LOGIN_YN                     LOGIN_YN        
+		        /* LSP 정보 */
+		        ,U.LSP_ID                     U_SHPR_LSP_ID
+		        ,L.LSP_ID                     SHPR_LSP_ID
+		        ,FN_MDM_GET_MC_CODE_NM('BIZ_TYPE', L.BIZ_TYPE) AS BIZ_TYPE_NM /*사업자종류*/
+		        ,U.BIZ_NM AS BIZ_NM /* 개인화주는 대표자명을 사업자명으로 사용 */
+		        ,L.BIZ_TYP_NM                   BIZ_TYP_NM
+		        ,NVL(L.CONTRACT_YN, 'N')        CONTRACT_YN
+		        ,L.LSP_GRADE                    GRADE
+		        ,L.USE_YN           USE_YN
+		        ,NVL(U.STATUS, '0') AS STATUS
+		    FROM
+		        TADM_KFR_USER U
+		        LEFT JOIN TMDM_KFR_BP_LSP L
+		            ON U.LSP_ID = L.LSP_ID AND U.JOIN_TYPE IN ('T04', 'T05')
+		    WHERE
+		        U.JOIN_TYPE IN ( 'T04' ,'T05' )
+		    )
+		)
+		WHERE
+		    1=1
+		    <isNotEmpty property="SEQ_NO">
+		    	AND SEQ_NO = #SEQ_NO#
+		    </isNotEmpty>
+		    <isNotEmpty prepend="AND" property="JOIN_TYPE">
+		        JOIN_TYPE = #JOIN_TYPE#
+		    </isNotEmpty>
+		    <isNotEmpty prepend="AND" property="CORP_ID">
+		        CORP_ID = #CORP_ID#  /*실행거점*/
+		    </isNotEmpty>
+		    <isNotEmpty prepend="AND" property="BIZ_NM">
+		        BIZ_NM LIKE '%'||#BIZ_NM#||'%' /*사업자명*/
+		    </isNotEmpty>
+		    <isNotEmpty prepend="AND" property="NAME">
+		        NAME LIKE '%'||#NAME#||'%'     /*담당자명*/
+		    </isNotEmpty>    
+		    <isNotEmpty prepend="AND" property="BIZ_REG_NO">
+		        BIZ_REG_NO LIKE '%'||#BIZ_REG_NO#||'%'  /*사업자등록번호*/
+		    </isNotEmpty> 
+		    <isNotEmpty prepend="AND" property="MDM_ID">
+		        MDM_ID LIKE '%'||#MDM_ID#||'%'  		/*MDM 코드*/
+		    </isNotEmpty>       
+		ORDER BY REG_DT DESC
+    </select>
+<!--     <select id="getUserList2" resultClass="java.util.HashMap">
+    /* [userMgmService][getUserList2][운송가맹점탭 조회][2018.09.18][tyoung] */
+        SELECT
+            U.SEQ_NO
+            , U.ID
+            , U.NAME
+            , L.LSP_ID AS SHPR_LSP_ID
+            , L.BASE_CORP_ID
+            , FN_MDM_GET_BP_CORP_NM(L.BASE_CORP_ID) AS BASE_CORP_NM
+            , L.JOIN_TYPE
+            , FN_MDM_GET_MC_CODE_NM('CM100', L.JOIN_TYPE) AS JOIN_TYPE_NM
+            , L.MDM_LSP_ID AS MDM_ID
+            , '' MDM_SHPR_ID
+            , L.MDM_LSP_ID
+            , L.LSP_LOCAL_NM AS LOCAL_NM
+            , L.LSP_LOCAL_NM AS BIZ_NM
+            , L.BIZ_TYPE
+            , FN_MDM_GET_MC_CODE_NM('BIZ_TYPE', L.BIZ_TYPE) AS BIZ_TYPE_NM
+            , (CASE WHEN L.BIZ_REG_NO IS NULL THEN '' ELSE SUBSTR(L.BIZ_REG_NO, 0, 3) ||'-'|| SUBSTR(L.BIZ_REG_NO, 4, 2) || '-' || SUBSTR(L.BIZ_REG_NO, 6, 5) END) AS BIZ_REG_NO /*사업자번호*/
+            , L.USE_YN
+            , L.REG_DT
+            , L.LSP_NM   AS SHPR_LSP_NM
+            , (CASE WHEN U.STATUS = '1' THEN '1' WHEN U.LSP_ID IS NULL THEN '1' ELSE '0' END) AS STATUS
+            , DECODE(U.ARGE_PG_SHOP_ID_YN, 'Y', DECODE(NVL(L.PG_SHOP_ID, 'N'), 'N', '1', '2'), 'N') AS ARGE_PG_SHOP_ID_YN
+            , NVL(CONTRACT_YN, 'N') AS CONTRACT_YN
+            , L.LSP_GRADE  AS GRADE  /* 등급 */
+            , L.BIZ_TYP_NM AS UJ    /* 업종 */
+        FROM TMDM_KFR_BP_LSP L
+        LEFT OUTER JOIN TADM_KFR_USER U 
+            ON   L.LSP_ID = U.LSP_ID
+        <isEqual property="JOIN_TYPE"  compareValue="">
+            AND U.JOIN_TYPE IN('T04', 'T05')
+        </isEqual>
+        <isNotEmpty prepend="AND" property="JOIN_TYPE">
+            U.JOIN_TYPE = #JOIN_TYPE#
+        </isNotEmpty>            
+            AND U.DEL_YN =#CORP_REG_NO# 'N'     
+        WHERE 1=1 
+        <isEqual property="JOIN_TYPE"  compareValue="">
+            AND L.JOIN_TYPE IN ( 'T04' ,'T05' )
+        </isEqual>
+        <isNotEmpty prepend="AND" property="JOIN_TYPE">
+            L.JOIN_TYPE = #JOIN_TYPE#
+        </isNotEmpty>            
+        <isNotEmpty prepend="AND" property="CORP_ID">
+            L.BASE_CORP_ID = #CORP_ID#  /*실행거점*/
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="BIZ_NM">
+            U.BIZ_NM LIKE '%'||#BIZ_NM#||'%' /*사업자명*/
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="NAME">
+            U.NAME LIKE '%'||#NAME#||'%'     /*담당자명*/
+        </isNotEmpty>    
+        <isNotEmpty prepend="AND" property="BIZ_REG_NO">
+            U.BIZ_REG_NO LIKE '%'||#BIZ_REG_NO#||'%'  /*사업자등록번호*/
+        </isNotEmpty>                   
+            AND L.DEL_YN = 'N'
+            AND L.USE_YN = 'Y'  
+        ORDER BY L.REG_DT
+   
+    </select> -->
+
+     <select id="getAuthCodeList" resultClass="java.util.HashMap">
+		/* [userMgmService][getAuthCodeList][권한목록 조회][2018.08.10][jaehyun] */
+		SELECT AUTH_CD AS CD
+		    , AUTH_NM AS CD_NM
+		FROM TMDM_KFR_AUTH
+		WHERE DEL_YN = 'N'
+		AND USE_YN = 'Y'    
+		ORDER BY AUTH_CD 
+    </select>
+    
+     <select id="getInUserList" resultClass="java.util.HashMap">
+		/* [userMgmService][getInUserList][내부이용자 조회][2018.08.10][jaehyun] */
+		SELECT
+		    SEQ_NO
+		    , JOIN_TYPE
+		    , AUTH_CD
+		    , ID
+		    , (SELECT AUTH_NM FROM TMDM_KFR_AUTH WHERE AUTH_CD = U.AUTH_CD AND DEL_YN = 'N' AND USE_YN = 'Y') AS ADMIN_YN_NM
+		    , ADMIN_YN
+		    , NAME
+		    , CORP_ID
+		    , E_CORP_ID
+		    , FN_MDM_GET_BP_CORP_NM(U.CORP_ID) AS CORP_NM
+		    , FN_MDM_GET_BP_CORP_NM(U.E_CORP_ID) AS E_CORP_NM
+		    , E_CORP_ID AS BASE_CORP_ID   /*실행거점*/
+		    , AR_COSTC   /*매출코스트센터*/
+		    , AP_COSTC   /*매입코스트센터*/
+		    , FN_MDM_GET_COST_NM(U.AR_COSTC) AS AR_COSTC_NM   /*매출코스트센터*/
+		    , FN_MDM_GET_COST_NM(U.AP_COSTC) AS AP_COSTC_NM   /*매입코스트센터*/
+		    , (CASE WHEN TEL2 IS NULL THEN '' ELSE TEL1 END) AS TEL1
+		    , (CASE WHEN TEL2 IS NULL THEN '' ELSE TEL2 END) AS TEL2
+		    , (CASE WHEN TEL2 IS NULL THEN '' ELSE AESDECRYPT(TRIM(TEL3)) END) AS TEL3
+		    , (CASE WHEN MOBILE2 IS NULL THEN '' ELSE MOBILE1 END) AS MOBILE1
+		    , (CASE WHEN MOBILE2 IS NULL THEN '' ELSE MOBILE2 END) AS MOBILE2
+		    , (CASE WHEN MOBILE2 IS NULL THEN '' ELSE AESDECRYPT(TRIM(MOBILE3)) END) AS MOBILE3
+		    , (CASE WHEN EMAIL1 IS NULL THEN '' ELSE AESDECRYPT(TRIM(EMAIL1)) END) AS EMAIL1
+		    , EMAIL2
+		    , '' AS PW
+		    , TO_CHAR(TO_DATE(REG_DT, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD') AS REG_DT
+		    , TENANT_TEL_NO
+		    , AGENT_ID
+		    , AGENT_PW
+		    , AGENT_GB
+		    , '' ROW_TYPE
+		FROM TADM_KFR_USER U
+		WHERE DEL_YN = 'N'
+		    AND JOIN_TYPE = 'T00'   
+		   	<isNotEmpty prepend="AND" property="E_CORP_ID">
+				E_CORP_ID = #E_CORP_ID#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="NAME">
+				NAME LIKE '%' || #NAME# || '%'
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="ID">
+				ID LIKE '%' || #ID# || '%'
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="AUTH_CD">
+				AUTH_CD = #AUTH_CD#
+			</isNotEmpty>
+		   	<isNotEmpty prepend="AND" property="SEQ_NO">
+				SEQ_NO = #SEQ_NO#
+			</isNotEmpty>                                                                                                                     
+		ORDER BY REG_DT
+		
+    </select>
+    
+    <select id="getInUserInfo" resultClass="java.util.HashMap">
+    	/* [userMgmService][getInUserInfo][실행거점, 코스트센터 리스트 조회][2018.08.10][jaehyun] */ 
+	    SELECT '' CHK 
+	    	, SEQ_NO
+		    , ID
+		    , (SELECT NAME 
+		         FROM TADM_KFR_USER 
+		        where SEQ_NO = A.SEQ_NO
+		          and ID = A.id 
+		          and DEL_YN = 'N' 
+		          and ROWNUM = 1
+		      ) AS NAME
+		    , AUTH_NO
+		    , CORP_GB
+		    , CORP_ID
+		    , (CASE WHEN CORP_GB = '01' THEN  FN_MDM_GET_BP_CORP_NM(A.CORP_ID) 
+		            WHEN CORP_GB = '02' THEN  FN_MDM_GET_COST_NM(A.CORP_ID)
+		            ELSE (SELECT SHPR_NM FROM TMDM_KFR_BP_SHPR WHERE SHPR_ID = A.CORP_ID)
+		        END) AS CORP_NM   
+		    , CORP_MSTR_YN
+		    , USE_YN
+		    , DEL_YN
+		    , REG_ID
+		    , TO_CHAR(TO_DATE(REG_DT, 'YYYYMMDDHH24MISS'), 'YYYYMMDD') AS INS_DATE
+		    , TO_CHAR(TO_DATE(REG_DT, 'YYYYMMDDHH24MISS'), 'HH24MISS') AS INS_TIME
+		    , MOD_ID
+		    , TO_CHAR(TO_DATE(MOD_DT, 'YYYYMMDDHH24MISS'), 'YYYYMMDD') AS UPD_DATE
+		    , TO_CHAR(TO_DATE(MOD_DT, 'YYYYMMDDHH24MISS'), 'HH24MISS') AS UPD_TIME
+		FROM TADM_KFR_USER_AUTH_DTL A
+		WHERE DEL_YN = 'N'
+		AND ID = #ID#
+		AND CORP_GB = #CORP_GB#                 /* 01:실행거점 / 02:코스트센터 */
+		AND A.SEQ_NO = #SEQ_NO#
+		ORDER BY REG_DT DESC
+	</select>
+	
+	<update id="saveUserSubData">
+	/* [userMgmService][saveUserSubData][사용자 실행거점 등록][2018.08.16][jaehyun] */
+	MERGE
+	 INTO TADM_KFR_USER_AUTH_DTL A 
+	USING DUAL
+	   ON (A.SEQ_NO = #SEQ_NO# 
+	  AND A.ID = #ID#
+	<isEmpty  property="SUB_VALUE">
+	  AND A.CORP_ID = #CORP_ID#
+	</isEmpty>
+	<isEqual property="SUB_VALUE"  compareValue="1">
+	  AND A.CORP_ID = #BASE_CORP_ID#
+	</isEqual>
+	<isEqual property="SUB_VALUE"  compareValue="2">
+	  AND A.CORP_ID = #AR_COSTC#
+	</isEqual>
+	<isEqual property="SUB_VALUE"  compareValue="3">
+	  AND A.CORP_ID = #AP_COSTC#
+	</isEqual>              
+	<isEmpty  property="SUB_VALUE">
+	  AND CORP_GB = #CORP_GB#
+	</isEmpty>
+	<isEqual property="SUB_VALUE"  compareValue="1">
+	  AND CORP_GB = '01'
+	</isEqual>
+	<isEqual property="SUB_VALUE"  compareValue="2">
+	  AND CORP_GB = '02'
+	</isEqual>
+	<isEqual property="SUB_VALUE"  compareValue="3">
+	  AND CORP_GB = '02'
+	</isEqual>
+	) 
+	WHEN MATCHED THEN
+	UPDATE
+	SET USE_YN = 'Y'
+		, DEL_YN = 'N'
+		, CORP_MSTR_YN = #CORP_MSTR_YN#
+		, MOD_ID = #gv_userId#
+		, MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')	
+	WHEN NOT MATCHED THEN  
+	INSERT ( 
+		SEQ_NO
+		, ID    
+		, AUTH_NO
+		, CORP_GB
+		, CORP_ID
+		, CORP_MSTR_YN
+		, USE_YN
+		, DEL_YN
+		, REG_ID
+		, REG_DT
+	) VALUES ( 
+		#SEQ_NO#
+		, #ID#
+		, NVL((SELECT MAX(AUTH_NO) FROM TADM_KFR_USER_AUTH_DTL WHERE SEQ_NO = #SEQ_NO# AND ID = #ID#), 0) + 1
+	<isEmpty  property="SUB_VALUE">
+		, #CORP_GB#
+	</isEmpty>
+	<isEqual property="SUB_VALUE"  compareValue="1">
+		,'01'
+	</isEqual>
+	<isEqual property="SUB_VALUE"  compareValue="2">
+		, '02'
+	</isEqual>
+	<isEqual property="SUB_VALUE"  compareValue="3">
+		,'02'
+	</isEqual>
+	<isEmpty  property="SUB_VALUE">
+		, #CORP_ID#
+	</isEmpty>
+	<isEqual property="SUB_VALUE"  compareValue="1">
+		, #BASE_CORP_ID#
+	</isEqual>
+	<isEqual property="SUB_VALUE"  compareValue="2">
+		, #AR_COSTC#
+	</isEqual>
+	<isEqual property="SUB_VALUE"  compareValue="3">
+		, #AP_COSTC#
+	</isEqual>
+		, #CORP_MSTR_YN#
+		, 'Y'
+		, 'N'
+		, #gv_userId#
+		, TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')	
+	)
+	</update>
+	
+	<update id="deleteUserSubData">
+	/* [userMgmService][deleteUserSubData][내부사용자 삭제][2018.08.16][jaehyun] */
+	 UPDATE TADM_KFR_USER_AUTH_DTL 
+		SET DEL_YN = 'Y'
+			, CORP_MSTR_YN = 'N'
+			, MOD_ID = #gv_userId#
+		  	, MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')	
+		WHERE SEQ_NO = #SEQ_NO#
+		  AND ID     = #ID#
+		  AND AUTH_NO = #AUTH_NO#
+		  AND CORP_GB = #CORP_GB#  	
+    </update> 
+
+    <!-- 일반고객 정보 조회 -->
+    <select id="getCustInfoList" resultClass="java.util.HashMap">
+		SELECT '0' AS CHK
+		     , SHPR_ID
+			 , CORP_ID
+			 , BIZ_CD
+			 , SVC_CD
+			 , SVC_CD2
+			 , FN_MDM_GET_BP_CORP_NM(T2.CORP_ID) AS CORP_ID_NM
+			 , JOIN_TYPE
+			 , FN_MDM_GET_MC_CODE_NM('CM100',T2.JOIN_TYPE) AS JOIN_TYPE_NM
+			 , FN_MDM_GET_MC_CODE_NM('BIZ_TYPE', T2.BIZ_TYPE) AS BIZ_TYPE_NM
+			 , NVL2 (T2.EMAIL1, AESDECRYPT (TRIM (T2.EMAIL1)) || '@' || T2.EMAIL2, '') AS EMAIL
+			 , SHPR_LOCAL_NM
+			 , BIZ_TYPE
+			 , BIZ_REG_NO
+			 , BASE_CORP_ID
+			 , FN_MDM_GET_BP_CORP_NM(T2.BASE_CORP_ID) AS BASE_CORP_NM
+			 , PRSNT_NM
+			 , BANKS
+			 , BANKL
+			 , MDM_SHPR_ID AS MDM_ID
+			 , USE_YN
+			 , DEL_YN
+             , CNTRT_YN
+		  FROM (SELECT *
+			      FROM (SELECT ROW_NUMBER () OVER (ORDER BY REG_DT DESC) AS NO
+			                 , SHPR_ID
+			                 , CORP_ID
+			                 , BIZ_CD
+			                 , SVC_CD
+			                 , SVC_CD2
+			                 , BIZ_TYPE
+			                 , JOIN_TYPE
+			                 , SHPR_LOCAL_NM
+			                 , BIZ_REG_NO
+			                 , BASE_CORP_ID
+			                 , PRSNT_NM
+			                 , EMAIL1
+			                 , EMAIL2
+			                 , BANKS
+			                 , BANKL
+			                 , MDM_SHPR_ID
+			                 , USE_YN
+			                 , DEL_YN
+                             , (SELECT 'Y' FROM TBCU_CNTRT_GEN WHERE EXE_CORP_ID = S.BASE_CORP_ID AND SHPR_ID = S.SHPR_ID AND CNTRT_STAT_CD = '30' AND ROWNUM = 1) AS CNTRT_YN
+				          FROM TMDM_KFR_BP_SHPR S
+				         WHERE 1 = 1
+					       AND SUBSTR (MDM_SHPR_ID, 1, 2) IN ('10', '42')
+					       <isNotEmpty prepend="AND" property="BASE_CORP_ID">
+					           BASE_CORP_ID = #BASE_CORP_ID#
+					       </isNotEmpty>
+					       <isNotEmpty prepend="AND" property="SHPR_LOCAL_NM">
+					           SHPR_LOCAL_NM LIKE '%' || #SHPR_LOCAL_NM# || '%'
+					       </isNotEmpty>
+					       <isNotEmpty prepend="AND" property="BIZ_REG_NO">
+					           BIZ_REG_NO LIKE '%' || #BIZ_REG_NO# || '%'
+					       </isNotEmpty>
+					       <isNotEmpty prepend="AND" property="MDM_SHPR_ID">
+					           MDM_SHPR_ID LIKE '%' || #MDM_SHPR_ID# || '%'
+					       </isNotEmpty>
+					       <isNotEmpty prepend="AND" property="JOIN_TYPE">
+					           JOIN_TYPE = #JOIN_TYPE#
+					       </isNotEmpty>
+				       )T1
+			   )T2
+    </select>
+
+    <!-- 일반고객 정보 조회 -->
+    <select id="getCustInfo" resultClass="java.util.HashMap">
+		SELECT JOIN_TYPE 
+		     , (SELECT CD_NM FROM TMDM_KFR_MC_CODE WHERE CD_TCD='CM100' AND CD=T1.JOIN_TYPE) AS S_JOIN_TYPE          /* 공통 Fn 변경 */
+		     , BIZ_CD	BIZ_CD
+		     , SVC_CD	SVC_CD
+		     , SVC_CD2	SVC_CD2
+		     , CORP_ID 
+		     , (SELECT ABBR_NM FROM TMDM_BP_CORP_IF WHERE CORP_ID=T1.CORP_ID) AS S_CORP_NM                                /* 공통 Fn 변경 */
+		     , BASE_CORP_ID 
+		     , (SELECT ABBR_NM FROM TMDM_BP_CORP_IF WHERE CORP_ID=T1.BASE_CORP_ID) AS S_BASE_CORP_NM                      /* 공통 Fn 변경 */
+		     , BIZ_REG_NO AS S_BIZ_REG_NO 
+		     , SHPR_LOCAL_NM AS S_SHPR_LOCAL_NM 
+		     , FITYP 
+		     , (SELECT CD_NM FROM TMDM_KFR_MC_CODE WHERE CD_TCD='CM122' AND REF_2='D' AND CD=T1.FITYP) AS S_FITYP      /* 공통 Fn 변경 */
+		     , WITHTAX_CD 
+		     , (SELECT CD_NM AS CDNM
+		          FROM TMDM_KFR_MC_CODE
+		         WHERE CD_TCD = 'CU309' AND DEL_YN = 'N' AND CD=WITHTAX_CD
+		        ) AS S_WITHTAX_CD
+		     , ZTERM_C 
+		     , (SELECT CD_NM AS CDNM
+		          FROM TMDM_KFR_MC_CODE
+		         WHERE CD_TCD = 'CM108D' AND CD=ZTERM_C AND DEL_YN = 'N'
+		        ) AS S_ZTERM_C_NM
+		     , SHPR_NM AS S_SHPR_NM 
+		     , PRSNT_NM AS S_PRSNT_NM 
+		     , COMP_ZIP1 || COMP_ZIP2 AS S_COMP_ZIP 
+		     , COMP_ADDR1 AS S_COMP_ADDR1 
+		     , AESDECRYPT(COMP_ADDR2) AS S_COMP_ADDR2 
+		     , TEL1 || '-' || TEL2 || '-' || AESDECRYPT(TRIM(TEL3)) AS TEL 
+		     , FAX1 || '-' || FAX2 || '-' || AESDECRYPT(TRIM(FAX3)) AS FAX 
+		     , NVL2(EMAIL1, '', AESDECRYPT(TRIM(EMAIL1)) || '@' || EMAIL2) AS EMAIL
+		     , CORP_REG_NO AS S_CORP_REG_NO 
+		     , AESDECRYPT(REG_NO) AS REG_NO 
+		     , STCDT 
+		     , (SELECT CD_NM FROM TMDM_KFR_MC_CODE WHERE CD_TCD='CM121' AND CD=T1.STCDT) AS S_STCDT      /* 공통 Fn 변경 */
+		     , BIZ_TYP_NM AS S_BIZ_TYP_NM 
+		     , IND_TYP_NM AS S_IND_TYP_NM 
+		     , GFORM 
+		     , (SELECT CD_NM FROM TMDM_KFR_MC_CODE WHERE CD_TCD='CM123' AND CD=T1.GFORM) AS S_GFORM      /* 공통 Fn 변경 */
+		     , EIKTO AS S_EIKTO 
+		     , ZSABE AS S_ZSABE 
+		     , AESDECRYPT(TRIM(TLFNS)) AS S_TLFNS 
+		     , TLFXS AS  S_TLFXS 
+		     , AESDECRYPT(TRIM(INTAD)) AS S_INTAD 
+		     , ALTKN AS S_ALTKN 
+		     , DEL_YN AS DEL_YN 
+		     , SHPR_ID
+		     , MDM_SHPR_ID
+			 , BIZ_TYPE
+             , SHPR_GRADE
+             , CUST_YN
+             , PART_TYPE
+             , BUKRS
+             , KTOKD
+             , PRSNT_NM
+             , COMP_ZIP1
+             , COMP_ZIP2
+             , COMP_ADDR1
+             , COMP_ADDR2
+             , NATION_CD
+             , BRAN1
+             , AKONT
+             , ZUAWA
+             , CASH_CTRL
+             , SVC_TYPE
+             , TLFNS
+             , TLFXS
+             , INTAD
+		FROM TMDM_KFR_BP_SHPR T1
+		WHERE SUBSTR(MDM_SHPR_ID,1,2) IN ('10','42','43')
+		AND SHPR_ID = #SEQ_NO#
+    </select>
+
+
+    <!-- 사용자ID 조회 POP -->
+    <select id="getPopList" resultClass="java.util.HashMap">
+		SELECT /* [userMgmService.sqlx][getPopList][MDMS 사용자 조회][20140424][이혁원] */
+     		A.SHPR_ID
+     		, A.JOIN_TYPE
+		     , A.JOIN_TYPE_NM
+		     , A.BIZ_TYPE
+		     , FN_MDM_GET_MC_CODE_NM('BIZ_TYPE', A.BIZ_TYPE) BIZ_TYPE_NM
+		     , A.CORP_ID
+		     , A.BASE_CORP_ID
+		     , A.SHPR_GRADE
+		     , A.CUST_YN
+		     , A.MDM_SHPR_ID
+		     , A.PART_TYPE
+		     , A.BUKRS
+		     , A.KTOKD
+		     , A.BIZREG_NO
+		     , A.SHPR_LOCAL_NM
+		     , A.FITYP
+		     , A.FITYP_NM
+		     , A.ZTERM_C
+		     , A.ABBR_NM
+		     , A.PRSNT_NM
+		     , A.COMP_ZIP1
+		     , A.COMP_ZIP2
+		     , A.COMP_ADDR1
+		     , A.COMP_ADDR2
+		     , A.NATION_CD
+		     , A.TEL
+		     , A.FAX
+		     , A.EMAIL
+		     , A.S_STCDT
+		     , A.STCDT
+		     , A.BIZ_TYP_NM
+		     , A.IND_TYP_NM
+		     , A.BRAN1
+		     , A.GFORM
+		     , A.AKONT
+		     , A.ZUAWA
+		     , A.CASH_CTRL
+		     , A.SVC_TYPE
+		     , A.EIKTO
+		     , A.TLFNS
+		     , A.TLFXS
+		     , A.INTAD
+		     , A.ZSABE
+		     , A.USE_YN
+		     , A.DEL_YN
+		     , A.REG_ID
+		     , A.REG_DT
+    	FROM (
+     		SELECT
+			      T1.SHPR_ID
+			      , 'T02' AS JOIN_TYPE
+			      , FN_MDM_GET_MC_CODE_NM('CM100', 'T02') AS JOIN_TYPE_NM
+			      , 'C' AS BIZ_TYPE
+			      , '' AS CORP_ID
+			      , 'A' AS BASE_CORP_ID
+			      , 'A' AS SHPR_GRADE
+			      , CASE WHEN T1.PART_TYPE = 'C' THEN 'N' WHEN T1.PART_TYPE = 'A' THEN 'Y' END AS CUST_YN
+			      , T1.SHPR_ID AS MDM_SHPR_ID
+			      , T1.PART_TYPE AS PART_TYPE
+			      , '' AS BUKRS
+			      , T1.KTOKD AS KTOKD
+			      , T1.BIZREG_NO AS BIZREG_NO
+			      , T1.ABBR_NM AS SHPR_LOCAL_NM
+			      , T1.FITYP AS FITYP
+			      , FN_MDM_GET_MC_CODE_NM('CM122', T1.FITYP)  AS FITYP_NM
+			      , T1.ZTERM_C AS ZTERM_C
+			      , T1.ABBR_NM AS ABBR_NM
+			      , T1.PRSNT_NM AS PRSNT_NM
+			      , '' AS COMP_ZIP1
+			      , '' AS COMP_ZIP2
+			      , '' AS COMP_ADDR1
+			      , '' AS COMP_ADDR2
+			      , T1.NATION_CD AS NATION_CD
+			      , '' AS TEL
+			      , '' AS FAX
+			      , '' AS EMAIL
+			      , FN_MDM_GET_MC_CODE_NM('CM121', T1.STCDT) AS S_STCDT
+			      , T1.STCDT AS STCDT
+			      , '' AS BIZ_TYP_NM
+			      , '' AS IND_TYP_NM
+			      , '' AS BRAN1
+			      , '' AS GFORM
+			      , '0011081000-D-1000' AS AKONT
+			      , '000' AS ZUAWA
+			      , 'A1' AS CASH_CTRL
+			      , '' AS SVC_TYPE
+			      , '' AS EIKTO
+			      , '' AS TLFNS
+			      , '' AS TLFXS
+			      , '' AS INTAD
+			      , '' AS ZSABE
+			      , 'Y' AS USE_YN
+			      , 'N' AS DEL_YN
+			      , T1.REG_ID AS REG_ID
+			      , T1.REG_DT AS REG_DT
+		     FROM TMDM_BP_SHPR_IF T1
+		     WHERE 1=1
+		      AND SUBSTR(T1.SHPR_ID,1,2)='10' AND T1.CUSTSECT = 'CL001'
+		      AND T1.DEL_YN = 'N'
+     		UNION ALL
+     		SELECT
+			      T1.SHPR_ID
+			      , 'T02' AS JOIN_TYPE
+			      , FN_MDM_GET_MC_CODE_NM('CM100', 'T02') AS JOIN_TYPE_NM
+			      , 'C' AS BIZ_TYPE
+			      , '' AS CORP_ID
+			      , 'A' AS BASE_CORP_ID
+			      , 'A' AS SHPR_GRADE
+			      , CASE WHEN T1.PART_TYPE = 'C' THEN 'N' WHEN T1.PART_TYPE = 'A' THEN 'Y' END AS CUST_YN
+			      , T1.SHPR_ID AS MDM_SHPR_ID
+			      , T1.PART_TYPE AS PART_TYPE
+			      , '' AS BUKRS
+			      , T1.KTOKD AS KTOKD
+			      , T1.BIZREG_NO AS BIZREG_NO
+			      , T1.ABBR_NM AS SHPR_LOCAL_NM
+			      , T1.FITYP AS FITYP
+			      , FN_MDM_GET_MC_CODE_NM('CM122', T1.FITYP) AS FITYP_NM
+			      , T1.ZTERM_C AS ZTERM_C
+			      , T1.ABBR_NM AS ABBR_NM
+			      , T1.PRSNT_NM AS PRSNT_NM
+			      , '' AS COMP_ZIP1
+			      , '' AS COMP_ZIP2
+			      , '' AS COMP_ADDR1
+			      , '' AS COMP_ADDR2
+			      , T1.NATION_CD AS NATION_CD
+			      , '' AS TEL
+			      , '' AS FAX
+			      , '' AS EMAIL
+			      , FN_MDM_GET_MC_CODE_NM('CM121', T1.STCDT) AS S_STCDT
+			      , T1.STCDT AS STCDT
+			      , '' AS BIZ_TYP_NM
+			      , '' AS IND_TYP_NM
+			      , '' AS BRAN1
+			      , '' AS GFORM
+			      , '0011081000-D-1000' AS AKONT
+			      , '000' AS ZUAWA
+			      , 'A1' AS CASH_CTRL
+			      , '' AS SVC_TYPE
+			      , '' AS EIKTO
+			      , '' AS TLFNS
+			      , '' AS TLFXS
+			      , '' AS INTAD
+			      , '' AS ZSABE
+			      , 'Y' AS USE_YN
+			      , 'N' AS DEL_YN
+			      , T1.REG_ID AS REG_ID
+			      , T1.REG_DT AS REG_DT
+		     FROM TMDM_BP_SHPR_IF T1
+		     WHERE 1=1
+		      AND SUBSTR(T1.SHPR_ID,1,2) IN ('42')
+		      AND T1.DEL_YN = 'N'
+   			) A
+   		WHERE 1=1
+   		<isNotEmpty property="MDM_SHPR_ID">
+    		AND A.SHPR_ID LIKE '%' || #MDM_SHPR_ID# || '%'
+   		</isNotEmpty>
+   		<isNotEmpty property="ABBR_NM">
+    		AND A.ABBR_NM LIKE '%' || #ABBR_NM# || '%'
+   		</isNotEmpty> <isNotEmpty property="BIZREG_NO">
+    		AND A.BIZREG_NO LIKE '%' || #BIZREG_NO# || '%'
+   		</isNotEmpty>    				
+    </select>
+    
+    <!-- 사용자ID 조회 (출장소)POP -->
+    <select id="getPopList43" resultClass="java.util.HashMap">
+		SELECT /* [userMgmService.sqlx][getPopList43][MDMS 사용자 조회(출장소)][20140424][이혁원] */
+     		A.SHPR_ID
+     		, A.JOIN_TYPE
+		     , A.JOIN_TYPE_NM
+		     , A.BIZ_TYPE
+		     , FN_MDM_GET_MC_CODE_NM('BIZ_TYPE', A.BIZ_TYPE) BIZ_TYPE_NM
+		     , A.CORP_ID
+		     , A.BASE_CORP_ID
+		     , A.SHPR_GRADE
+		     , A.CUST_YN
+		     , A.MDM_SHPR_ID
+		     , A.PART_TYPE
+		     , A.BUKRS
+		     , A.KTOKD
+		     , A.BIZREG_NO
+		     , A.SHPR_LOCAL_NM
+		     , A.FITYP
+		     , A.FITYP_NM
+		     , A.ZTERM_C
+		     , A.ABBR_NM
+		     , A.PRSNT_NM
+		     , A.COMP_ZIP1
+		     , A.COMP_ZIP2
+		     , A.COMP_ADDR1
+		     , A.COMP_ADDR2
+		     , A.NATION_CD
+		     , A.TEL
+		     , A.FAX
+		     , A.EMAIL
+		     , A.S_STCDT
+		     , A.STCDT
+		     , A.BIZ_TYP_NM
+		     , A.IND_TYP_NM
+		     , A.BRAN1
+		     , A.GFORM
+		     , A.AKONT
+		     , A.ZUAWA
+		     , A.CASH_CTRL
+		     , A.SVC_TYPE
+		     , A.EIKTO
+		     , A.TLFNS
+		     , A.TLFXS
+		     , A.INTAD
+		     , A.ZSABE
+		     , A.USE_YN
+		     , A.DEL_YN
+		     , A.REG_ID
+		     , A.REG_DT
+    	FROM (
+     		SELECT
+			      T1.SHPR_ID
+			      , 'T02' AS JOIN_TYPE
+			      , FN_MDM_GET_MC_CODE_NM('CM100', 'T02') AS JOIN_TYPE_NM
+			      , 'C' AS BIZ_TYPE
+			      , '' AS CORP_ID
+			      , 'A' AS BASE_CORP_ID
+			      , 'A' AS SHPR_GRADE
+			      , CASE WHEN T1.PART_TYPE = 'C' THEN 'N' WHEN T1.PART_TYPE = 'A' THEN 'Y' END AS CUST_YN
+			      , T1.SHPR_ID AS MDM_SHPR_ID
+			      , T1.PART_TYPE AS PART_TYPE
+			      , '' AS BUKRS
+			      , T1.KTOKD AS KTOKD
+			      , T1.BIZREG_NO AS BIZREG_NO
+			      , T1.ABBR_NM AS SHPR_LOCAL_NM
+			      , T1.FITYP AS FITYP
+			      , FN_MDM_GET_MC_CODE_NM('CM122', T1.FITYP) AS FITYP_NM
+			      , T1.ZTERM_C AS ZTERM_C
+			      , T1.ABBR_NM AS ABBR_NM
+			      , T1.PRSNT_NM AS PRSNT_NM
+			      , '' AS COMP_ZIP1
+			      , '' AS COMP_ZIP2
+			      , '' AS COMP_ADDR1
+			      , '' AS COMP_ADDR2
+			      , T1.NATION_CD AS NATION_CD
+			      , '' AS TEL
+			      , '' AS FAX
+			      , '' AS EMAIL
+			      , FN_MDM_GET_MC_CODE_NM('CM121', T1.STCDT) AS S_STCDT
+			      , T1.STCDT AS STCDT
+			      , '' AS BIZ_TYP_NM
+			      , '' AS IND_TYP_NM
+			      , '' AS BRAN1
+			      , '' AS GFORM
+			      , '0011081000-D-1000' AS AKONT
+			      , '000' AS ZUAWA
+			      , 'A1' AS CASH_CTRL
+			      , '' AS SVC_TYPE
+			      , '' AS EIKTO
+			      , '' AS TLFNS
+			      , '' AS TLFXS
+			      , '' AS INTAD
+			      , '' AS ZSABE
+			      , 'Y' AS USE_YN
+			      , 'N' AS DEL_YN
+			      , T1.REG_ID AS REG_ID
+			      , T1.REG_DT AS REG_DT
+		     FROM TMDM_BP_SHPR_IF T1
+		     WHERE 1=1
+		      AND SUBSTR(T1.SHPR_ID,1,2) IN ('43')
+		      AND T1.DEL_YN = 'N'
+   			) A
+   		WHERE 1=1
+   		<isNotEmpty property="MDM_SHPR_ID">
+    		AND A.SHPR_ID LIKE '%' || #MDM_SHPR_ID# || '%'
+   		</isNotEmpty>
+   		<isNotEmpty property="ABBR_NM">
+    		AND A.ABBR_NM LIKE '%' || #ABBR_NM# || '%'
+   		</isNotEmpty> <isNotEmpty property="BIZREG_NO">
+    		AND A.BIZREG_NO LIKE '%' || #BIZREG_NO# || '%'
+   		</isNotEmpty>    				
+    </select>
+    
+    <!-- 고객 중복 체크. -->
+    <select id="getUserT04Duple" resultClass="java.util.HashMap">
+    /* [userMgmService.sqlx][getUserT04Duple][고객 중복 체크.][20190128][SSM] */
+		SELECT *
+		FROM TMDM_KFR_BP_SHPR
+		WHERE DEL_YN = 'N'
+		AND BIZ_REG_NO = #S_BIZ_REG_NO#
+		AND MDM_SHPR_ID = #MDM_SHPR_ID#
+		<isNotEmpty property="SHPR_ID">
+			AND SHPR_ID <![CDATA[<>]]> #SHPR_ID#
+		</isNotEmpty>
+    </select>
+    
+    <update id="insertIntertnalUser">
+		/* [userMgmService][insertIntertnalUser][일반고객 update,insert][2018.08.16][tyoung] */
+        MERGE
+         INTO TMDM_KFR_BP_SHPR A 
+        USING DUAL
+           ON (A.SHPR_ID = #SHPR_ID#
+        ) 
+        WHEN MATCHED THEN
+        UPDATE
+        SET 
+            JOIN_TYPE		= #JOIN_TYPE#
+            ,BIZ_TYPE		= #BIZ_TYPE#
+            ,BIZ_CD			= #BIZ_CD#
+            ,SVC_CD			= #SVC_CD#
+            ,SVC_CD2		= #SVC_CD2#
+            ,CORP_ID		= #CORP_ID#
+            ,BASE_CORP_ID	= #BASE_CORP_ID#
+            ,SHPR_GRADE		= #SHPR_GRADE#
+            ,CUST_YN		= #CUST_YN#
+            ,MDM_SHPR_ID	= #MDM_SHPR_ID#
+            ,PART_TYPE		= #PART_TYPE#
+            ,BUKRS			= #BUKRS#
+            ,KTOKD			= #KTOKD#
+            ,BIZ_REG_NO		= #S_BIZ_REG_NO#
+            ,SHPR_LOCAL_NM	= #S_SHPR_LOCAL_NM#
+            ,FITYP			= #FITYP#
+            ,WITHTAX_CD		= #WITHTAX_CD#
+            ,ZTERM_C		= #ZTERM_C#
+            ,SHPR_NM		= #S_SHPR_LOCAL_NM#
+            ,PRSNT_NM		= #S_PRSNT_NM#
+            ,COMP_ZIP1		= #COMP_ZIP1#
+            ,COMP_ZIP2		= #COMP_ZIP2#
+            ,COMP_ADDR1		= #COMP_ADDR1#
+            ,COMP_ADDR2		= #COMP_ADDR2#
+            ,NATION_CD		= #NATION_CD#
+            ,CORP_REG_NO	= #S_CORP_REG_NO#
+            ,REG_NO			= AESENCRYPT(#REG_NO#)
+            ,STCDT			= #STCDT#
+            ,BIZ_TYP_NM		= #S_BIZ_TYP_NM#
+            ,IND_TYP_NM		= #S_IND_TYP_NM#
+            ,BRAN1			= #BRAN1#
+            ,GFORM			= #GFORM#
+            ,AKONT			= #AKONT#
+            ,ZUAWA			= #ZUAWA#
+            ,CASH_CTRL		= #CASH_CTRL#
+            ,SVC_TYPE		= #SVC_TYPE#
+            ,EIKTO			= #EIKTO#
+            ,ZSABE			= #ZSABE#
+            ,TLFNS			= #TLFNS#
+            ,TLFXS			= #TLFXS#
+            ,INTAD			= #INTAD#
+            ,ALTKN			= #ALTKN#
+            ,USE_YN			= 'Y'
+            ,DEL_YN			= #DEL_YN#
+            ,MOD_ID			= #gv_userId#
+            ,MOD_DT			= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+        WHEN NOT MATCHED THEN  
+        INSERT ( 
+            SHPR_ID
+            ,JOIN_TYPE
+            ,BIZ_TYPE
+            ,BIZ_CD
+            ,SVC_CD
+            ,SVC_CD2
+            ,CORP_ID
+            ,BASE_CORP_ID
+            ,SHPR_GRADE
+            ,CUST_YN
+            ,MDM_SHPR_ID
+            ,PART_TYPE
+            ,BUKRS
+            ,KTOKD
+            ,BIZ_REG_NO
+            ,SHPR_LOCAL_NM
+            ,FITYP
+            ,WITHTAX_CD
+            ,ZTERM_C
+            ,SHPR_NM
+            ,PRSNT_NM
+            ,COMP_ZIP1
+            ,COMP_ZIP2
+            ,COMP_ADDR1
+            ,COMP_ADDR2
+            ,NATION_CD
+            ,CORP_REG_NO
+            ,REG_NO
+            ,STCDT
+            ,BIZ_TYP_NM
+            ,IND_TYP_NM
+            ,BRAN1
+            ,GFORM
+            ,AKONT
+            ,ZUAWA
+            ,CASH_CTRL
+            ,SVC_TYPE
+            ,EIKTO
+            ,ZSABE
+            ,TLFNS
+            ,TLFXS
+            ,INTAD
+            ,ALTKN
+            ,USE_YN
+            ,DEL_YN
+            ,REG_ID
+            ,REG_DT
+        ) VALUES ( 
+            ('S' || LPAD(SEQ_TMDM_KFR_BP_SHPR.NEXTVAL, 7, 0))
+            ,#S_JOIN_TYPE#
+            ,#BIZ_TYPE#
+            ,#BIZ_CD#
+            ,#SVC_CD#
+            ,#SVC_CD2#
+            ,#CORP_ID#
+            ,#BASE_CORP_ID#
+            ,#SHPR_GRADE#
+            ,#CUST_YN#
+            ,#MDM_SHPR_ID#
+            ,#PART_TYPE#
+            ,#BUKRS#
+            ,#KTOKD#
+            ,#S_BIZ_REG_NO#
+            ,#S_SHPR_LOCAL_NM#
+            ,#FITYP#
+            ,#WITHTAX_CD#
+            ,#ZTERM_C#
+            ,#S_SHPR_LOCAL_NM#
+            ,#S_PRSNT_NM#
+            ,#COMP_ZIP1#
+            ,#COMP_ZIP2#
+            ,#COMP_ADDR1#
+            ,#COMP_ADDR2#
+            ,#NATION_CD#
+            ,#S_CORP_REG_NO#
+            ,AESENCRYPT(#REG_NO#)
+            ,#STCDT#
+            ,#S_BIZ_TYP_NM#
+            ,#S_IND_TYP_NM#
+            ,#BRAN1#
+            ,#GFORM#
+            ,#AKONT#
+            ,#ZUAWA#
+            ,#CASH_CTRL#
+            ,#SVC_TYPE#
+            ,#EIKTO#
+            ,#ZSABE#
+            ,#TLFNS#
+            ,#TLFXS#
+            ,#INTAD#
+            ,#ALTKN#
+            ,'Y'
+            ,'N'
+            ,#gv_userId#
+            ,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+        )    
+    </update>
+    
+    <select id="getUserDetail1" resultClass="java.util.HashMap">
+		/* [userMgmService][getUserDetail1][ SHPR 정보 수정을 위한 조회][2018.09.18][tyoung] */
+        SELECT
+            S.JOIN_TYPE AS JOIN_TYPE   /*회원유형*/
+            , CASE
+                WHEN S.JOIN_TYPE = 'T01'               THEN '주선가맹점'               
+                WHEN S.JOIN_TYPE = 'T02'               THEN '화주(사업자)'               
+                WHEN S.JOIN_TYPE = 'T03'               THEN '화주(개인)'               
+                WHEN S.JOIN_TYPE = 'T04'               THEN '운송가맹점'               
+                WHEN S.JOIN_TYPE = 'T05'               THEN '차주'           
+            END AS JOIN_TYPE_NM
+            , S.BIZ_REG_NO AS BIZ_REG_NO
+            , substr(S.BIZ_REG_NO, 0,3) ||'-'|| substr(S.BIZ_REG_NO, 4,2) || '-' || substr(S.BIZ_REG_NO, 6,5) AS BIZ_REG_NO_DASH  /*사업자 등록번호*/
+            , BIZ_CD	BIZ_CD
+            , SVC_CD	SVC_CD
+            , SVC_CD2	SVC_CD2
+            , S.BIZ_TYPE AS BIZ_TYPE   /*가입 사업자 종류*/
+            , (CASE WHEN S.EMAIL1 IS NULL THEN '' ELSE AESDECRYPT(TRIM(S.EMAIL1)) || '@' || S.EMAIL2 END) AS EMAIL
+            , (CASE WHEN S.EMAIL1 IS NULL THEN '' ELSE AESDECRYPT(TRIM(S.EMAIL1)) END) AS EMAIL1
+            , S.EMAIL2  AS EMAIL2
+            , S.SHPR_ID AS SHPR_ID  /*고객ID*/
+            , S.JOIN_TYPE AS JOIN_TYPE
+            , S.CORP_ID AS CORP_ID    /*관리지사*/
+            , S.SHPR_GRADE AS GRADE  /*고객사 등급*/
+            , S.BASE_CORP_ID AS BASE_CORP_ID  /*회원유형*/
+            , FN_MDM_GET_BP_CORP_NM(S.BASE_CORP_ID) AS BASE_CORP_NM  /*관리실행거점*/
+            , S.MDM_SHPR_ID AS MDM_SHPR_ID  /*고객코드*/
+            , S.PART_TYPE AS PART_TYPE   /*거래처유형*/
+            , S.BUKRS AS BUKRS    /*회사코드*/
+            , S.KTOKD AS KTOKD     /*고객계정그룹*/
+            , S.BIZ_REG_NO AS BIZ_REG_NO  
+            , S.SHPR_LOCAL_NM AS SHPR_LOCAL_NM   /*고객사를 나타내는 대표 명*/
+            , S.FITYP AS FITYP   /*과세유형*/
+            , S.WITHTAX_CD AS WITHTAX_CD  /*세금유형*/
+            , S.ZTERM_C AS ZTERM_C    /*지급조건*/
+            , S.SHPR_NM AS SHPR_NM    /*고객사를 나타내는 약자 명*/
+            , S.PRSNT_NM AS PRSNT_NM    /*대표자명*/
+            , S.COMP_ZIP1 || S.COMP_ZIP2 AS COMP_ZIP   /*사업장우편번호*/
+            , S.COMP_ADDR1 AS COMP_ADDR1   
+            , AESDECRYPT(TRIM(S.COMP_ADDR2)) AS COMP_ADDR2
+            , S.NATION_CD AS NATION_CD   /*국가 코드*/
+            , S.TEL1 AS TEL1
+            , S.TEL2 AS TEL2
+            , AESDECRYPT(TRIM(S.TEL3)) AS TEL3
+            , S.FAX1 AS FAX1
+            , S.FAX2 AS FAX2
+            , AESDECRYPT(TRIM(S.FAX3)) AS FAX3
+            , S.CORP_REG_NO AS CORP_REG_NO    /*법인등록번호*/
+            , AESDECRYPT(TRIM(S.REG_NO)) AS REG_NO   /*주민등록번호*/
+            , S.STCDT AS STCDT     /*세금계산서 발행유형*/
+            , S.BIZ_TYP_NM AS BIZ_TYP_NM   /*업태*/
+            , S.IND_TYP_NM AS IND_TYP_NM    /*업종*/
+            , S.BRAN1 AS BRAN1     /*고객매출그룹*/
+            , S.GFORM AS GFORM     /*법적상태*/
+            , S.AKONT AS AKONT     /*조정계정*/
+            , S.ZUAWA AS ZUAWA     /*정렬키*/
+            , S.CASH_CTRL AS CASH_CTRL   /*현금관리그룹*/
+            , S.STKZN AS STKZN     /*입금분할대상*/
+            , S.BANKS AS BANKS     /*국가 코드__13622*/
+            , S.BANKL AS BANKL     /*은행키*/
+            , AESDECRYPT(TRIM(S.BANKN)) AS BANKN   /*은행계좌*/
+            , S.KOINH AS KOINH    /*예금주*/
+            , S.BKONT AS BKONT    /*계좌구분*/
+            , S.BVTYP AS BVTYP    /*계좌순번1*/
+            , S.SVC_TYPE AS SVC_TYPE    /*서비스구분*/
+            , S.EIKTO AS EIKTO    /*영업사원번호(KX)*/
+            , S.ZSABE AS ZSABE    /*영업사원명(KX)*/
+            , AESDECRYPT(TRIM(S.TLFNS)) AS TLFNS    /*고객세금계산서수신자전화번호*/
+            , S.TLFXS AS TLFXS    /*고객세금계산서수신자명*/
+            , AESDECRYPT(TRIM(S.INTAD)) AS INTAD    /*고객세금계산서수신자이메일*/
+            , S.ALTKN AS ALTKN    /*기존시스템코드*/
+            , S.REM AS REM     /*비고*/
+            , S.DEL_YN AS DEL_YN    /*삭제 여부*/
+            , S.REG_ID AS REG_ID
+            , S.REG_DT AS REG_DT
+            , S.MOD_ID AS MOD_ID
+            , S.MOD_DT AS MOD_DT
+            , S.COMP_ADDR_X AS COMP_ADDR_X    /*사업장 주소 X좌표(WGS84)*/
+            , S.COMP_ADDR_Y AS COMP_ADDR_Y     /*사업장 주소 Y좌표(WGS64)*/
+            , S.COSTC
+			<isNotEmpty property="SEQ_NO">
+	            , U.SEQ_NO AS SEQ_NO  /*일련번호*/
+	            , U.ID AS ID         /*아이디*/
+	            , U.BIZ_NM AS BIZ_NM    /*사업자(법인)명*/
+	            , U.CORP_ID AS CORP_ID    /*관리지사*/
+	            , FN_MDM_GET_BP_CORP_NM(U.CORP_ID) AS CORP_NM  
+	            , FN_MDM_GET_BP_CORP_NM(U.CORP_ID) AS CORP_AREA_NM   
+	            , NVL(U.RCIV_SMS, 'N') AS RCIV_SMS    /*SMS 수신 동의 여부*/
+	            , NVL(U.RCIV_EMAIL, 'N') AS RCIV_EMAIL  /*이메일 수신 동의 여부*/
+	            , U.NAME AS NAME   /*담당자명*/
+	            , U.MOBILE1
+	            , U.MOBILE2
+	            , AESDECRYPT(U.MOBILE3)         AS MOBILE3
+	            , U.MOBILE1						AS TEMP_MOBILE1
+				, U.MOBILE2						AS TEMP_MOBILE2
+				, AESDECRYPT(U.MOBILE3)         AS TEMP_MOBILE3
+				, U.TEL1						AS UTEL1
+				, U.TEL2						AS UTEL2
+				, AESDECRYPT(TRIM(U.TEL3))		AS UTEL3
+				, AESDECRYPT(TRIM(U.EMAIL1))	AS UEMAIL1
+				, U.EMAIL2						AS UEMAIL2
+	            , (CASE WHEN U.TEL2 IS NULL THEN '' ELSE U.TEL1 || '-' || U.TEL2 || '-' || AESDECRYPT(TRIM(U.TEL3)) END) AS UTEL
+	            , (CASE WHEN U.MOBILE2 IS NULL THEN '' ELSE U.MOBILE1 || '-' || U.MOBILE2 || '-' || AESDECRYPT(TRIM(U.MOBILE3)) END) AS MOBILE
+	            , U.STATUS AS STATUS
+	            , U.CALCULATE_GROUP1  /*정산 조직 상위*/
+	            , FN_MDM_GET_BP_CORP_NM(U.CALCULATE_GROUP1) AS CALCULATE_GROUP1_NM
+	            , U.CALCULATE_GROUP2  /*정산 조직 하위*/
+	            , FN_MDM_GET_BP_CORP_NM(U.CALCULATE_GROUP2) AS CALCULATE_GROUP2_NM
+				, U.LOGIN_YN
+	            , (CASE WHEN NVL((SELECT COUNT(*) FROM TMDM_KFR_COMM_FILE WHERE WRK_NO = U.SEQ_NO||''), 0) + NVL((SELECT COUNT(*) FROM TBCT_FILE_MNG  WHERE id = U.SHPR_ID),0) = 0 THEN '2' ELSE '9'END) as CONFIRM_STATUS
+			</isNotEmpty>
+        FROM TMDM_KFR_BP_SHPR S 
+		    <isNotEmpty property="SEQ_NO">
+		    	JOIN TADM_KFR_USER U
+		    		ON S.SHPR_ID = U.SHPR_ID
+			</isNotEmpty>
+        WHERE 
+            1=1
+		    <isNotEmpty prepend="AND" property="SHPR_ID">
+		    U.SHPR_ID = #SHPR_ID# 
+		    AND U.SHPR_ID = S.SHPR_ID
+		    </isNotEmpty>
+		    <isNotEmpty prepend="AND" property="SEQ_NO">
+		    U.SEQ_NO = #SEQ_NO# 
+		    </isNotEmpty>	
+		    <isEmpty  property="SHPR_ID">
+		     AND S.BIZ_REG_NO = #BIZ_REG_NO# 
+	        </isEmpty>
+    </select>  
+    
+    <select id="getUserDetail2" resultClass="java.util.HashMap">
+		/* [userMgmService][getUserDetail2][ LSP 정보 수정을 위한 조회][2018.09.18][tyoung] */
+		SELECT
+			L.JOIN_TYPE AS JOIN_TYPE
+			, CASE                             
+				WHEN L.JOIN_TYPE = 'T01'               THEN '주선가맹점'                             
+				WHEN L.JOIN_TYPE = 'T02'               THEN '화주(사업자)'                             
+				WHEN L.JOIN_TYPE = 'T03'               THEN '화주(개인)'                             
+				WHEN L.JOIN_TYPE = 'T04'               THEN '운송가맹점'                             
+				WHEN L.JOIN_TYPE = 'T05'               THEN '차주'                     
+			END AS JOIN_TYPE_NM 
+			, L.BIZ_REG_NO AS BIZ_REG_NO
+			, SUBSTR(L.BIZ_REG_NO, 0, 3) ||'-'|| SUBSTR(L.BIZ_REG_NO, 4, 2) || '-' || SUBSTR(L.BIZ_REG_NO, 6, 5) AS BIZ_REG_NO_DASH
+			, L.BIZ_TYPE AS BIZ_TYPE
+			, L.LSP_ID AS LSP_ID
+			, L.BASE_CORP_ID AS BASE_CORP_ID
+			, FN_MDM_GET_BP_CORP_NM(L.BASE_CORP_ID) AS BASE_CORP_NM
+			, L.LSP_GRADE AS GRADE
+			, L.LSP_DRIV_PERIOD AS LSP_DRIV_PERIOD
+			, L.LSP_TRNSIT_PERIOD AS LSP_TRNSIT_PERIOD
+			, L.MDM_LSP_ID AS MDM_LSP_ID
+			, L.PART_TYPE AS PART_TYPE
+			, L.BUKRS AS BUKRS
+			, L.KTOKK AS KTOKK
+			, L.LSP_LOCAL_NM AS LSP_LOCAL_NM
+			, L.FITYP AS FITYP
+			, L.ZTERM_V AS ZTERM_V
+			, L.LSP_NM AS LSP_NM
+			, L.PRSNT_NM AS PRSNT_NM
+			, L.COMP_ZIP1 || L.COMP_ZIP2 AS COMP_ZIP
+			, L.COMP_ADDR1 AS COMP_ADDR1
+			, AESDECRYPT(TRIM(L.COMP_ADDR2)) AS COMP_ADDR2
+			, L.NATION_CD AS NATION_CD
+			, L.TEL1 AS TEL1
+			, L.TEL2 AS TEL2
+			, AESDECRYPT(TRIM(L.TEL3)) AS TEL3
+			, L.FAX1 AS FAX1
+			, L.FAX2 AS FAX2
+			, AESDECRYPT(TRIM(L.FAX3)) AS FAX3
+			, (CASE WHEN L.EMAIL1 IS NULL THEN AESDECRYPT(TRIM(L.EMAIL1)) ELSE AESDECRYPT(TRIM(L.EMAIL1)) END) AS EMAIL1
+			, (CASE WHEN L.EMAIL2 IS NULL THEN L.EMAIL2 ELSE L.EMAIL2 END) AS EMAIL2
+			, L.CORP_REG_NO AS CORP_REG_NO
+			, AESDECRYPT(TRIM(L.REG_NO)) AS REG_NO
+			, L.STCDT AS STCDT
+			, L.BIZ_TYP_NM AS BIZ_TYP_NM
+			, L.IND_TYP_NM AS IND_TYP_NM
+			, L.ACTSS AS ACTSS
+			, L.ZAHLS AS ZAHLS
+			, L.AKONT AS AKONT
+			, L.ZUAWA AS ZUAWA
+			, L.CASH_CTRL AS CASH_CTRL
+			, L.VEND_CLS AS VEND_CLS
+			, L.WAERS AS WAERS
+			, L.ALTKN AS ALTKN
+			, L.BIZ_DIV_LARGE AS BIZ_DIV_LARGE
+			, L.BIZ_DIV_MED AS BIZ_DIV_MED
+			, L.REM AS REM
+			, L.DEL_YN AS DEL_YN
+			, L.REG_ID AS REG_ID
+			, L.REG_DT AS REG_DT
+			, L.MOD_ID AS MOD_ID
+			, L.MOD_DT AS MOD_DT
+			, L.COMP_ADDR_X AS COMP_ADDR_X
+			, L.COMP_ADDR_Y AS COMP_ADDR_Y
+			, L.COSTC
+			, NVL(L.CONTRACT_YN, 'N')	CONTRACT_YN
+			<isNotEmpty property="SEQ_NO">
+				, U.SEQ_NO AS SEQ_NO
+				, U.ID AS ID
+				, U.BIZ_NM AS BIZ_NM
+				, U.CORP_ID AS CORP_ID
+				, FN_MDM_GET_BP_CORP_NM(U.CORP_ID) AS CORP_NM
+				, FN_MDM_GET_BP_CORP_NM(U.CORP_ID) AS CORP_AREA_NM
+				, NVL(U.RCIV_SMS, 'N') AS RCIV_SMS
+				, NVL(U.RCIV_EMAIL, 'N') AS RCIV_EMAIL
+				, U.NAME AS NAME
+				, (CASE WHEN U.TEL2 IS NULL THEN '' ELSE U.TEL1 || '-' || U.TEL2 || '-' || AESDECRYPT(TRIM(U.TEL3)) END) AS TEL
+				, (CASE WHEN U.MOBILE2 IS NULL THEN '' ELSE U.MOBILE1 || '-' || U.MOBILE2 || '-' || AESDECRYPT(TRIM(U.MOBILE3)) END) AS MOBILE
+				, U.MOBILE1
+				, U.MOBILE2
+				, AESDECRYPT(U.MOBILE3)         AS MOBILE3
+				, U.MOBILE1						AS TEMP_MOBILE1
+				, U.MOBILE2						AS TEMP_MOBILE2
+				, AESDECRYPT(U.MOBILE3)         AS TEMP_MOBILE3
+				, U.TEL1						AS UTEL1
+				, U.TEL2						AS UTEL2
+				, AESDECRYPT(TRIM(U.TEL3))		AS UTEL3
+				, AESDECRYPT(TRIM(U.EMAIL1))	AS UEMAIL1
+				, U.EMAIL2						AS UEMAIL2
+				, (CASE WHEN U.EMAIL1 IS NULL THEN '' ELSE AESDECRYPT(TRIM(U.EMAIL1)) || '@' || U.EMAIL2 END) AS UEMAIL
+				, U.STATUS AS STATUS
+				, U.CALCULATE_GROUP1
+				, FN_MDM_GET_BP_CORP_NM(U.CALCULATE_GROUP1 ) AS CALCULATE_GROUP1_NM
+				, U.CALCULATE_GROUP2
+				, FN_MDM_GET_BP_CORP_NM(U.CALCULATE_GROUP2 ) AS CALCULATE_GROUP2_NM
+				, U.LOGIN_YN
+				, (CASE WHEN NVL((SELECT COUNT(*) FROM TMDM_KFR_COMM_FILE WHERE WRK_NO = U.SEQ_NO||''),  0) + NVL((SELECT COUNT(*) FROM TBCT_FILE_MNG WHERE id = U.LSP_ID), 0) = 0 THEN '2' ELSE '9' END) as CONFIRM_STATUS   
+			</isNotEmpty>
+			,FN_MDM_GET_MC_CODE_NM('HE0490',L.ACTSS) 	AS ACTSS_NM
+			,FN_MDM_GET_MC_CODE_NM('CM122',L.FITYP) 	AS FITYP_NM
+			,FN_MDM_GET_MC_CODE_NM('CM108',L.ZTERM_V) 	AS ZTERM_V_NM
+			,FN_MDM_GET_MC_CODE_NM('CM121',L.STCDT)		AS STCDT_NM
+        FROM
+            TMDM_KFR_BP_LSP L
+			<isNotEmpty property="SEQ_NO">
+		    	JOIN TADM_KFR_USER U
+		    		ON L.LSP_ID = U.LSP_ID
+			</isNotEmpty>
+        WHERE 1=1
+		    <isNotEmpty prepend="AND" property="LSP_ID">
+		    U.LSP_ID = #LSP_ID# 
+		    AND U.LSP_ID = L.LSP_ID
+		    </isNotEmpty>	
+		    <isNotEmpty prepend="AND" property="SEQ_NO">
+		    U.SEQ_NO = #SEQ_NO# 
+		    </isNotEmpty>			    
+		    <isEmpty  property="LSP_ID">
+		     AND L.BIZ_REG_NO = #BIZ_REG_NO# 
+	        </isEmpty>	        	           
+    </select>        
+
+    <select id="getPopUserList" resultClass="java.util.HashMap">
+		/* [userMgmService][getPopUserList][사용자 ID조회팝업][2018.09.18][tyoung] */      
+			SELECT       
+                  TT1.USER_ID
+                , TT1.USER_NM
+                , TT1.EMAIL
+                , SUBSTR(TT1.EMAIL,1,(INSTR(TT1.EMAIL,'@')-1)) AS EMAIL1
+                , SUBSTR(TT1.EMAIL,(INSTR(TT1.EMAIL,'@')+ 1), length(TT1.EMAIL)) AS EMAIL2
+                , AESDECRYPT(TRIM(TT1.TEL_NO)) AS TEL_NO 
+                , DECODE (TT1.TEL_NO, NULL, '', SUBSTR (AESDECRYPT (TRIM (TT1.TEL_NO)), 1, LENGTH (AESDECRYPT (TRIM (TT1.TEL_NO))) - 4) || '****') AS TEL_NO_DESC
+                , TT2.TEAM_ID
+                , TT2.TEAM_NM
+                , TT2.CORP_ID
+                , TT2.CORP_NM
+             FROM
+                  (SELECT
+                         USER_ID
+                       , USER_NM
+                       , CJ_ID || '@cj.net' AS EMAIL
+                       , TEL_NO
+                    FROM
+                         TADM_USER_IF A
+                   WHERE
+                        USER_ID IS NOT NULL
+			   AND A.DEL_YN = 'N'
+		       <isNotEmpty property="USER_NM">
+		       AND ( A.USER_NM LIKE '%' || #USER_NM# || '%'  OR A.USER_ID LIKE '%' || #USER_NM# || '%'  )
+		       </isNotEmpty>
+                         ORDER BY A.USER_ID ASC
+                  ) TT1
+                ,
+                  (SELECT
+                         T1.USER_ID
+                       , T1.CORP_ID AS TEAM_ID
+                       , T2.ABBR_NM AS TEAM_NM
+                       , T2.PRNT_CORP_ID AS CORP_ID
+                       ,
+                         (SELECT
+                                T3.ABBR_NM
+                           FROM
+                                TMDM_BP_CORP_IF T3
+                          WHERE
+                                DEL_YN = 'N'
+                                AND T3.CORP_ID = T2.PRNT_CORP_ID
+                         ) AS CORP_NM
+                    FROM
+                         TADM_USER_IF T1
+                       , TMDM_BP_CORP_IF T2
+                   WHERE
+                         T1.CORP_ID = T2.CORP_ID
+                         AND T1.DEL_YN = 'N'
+                         AND T2.DEL_YN = 'N'
+                  )TT2
+            WHERE
+                  TT1.USER_ID = TT2.USER_ID (+)
+      </select>
+      
+	<update id="insertUserTempMgmMainUserUse">
+	/* [userMgmService][insertUserTempMgmMainUserUse][USER 사용 승인][2018.08.16][tyoung] */
+	UPDATE TADM_KFR_USER
+			SET 
+				<isEqual property="JOIN_TYPE" compareValue="T01">AUTH_CD = 'A0000003',</isEqual>
+				<isEqual property="JOIN_TYPE" compareValue="T02">AUTH_CD = 'A0000004',</isEqual>
+				<isEqual property="JOIN_TYPE" compareValue="T03">AUTH_CD = 'A0000005',</isEqual>
+				<isEqual property="JOIN_TYPE" compareValue="T04">AUTH_CD = 'A0000006',</isEqual>
+				<isEqual property="JOIN_TYPE" compareValue="T05">AUTH_CD = 'A0000282',</isEqual>
+				STATUS='1',
+				APPRV_DATE		= TO_CHAR(SYSDATE,'YYYYMMDD'),
+			    MOD_ID = #gv_userId#,
+		  	    MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),	
+				ATTRIBUTE01	    = #gv_userId#,
+				ATTRIBUTE03	    = TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS'),
+				LOGIN_YN		= 'Y'
+			WHERE SEQ_NO = #SEQ_NO#
+	 
+    </update>   
+    
+	<update id="insertUserTempMgmMainShprUse">
+	/* [userMgmService][insertUserTempMgmMainShprUse][SHPR 사용 승인][2018.08.16][tyoung] */
+		UPDATE TMDM_KFR_BP_SHPR    
+				SET 
+					USE_YN='Y',
+					MOD_ID = #gv_userId#, 
+					MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+				WHERE 
+					 SHPR_ID IN (
+					 	SELECT SHPR_ID 
+					 	FROM TADM_KFR_USER 
+					 	WHERE SEQ_NO IN ( #SEQ_NO# )
+					 )
+    </update>           
+
+	<insert id="insertEventTempShpr">
+	 /* [userMgmService][insertEventTempShpr][이벤트 - 고객사 이벤트 입력][2018.09.18][tyoung] */
+		INSERT 
+				INTO TMDM_IF_EVENT_KFR_USER(
+					SEQ_NO,
+					USER_BIZ_ID,
+					USER_BIZ_TYPE,
+					USER_EVENT_TYPE,
+					PROGRESS_IF_ID,
+					IF_RESULT,
+					REG_ID,
+		            REG_DT
+				)VALUES(
+					SEQ_TMDM_IF_EVENT_KFR_USER.NEXTVAL,
+					#SHPR_ID#,
+					'S',
+					#interfaceType#, 
+					'',
+					'',
+					#gv_userId#,
+					TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+				)
+
+	</insert>      
+
+	<update id="insertUserTempMgmMainLspUse">
+	/* [userMgmService][insertUserTempMgmMainLspUse][LSP 사용 승인][2018.08.16][tyoung] */
+		UPDATE TMDM_KFR_BP_LSP   
+				SET 
+					USE_YN='Y',
+					MOD_ID = #gv_userId#, 
+					MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+				WHERE 
+					 LSP_ID IN (
+					 	SELECT LSP_ID 
+					 	FROM TADM_KFR_USER 
+					 	WHERE SEQ_NO IN ( #SEQ_NO# )
+					 )
+    </update>      
+
+    <select id="selectBizRegNoShpr" resultClass="java.util.HashMap">
+		/* [userMgmService][selectBizRegNoShpr][SHPR의 사업자등록번호 중복체크][2018.09.18][tyoung] */      
+        SELECT 				
+		  SHPR_ID,
+		  JOIN_TYPE,
+		  MDM_SHPR_ID
+		FROM TMDM_KFR_BP_SHPR
+		WHERE 
+			USE_YN='Y'
+			AND DEL_YN='N'
+			AND JOIN_TYPE = 'T01'
+			AND BIZ_REG_NO IN (
+		        SELECT BIZ_REG_NO
+		        FROM TADM_KFR_USER
+		        WHERE SEQ_NO = #SEQ_NO#
+	     	 )
+
+      </select>   
+      
+	<insert id="insertEventTempLsp">
+	 /* [userMgmService][insertEventTempLsp][이벤트 - 협력서 이벤트 입력][2018.09.18][tyoung] */
+		INSERT 
+				INTO TMDM_IF_EVENT_KFR_USER(
+					SEQ_NO,
+					USER_BIZ_ID,
+					USER_BIZ_TYPE,
+					USER_EVENT_TYPE,
+					PROGRESS_IF_ID,
+					IF_RESULT,
+					REG_ID,
+		            REG_DT
+				)VALUES(
+					SEQ_TMDM_IF_EVENT_KFR_USER.NEXTVAL,
+					#LSP_ID#,
+					'L',
+					#interfaceType#, 
+					'',
+					'',
+					#gv_userId#,
+					TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+				)
+
+	</insert>    
+	
+    <select id="selectCtEqpTemp" resultClass="java.util.HashMap">
+		/* [userMgmService][selectCtEqpTemp][][2018.09.18][tyoung] */      
+		SELECT 				
+				  		TEMP_SEQ_NO,
+						TEMP_LSP_ID AS LSP_ID,
+						TEMP_VHCL_NO,
+						TEMP_VHCL_NM,
+						TEMP_TON_CD,
+						TEMP_VHCL_KND_CD,
+						TEMP_VHCL_TYPE,
+						TEMP_DRV_NM,
+						TEMP_DRV_TEL1,
+						TEMP_DRV_TEL2,
+						AESDECRYPT(TRIM(TEMP_DRV_TEL3)) AS TEMP_DRV_TEL3,
+						TEMP_DRV_MOBILE1,
+						TEMP_DRV_MOBILE2,
+						AESDECRYPT(TRIM(TEMP_DRV_MOBILE3)) AS TEMP_DRV_MOBILE3,
+						TEMP_FIRSTJOIN_YN,
+						TEMP_REGISTRY_ID,
+						TEMP_USE_YN,
+						TEMP_DEL_YN,
+						TEMP_ORI_LSP_NM,
+						TEMP_KX_LONG_TERM_YN,
+						TEMP_KX_LONG_TERM_START,
+						TEMP_KX_LONG_TERM_END,
+						TEMP_ORI_EQP_CLS,
+						TEMP_LSP_LONG_TERM_YN,
+						TEMP_LSP_IMSI_ORI_NM,
+						TEMP_LSP_IMSI_EQP_CLS,
+						TEMP_LSP_LONG_TERM_START,
+						TEMP_LSP_LONG_TERM_END,
+						TEMP_CON_YN
+				FROM TMDM_KFR_CT_EQP_TEMP
+				WHERE TEMP_USE_YN='Y'
+				  AND TEMP_DEL_YN='N'
+				  AND TEMP_SEQ_NO = #SEQ_NO#
+				  AND TEMP_CON_YN =  'I'
+
+      </select>   	
+
+	<insert id="insertCtEqpMgmAdd">
+	 /* [userMgmService][insertCtEqpMgmAdd][][2018.09.18][tyoung] */
+	INSERT INTO TMDM_KFR_CT_EQP (LSP_ID
+				  ,VHCL_NO
+				  ,VHCL_NM 
+				  ,CNTRL_NO 
+				  ,TON_CD
+				  ,VHCL_KND_CD 
+				  ,VHCL_TYPE
+				  ,DRV_NM
+				  ,DRV_TEL1
+				  ,DRV_TEL2
+				  ,DRV_TEL3
+				  ,DRV_MOBILE1 
+				  ,DRV_MOBILE2 
+				  ,DRV_MOBILE3 
+				  ,FIRSTJOIN_YN 
+				  ,REGISTRY_ID
+				  ,ORI_LSP_NM
+				  ,ORI_EQP_CLS
+				  ,LSP_LONG_TERM_START
+				  ,LSP_LONG_TERM_END
+				  ,LSP_IMSI_EQP_CLS
+				  ,LSP_LONG_TERM_YN
+				  ,LSP_IMSI_ORI_NM
+				  ,KX_LONG_TERM_YN
+				  ,KX_LONG_TERM_START
+				  ,KX_LONG_TERM_END
+				  ,USE_YN
+				  ,DEL_YN 
+				  ,REG_ID
+		          ,REG_DT
+				  ) 
+		   VALUES (#LSP_ID#
+			      ,replace(#TEMP_VHCL_NO#, ' ', '')
+			      ,#TEMP_VHCL_NM#
+			      ,'KX' || LPAD(SEQ_TMDM_KFR_CT_EQP.NEXTVAL, 6, 0)
+			      ,#TEMP_TON_CD#
+			      ,#TEMP_VHCL_KND_CD#
+			      ,#TEMP_VHCL_TYPE#
+			      ,#TEMP_DRV_NM#
+			      ,#TEMP_DRV_TEL1#
+			      ,#TEMP_DRV_TEL2#
+			      ,AESENCRYPT(TRIM(#TEMP_DRV_TEL3#))
+			      ,#TEMP_DRV_MOBILE1#
+			      ,#TEMP_DRV_MOBILE2#
+			      ,AESENCRYPT(TRIM(#TEMP_DRV_MOBILE3#))
+			      ,#TEMP_FIRSTJOIN_YN#
+			      ,#TEMP_REGISTRY_ID#
+			      ,NVL(DECODE(#TEMP_FIRSTJOIN_YN# , 'Y', #TEMP_ORI_LSP_NM# , '.'), '.')
+			      ,#TEMP_ORI_EQP_CLS#
+				  ,#TEMP_LSP_LONG_TERM_START#
+				  ,#TEMP_LSP_LONG_TERM_END#
+				  ,#TEMP_LSP_IMSI_EQP_CLS#
+				  ,#TEMP_LSP_LONG_TERM_YN#
+				  ,#TEMP_LSP_IMSI_ORI_NM#
+				  ,#TEMP_KX_LONG_TERM_YN#
+				  ,#TEMP_KX_LONG_TERM_START#
+				  ,#TEMP_KX_LONG_TERM_END#
+			      ,'Y'
+			      ,#TEMP_DEL_YN#
+			      ,#gv_userId#
+				  ,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			      )
+
+	</insert>   
+
+
+	<update id="updateCtEqpTempConYn">
+	/* [userMgmService][updateCtEqpTempConYn][][2018.08.16][tyoung] */
+	UPDATE TMDM_KFR_CT_EQP_TEMP 
+			SET 
+				TEMP_CON_YN		= 'A',
+				MOD_ID = #gv_userId#, 
+				MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			WHERE 1=1
+				AND	 TEMP_SEQ_NO = #TEMP_SEQ_NO#
+				AND TEMP_VHCL_NO = replace(#TEMP_VHCL_NO#, ' ', '')
+    </update> 
+	          
+	<update id="up_adminMstInfoPopup_infoEdit">
+	/* [userMgmService][up_adminMstInfoPopup_infoEdit][User 정보 수정][2018.08.16][tyoung] */
+	UPDATE TADM_KFR_USER                 /*up_adminMstInfoPopup_infoEdit.sqlx][User 정보 수정][김미화] */
+	        SET
+	            BIZ_NM        =NVL(#SHPR_LOCAL_NM#, #LSP_LOCAL_NM#)
+	            ,SHPR_ID      =#SHPR_ID#
+	            ,LSP_ID       =#LSP_ID#
+	            ,CORP_ID        =#CORP_ID#					
+	            ,NAME        =#NAME#                          /*담당자로그인정보 - 담당자명*/
+	            ,TEL1        =#UTEL1#                          /*   담당자로그인정보 - 전화번호*/
+	            ,TEL2        =#UTEL2#                          /*  담당자로그인정보 - 전화번호*/
+	            ,TEL3        =AESENCRYPT(TRIM(#UTEL3#))       /*  담당자로그인정보 - 전화번호*/
+	            ,MOBILE1        = #MOBILE1#                       /* 담당자로그인정보 - 휴대전화*/
+	            ,MOBILE2        = #MOBILE2#                      /* 담당자로그인정보 - 휴대전화*/
+	            ,MOBILE3        = AESENCRYPT(TRIM(#MOBILE3#))    /* 담당자로그인정보 - 휴대전화*/
+	            ,RCIV_SMS    =  #RCIV_SMS#                         /* 담당자로그인정보 - SMS수신여부*/
+	            ,RCIV_EMAIL    = #RCIV_EMAIL#                       /* 담당자로그인정보 - 이메일수신여부*/
+	            ,EMAIL1        = AESENCRYPT(TRIM(#UEMAIL1#))                       /* 담당자로그인정보 - 담당자 이메일*/
+	            ,EMAIL2        = #UEMAIL2#                        /* 담당자로그인정보 - 담당자 이메일*/
+	            ,E_CORP_ID        =#CORP_ID#						/* 담당자로그인정보 - 담당자 실행거점 */
+	            ,CALCULATE_GROUP1 = #CALCULATE_GROUP1#
+	            ,CALCULATE_GROUP2 = #CALCULATE_GROUP2#
+	            ,LOGIN_YN =  #LOGIN_YN#                                    /*담당자로그인정보 - 로그인 가능여부*/
+	            ,ATTRIBUTE06 =AESENCRYPT(TRIM(#EMAIL1#))
+	            ,ATTRIBUTE04 = #ATTRIBUTE04#
+	            ,ATTRIBUTE05 = #ATTRIBUTE05#
+	            ,MOD_ID = #gv_userId# 
+	            ,MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+	        WHERE
+	            SEQ_NO = #SEQ_NO#
+    </update> 	          
+
+	<update id="up_adminMstInfoPopup_shprEdit">
+	/* [userMgmService][up_adminMstInfoPopup_shprEdit][SHPR 정보 수정][2018.08.16][tyoung] */
+	UPDATE TMDM_KFR_BP_SHPR        
+	        SET
+	           CORP_ID                = #CORP_ID#
+	          ,BIZ_CD				  = #BIZ_CD#				   /* 사업 코드 */
+	          ,SVC_CD				  = #SVC_CD#				   /* 서비스 코드 */
+	          ,SVC_CD2				  = #SVC_CD2#				   /* 서비스 코드2 */
+	          ,SHPR_LOCAL_NM          = #SHPR_LOCAL_NM#            /*사업자명*/
+	          ,BASE_CORP_ID           = #BASE_CORP_ID#             /*실행거점*/
+	          ,SHPR_GRADE             = #GRADE#                    /*등급*/
+	          ,FITYP                  = #FITYP#                    /* 과세유형*/
+	          ,WITHTAX_CD             = #WITHTAX_CD#               /* 부가세유형*/
+	          ,ZTERM_C                = #ZTERM_C#                  /*  지급조건*/
+	          ,SHPR_NM                = #SHPR_NM#                  /* 고객명(약어)*/
+	          ,PRSNT_NM               = #PRSNT_NM#                 /*  대표자명*/
+	          ,COMP_ZIP1              = substr(REPLACE(#COMP_ZIP#,'-',''), 0,3)     /* 사업장주소(우편번호)*/
+	          ,COMP_ZIP2              = substr(REPLACE(#COMP_ZIP#,'-',''), 4,3)     /* 사업장주소(우편번호)*/
+	          ,COMP_ADDR1             = #COMP_ADDR1#               /*  사업장주소(주소)*/
+	          ,COMP_ADDR2             = #COMP_ADDR2#               /* 사업장주소상세*/
+	          ,TEL1                   = #TEL1#                     /* 담당자상세정보 - 사업장전화번호*/
+	          ,TEL2                   = #TEL2#                     /*  담당자상세정보 - 사업장전화번호*/
+	          ,TEL3                   = AESENCRYPT(TRIM(#TEL3#))   /* 담당자상세정보 - 사업장전화번호*/
+	          ,FAX1                   = #FAX1#                     /* 담당자상세정보 - 사업장팩스번호*/
+	          ,FAX2                   = #FAX2#                     /* 담당자상세정보 - 사업장팩스번호*/
+	          ,FAX3                   = AESENCRYPT(TRIM(#FAX3#))   /* 담당자상세정보 - 사업장팩스번호*/
+	          ,EMAIL1                 = AESENCRYPT(TRIM(#EMAIL1#)) /* 담당자상세정보 - 사업자 대표 이메일*/
+	          ,EMAIL2                 = #EMAIL2#                   /* 담당자상세정보 - 사업자 대표 이메일*/
+	          ,CORP_REG_NO            = #CORP_REG_NO#              /*  법인등록번호*/
+	          ,REG_NO                 = #REG_NO#                   /*  사업자 등록번호*/
+	          ,STCDT                  = #STCDT#                    /* 세금계산서발행유형*/
+	          ,BIZ_TYP_NM             = #BIZ_TYP_NM#               /*    업태*/
+	          ,IND_TYP_NM             = #IND_TYP_NM#               /*    업종*/
+	          ,GFORM                  = #GFORM#                    /*     법적상태*/
+	          ,EIKTO                  = #EIKTO#                    /* 영업사용자(ID)*/
+	          ,ZSABE                  = #ZSABE#                    /* 영업사용자(이름)*/
+	          ,TLFNS                  = #TLFNS#                    /* 담당자상세정보 - 담당자전화번호*/
+	          ,TLFXS                  = #TLFXS#                    /* 담당자상세정보 - 계산서 담당자명*/
+	          ,INTAD                  = #INTAD#                    /*  담당자상세정보 - 담당자 이메일*/
+	          ,ALTKN                  = #ALTKN#
+	          ,MOD_ID                 = #gv_userId# 
+	          ,MOD_DT                 = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+	          ,COSTC                  = #COSTC#                                /* 코스트센터*/
+	        WHERE
+	            SHPR_ID    = #SHPR_ID#
+    </update>
+    
+    <insert id="saveShprInfo">
+		INSERT INTO TMDM_KFR_BP_SHPR(
+			SHPR_ID
+			,SITE_CD
+			,JOIN_TYPE
+			,BIZ_TYPE
+			,CORP_ID
+			,BIZ_CD
+	        ,SVC_CD
+	        ,SVC_CD2
+			,BASE_CORP_ID
+			,SHPR_GRADE
+			,PART_TYPE
+			,BUKRS
+			,KTOKD
+			,BIZ_REG_NO
+			,SHPR_LOCAL_NM
+			,FITYP
+			,WITHTAX_CD
+			,ZTERM_C
+			,SHPR_NM
+			,PRSNT_NM
+			,COMP_ZIP1
+			,COMP_ZIP2
+			,COMP_ADDR1
+			,COMP_ADDR2
+			,NATION_CD
+			,TEL1
+			,TEL2
+			,TEL3
+			,FAX1
+			,FAX2
+			,FAX3
+			,EMAIL1
+			,EMAIL2
+			,CORP_REG_NO
+			,STCDT
+			,BIZ_TYP_NM
+			,IND_TYP_NM
+			,GFORM
+			,ZUAWA
+			,CASH_CTRL
+			,EIKTO
+			,ZSABE
+			,USE_YN
+			,DEL_YN
+			,COSTC
+			,REG_ID
+			,REG_DT
+		)VALUES(
+			#SHPR_ID#
+			,'CJKX'
+			,#JOIN_TYPE#
+			,#BIZ_TYPE#
+			,#CORP_ID#
+			,#BIZ_CD#
+			,#SVC_CD#
+			,#SVC_CD2#
+			,#BASE_CORP_ID#
+			,#GRADE#
+			,'C'
+			,'1000'
+			,'1300'
+			,REPLACE(#BIZ_REG_NO#, '-', '')
+			,#SHPR_LOCAL_NM#
+			,#FITYP#
+			,#WITHTAX_CD#
+			,#ZTERM_C#
+			,#SHPR_NM#
+			,#PRSNT_NM#
+			,SUBSTR(REPLACE(#COMP_ZIP#,'-',''), 0,3)
+			,SUBSTR(REPLACE(#COMP_ZIP#,'-',''), 4,LENGTH(#COMP_ZIP#)-3)
+			,#COMP_ADDR1#
+			,AESENCRYPT(TRIM(#COMP_ADDR2#))
+			,'KR'
+			,#TEL1#
+			,#TEL2#
+			,AESENCRYPT(TRIM(#TEL3#))
+			,#FAX1#
+			,#FAX2#
+			,AESENCRYPT(TRIM(#FAX3#))
+			,AESENCRYPT(TRIM(#EMAIL1#))
+			,#EMAIL2#
+			,#CORP_REG_NO#
+			,#STCDT#
+			,#BIZ_TYP_NM#
+			,#IND_TYP_NM#
+			,#GFORM#
+			,'000'
+			,'A1'
+			,#EIKTO#
+			,#ZSABE#
+			,'Y'
+			,'N'
+			,#COSTC#
+			,#gv_userId#
+			,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		)
+    </insert>
+    
+    <update id="updateUserShprInfo">
+    	UPDATE TADM_KFR_USER
+    		SET
+    			SHPR_ID = #SHPR_ID#
+    		WHERE
+    			SEQ_NO = #SEQ_NO#
+    </update>
+    
+    <select id="se_userMgmTempDetailInfoPopup_shprID" resultClass="String">
+		SELECT
+			('S' || LPAD(SEQ_TMDM_KFR_BP_SHPR.NEXTVAL, 7, 0))
+		FROM
+			DUAL
+	</select>
+	
+	<insert id="saveShprInterfaceInfo">
+		INSERT INTO TMDM_IF_OUT_KFR_BP_SHPR(
+			INTERFACE_ID
+			,SITE_CD
+			,PV_SHPR_ID
+			,PV_KUNNR
+			,PV_PART_TYPE
+			,PV_BUKRS
+			,PV_KTOKD
+			,PV_STCD2
+			,PV_PART_NM_LO
+			,PV_FITYP
+			,PV_ZTERM_C
+			,PV_PART_NM_KO
+			,PV_SORT1
+			,PV_J_1KFREPRE
+			,PV_ADDRESS_ZIPCODE
+			,PV_ADDRESS_ADDR1
+			,PV_ADDRESS_ADDR2
+			,PV_LAND1
+			,PV_TELF1
+			,PV_TELFX
+			,PV_SMTP_ADDR
+			,PV_STCD0
+			,PV_STCD1
+			,PV_STCDT
+			,PV_J_1KFTBUS
+			,PV_J_1KFTIND
+			,PV_BRAN1
+			,PV_GFORM
+			,PV_AKONT
+			,PV_ZUAWA
+			,PV_CASH_CTRL
+			,PV_SVC_TYPE
+			,PV_EIKTO
+			,PV_ZSABE
+			,PV_TLFNS
+			,PV_TLFXS
+			,PV_INTAD
+			,PV_ALTKN
+			,PV_SYSDIV
+			,PV_USER_ID
+			,EAI_STATE
+			,EAI_DATE
+			,EAI_MSG
+			,EAI_OP
+			,REG_ID
+			,REG_DT
+			,MOD_ID
+			,MOD_DT
+		) VALUES (
+			SEQ_TMDM_IF_OUT_KFR_BP_SHPR.NEXTVAL
+			,'CJKX'
+			,#SHPR_ID#
+			,''
+			,#PART_TYPE#
+			,#BUKRS#
+			,#KTOKD#
+			,REPLACE(#BIZ_REG_NO#, '-', '')
+			,#SHPR_LOCAL_NM#
+			,#FITYP#
+			,#ZTERM_C#
+			,#SHPR_LOCAL_NM#
+			,#SHPR_NM#
+			,#PRSNT_NM#
+			,#COMP_ZIP#
+			,AESENCRYPT(TRIM(#COMP_ADDR1#))
+			,AESENCRYPT(TRIM(#COMP_ADDR2#))
+			,'KR'
+			,#TEL1# || '-' || #TEL2# || '-' || #TEL3#
+			,#FAX1# || '-' || #FAX2# || '-' || #FAX3#
+			,#EMAIL1# || '@' || #EMAIL2#
+			,#CORP_REG_NO#
+			,#REG_NO#
+			,#STCDT#
+			,#BIZ_TYP_NM#
+			,#IND_TYP_NM#
+			,#BRAN1#
+			,#GFORM#
+			,#AKONT#
+			,#ZUAWA#
+			,#CASH_CTRL#
+			,#SVC_TYPE#
+			,#EIKTO#
+			,#ZSABE#
+			,#TLFNS#
+			,#TLFXS#
+			,#INTAD#
+			,#ALTKN#
+			,''
+			,#gv_userId#
+			,''
+			,''
+			,''
+			,'I'
+			,#gv_userId#
+			,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			,#gv_userId#
+			,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')　
+		)
+	</insert>
+	
+	<update id="updateShprInterfaceInfo">
+		MERGE
+            INTO TMDM_IF_OUT_KFR_BP_SHPR 
+        USING DUAL
+           ON (PV_SHPR_ID = #SHPR_ID#)
+        WHEN MATCHED THEN
+        UPDATE SET
+            PV_KUNNR=''
+            ,PV_PART_TYPE=#PART_TYPE#
+            ,PV_BUKRS=#BUKRS#
+            ,PV_KTOKD=#KTOKD#
+            ,PV_STCD2=REPLACE(#BIZ_REG_NO#, '-', '')
+            ,PV_PART_NM_LO=#SHPR_LOCAL_NM#
+            ,PV_FITYP=#FITYP#
+            ,PV_ZTERM_C=#ZTERM_C#
+            ,PV_PART_NM_KO=#SHPR_LOCAL_NM#
+            ,PV_SORT1=#SHPR_NM#
+            ,PV_J_1KFREPRE=#PRSNT_NM#
+            ,PV_ADDRESS_ZIPCODE=#COMP_ZIP#
+            ,PV_ADDRESS_ADDR1=AESENCRYPT(TRIM(#COMP_ADDR1#))
+            ,PV_ADDRESS_ADDR2=AESENCRYPT(TRIM(#COMP_ADDR2#))
+            ,PV_LAND1='KR'
+            ,PV_TELF1=#TEL1# || '-' || #TEL2# || '-' || #TEL3#
+            ,PV_TELFX=#FAX1# || '-' || #FAX2# || '-' || #FAX3#
+            ,PV_SMTP_ADDR=#EMAIL1# || '@' || #EMAIL2#
+            ,PV_STCD0=#CORP_REG_NO#
+            ,PV_STCD1=#REG_NO#
+            ,PV_STCDT=#STCDT#
+            ,PV_J_1KFTBUS=#BIZ_TYP_NM#
+            ,PV_J_1KFTIND=#IND_TYP_NM#
+            ,PV_BRAN1=#BRAN1#
+            ,PV_GFORM=#GFORM#
+            ,PV_AKONT=#AKONT#
+            ,PV_ZUAWA=#ZUAWA#
+            ,PV_CASH_CTRL=#CASH_CTRL#
+            ,PV_SVC_TYPE=#SVC_TYPE#
+            ,PV_EIKTO=#EIKTO#
+            ,PV_ZSABE=#ZSABE#
+            ,PV_TLFNS=#TLFNS#
+            ,PV_TLFXS=#TLFXS#
+            ,PV_INTAD=#INTAD#
+            ,PV_ALTKN=#ALTKN#
+            ,PV_SYSDIV=''
+            ,PV_USER_ID=#gv_userId#
+            ,EAI_STATE=''
+            ,EAI_DATE=''
+            ,EAI_MSG=''
+            ,EAI_OP='U'
+            ,MOD_ID=#gv_userId#
+            ,MOD_DT=TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')　
+        WHEN NOT MATCHED THEN  
+        INSERT (
+            INTERFACE_ID
+            ,SITE_CD
+            ,PV_SHPR_ID
+            ,PV_KUNNR
+            ,PV_PART_TYPE
+            ,PV_BUKRS
+            ,PV_KTOKD
+            ,PV_STCD2
+            ,PV_PART_NM_LO
+            ,PV_FITYP
+            ,PV_ZTERM_C
+            ,PV_PART_NM_KO
+            ,PV_SORT1
+            ,PV_J_1KFREPRE
+            ,PV_ADDRESS_ZIPCODE
+            ,PV_ADDRESS_ADDR1
+            ,PV_ADDRESS_ADDR2
+            ,PV_LAND1
+            ,PV_TELF1
+            ,PV_TELFX
+            ,PV_SMTP_ADDR
+            ,PV_STCD0
+            ,PV_STCD1
+            ,PV_STCDT
+            ,PV_J_1KFTBUS
+            ,PV_J_1KFTIND
+            ,PV_BRAN1
+            ,PV_GFORM
+            ,PV_AKONT
+            ,PV_ZUAWA
+            ,PV_CASH_CTRL
+            ,PV_SVC_TYPE
+            ,PV_EIKTO
+            ,PV_ZSABE
+            ,PV_TLFNS
+            ,PV_TLFXS
+            ,PV_INTAD
+            ,PV_ALTKN
+            ,PV_SYSDIV
+            ,PV_USER_ID
+            ,EAI_STATE
+            ,EAI_DATE
+            ,EAI_MSG
+            ,EAI_OP
+            ,REG_ID
+            ,REG_DT
+            ,MOD_ID
+            ,MOD_DT 
+        ) VALUES(
+        	SEQ_TMDM_IF_OUT_KFR_BP_SHPR.NEXTVAL,
+			'CJKX',
+			#SHPR_ID#,
+			'',
+			#PART_TYPE#,
+			#BUKRS#,
+			#KTOKD#,
+			REPLACE(#BIZ_REG_NO#, '-', ''),
+			#SHPR_LOCAL_NM#,
+			#FITYP#,
+			#ZTERM_C#,
+			#SHPR_LOCAL_NM#,
+			#SHPR_NM#,
+			#PRSNT_NM#,
+			#COMP_ZIP#,
+			AESENCRYPT(TRIM(#COMP_ADDR1#)),
+			AESENCRYPT(TRIM(#COMP_ADDR2#)),
+			'KR',
+			#TEL1# || '-' || #TEL2# || '-' || #TEL3#,
+			#FAX1# || '-' || #FAX2# || '-' || #FAX3#,
+			#EMAIL1# || '@' || #EMAIL2#,
+			#CORP_REG_NO#,
+			#REG_NO#,
+			#STCDT#,
+			#BIZ_TYP_NM#,
+			#IND_TYP_NM#,
+			#BRAN1#,
+			#GFORM#,
+			#AKONT#,
+			#ZUAWA#,
+			#CASH_CTRL#,
+			#SVC_TYPE#,
+			#EIKTO#,
+			#ZSABE#,
+			#TLFNS#,
+			#TLFXS#,
+			#INTAD#,
+			#ALTKN#,
+			'',
+			#gv_userId#,
+			'',
+			'',
+			'',
+			'U',
+			#gv_userId#,
+			TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),
+			#gv_userId#,
+			TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+        )
+	</update>
+	
+	<update id="deleteShprInterfaceInfo">
+		UPDATE TMDM_IN_OUT_BP_SHPR
+			SET
+				EAI_OP = 'D'
+			WHERE
+				PV_SHPR_ID = #SHPR_ID#	
+	</update>
+
+    <select id="selectCustCount" resultClass="java.util.HashMap">
+
+		SELECT	
+			COUNT(CUST_ID)
+		FROM TMDM_KFR_BP_CUST
+		WHERE
+				LSP_ID=#LSP_ID#
+
+    </select>   	
+
+	<update id="up_adminMstInfoPopup_lspEdit">
+	/* [userMgmService][up_adminMstInfoPopup_lspEdit][LSP 정보 수정][2018.08.16][tyoung] */
+	UPDATE TMDM_KFR_BP_LSP 
+	              SET
+	              CORP_ID                 = #CORP_ID#
+	             ,LSP_DRIV_PERIOD         = #LSP_DRIV_PERIOD#                     /* 운전면허증 기간(시작)*/
+	             ,LSP_TRNSIT_PERIOD       = #LSP_TRNSIT_PERIOD#                       /* 운전면허증 기간(종료)*/
+	             ,LSP_LOCAL_NM            = #LSP_LOCAL_NM#                    /* 사업자명*/
+	             ,LSP_GRADE               = #GRADE#                     /*  등급*/
+	             ,FITYP                   = #FITYP#                      /* 과세유형*/
+	             ,ZTERM_V                 = #ZTERM_V#                   /* 지급조건*/
+	             ,LSP_NM                  = #LSP_NM#                     /*  고객명(약어)*/
+	             ,BASE_CORP_ID            = #BASE_CORP_ID#                  /* 실행거점*/
+	             ,PRSNT_NM                = #PRSNT_NM#                   /*  대표자명*/
+	             ,COMP_ZIP1               = substr(REPLACE(#COMP_ZIP#,'-',''), 0,3)                   /*  사업장주소(우편번호)*/
+	             ,COMP_ZIP2               = substr(REPLACE(#COMP_ZIP#,'-',''), 4,3)                /*  사업장주소(우편번호)*/
+	             ,COMP_ADDR1              = #COMP_ADDR1#                    /*   사업장주소(주소)*/
+	             ,COMP_ADDR2              = AESENCRYPT(TRIM(#COMP_ADDR2#))  /*  사업장주소상세*/
+	             ,TEL1                    = #TEL1#                       /*   담당자상세정보 - 사업장전화번호*/
+	             ,TEL2                    = #TEL2#                       /*  담당자상세정보 - 사업장전화번호*/
+	             ,TEL3                    = AESENCRYPT(TRIM(#TEL3#))     /*  담당자상세정보 - 사업장전화번호*/
+	             ,FAX1                    = #FAX1#                       /*   담당자상세정보 - 사업장팩스번호*/
+	             ,FAX2                    = #FAX2#                       /*  담당자상세정보 - 사업장팩스번호*/
+	             ,FAX3                    = AESENCRYPT(TRIM(#FAX3#))     /*  담당자상세정보 - 사업장팩스번호*/
+	             ,EMAIL1                  = AESENCRYPT(TRIM(#EMAIL1#))   /*  담당자상세정보 - 사업자 대표 이메일*/
+	             ,EMAIL2                  = #EMAIL2#                         /*  담당자상세정보 - 사업자 대표 이메일*/
+	             ,CORP_REG_NO             = #CORP_REG_NO#                    /*  법인등록번호*/
+	             ,REG_NO                  = #REG_NO#                      /*  사업자 등록번호*/
+	             ,STCDT                   = #STCDT#                      /*  세금계산서발행유형*/
+	             ,BIZ_TYP_NM              = #BIZ_TYP_NM#                     /*     업태*/
+	             ,IND_TYP_NM              = #IND_TYP_NM#                     /*   업종*/
+	             ,MOD_ID                  = #gv_userId# 
+	             ,MOD_DT                  = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+	             ,COMP_ADDR_X             = #COMP_ADDR_X#
+	             ,COMP_ADDR_Y             = #COMP_ADDR_Y#
+	             ,COSTC                   =  #COSTC#                       /* 코스트센터*/
+	             ,CONTRACT_YN             =  #CONTRACT_YN#                        /*  가맹계약체결여부*/
+	             ,ACTSS					  = #ACTSS#						/* 사업자 유형 코드 */
+	            WHERE
+	                LSP_ID            = #LSP_ID#
+    </update> 	  
+    
+	<insert id="saveLspInfo">
+		INSERT INTO TMDM_KFR_BP_LSP(
+			LSP_ID
+			,SITE_CD
+			,JOIN_TYPE
+			,BIZ_TYPE
+			,CORP_ID
+			,BASE_CORP_ID
+			,LSP_GRADE
+			,LSP_DRIV_PERIOD
+			,LSP_TRNSIT_PERIOD
+			,PART_TYPE
+			,BUKRS
+			,KTOKK
+			,BIZ_REG_NO
+			,LSP_LOCAL_NM
+			,FITYP
+			,ZTERM_V
+			,LSP_NM
+			,PRSNT_NM
+			,COMP_ZIP1
+			,COMP_ZIP2
+			,COMP_ADDR1
+			,COMP_ADDR2
+			,NATION_CD
+			,TEL1
+			,TEL2
+			,TEL3
+			,FAX1
+			,FAX2
+			,FAX3
+			,EMAIL1
+			,EMAIL2
+			,CORP_REG_NO
+			,STCDT
+			,BIZ_TYP_NM
+			,IND_TYP_NM
+			,ACTSS
+			,USE_YN
+			,DEL_YN
+			,COSTC
+			,REG_ID
+			,REG_DT
+			,CONTRACT_YN
+		)VALUES(
+			#LSP_ID#
+			,'CJKX'
+			,#JOIN_TYPE#
+			,#BIZ_TYPE#
+			,#CORP_ID#
+			,#BASE_CORP_ID#
+			,#GRADE#
+			,#LSP_DRIV_PERIOD#
+			,#LSP_TRNSIT_PERIOD#
+			,'V'
+			,'1000'
+			,'1300'
+			,REPLACE(#BIZ_REG_NO#, '-', '')
+			,#LSP_LOCAL_NM#
+			,#FITYP#
+			,#ZTERM_V#
+			,#LSP_NM#
+			,#PRSNT_NM#
+			,SUBSTR(REPLACE(#COMP_ZIP#,'-',''), 0,3) 
+			,SUBSTR(REPLACE(#COMP_ZIP#,'-',''), 4,LENGTH(#COMP_ZIP#)-3) 
+			,#COMP_ADDR1#
+			,AESENCRYPT(TRIM(#COMP_ADDR2#))
+			,'KR'
+			,#TEL1#
+			,#TEL2#
+			,AESENCRYPT(TRIM(#TEL3#))
+			,#FAX1#
+			,#FAX2#
+			,AESENCRYPT(TRIM(#FAX3#))
+			,AESENCRYPT(TRIM(#EMAIL1#))
+			,#EMAIL2#
+			,#CORP_REG_NO#
+			,#STCDT#
+			,#BIZ_TYP_NM#
+			,#IND_TYP_NM#
+			,#ACTSS#
+			,'Y'
+			,'N'
+			,#COSTC#
+			,#gv_userId#
+			,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			,#CONTRACT_YN#
+		)
+    </insert>
+    
+    <update id="updateUserLspInfo">
+    	UPDATE TADM_KFR_USER
+    		SET
+    			LSP_ID = #LSP_ID#
+    		WHERE
+    			SEQ_NO = #SEQ_NO#
+    </update>
+    
+	<select id="se_userMgmTempDetailInfoPopup_lspID" resultClass="String">
+		SELECT
+			('L' || LPAD(SEQ_TMDM_KFR_BP_LSP.NEXTVAL, 7, 0))
+		FROM
+			DUAL
+	</select>
+	
+	<insert id="saveLspInterfaceInfo">
+		INSERT INTO TMDM_IF_OUT_KFR_BP_LSP(
+			INTERFACE_ID
+			,SITE_CD
+			,PV_LSP_ID
+			,PV_KUNNR
+			,PV_PART_TYPE
+			,PV_BUKRS
+			,PV_KTOKK
+			,PV_STCD2
+			,PV_PART_NM_LO
+			,PV_FITYP
+			,PV_ZTERM_V
+			,PV_PART_NM_KO
+			,PV_J_1KFREPRE
+			,PV_ADDRESS_ZIPCODE
+			,PV_ADDRESS_ADDR1
+			,PV_ADDRESS_ADDR2
+			,PV_LAND1
+			,PV_TELF1
+			,PV_TELFX
+			,PV_SMTP_ADDR
+			,PV_STCD0
+			,PV_STCD1
+			,PV_STCDT
+			,PV_J_1KFTBUS
+			,PV_J_1KFTIND
+			,PV_ACTSS
+			,PV_AKONT
+			,PV_ZUAWA
+			,PV_CASH_CTRL
+			,PV_VEND_CLS
+			,PV_WAERS
+			,PV_ALTKN
+			,PV_BIZ_TYPE
+			,PV_BIZ_DIV_LARGE
+			,PV_USER_ID
+			,EAI_STATE
+			,EAI_DATE
+			,EAI_MSG
+			,EAI_OP
+			,REG_ID
+			,REG_DT
+			,MOD_ID
+			,MOD_DT
+		) VALUES (
+　			SEQ_TMDM_IF_OUT_KFR_BP_LSP.NEXTVAL
+			,'CJKX'
+			,#LSP_ID#
+			,''　
+			,#PART_TYPE#
+			,#BUKRS#
+			,#KTOKK#
+			,REPLACE(#BIZ_REG_NO#, '-', '')
+			,#LSP_LOCAL_NM#
+			,#FITYP#
+			,#ZTERM_V#
+			,#LSP_LOCAL_NM#
+			,#PRSNT_NM#
+			,#COMP_ZIP#
+			,AESENCRYPT(TRIM(#COMP_ADDR1#))
+			,AESENCRYPT(TRIM(#COMP_ADDR2#))
+			,'KR'
+			,#TEL1# || '-' || #TEL2# || '-' || #TEL3#
+			,#FAX1# || '-' || #FAX2# || '-' || #FAX3#
+			,#EMAIL1# || '@' || #EMAIL2#
+			,#CORP_REG_NO#
+			,#REG_NO#
+			,#STCDT#
+			,#BIZ_TYP_NM#
+			,#IND_TYP_NM#
+			,#ACTSS#
+			,#AKONT#
+			,#ZUAWA#
+			,#CASH_CTRL#
+			,#VEND_CLS#
+			,#WAERS#
+			,#ALTKN#
+			,''　
+			,#BIZ_DIV_LARGE#
+			,#gv_userId#
+			,''
+			,''
+			,''　
+			,'I'
+			,　#gv_userId#
+			,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			,　#gv_userId#
+			,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		)
+	</insert>
+	
+	<update id="updateLspInterfaceInfo">
+		MERGE
+            INTO TMDM_IF_OUT_KFR_BP_LSP 
+        USING DUAL
+           ON (PV_LSP_ID = #LSP_ID#)
+        WHEN MATCHED THEN
+        UPDATE SET
+			PV_KUNNR=''
+			,PV_PART_TYPE=#PART_TYPE#
+			,PV_BUKRS=#BUKRS#
+			,PV_KTOKK=#KTOKK#
+			,PV_STCD2=REPLACE(#BIZ_REG_NO#, '-', '')
+			,PV_PART_NM_LO=#LSP_LOCAL_NM#
+			,PV_FITYP=#FITYP#
+			,PV_ZTERM_V=#ZTERM_V#
+			,PV_PART_NM_KO=#LSP_LOCAL_NM#
+			,PV_J_1KFREPRE=#PRSNT_NM#
+			,PV_ADDRESS_ZIPCODE=#COMP_ZIP#
+			,PV_ADDRESS_ADDR1=AESENCRYPT(TRIM(#COMP_ADDR1#))
+			,PV_ADDRESS_ADDR2=AESENCRYPT(TRIM(#COMP_ADDR2#))
+			,PV_LAND1='KR'
+			,PV_TELF1=#TEL1# || '-' || #TEL2# || '-' || #TEL3#
+			,PV_TELFX=#FAX1# || '-' || #FAX2# || '-' || #FAX3#
+			,PV_SMTP_ADDR=#EMAIL1# || '@' || #EMAIL2#
+			,PV_STCD0=#CORP_REG_NO#
+			,PV_STCD1=#REG_NO#
+			,PV_STCDT=#STCDT#
+			,PV_J_1KFTBUS=#BIZ_TYP_NM#
+			,PV_J_1KFTIND=#IND_TYP_NM#
+			,PV_ACTSS=#ACTSS#
+			,PV_AKONT=#AKONT#
+			,PV_ZUAWA=#ZUAWA#
+			,PV_CASH_CTRL=#CASH_CTRL#
+			,PV_VEND_CLS=#VEND_CLS#
+			,PV_WAERS=#WAERS#
+			,PV_ALTKN=#ALTKN#
+			,PV_BIZ_TYPE=''　
+			,PV_BIZ_DIV_LARGE=#BIZ_DIV_LARGE#
+			,PV_USER_ID=#gv_userId#
+			,EAI_STATE=''　
+			,EAI_DATE=''
+			,EAI_MSG=''
+			,EAI_OP='U'
+			,MOD_ID=　#gv_userId#
+			,MOD_DT=TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+        WHEN NOT MATCHED THEN  
+	        INSERT (
+				INTERFACE_ID
+				,SITE_CD
+				,PV_LSP_ID
+				,PV_KUNNR
+				,PV_PART_TYPE
+				,PV_BUKRS
+				,PV_KTOKK
+				,PV_STCD2
+				,PV_PART_NM_LO
+				,PV_FITYP
+				,PV_ZTERM_V
+				,PV_PART_NM_KO
+				,PV_J_1KFREPRE
+				,PV_ADDRESS_ZIPCODE
+				,PV_ADDRESS_ADDR1
+				,PV_ADDRESS_ADDR2
+				,PV_LAND1
+				,PV_TELF1
+				,PV_TELFX
+				,PV_SMTP_ADDR
+				,PV_STCD0
+				,PV_STCD1
+				,PV_STCDT
+				,PV_J_1KFTBUS
+				,PV_J_1KFTIND
+				,PV_ACTSS
+				,PV_AKONT
+				,PV_ZUAWA
+				,PV_CASH_CTRL
+				,PV_VEND_CLS
+				,PV_WAERS
+				,PV_ALTKN
+				,PV_BIZ_TYPE
+				,PV_BIZ_DIV_LARGE
+				,PV_USER_ID
+				,EAI_STATE
+				,EAI_DATE
+				,EAI_MSG
+				,EAI_OP
+				,REG_ID
+				,REG_DT
+				,MOD_ID
+				,MOD_DT
+			) VALUES (
+	　			SEQ_TMDM_IF_OUT_KFR_BP_LSP.NEXTVAL
+				,'CJKX'
+				,#LSP_ID#
+				,''　
+				,#PART_TYPE#
+				,#BUKRS#
+				,#KTOKK#
+				,REPLACE(#BIZ_REG_NO#, '-', '')
+				,#LSP_LOCAL_NM#
+				,#FITYP#
+				,#ZTERM_V#
+				,#LSP_LOCAL_NM#
+				,#PRSNT_NM#
+				,#COMP_ZIP#
+				,AESENCRYPT(TRIM(#COMP_ADDR1#))
+				,AESENCRYPT(TRIM(#COMP_ADDR2#))
+				,'KR'
+				,#TEL1# || '-' || #TEL2# || '-' || #TEL3#
+				,#FAX1# || '-' || #FAX2# || '-' || #FAX3#
+				,#EMAIL1# || '@' || #EMAIL2#
+				,#CORP_REG_NO#
+				,#REG_NO#
+				,#STCDT#
+				,#BIZ_TYP_NM#
+				,#IND_TYP_NM#
+				,#ACTSS#
+				,#AKONT#
+				,#ZUAWA#
+				,#CASH_CTRL#
+				,#VEND_CLS#
+				,#WAERS#
+				,#ALTKN#
+				,''　
+				,#BIZ_DIV_LARGE#
+				,#gv_userId#
+				,''
+				,''
+				,''　
+				,'U'
+				,#gv_userId#
+				,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+				,#gv_userId#
+				,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+	        )
+	</update>
+	
+	<update id="deleteLspInterfaceInfo">
+		UPDATE TMDM_IN_OUT_BP_LSP
+			SET
+				EAI_OP = 'D'
+			WHERE
+				PV_LSP_ID = #LSP_ID#	
+	</update>
+
+    <select id="getInterFaceType" resultClass="java.util.HashMap">
+
+		SELECT USER_BIZ_ID
+		     , USER_BIZ_TYPE
+		     , USER_EVENT_TYPE
+		     , IF_RESULT
+			FROM TMDM_IF_EVENT_KFR_USER
+		    WHERE 
+		    	1=1
+		    	<isNotNull property="LSP_ID">
+		    	AND USER_BIZ_ID = #LSP_ID#
+		    	</isNotNull>
+		    	<isNotNull property="SHPR_ID">
+		    	AND USER_BIZ_ID = #SHPR_ID#
+		    	</isNotNull>
+		      AND ROWNUM = '1'
+		    ORDER BY SEQ_NO DESC
+
+    </select>   	
+	
+	<insert id="insertEventTempCust">
+	 /* [userMgmService][insertEventTempCust][][2018.09.18][tyoung] */
+		INSERT /* [userMgmTempCommonService][insertEventTempCust][이벤트 - 협력사 이벤트 입력][2013.12.09][hkkim] */
+		INTO TMDM_IF_EVENT_KFR_USER(
+			SEQ_NO,
+			USER_BIZ_ID,
+			USER_BIZ_TYPE,
+			USER_EVENT_TYPE,
+			PROGRESS_IF_ID,
+			IF_RESULT,
+	        REG_ID,
+		    REG_DT
+		)VALUES(
+			SEQ_TMDM_IF_EVENT_KFR_USER.NEXTVAL,
+			#ID#,
+			'C',
+			#interfaceType#,
+			'',
+			'',
+			#gv_userId#,
+	        TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		)
+
+	</insert> 	
+
+	<update id="deleteTempUserinfo">
+	/* [userMgmService][deleteTempUserinfo][유저삭제][2018.08.16][tyoung] */
+    	UPDATE TADM_KFR_USER 
+		   SET DEL_YN='Y' 
+		      ,MOD_ID                  = #gv_userId# 
+	          ,MOD_DT                  = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		 WHERE SEQ_NO=#SEQ_NO#  AND STATUS='0'
+    </update> 
+    
+	<update id="deleteTempLspinfo">
+	/* [userMgmService][deleteTempLspinfo][협력사삭제][2018.08.16][tyoung] */
+    	 UPDATE TMDM_KFR_BP_LSP
+		   SET DEL_YN='Y' 
+		      ,MOD_ID                  = #gv_userId# 
+	          ,MOD_DT                  = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		 WHERE LSP_ID=#LSP_ID#   
+    </update>     	          	          
+
+	<update id="deleteTempShprinfo">
+	/* [userMgmService][deleteTempShprinfo][고객삭제][2018.08.16][tyoung] */
+    	 UPDATE TMDM_KFR_BP_SHPR
+		   SET DEL_YN='Y' 
+		      ,MOD_ID                  = #gv_userId# 
+	          ,MOD_DT                  = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		 WHERE SHPR_ID=#SHPR_ID#  
+    </update>    
+    
+	<update id="up_tempPwPublic">
+	/* [userMgmService][up_tempPwPublic][임시 PW 업데이트][2018.08.16][tyoung] */
+		UPDATE TADM_KFR_USER	
+		SET
+		 	PW = TRIM(#ORDER_TEMP_PW#),
+		 	TEMPPW_MODIFY_YN = #TEMPPW_MODIFY_YN#
+		WHERE SEQ_NO=#SEQ_NO#
+    </update> 
+    
+	<update id="deleteInternalUser">
+	/* [userMgmService][deleteInternalUser][내부사용자 삭제][2018.08.16][tyoung] */
+		UPDATE TADM_KFR_USER 
+		SET DEL_YN = 'Y',
+			CORP_MSTR_YN = 'N',
+		  	MOD_ID                  = #gv_userId#, 
+	        MOD_DT                  = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE SEQ_NO = #SEQ_NO#
+    </update>    
+    
+    <select id="selectSeqNo" resultClass="java.util.HashMap">
+
+      SELECT SEQ_TADM_KFR_USER.NEXTVAL  AS SEQ_NO
+        FROM DUAL
+
+    </select>  
+    
+	<insert id="insertInternalUserData">
+	 /* [userMgmService][insertInternalUserData][내부사용자 등록][2018.09.18][tyoung] */
+		INSERT/* [internalUserPopupService.sqlx][insertPsnUserData][내부사용자 등록][20131022][임정원] */
+		         INTO TADM_KFR_USER
+		       (
+		         SEQ_NO
+		         ,ADMIN_YN
+		         ,JOIN_TYPE
+		         ,STATUS
+		         ,ID	     
+		         ,TEMPPW_MODIFY_YN
+		         ,NAME
+		         ,TEL1
+		         ,TEL2
+		         ,TEL3
+		         ,EMAIL1
+		         ,EMAIL2
+		         ,CORP_ID
+		         ,CONTRACT_GROUP1
+		         ,CONTRACT_GROUP2
+		         ,SUPERVISION_GROUP1
+		         ,SUPERVISION_GROUP2
+		         ,CALCULATE_GROUP1
+		         ,CALCULATE_GROUP2
+		         ,B_CORP_ID
+		         ,D_CORP_ID
+		         ,E_CORP_ID
+		         ,AUTH_CD
+		         ,REG_ID
+		         ,REG_DT
+				 ,LOGIN_YN
+				 ,AR_COSTC
+				 ,AP_COSTC
+				 ,DEL_YN
+				 ,AGENT_ID
+				 ,TENANT_TEL_NO
+				 ,AGENT_PW
+				 ,AGENT_GB
+		       )
+		       VALUES
+		       (
+		          #SEQ_NO#
+		         ,#ADMIN_YN#
+		         ,'T00'
+		         ,'1'
+		         ,#ID#
+		         ,'N'
+		         ,#NAME#
+		         ,#TEL1#
+		         ,#TEL2#
+		         ,AESENCRYPT(TRIM(#TEL3#))
+		         ,AESENCRYPT(TRIM(#EMAIL1#))
+		         ,#EMAIL2#
+		         ,#CORP_ID#
+		         ,#CONTRACT_GROUP1#
+		         ,#CONTRACT_GROUP2#
+		         ,#SUPERVISION_GROUP1#
+		         ,#SUPERVISION_GROUP2#
+		         ,#CALCULATE_GROUP1#
+		         ,#CALCULATE_GROUP2#
+		         ,#B_CORP_ID#
+		         ,#D_CORP_ID#
+		         ,#E_CORP_ID#
+		         ,#AUTH_CD#
+		         ,#gv_userId#
+		         ,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+				 ,'Y'
+		         ,#AR_COSTC#
+		         ,#AP_COSTC#
+		         ,'N'
+		         ,#AGENT_ID#
+		         ,#TENANT_TEL_NO#
+		         ,'1'
+		         ,#AGENT_GB#
+		       )
+
+	</insert> 	 
+	
+	<insert id="insertListSubData">
+	 /* [userMgmService][insertListSubData][실행거점 추가][2018.09.18][tyoung] */
+   		 MERGE
+		 INTO TADM_KFR_USER_AUTH_DTL A 
+		USING DUAL
+		   ON (A.SEQ_NO = #SEQ_NO#
+		   AND A.ID = #ID#
+		   <isEmpty  property="SUB_VALUE">
+	       AND A.CORP_ID = #CORP_ID#
+	       </isEmpty>
+		  <isEqual property="SUB_VALUE"  compareValue="1">
+			AND A.CORP_ID = #BASE_CORP_ID#
+          </isEqual>
+		  <isEqual property="SUB_VALUE"  compareValue="2">
+			AND A.CORP_ID = #AR_COSTC#
+          </isEqual>
+		  <isEqual property="SUB_VALUE"  compareValue="3">
+			AND A.CORP_ID = #AP_COSTC#
+          </isEqual>          	
+		   <isEmpty  property="SUB_VALUE">
+	       AND CORP_GB = #CORP_GB#
+	       </isEmpty>
+		  <isEqual property="SUB_VALUE"  compareValue="1">
+			AND CORP_GB = '01'
+          </isEqual>
+		  <isEqual property="SUB_VALUE"  compareValue="2">
+			AND CORP_GB = '02'
+          </isEqual>
+		  <isEqual property="SUB_VALUE"  compareValue="3">
+			AND CORP_GB = '02'
+          </isEqual>
+          )
+		 WHEN MATCHED THEN
+	   UPDATE
+		SET 		USE_YN = 'Y',
+					DEL_YN = 'N',
+					CORP_MSTR_YN = #CORP_MSTR_YN#,
+					MOD_ID      = #gv_userId#, 
+	                MOD_DT      = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+   WHEN NOT MATCHED THEN  
+		INSERT  ( 
+		          	SEQ_NO,
+					ID    ,
+					AUTH_NO,
+					CORP_GB,
+					CORP_ID,
+					CORP_MSTR_YN,
+					USE_YN,
+					DEL_YN,
+					REG_ID,
+		            REG_DT
+		       ) 
+		       VALUES 
+		       ( 
+		          	#SEQ_NO#,
+					#ID#,
+					NVL((SELECT MAX(AUTH_NO) FROM TADM_KFR_USER_AUTH_DTL WHERE SEQ_NO = #SEQ_NO# AND ID = #ID#), 0) + 1,
+				  <isEmpty  property="SUB_VALUE">
+			       #CORP_GB#,
+			       </isEmpty>
+				  <isEqual property="SUB_VALUE"  compareValue="1">
+					'01',
+		          </isEqual>
+				  <isEqual property="SUB_VALUE"  compareValue="2">
+					'02',
+		          </isEqual>
+				  <isEqual property="SUB_VALUE"  compareValue="3">
+					 '02',
+		          </isEqual>
+				   <isEmpty  property="SUB_VALUE">
+					#CORP_ID#,
+			       </isEmpty>
+				  <isEqual property="SUB_VALUE"  compareValue="1">
+					 #BASE_CORP_ID#,
+		          </isEqual>
+				  <isEqual property="SUB_VALUE"  compareValue="2">
+					 #AR_COSTC#,
+		          </isEqual>
+				  <isEqual property="SUB_VALUE"  compareValue="3">
+					 #AP_COSTC#,
+		          </isEqual>
+					#CORP_MSTR_YN#,
+					'Y',
+					'N',
+					#gv_userId#,
+             	    TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		       )	
+
+	</insert> 	 	
+
+	<update id="updateInternalUser">
+		UPDATE TADM_KFR_USER  /* [internalUserPopupService.sqlx][updateInternalUser][사용자 정보 업데이트][20131205][임정원] */
+		       SET
+		       ADMIN_YN = #ADMIN_YN#  
+			   ,EMAIL1 = AESENCRYPT(TRIM(#EMAIL1#))
+			   ,EMAIL2 = #EMAIL2#
+			   ,TEL1 = #TEL1#
+			   ,TEL2 = #TEL2#
+			   ,TEL3 = AESENCRYPT(TRIM(#TEL3#))
+			   ,CORP_ID = #CORP_ID#
+			   ,CONTRACT_GROUP1 = #CONTRACT_GROUP1#
+			   ,CONTRACT_GROUP2 = #CONTRACT_GROUP2#
+			   ,SUPERVISION_GROUP1 = #SUPERVISION_GROUP1#
+			   ,SUPERVISION_GROUP2 = #SUPERVISION_GROUP2#
+			   ,CALCULATE_GROUP1 = #CALCULATE_GROUP1#
+			   ,CALCULATE_GROUP2 = #CALCULATE_GROUP2#
+			   ,B_CORP_ID = #B_CORP_ID#
+			   ,D_CORP_ID = #D_CORP_ID#
+			   ,E_CORP_ID = #E_CORP_ID#
+			   ,AUTH_CD  = #AUTH_CD#
+			   ,MOD_ID = #ID#
+			   ,MOD_DT      = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			   ,AR_COSTC = #AR_COSTC#
+			   ,AP_COSTC = #AP_COSTC#
+			   ,AGENT_ID = #AGENT_ID#
+			   ,TENANT_TEL_NO = #TENANT_TEL_NO#
+			   ,AGENT_PW      = 1
+			   ,AGENT_GB      = #AGENT_GB#
+		WHERE SEQ_NO = #SEQ_NO#
+    </update>
+    
+	<update id="updateInternalUserPw">
+	/* [userMgmService][updateInternalUserPw][내부사용자 PW 업데이트][2018.11.16][DYCho] */
+		UPDATE TADM_KFR_USER	
+		SET
+		 	PW = #PW#
+		 	,TEMPPW_MODIFY_YN = 'Y'
+		WHERE SEQ_NO=#SEQ_NO#
+    </update> 
+    
+    <select id="getBaseCorp" resultClass="java.util.HashMap">
+    	SELECT /* [userMgmService.sqlx][getBaseCorp][정보가져오기][18.10.22][DYCho] */
+    		E_CORP_ID	CORP_ID
+    	FROM
+    		TADM_KFR_USER
+    	WHERE
+    		ID=#gv_userId#
+    		AND JOIN_TYPE = 'T00'
+    </select>
+    
+    <select id="getUserShprList" resultClass="java.util.HashMap">
+    	/* [userMgmService.sqlx][getUserShprList][18.10.22][DYCho] */
+		SELECT
+			'' CHK
+		    ,U.SEQ_NO              SEQ_NO
+    		,U.SHPR_ID || U.LSP_ID AS SL_CHECK
+		    ,U.JOIN_TYPE          JOIN_TYPE
+		    ,U.BIZ_TYPE           BIZ_TYPE
+		    ,U.BIZ_NM             BIZ_NM
+		    ,U.BIZ_REG_NO         BIZ_REG_NO
+		    ,U.ID                 ID
+		    ,U.NAME               NAME
+		    ,U.SHPR_ID			SHPR_ID
+		    ,U.STATUS				STATUS
+		    ,(CASE WHEN U.STATUS='0' THEN '미승인' ELSE '승인' END) AS STATUS_NM
+		    , (SELECT MAX(USR.NAME) FROM TADM_KFR_USER USR WHERE USR.ID = U.ATTRIBUTE01 AND USR.DEL_YN = 'N') AS CONFIRM_NM
+		    , ATTRIBUTE03 AS CONFIRM_DT
+		FROM
+		    TADM_KFR_USER U
+		    LEFT JOIN TMDM_KFR_BP_SHPR S
+        		ON U.SHPR_ID = S.SHPR_ID
+		WHERE
+		    1=1
+		    AND U.JOIN_TYPE IN ('T01', 'T02', 'T03')
+			AND U.DEL_YN = 'N'
+		    <isNotEmpty prepend="AND" property="BIZ_NM">
+		        U.BIZ_NM LIKE '%'||#BIZ_NM#||'%'     /*고객명*/
+		    </isNotEmpty>
+			<isNotEmpty prepend="AND" property="BIZ_REG_NO">
+		        U.BIZ_REG_NO LIKE '%' || #BIZ_REG_NO# || '%'     /*사업자등록번호*/
+		    </isNotEmpty>
+			<isNotEmpty prepend="AND" property="PHONE">
+		        (U.MOBILE1 || U.MOBILE2 || AESDECRYPT(U.MOBILE3)) LIKE '%' || #PHONE# || '%'	/* 핸드폰 */
+		    </isNotEmpty>
+			<isNotEmpty prepend="AND" property="TEL">
+		        (U.TEL1 || U.TEL2 || AESDECRYPT(U.TEL3)) LIKE '%' || #TEL# || '%'		/*전화번호*/
+		    </isNotEmpty>
+			<isNotEmpty prepend="AND" property="STA_DT">
+				<isNotEmpty property="END_DT">
+				SUBSTR(U.REG_DT,1,8) BETWEEN REPLACE(#STA_DT#, '-', '') AND REPLACE(#END_DT#, '-', '')	
+				</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="MDM_ID">
+				S.MDM_SHPR_ID = #MDM_ID#			/*MDM_SHPR_ID*/
+		    </isNotEmpty>
+		    <isNotEmpty prepend="AND" property="STATUS">
+		        U.STATUS = #STATUS#
+		    </isNotEmpty>
+		    <isNotEmpty prepend="AND" property="USER_ID">
+		        U.ID = #USER_ID#
+		    </isNotEmpty>
+    </select>
+    
+    <select id="getUserLspList" resultClass="java.util.HashMap">
+    	/* [userMgmService.sqlx][getUserLspList][18.10.22][DYCho] */
+		SELECT
+			'' CHK
+		    ,U.SEQ_NO              SEQ_NO
+    		,U.SHPR_ID || U.LSP_ID AS SL_CHECK
+		    ,U.JOIN_TYPE          JOIN_TYPE
+		    ,U.BIZ_TYPE           BIZ_TYPE
+		    ,U.BIZ_NM             BIZ_NM
+		    ,U.BIZ_REG_NO         BIZ_REG_NO
+		    ,U.ID                 ID
+		    ,U.NAME               NAME
+		    ,U.LSP_ID				LSP_ID
+		    ,U.STATUS				STATUS
+		    ,(CASE WHEN U.STATUS='0' THEN '미승인' ELSE '승인' END) AS STATUS_NM
+		    ,FN_MDM_GET_MC_CODE_NM('MEMBER_JOIN_PATH',U.ATTRIBUTE04)			AS PATH
+		    , NVL(E.VHCL_NO, TEMP.TEMP_VHCL_NO) AS VHCL_NO
+       		, NVL(E.VHCL_KND_CD, TEMP.TEMP_VHCL_KND_CD) AS VHCL_KND_CD
+       		, FN_MDM_GET_MC_CODE_NM('CM038', NVL(E.VHCL_KND_CD, TEMP.TEMP_VHCL_KND_CD)) AS VHCL_KND_NM
+       		, NVL(E.TON_CD, TEMP.TEMP_TON_CD) AS TON_CD
+       		, FN_MDM_GET_MC_CODE_NM('CM039', NVL(E.TON_CD, TEMP.TEMP_TON_CD)) AS TON_NM
+       		, CASE WHEN E.DRV_MOBILE1 IS NULL AND E.DRV_MOBILE2 IS NULL AND E.DRV_MOBILE3 IS NULL
+       					THEN TEMP.TEMP_DRV_MOBILE1 || '-' || TEMP.TEMP_DRV_MOBILE2 || '-' || AESDECRYPT(TEMP.TEMP_DRV_MOBILE3)
+       			   ELSE E.DRV_MOBILE1 || '-' || E.DRV_MOBILE2 || '-' || AESDECRYPT(E.DRV_MOBILE3)
+       		  END AS MOBILE_NO	  
+       		, CASE WHEN E.DRV_MOBILE1 IS NULL AND E.DRV_MOBILE2 IS NULL AND E.DRV_MOBILE3 IS NULL
+       					THEN TEMP.TEMP_DRV_MOBILE1 || '-' || TEMP.TEMP_DRV_MOBILE2 || '-' || '****'
+       			   ELSE E.DRV_MOBILE1 || '-' || E.DRV_MOBILE2 || '-' || '****'
+       		  END AS MOBILE_NO_DESC	   		
+       		, (SELECT MAX(USR.NAME) FROM TADM_KFR_USER USR WHERE USR.ID = U.ATTRIBUTE01 AND USR.DEL_YN = 'N') AS CONFIRM_NM
+		    , ATTRIBUTE03 AS CONFIRM_DT
+		FROM
+		    TADM_KFR_USER U
+		    , TMDM_KFR_BP_LSP L
+		    , TMDM_KFR_CT_EQP E
+		    , TMDM_KFR_CT_EQP_TEMP TEMP
+		WHERE
+		    1=1
+		    AND U.LSP_ID = L.LSP_ID(+)
+		    AND L.LSP_ID = E.LSP_ID(+)
+		    AND U.SEQ_NO = TEMP.TEMP_SEQ_NO(+)
+		    AND U.JOIN_TYPE IN #JOIN_TYPE#
+			AND U.DEL_YN = 'N'
+			AND E.DEL_YN(+) = 'N'
+			AND TEMP.TEMP_DEL_YN(+) = 'N'
+			AND TEMP.TEMP_CON_YN(+) IN ('D', 'U', 'I')
+		    <isNotEmpty prepend="AND" property="BIZ_NM">
+		        U.BIZ_NM LIKE '%'||#BIZ_NM#||'%'     /*고객명*/
+		    </isNotEmpty>        
+			<isNotEmpty prepend="AND" property="BIZ_REG_NO">
+		        U.BIZ_REG_NO LIKE '%' || #BIZ_REG_NO# || '%'     /*사업자등록번호*/
+		    </isNotEmpty>
+			<isNotEmpty prepend="AND" property="PHONE">
+		        (U.MOBILE1 || U.MOBILE2 || AESDECRYPT(U.MOBILE3)) LIKE '%' || #PHONE# || '%'	/* 핸드폰 */
+		    </isNotEmpty>
+			<isNotEmpty prepend="AND" property="TEL">
+		        (U.TEL1 || U.TEL2 || AESDECRYPT(U.TEL3)) LIKE '%' || #TEL# || '%'		/*전화번호*/
+		    </isNotEmpty>
+		    <isNotEmpty prepend="AND" property="STATUS">
+		        U.STATUS = #STATUS#
+		    </isNotEmpty>
+			<isNotEmpty prepend="AND" property="STA_DT">
+				<isNotEmpty property="END_DT">
+				SUBSTR(U.REG_DT,1,8) BETWEEN REPLACE(#STA_DT#, '-', '') AND REPLACE(#END_DT#, '-', '')	
+				</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="VHCL_NO">
+			U.LSP_ID IN (SELECT LSP_ID 
+						 FROM TMDM_KFR_CT_EQP
+						 WHERE VHCL_NO LIKE '%'||#VHCL_NO#||'%'
+						 AND DEL_YN = 'N')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="PATH">
+			U.ATTRIBUTE04	= #PATH#
+			</isNotEmpty>
+		    <isNotEmpty prepend="AND" property="MDM_ID">
+		             L.MDM_LSP_ID(+) = #MDM_ID#		/*MDM_LSP_ID*/
+		    </isNotEmpty>        
+			<isNotEmpty prepend="AND" property="USER_ID">
+		             U.ID = #USER_ID#				/*회원 아이디*/
+		    </isNotEmpty> 
+		    <isEqual property="HWAMUL" compareValue="Y">
+		             AND U.SOURCE_NM = 'HMM' 
+ 		    </isEqual>  
+    </select>
+    
+    <!-- 정보센터 운송가맹점 조회 쿼리. -->
+    <select id="getUserLspListTO4" resultClass="java.util.HashMap">
+    	/* [sql-userMgmService.xml][userMgmService.ㅍ][정보센터 운송가맹점 조회][2018.7.20][itoh] */
+		SELECT
+			'' CHK
+		    ,U.SEQ_NO              SEQ_NO
+    		,U.SHPR_ID || U.LSP_ID AS SL_CHECK
+		    ,U.JOIN_TYPE          JOIN_TYPE
+		    ,U.BIZ_TYPE           BIZ_TYPE
+		    ,U.BIZ_NM             BIZ_NM
+		    ,U.BIZ_REG_NO         BIZ_REG_NO
+		    ,U.ID                 ID
+		    ,U.NAME               NAME
+		    ,U.LSP_ID				LSP_ID
+		    ,U.STATUS				STATUS
+		    ,(CASE WHEN U.STATUS='0' THEN '미승인' ELSE '승인' END) AS STATUS_NM
+		    ,FN_MDM_GET_MC_CODE_NM('MEMBER_JOIN_PATH',U.ATTRIBUTE04)			AS PATH
+       		, (SELECT MAX(USR.NAME) FROM TADM_KFR_USER USR WHERE USR.ID = U.ATTRIBUTE01 AND USR.DEL_YN = 'N') AS CONFIRM_NM
+		    , ATTRIBUTE03 AS CONFIRM_DT
+		FROM
+		    TADM_KFR_USER U
+		    , TMDM_KFR_BP_LSP L
+		WHERE
+		    1=1
+		    AND U.LSP_ID = L.LSP_ID(+)
+		    AND U.JOIN_TYPE IN #JOIN_TYPE#
+			AND U.DEL_YN = 'N'
+		    <isNotEmpty prepend="AND" property="BIZ_NM">
+		        U.BIZ_NM LIKE '%'||#BIZ_NM#||'%'     /*고객명*/
+		    </isNotEmpty>        
+			<isNotEmpty prepend="AND" property="BIZ_REG_NO">
+		        U.BIZ_REG_NO LIKE '%' || #BIZ_REG_NO# || '%'     /*사업자등록번호*/
+		    </isNotEmpty>
+			<isNotEmpty prepend="AND" property="PHONE">
+		        (U.MOBILE1 || U.MOBILE2 || AESDECRYPT(U.MOBILE3)) LIKE '%' || #PHONE# || '%'	/* 핸드폰 */
+		    </isNotEmpty>
+			<isNotEmpty prepend="AND" property="TEL">
+		        (U.TEL1 || U.TEL2 || AESDECRYPT(U.TEL3)) LIKE '%' || #TEL# || '%'		/*전화번호*/
+		    </isNotEmpty>
+			<isNotEmpty prepend="AND" property="STA_DT">
+				<isNotEmpty property="END_DT">
+				SUBSTR(U.REG_DT,1,8) BETWEEN REPLACE(#STA_DT#, '-', '') AND REPLACE(#END_DT#, '-', '')	
+				</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="STATUS">
+		        U.STATUS = #STATUS#
+		    </isNotEmpty>
+			<isNotEmpty prepend="AND" property="VHCL_NO">
+			U.LSP_ID IN (
+								SELECT
+										LSP_ID 
+								FROM
+										TMDM_KFR_CT_EQP
+								WHERE
+										VHCL_NO LIKE '%'||#VHCL_NO#||'%'
+						  )
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="PATH">
+			U.ATTRIBUTE04	= #PATH#
+			</isNotEmpty>
+		    <isNotEmpty prepend="AND" property="MDM_ID">
+		             L.MDM_LSP_ID = #MDM_ID#		/*MDM_LSP_ID*/
+		    </isNotEmpty> 
+		    <isNotEmpty prepend="AND" property="USER_ID">
+		             U.ID = #USER_ID#		
+		    </isNotEmpty>            
+    </select>
+    
+    <select id="getLspVhclList" resultClass="java.util.HashMap">
+		SELECT
+			'' CHK
+			,'' AS TEMP_SEQ_NO
+		    ,LSP_ID
+		    ,VHCL_NO
+		    ,CNTRL_NO
+		    ,TON_CD
+		    ,VHCL_KND_CD
+		    ,DRV_NM
+		    ,DRV_MOBILE1
+		    ,DRV_MOBILE2
+		    ,AESDECRYPT(DRV_MOBILE3) AS DRV_MOBILE3
+		    ,DRV_MOBILE1 || DRV_MOBILE2 || AESDECRYPT(DRV_MOBILE3) 	AS DRV_MOBILE
+			,FN_MDM_GET_MC_CODE_NM('CM039',TON_CD)					AS TON_NM
+			,FN_MDM_GET_MC_CODE_NM('CM038',VHCL_KND_CD)				AS VHCL_KND_NM
+		FROM
+		    TMDM_KFR_CT_EQP A
+		WHERE
+			1=1
+			AND DEL_YN = 'N'
+			AND LSP_ID = #LSP_ID#
+			AND LSP_ID NOT IN (
+				SELECT TEMP_LSP_ID                      
+                  FROM TMDM_KFR_CT_EQP_TEMP                               
+                  WHERE TEMP_VHCL_NO = A.VHCL_NO                                     
+                  AND TEMP_LSP_ID = A.LSP_ID                                     
+                  AND TEMP_DEL_YN = 'N'
+                  AND TEMP_CON_YN IN ('D', 'U', 'I') 
+			)
+			<isNotEmpty property="TON_CD">
+				AND TON_CD = #TON_CD#
+			</isNotEmpty>
+			<isNotEmpty property="VHCL_KND_CD">
+				AND VHCL_KND_CD = #VHCL_KND_CD#
+			</isNotEmpty>
+			<isNotEmpty property="DRV_NM">
+				AND DRV_NM LIKE '%' || #DRV_NM# || '%'
+			</isNotEmpty>	
+		UNION ALL
+		SELECT '' CHK
+					,TO_CHAR(TEMP_SEQ_NO) AS TEMP_SEQ_NO
+		            ,TEMP_LSP_ID AS LSP_ID
+		            ,TEMP_VHCL_NO AS VHCL_NO
+		            ,TEMP_CNTRL_NO AS CNTRL_NO
+		            ,TEMP_TON_CD AS TON_CD
+		            ,TEMP_VHCL_KND_CD AS VHCL_KND_CD
+		            ,TEMP_DRV_NM AS DRV_NM
+		            ,TEMP_DRV_MOBILE1 AS DRV_MOBILE1
+		            ,TEMP_DRV_MOBILE2 AS DRV_MOBILE2
+		            ,AESDECRYPT(TEMP_DRV_MOBILE3) AS DRV_MOBILE3
+		            ,TEMP_DRV_MOBILE1 || TEMP_DRV_MOBILE2 || AESDECRYPT(TEMP_DRV_MOBILE3)     AS DRV_MOBILE
+		            ,FN_MDM_GET_MC_CODE_NM('CM039',TEMP_TON_CD)                    			  AS TON_NM
+		            ,FN_MDM_GET_MC_CODE_NM('CM038',TEMP_VHCL_KND_CD)                		  AS VHCL_KND_NM
+		FROM TMDM_KFR_CT_EQP_TEMP   
+		WHERE 1=1
+		AND TEMP_DEL_YN = 'N'  
+		AND TEMP_LSP_ID = #LSP_ID# 
+		AND TEMP_CON_YN IN ('D', 'U', 'I' ) 
+		<isNotEmpty property="TON_CD">
+			AND TEMP_TON_CD = #TON_CD#
+		</isNotEmpty>
+		<isNotEmpty property="VHCL_KND_CD">
+			AND TEMP_VHCL_KND_CD = #VHCL_KND_CD#
+		</isNotEmpty>
+		<isNotEmpty property="DRV_NM">
+			AND TEMP_DRV_NM LIKE '%' || #DRV_NM# || '%'
+		</isNotEmpty>	     		
+    </select>
+    
+    <select id="getLspVhclInfo" resultClass="java.util.HashMap">
+      	SELECT /* [userMgmService.sqlx][getLspVhclInfo][차량상세정보조회][18.11.01][DYCho] */
+		    LSP_ID              LSP_ID
+		    , NULL				TEMP_SEQ_NO
+		    <isNotEmpty property="LSP_ID">
+		    	,(SELECT LSP_LOCAL_NM FROM TMDM_KFR_BP_LSP WHERE LSP_ID=#LSP_ID#) LSP_NM
+		    </isNotEmpty>
+		    ,VHCL_NO            VHCL_NO
+		    ,CNTRL_NO           CNTRL_NO
+		    ,TON_CD             TON_CD
+		    ,VHCL_KND_CD        VHCL_KND_CD
+		    ,DRV_NM             DRV_NM
+		    ,DRV_MOBILE1        DRV_MOBILE1
+		    ,DRV_MOBILE2        DRV_MOBILE2
+		    ,AESDECRYPT(DRV_MOBILE3)        DRV_MOBILE3
+		    ,DRV_MOBILE1 || DRV_MOBILE2 || DRV_MOBILE3 DRV_MOBILE
+		    ,FIRSTJOIN_YN       FIRSTJOIN_YN
+		    ,USE_YN             USE_YN
+		    ,ORI_LSP_NM         ORI_LSP_NM
+		    ,ORI_EQP_CLS        ORI_EQP_CLS
+		    ,LSP_LONG_TERM_YN   LSP_LONGTERM_YN
+		    ,KX_LONG_TERM_START LONGTERM_START
+		    ,KX_LONG_TERM_END   LONGTERM_END
+		    ,KX_LONG_TERM_YN    LONG_TERM_YN
+		    ,LSP_LONG_TERM_START
+		    ,LSP_LONG_TERM_END
+		    ,LSP_IMSI_EQP_CLS
+		    ,LSP_IMSI_ORI_NM
+		    ,VHCL_CLS
+		    ,NVL((SELECT
+					           TEMP_CON_YN                      
+					         FROM
+					            TMDM_KFR_CT_EQP_TEMP                               
+					         WHERE TEMP_VHCL_NO = A.VHCL_NO                                     
+			               		AND TEMP_LSP_ID = A.LSP_ID                                     
+			               		AND TEMP_DEL_YN = 'N'
+			               		AND TEMP_CON_YN IN ('D', 'U', 'I') 
+			               		AND ROWNUM = 1), 'A') AS REQ_STAT     
+		FROM
+		    TMDM_KFR_CT_EQP A
+		WHERE 1=1
+		AND DEL_YN = 'N'
+		AND LSP_ID NOT IN (
+				SELECT TEMP_LSP_ID                      
+                  FROM TMDM_KFR_CT_EQP_TEMP                               
+                  WHERE TEMP_VHCL_NO = A.VHCL_NO                                     
+                  AND TEMP_LSP_ID = A.LSP_ID                                     
+                  AND TEMP_DEL_YN = 'N'
+                  AND TEMP_CON_YN IN ('D', 'U', 'I') 
+			)
+			<isNotEmpty property="LSP_ID">
+				AND LSP_ID = #LSP_ID#
+			</isNotEmpty>
+			<isNotEmpty property="VHCL_NO">
+				AND VHCL_NO = #VHCL_NO#
+			</isNotEmpty>
+			<isNotEmpty property="CNTRL_NO">
+				AND CNTRL_NO = #CNTRL_NO#
+			</isNotEmpty>
+		UNION ALL
+		SELECT TEMP_LSP_ID             AS LSP_ID
+            , TEMP_SEQ_NO
+            <isNotEmpty property="LSP_ID">
+		    	,(SELECT LSP_LOCAL_NM FROM TMDM_KFR_BP_LSP WHERE LSP_ID=#LSP_ID#) LSP_NM
+		    </isNotEmpty>
+            ,TEMP_VHCL_NO            AS VHCL_NO
+            ,TEMP_CNTRL_NO           AS CNTRL_NO
+            ,TEMP_TON_CD             AS TON_CD
+            ,TEMP_VHCL_KND_CD        AS VHCL_KND_CD
+            ,TEMP_DRV_NM             AS DRV_NM
+            ,TEMP_DRV_MOBILE1        AS DRV_MOBILE1
+            ,TEMP_DRV_MOBILE2        AS DRV_MOBILE2
+            ,AESDECRYPT(TEMP_DRV_MOBILE3)        AS DRV_MOBILE3
+            ,TEMP_DRV_MOBILE1 || TEMP_DRV_MOBILE2 || TEMP_DRV_MOBILE3 AS DRV_MOBILE
+            ,TEMP_FIRSTJOIN_YN       AS FIRSTJOIN_YN
+            ,TEMP_USE_YN             AS USE_YN
+            ,TEMP_ORI_LSP_NM         AS ORI_LSP_NM
+            ,TEMP_ORI_EQP_CLS        AS ORI_EQP_CLS
+            ,TEMP_LSP_LONG_TERM_YN   AS LSP_LONGTERM_YN
+            ,TEMP_KX_LONG_TERM_START AS LONGTERM_START
+            ,TEMP_KX_LONG_TERM_END   AS LONGTERM_END
+            ,TEMP_KX_LONG_TERM_YN    AS LONG_TERM_YN
+            ,TEMP_LSP_LONG_TERM_START AS LSP_LONG_TERM_START
+            ,TEMP_LSP_LONG_TERM_END AS LSP_LONG_TERM_END
+            ,TEMP_LSP_IMSI_EQP_CLS AS LSP_IMSI_EQP_CLS
+            ,TEMP_LSP_IMSI_ORI_NM AS LSP_IMSI_ORI_NM
+            ,'' VHCL_CLS
+            ,TEMP_CON_YN AS REQ_STAT  
+        FROM
+            TMDM_KFR_CT_EQP_TEMP A
+        WHERE 1=1	
+        AND TEMP_CON_YN IN ('D', 'U', 'I') 
+        AND TEMP_DEL_YN = 'N'
+        <isNotEmpty property="LSP_ID">
+			AND TEMP_LSP_ID = #LSP_ID#
+		</isNotEmpty>
+		<isNotEmpty property="VHCL_NO">
+			AND TEMP_VHCL_NO = #VHCL_NO#
+		</isNotEmpty>
+		<isNotEmpty property="CNTRL_NO">
+			AND TEMP_CNTRL_NO = #CNTRL_NO#
+		</isNotEmpty>
+    </select>
+    
+    <select id="getLspName" resultClass="java.util.HashMap">
+    	SELECT
+    		LSP_NM LSP_NAME
+    	FROM
+    		TMDM_KFR_BP_LSP
+    	WHERE
+    		LSP_ID = #LSP_ID#
+    </select>
+    
+    <select id="getVhclCheck" resultClass="java.util.HashMap">
+		/* [userMgmService][getVhclCheck][차량번호중복체크][2018.11.01][DYCho] */
+		SELECT CASE WHEN D.JOIN_TYPE = 'T05' THEN (CASE WHEN T05_CHK >= 1 THEN 'T05_DUPLI' ELSE 'OK' END)
+                    ELSE (CASE WHEN D.T04_CHK >= 1 THEN 'T04_DUPLI' ELSE 'OK' END)
+                END AS RESULT
+          FROM (SELECT C.T04_CHK
+                      ,C.T05_CHK
+                      ,(SELECT JOIN_TYPE
+                          FROM TMDM_KFR_BP_LSP
+                         WHERE LSP_ID = #LSP_ID#) AS JOIN_TYPE
+                  FROM (SELECT SUM(B.T04_CHK) AS T04_CHK
+                              ,SUM(B.T05_CHK) AS T05_CHK
+                          FROM (SELECT COUNT(*) AS T04_CHK
+                                      ,0 AS T05_CHK
+                                  FROM TMDM_KFR_CT_EQP A 
+                                 WHERE LSP_ID = #LSP_ID#
+                                   AND VHCL_NO = #VHCL_NO#
+                                   AND DEL_YN = 'N'
+                                UNION ALL  
+                                SELECT 0 AS T04_CHK
+                                      ,COUNT(*) AS T05_CHK
+                                  FROM TMDM_KFR_CT_EQP
+                                 WHERE DEL_YN = 'N'
+                                 AND LSP_ID = #LSP_ID#) B) C) D
+    </select>
+    
+    <update id="saveLspVhclInfo">
+	    /* [userMgmService][saveLspVhclInfo][LSP 차량 정보 저장][2018.11.01][DYCho] */
+	    MERGE
+			INTO TMDM_KFR_CT_EQP 
+	    USING DUAL
+	       ON (LSP_ID = #LSP_ID# AND VHCL_NO = #VHCL_NO#
+	       <isNotEmpty property="CONRL_NO">
+				AND CNTRL_NO = NVL(#CNTRL_NO#,'')
+	       </isNotEmpty>
+	       )
+	    WHEN MATCHED THEN
+	    UPDATE
+	    SET 
+	        TON_CD = #TON_CD#
+	        ,VHCL_KND_CD = #VHCL_KND_CD#
+	        ,DRV_NM = #DRV_NM#
+	        ,DRV_MOBILE1 = #DRV_MOBILE1#
+	        ,DRV_MOBILE2 = #DRV_MOBILE2#
+	        ,DRV_MOBILE3 = AESENCRYPT(TRIM(#DRV_MOBILE3#))
+	        ,FIRSTJOIN_YN = #FIRSTJOIN_YN#
+	        ,USE_YN = NVL(#USE_YN#, 'Y')
+	        ,DEL_YN = 'N'
+	        ,ORI_LSP_NM = #ORI_LSP_NM#
+	        ,ORI_EQP_CLS = #ORI_EQP_CLS#
+	        ,LSP_LONG_TERM_YN = #LSP_LONGTERM_YN#
+	        ,KX_LONG_TERM_START = #LONGTERM_START#
+	        ,KX_LONG_TERM_END = #LONGTERM_END#
+	        ,MOD_ID = #gv_userId#
+	        ,MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+	    WHEN NOT MATCHED THEN  
+	    INSERT (
+	        LSP_ID
+	        ,VHCL_NO
+	        ,CNTRL_NO
+	        ,TON_CD
+	        ,VHCL_KND_CD
+	        ,DRV_NM
+	        ,DRV_MOBILE1
+	        ,DRV_MOBILE2
+	        ,DRV_MOBILE3
+	        ,FIRSTJOIN_YN
+	        ,USE_YN
+	        ,ORI_LSP_NM
+	        ,ORI_EQP_CLS
+	        ,LSP_LONG_TERM_YN
+	        ,KX_LONG_TERM_START
+	        ,KX_LONG_TERM_END
+	        ,REG_ID
+	        ,REG_DT
+	        ,MOD_ID
+	        ,MOD_DT 
+	    ) VALUES (
+	        #LSP_ID#
+	        ,REPLACE(#VHCL_NO#, ' ', '')
+	        ,'KX' || SEQ_TMDM_KFR_CT_EQP.NEXTVAL
+	        ,#TON_CD#
+	        ,#VHCL_KND_CD#
+	        ,#DRV_NM#
+	        ,#DRV_MOBILE1#
+	        ,#DRV_MOBILE2#
+	        ,AESENCRYPT(#DRV_MOBILE3#)
+	        ,#FIRSTJOIN_YN#
+	        ,NVL(#USE_YN#, 'Y')
+	        ,NVL(DECODE(#FIRSTJOIN_YN# , 'Y', #ORI_LSP_NM# , '.'), '.')
+	        ,#ORI_EQP_CLS#
+	        ,#LSP_LONGTERM_YN#
+	        ,#LONGTERM_START#
+	        ,#LONGTERM_END#
+			,#gv_userId#
+			,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			,#gv_userId#
+			,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+	    )
+    </update>
+    
+    <select id="selectTbctFileList" resultClass="java.util.HashMap">
+		SELECT 
+				 A.CD_NM AS CD_GB_NM
+				,CASE WHEN B.RECEIVE_DATE IS NULL AND C.UPLOAD_FILE_YN IS NULL THEN 'N' ELSE 'Y' END RECEIVE_YN
+				,B.ID
+				,A.CD AS CD_GB
+				,(CASE WHEN C.UPLOAD_FILE_YN = 'Y' THEN C.RECEIVE_COURCE ELSE B.RECEIVE_COURCE END) AS RECEIVE_COURCE
+				,(CASE WHEN C.UPLOAD_FILE_YN = 'Y' THEN DECODE(C.RECEIVE_COURCE,'01','팩스','02','이미지','')
+												   ELSE DECODE(B.RECEIVE_COURCE,'01','팩스','02','이미지','')
+				  END) 																						AS RECEIVE_COURCE_NM
+				,(CASE WHEN C.UPLOAD_FILE_YN = 'Y' THEN C.REG_DT ELSE B.RECEIVE_DATE END) AS RECEIVE_DATE
+				,B.MEMO
+				,C.UPLOAD_FILE_YN
+		FROM
+				 TMDM_KFR_MC_CODE A
+				,TBCT_FILE_MNG B
+				,(
+					SELECT
+							 A.FILE_GB
+							,MAX(A.REG_DT) AS REG_DT 
+							,'02' AS RECEIVE_COURCE
+							,'Y' AS UPLOAD_FILE_YN
+					FROM
+							 TMDM_KFR_COMM_FILE A 
+							,TADM_KFR_USER B
+					WHERE
+							A.WRK_NO = TO_CHAR(B.SEQ_NO)
+					AND A.FILE_GB IS NOT NULL
+		        	AND A.TB_NAME = 'TADM_KFR_USER'
+		        	AND A.WRK_NO =   #WRK_NO#
+					GROUP BY A.FILE_GB
+				) C 
+		WHERE
+		    1=1   
+		    AND A.CD_TCD =  'TBCT_FILE_MNG'
+		    AND A.CD = B.CD_GB(+)  
+		    AND A.CD = C.FILE_GB(+)
+			AND B.ID(+) =  #LSP_ID#
+		ORDER BY A.CD_ORDB
+    </select>
+    
+    <!-- 회원탈퇴 요청 내역 조회 -->
+    <select id="getUserOutHisList" resultClass="java.util.HashMap">
+    	/* [userMgmService][userMgmService.getUserOutHisList][회원탈퇴 요청 내역 조회][2018.12.18][yhkim] */
+		SELECT
+				 '' CHK
+				,U.SEQ_NO
+				,U.JOIN_TYPE
+				,FN_MDM_GET_MC_CODE_NM('CM100', U.JOIN_TYPE) AS JOIN_TYPE_NM
+				,U.BIZ_NM
+				,U.BIZ_REG_NO
+				,U.ID
+				,U.NAME
+				,H.REMK
+				,H.SHPR_LSP_ID
+				,CASE	WHEN H.OUT_SCD = 'C'
+						THEN '탈퇴처리'
+						WHEN H.OUT_SCD = 'R'
+						THEN '탈퇴요청'
+				 END 	AS OUT_SCD
+				,H.OUT_SCD AS OUT_SCD_B
+				,H.OUT_REQ_DATE
+				,H.OUT_REQ_TIME
+				,CASE 	WHEN H.OUT_REQ_DATE IS NULL THEN ''
+						ELSE TO_CHAR(TO_DATE(H.OUT_REQ_DATE,'YYYYMMDD'), 'YYYY-MM-DD') ||' '||TO_CHAR(TO_DATE(RPAD(NVL(H.OUT_REQ_TIME,'000000'),6,0),'HH24MISS'), 'HH24:MI')  
+				 END				AS OUT_REQ_DATE_TIME		/*탈퇴요청일시*/
+				,H.OUT_CON_DATE
+				,H.OUT_CON_TIME
+				,CASE	WHEN H.OUT_CON_DATE IS NULL THEN ''
+						ELSE TO_CHAR(TO_DATE(H.OUT_CON_DATE,'YYYYMMDD'), 'YYYY-MM-DD') ||' '||TO_CHAR(TO_DATE(RPAD(NVL(H.OUT_CON_TIME,'000000'),6,0),'HH24MISS'), 'HH24:MI')  
+				 END AS OUT_CON_DATE_TIME		/*탈퇴처리일시*/
+		FROM 
+				 TADM_KFR_USER U 
+				,TADM_KFR_USER_OUT_HIS H
+		WHERE
+				U.SEQ_NO = H.SEQ_NO
+		AND
+				U.JOIN_TYPE = H.JOIN_TYPE
+		AND
+				U.JOIN_TYPE <![CDATA[<>]]> 'T00'
+		<isNotEmpty prepend="AND" property="OUT_SCD">
+			H.OUT_SCD = #OUT_SCD#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND"  property="BIZ_NM">	
+			U.BIZ_NM LIKE '%' || #BIZ_NM# || '%' 
+		</isNotEmpty>
+		<isNotEmpty prepend="AND"  property="BIZ_REG_NO">	
+			U.BIZ_REG_NO = #BIZ_REG_NO#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND"  property="ID">	
+			H.ID = #ID#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND"  property="JOIN_TYPE">	
+			H.JOIN_TYPE = #JOIN_TYPE# 
+		</isNotEmpty>
+		<isNotEmpty prepend="AND"  property="STA_DT">	
+			H.OUT_REQ_DATE BETWEEN #STA_DT# AND #END_DT# 
+		</isNotEmpty>
+		ORDER BY H.OUT_REQ_DATE DESC, H.OUT_REQ_TIME DESC
+    </select>
+    
+    <insert id="saveDocList">
+		/* [userMgmService][userMgmService.saveDocList][사용자 문서 리스트 저장][2018.11.14][DYCho] */
+		MERGE
+			INTO TBCT_FILE_MNG 
+		USING DUAL
+		   ON (ID = #ID# AND CD_GB = #CD_GB#)
+		WHEN MATCHED THEN
+		UPDATE
+			SET
+			    RECEIVE_COURCE	= #RECEIVE_COURCE#
+    			,RECEIVE_DATE	= TO_CHAR(SYSDATE, 'YYYYMMDD')
+    			,MEMO			= #MEMO#
+    			,MOD_ID			= #gv_userId#
+    			,MOD_DT			= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+    			,MOD_IP			= #gv_ipAddr#
+		WHEN NOT MATCHED THEN  
+		INSERT (
+			ID
+			,CD_GB
+		    ,RECEIVE_COURCE
+    		,RECEIVE_DATE
+    		,MEMO
+    		,REG_ID
+    		,REG_DT
+    		,REG_IP
+		) VALUES (
+			#ID#
+			,#CD_GB#
+			,#RECEIVE_COURCE#
+			,TO_CHAR(SYSDATE, 'YYYYMMDD')
+			,#MEMO#
+			,#gv_userId#
+			,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			,#gv_ipAddr#
+		) 
+    </insert>
+    
+	<select id="getFileList" resultClass="java.util.HashMap">
+		SELECT /* [userMgmService.sqlx][userMgmAService.getFileInfo][20181104][DYCho] */ 
+				   WRK_NO 
+				 , WRK_NO as REF_KEY
+				 , FILE_SEQ	
+				 , TB_NAME					
+				 , SOURCE_FILE_NM			
+				 , UPLOADED_DIR_PATH		
+				 , UPLOADED_FILE_NM		
+				 , FILE_SIZE
+				 , FILE_GB
+				 , NVL(NEW_SAVE_YN, 'N') AS NEW_SAVE_YN
+		  FROM TMDM_KFR_COMM_FILE
+		  WHERE WRK_NO = #WRK_NO#
+		  AND TB_NAME = 'TADM_KFR_USER'	
+		  AND DEL_YN = 'N'
+		ORDER BY WRK_NO, TO_NUMBER(FILE_SEQ)
+	</select>
+	
+	<select id="getResultCheck" resultClass="java.util.HashMap">
+		SELECT /* [userMgmService.sqlx][userMgmAService.getResultCheck][20181207][DYCho] */
+		    COUNT(*)	NULL_NUM
+		FROM
+		    TMDM_IF_EVENT_KFR_USER
+		WHERE
+			<isNotEmpty property="SHPR_ID">
+				USER_BIZ_ID = #SHPR_ID#
+			</isNotEmpty>
+			<isNotEmpty property="LSP_ID">
+				USER_BIZ_ID = #LSP_ID#
+			</isNotEmpty>
+		    AND IF_RESULT IS NULL
+	</select>
+	
+	<select id="getEqpCount" resultClass="java.util.HashMap">
+		SELECT
+			COUNT(DISTINCT VHCL_NO) EQP_COUNT
+		FROM
+			TMDM_KFR_CT_EQP
+		WHERE
+			1=1
+			AND LSP_ID = #LSP_ID#
+			AND DEL_YN = 'N'
+	</select>
+	
+	<select id="getAgentUserList" resultClass="java.util.HashMap">
+		/* [sql-userMgmService.xml][getAgentUserList][상담원 유저 목록 조회][2018.12.19][yhkim] */
+		SELECT
+				 BIZ_NM
+				,ID
+				,NAME
+				,SHPR_ID
+				,LSP_ID
+				,TENANT_TEL_NO
+				,E_CORP_ID
+				,FN_MDM_GET_BP_CORP_NM(E_CORP_ID) 	AS E_CORP_NM
+				,AR_COSTC
+				,AP_COSTC
+				,NAME||'('|| TENANT_TEL_NO  ||')' 	AS AGENT_NAME
+				,'Y'								AS AGENT_STATUS
+				,AGENT_ID     
+		FROM
+				TADM_KFR_USER   
+		WHERE
+				AGENT_ID IS NOT NULL       
+		AND
+				DEL_YN = 'N'  
+	</select>
+	
+	<select id="getTempUserList"  resultClass="java.util.HashMap">
+     	/* [sql-userMgmService.xml][getTempUserList][임시회원 상담원분배 조회][2018.12.19][yhkim] */
+     	SELECT
+     			 REULST.*
+     			,CASE 	WHEN REULST.CONFIRM_STATUS = 1
+     					THEN '추가정보미입력'
+     					WHEN REULST.CONFIRM_STATUS = 2
+     					THEN '서류부족'
+     					WHEN REULST.CONFIRM_STATUS = 9
+     					THEN '승인대기'
+				 END	AS CONFIRM_STATUS_NM
+     			,CASE 	WHEN REULST.CONFIRM_STATUS = 1
+     					THEN 'theme://images/dot_red01.png'
+     					WHEN REULST.CONFIRM_STATUS = 2
+     					THEN 'theme://images/dot_yellow01.png'
+     					WHEN REULST.CONFIRM_STATUS = 9
+     					THEN 'theme://images/dot_green01.png'
+				 END	AS CONFIRM_STATUS_GB 
+				 ,CASE 	WHEN REULST.FILE_STATUS = 1
+     					THEN 'theme://images/dot_green01.png'
+     					WHEN REULST.FILE_STATUS = 9
+     					THEN 'theme://images/dot_red01.png'
+     					ELSE ''
+				 END	AS FILE_STATUS_GB
+				,''		AS CHK
+     	FROM
+     		(
+				SELECT
+						 U.SEQ_NO                                                     /*일련번호*/
+						,U.SHPR_ID || U.LSP_ID									AS SL_CHECK
+						,U.JOIN_TYPE                                                     /*회원유형*/
+						,FN_MDM_GET_MC_CODE_NM('CM100',U.JOIN_TYPE)				AS JOIN_TYPE_NM
+						,U.BIZ_TYPE                                                    /*사업자종류*/
+						,FN_MDM_GET_MC_CODE_NM('BIZ_TYPE',U.BIZ_TYPE)			AS BIZ_TYPE_NM
+						,U.BIZ_NM                                                        /*사업자명*/
+						,(CASE    WHEN U.BIZ_REG_NO IS NULL
+		                        THEN ''
+		                        ELSE SUBSTR(U.BIZ_REG_NO, 0,3) ||'-'|| SUBSTR(U.BIZ_REG_NO, 4,2) || '-' || SUBSTR(U.BIZ_REG_NO, 6,5) 
+		                  END)													AS BIZ_REG_NO
+						,U.ID 
+						,U.MASTER_YN         	/*마스터 계정 여부*/
+						,U.RCIV_SMS         	/*SMS 수신 동의 여부*/
+						,U.RCIV_EMAIL     		/*이메일 수신 동의 여부*/
+						,U.NAME            		/*담당자명*/
+						,(CASE WHEN U.TEL2 IS NULL THEN '' ELSE U.TEL1 || '-' || U.TEL2 || '-' || AESDECRYPT(TRIM(U.TEL3)) END) 				AS TEL
+						,(CASE WHEN U.TEL2 IS NULL THEN '' ELSE U.TEL1 END) 																	AS TEL1
+						,(CASE WHEN U.TEL2 IS NULL THEN '' ELSE U.TEL2 END) 																	AS TEL2
+						,(CASE WHEN U.TEL2 IS NULL THEN '' ELSE AESDECRYPT(TRIM(U.TEL3)) END)													AS TEL3
+						,(CASE WHEN U.MOBILE2 IS NULL THEN '' ELSE U.MOBILE1 || '-' || U.MOBILE2 || '-' || '****' END)							AS MOBILE
+						,(CASE WHEN U.MOBILE2 IS NULL THEN '' ELSE U.MOBILE1 || '-' || U.MOBILE2 || '-' || AESDECRYPT(TRIM(U.MOBILE3)) END)		AS MOBILE_ORI
+						,(CASE WHEN U.MOBILE2 IS NULL THEN '' ELSE U.MOBILE1 END)																AS MOBILE1
+						,(CASE WHEN U.MOBILE2 IS NULL THEN '' ELSE U.MOBILE2 END)																AS MOBILE2
+						,(CASE WHEN U.MOBILE2 IS NULL THEN '' ELSE AESDECRYPT(TRIM(U.MOBILE3)) END)												AS MOBILE3
+						,(CASE WHEN U.EMAIL1 IS NULL THEN '' ELSE AESDECRYPT(TRIM(U.EMAIL1)) || '@' || U.EMAIL2 END)							AS EMAIL
+						,(CASE WHEN U.EMAIL1 IS NULL THEN '' ELSE AESDECRYPT(TRIM(U.EMAIL1)) END)												AS EMAIL_ONE
+						,U.EMAIL2
+						,U.E_CORP_ID                                                	AS CORP_ID
+						,FN_MDM_GET_BP_CORP_NM(U.E_CORP_ID)                         	AS CORP_ID_NM
+						,U.REG_ID                                                    	AS INS_PERSON_ID    /*입력자 ID */
+						,SUBSTR(U.REG_DT,1,8)                                         	AS INS_DATE            /*입력일자  */
+						,SUBSTR(U.REG_DT,9,16)                                         	AS INS_TIME            /*입력시간  */
+						,U.STATUS
+						,(CASE WHEN U.STATUS='0' THEN '미승인' ELSE '승인' END)				AS STATUS_NM
+						,NVL(U.SHPR_ID,'-')												AS SHPR_ID
+						,NVL(U.LSP_ID,'-')												AS LSP_ID
+						,(CASE 	WHEN NVL((SELECT COUNT(*) FROM TMDM_KFR_BP_SHPR WHERE DEL_YN = 'N' AND SHPR_ID = U.SHPR_ID), 0)
+										+ NVL((SELECT COUNT(*) FROM TMDM_KFR_BP_LSP WHERE DEL_YN = 'N' AND LSP_ID = U.LSP_ID), 0) = 0
+								THEN '1'
+								WHEN NVL((SELECT COUNT(*) FROM TMDM_KFR_COMM_FILE WHERE WRK_NO = U.SEQ_NO||''), 0)
+										+ NVL((SELECT COUNT(*) FROM TBCT_FILE_MNG  WHERE id = U.LSP_ID),0)
+										+ NVL((SELECT COUNT(*) FROM TBCT_FILE_MNG  WHERE id = U.SHPR_ID),0) = 0
+								THEN '2'
+								ELSE '9'
+		                  END)                                                        			AS CONFIRM_STATUS
+		                ,(CASE WHEN NVL((SELECT COUNT(*) FROM TMDM_KFR_COMM_FILE WHERE WRK_NO = U.SEQ_NO || ''), 0) = 0 THEN '0'
+		                	   WHEN NVL((SELECT COUNT(*) FROM TMDM_KFR_COMM_FILE WHERE WRK_NO = U.SEQ_NO || '' AND NEW_SAVE_YN = 'Y' AND DEL_YN = 'N'), 0) > 0 THEN '9'
+		                	   ELSE '1'
+	                	  END) AS FILE_STATUS
+						,TO_CHAR(TO_DATE(U.REG_DT, 'YYYYMMDDHH24MISS'), 'YYYY/MM/DD HH24:MI') 	AS INS_DATE_NM
+						,D.DIV_SEQ
+						,D.CONSULT_ID
+						,AU.NAME 																AS AGENT_NM
+						,FN_GET_FILE_CHECK(1,U.SEQ_NO) 											AS FILE_TYPE_1
+						,FN_GET_FILE_CHECK(2,U.SEQ_NO) 											AS FILE_TYPE_2
+						,FN_GET_FILE_CHECK(3,U.SEQ_NO) 											AS FILE_TYPE_3
+						,FN_GET_FILE_CHECK(5,U.SEQ_NO) 											AS FILE_TYPE_5
+						,FN_GET_FILE_CHECK(6,U.SEQ_NO) 											AS FILE_TYPE_6
+						,NVL((SELECT VHCL_NO FROM TMDM_KFR_CT_EQP WHERE LSP_ID = U.LSP_ID AND DEL_YN = 'N'),
+								(SELECT MAX (TEMP_VHCL_NO)
+                       				FROM TMDM_KFR_CT_EQP_TEMP
+                      				WHERE TEMP_SEQ_NO = U.SEQ_NO AND TEMP_DEL_YN = 'N'))		AS VHCL_NO
+						,U.SOURCE_NM															AS SOURCE_NM
+				FROM
+						 TADM_KFR_USER U
+						,TBCT_WORK_DIV_MNG D
+						,TADM_KFR_USER AU
+				WHERE
+						U.DEL_YN = 'N'
+				AND		U.STATUS <![CDATA[<>]]> '1'
+				AND		U.MASTER_YN='Y'
+				AND		U.SEQ_NO = D.ATTRIBUTE1(+)
+				AND		D.DEL_YN(+)  =   'N'
+				AND		D.CONSULT_ID = AU.AGENT_ID(+)
+				<isNotEmpty prepend="AND" property="BIZ_REG_NO">
+					U.BIZ_REG_NO LIKE '%' || #BIZ_REG_NO# || '%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="BIZ_NM">
+					U.BIZ_NM LIKE '%' || #BIZ_NM# || '%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="JOIN_TYPE">
+					U.JOIN_TYPE = #JOIN_TYPE#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="ADVISER">
+					D.CONSULT_ID   =  #ADVISER#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="NAME">
+					U.NAME LIKE '%' || #NAME# || '%'
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="STA_DT">
+					U.REG_DT BETWEEN #STA_DT# || '000000' AND #END_DT# || '235959'
+				</isNotEmpty>
+				
+				
+				<isNotEmpty prepend="AND" property="orderUserCorp">
+					D.E_CORP_ID = #orderUserCorp#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="SEQ_NO">
+					U.SEQ_NO=#SEQ_NO#
+				</isNotEmpty>                       
+				<isNotEmpty prepend="AND" property="ID">
+					U.ID=#ID#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="DIV_CONSULT_ID">
+					D.CONSULT_ID  = #DIV_CONSULT_ID#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="WORK_GB">
+					D.WORK_GB(+)  =  #WORK_GB#
+				</isNotEmpty>
+     		)REULST
+     	WHERE
+     			1=1
+		<isNotEmpty prepend="AND" property="STATUS">
+			REULST.CONFIRM_STATUS = #STATUS#
+		</isNotEmpty>
+		ORDER BY REULST.INS_DATE DESC, REULST.INS_TIME DESC, REULST.JOIN_TYPE
+	</select>
+	
+	<update id="updateUserJoinType">
+	/* [userMgmService][updateUserJoinType][User 타입을 T05로 변경][2018.12.18][DYCho] */
+	 UPDATE TADM_KFR_USER  
+		SET JOIN_TYPE = 'T05'	
+		WHERE SEQ_NO = #SEQ_NO#  	
+    </update>
+    
+    <update id="updateLspJoinType">
+	/* [userMgmService][updateLspJoinType][LSP 타입을 T05로 변경][2018.12.18][DYCho] */
+	 UPDATE TMDM_KFR_BP_LSP  
+		SET JOIN_TYPE = 'T05'	
+		WHERE LSP_ID = #LSP_ID#  	
+    </update>
+    
+	<insert id="insertOutHist">
+		/* [userMgmService][insertOutHist][회원 탈퇴 처리][2018.12.18][yhkim] */
+		INSERT INTO 
+			TADM_KFR_USER_OUT_HIS
+				( 
+					  SEQ_NO
+					, JOIN_TYPE
+				    , ID
+				    , REMK
+				    , SHPR_LSP_ID
+				    , OUT_SCD 
+				    , OUT_REQ_DATE
+				    , OUT_REQ_TIME
+				    , OUT_CON_DATE
+				    , OUT_CON_TIME
+				    , REG_ID 
+			        , REG_DT 
+				)VALUES(
+					 #SEQ_NO#
+					,#JOIN_TYPE# 
+					,#ID#
+					,#REMK#
+					,#SHPR_LSP_ID#
+					,'C'
+					,TO_CHAR(SYSDATE, 'YYYYMMDD') 
+					,TO_CHAR(SYSDATE, 'HH24MISS')
+					,TO_CHAR(SYSDATE, 'YYYYMMDD') 
+					,TO_CHAR(SYSDATE, 'HH24MISS')
+					,#gv_userId# 
+					,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') 
+				)
+	</insert>
+	
+	<update id="updateOutHist">
+		/* [userMgmService][updateOutHist][회원 탈퇴 처리][2018.12.18][yhkim] */
+		UPDATE
+				TADM_KFR_USER_OUT_HIS 
+		SET 
+				 OUT_SCD 		= 'C'
+				,OUT_CON_DATE	= TO_CHAR(SYSDATE, 'YYYYMMDD') 	/* 탈퇴처리일자 */
+				,OUT_CON_TIME	= TO_CHAR(SYSDATE, 'HH24MISS')	/* 탈퇴처리시간 */
+				,MOD_ID			= #gv_userId#
+				,MOD_DT 		= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') 	/* 수정날짜 */
+		WHERE
+				SEQ_NO = #SEQ_NO# 
+		AND
+				ID = #ID# 
+		AND
+				JOIN_TYPE = #JOIN_TYPE# 
+		AND
+				OUT_SCD = 'R'
+	</update>
+	<update id="updateUserStatus">
+		/* [userMgmService][updateUserStatus][회원 탈퇴 처리][2018.12.19][yhkim] */
+		UPDATE
+				TADM_KFR_USER 
+		SET 
+				 STATUS 	= '9'
+				,DEL_YN		= 'Y'
+				,MOD_ID		= #gv_userId#
+				,MOD_DT		= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') 	/* 수정날짜 */
+		WHERE
+				SEQ_NO = #SEQ_NO# 
+		AND
+				ID = #ID# 
+		AND
+				JOIN_TYPE = #JOIN_TYPE# 
+	</update>
+	
+	<!-- 회원 탈퇴 처리  -->
+	<insert id="insertOutBpLsp">
+		/* [userMgmService][insertOutBpLsp][회원 탈퇴 처리][2018.12.19][yhkim] */
+		INSERT INTO
+			TMDM_IF_OUT_KFR_BP_LSP
+				(
+					 INTERFACE_ID
+					,PV_LSP_ID
+					,PV_KUNNR
+					,PV_PART_TYPE
+					,PV_BUKRS
+					,PV_KTOKK
+					,PV_STCD2
+					,PV_PART_NM_LO
+					,PV_FITYP
+					,PV_ZTERM_V
+					,PV_PART_NM_KO
+					,PV_J_1KFREPRE
+					,PV_ADDRESS_ZIPCODE
+					,PV_ADDRESS_ADDR1
+					,PV_ADDRESS_ADDR2
+					,PV_LAND1
+					,PV_TELF1
+					,PV_TELFX
+					,PV_SMTP_ADDR
+					,PV_STCD0
+					,PV_STCD1
+					,PV_STCDT
+					,PV_J_1KFTBUS
+					,PV_J_1KFTIND
+					,PV_ACTSS
+					,PV_AKONT
+					,PV_ZUAWA
+					,PV_CASH_CTRL
+					,PV_VEND_CLS
+					,PV_WAERS
+					,PV_ALTKN
+					,PV_BIZ_TYPE
+					,PV_BIZ_DIV_LARGE
+					,PV_USER_ID
+					,EAI_STATE
+					,EAI_DATE
+					,EAI_MSG
+					,EAI_OP
+				)
+				SELECT
+						 (SELECT MAX(INTERFACE_ID) + 1 FROM TMDM_IF_OUT_KFR_BP_LSP)	AS INTERFACE_ID
+						,LSP_ID														AS PV_LSP_ID
+						,MDM_LSP_ID													AS PV_KUNNR
+						,PART_TYPE 													AS PV_PART_TYPE
+						,BUKRS 														AS PV_BUKRS
+						,KTOKK 														AS PV_KTOKK
+						,BIZ_REG_NO 												AS PV_STCD2
+						,LSP_LOCAL_NM 												AS PV_PART_NM_LO
+						,FITYP 														AS PV_FITYP
+						,ZTERM_V 													AS PV_ZTERM_V
+						,LSP_NM 													AS PV_PART_NM_KO
+						,PRSNT_NM 													AS PV_J_1KFREPRE
+						,COMP_ZIP1 || COMP_ZIP2 									AS PV_ADDRESS_ZIPCODE                        
+						,AESENCRYPT(COMP_ADDR1) 									AS PV_ADDRESS_ADDR1                        
+						,COMP_ADDR2 												AS PV_ADDRESS_ADDR2
+						,NATION_CD 													AS PV_LAND1
+						,AESENCRYPT(TEL1 || TEL2 || AESDECRYPT(TEL3)) 				AS PV_TELF1
+						,FAX1 || FAX2 || AESDECRYPT(FAX3) AS PV_TELFX
+						,CASE	WHEN EMAIL1 IS NOT NULL AND EMAIL2 IS NOT NULL
+		        				THEN AESENCRYPT(AESDECRYPT(EMAIL1) || '@' || EMAIL2)
+		        				ELSE ''
+						 END														AS PV_SMTP_ADDR
+						,CORP_REG_NO 												AS PV_STCD0
+						,REG_NO														AS PV_STCD1
+						,STCDT 														AS PV_STCDT
+						,BIZ_TYP_NM 												AS PV_J_1KFTBUS
+						,IND_TYP_NM 												AS PV_J_1KFTIND
+						,ACTSS 														AS PV_ACTSS
+						,AKONT 														AS PV_AKONT
+						,ZUAWA 														AS PV_ZUAWA
+						,CASH_CTRL 													AS PV_CASH_CTRL
+						,VEND_CLS 													AS PV_VEND_CLS
+						,WAERS 														AS PV_WAERS
+						,ALTKN 														AS PV_ALTKN
+						,BIZ_TYPE 													AS PV_BIZ_TYPE
+						,BIZ_DIV_LARGE 												AS PV_BIZ_DIV_LARGE
+						,NVL(REG_ID,MOD_ID)											AS PV_USER_ID
+						,'D' 														AS EAI_STATE
+						,SYSDATE 													AS EAI_DATE
+						,'' 														AS EAI_MSG
+						,'D' 														AS EAI_OP
+				FROM
+						TMDM_KFR_BP_LSP
+				WHERE
+						JOIN_TYPE IN ('T04','T05')
+				AND
+						LSP_ID = #SHPR_LSP_ID#
+				AND
+						DEL_YN = 'N'
+	</insert>
+	
+	<!-- 회원 탈퇴 처리  -->
+	<update id="updateEqpStatus">
+		/* [userMgmService][updateEqpStatus][회원 탈퇴 처리][2018.12.19][yhkim] */
+		UPDATE
+				TMDM_KFR_CT_EQP 
+		SET 			
+				DEL_YN = 'Y'
+				,MOD_ID        = #gv_userId#
+                ,MOD_DT        = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')    
+		WHERE
+				LSP_ID = #SHPR_LSP_ID#
+		AND
+				DEL_YN = 'N'
+	</update>
+	
+	<!-- 회원 탈퇴 처리  -->
+	<update id="updateBpLspStatus">
+		/* [userMgmService][updateBpLspStatus][회원 탈퇴 처리][2018.12.19][yhkim] */
+		UPDATE
+				TMDM_KFR_BP_LSP 
+		SET
+				DEL_YN = 'Y'
+				,MOD_ID        = #gv_userId#
+                ,MOD_DT        = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') 
+		WHERE
+				LSP_ID = #SHPR_LSP_ID#
+		AND
+				DEL_YN = 'N'
+	</update>
+	
+	<!-- 회원 탈퇴 처리  -->
+	<update id="updateBpShprStatus">
+		/* [userMgmService][updateBpShprStatus][회원 탈퇴 처리][2018.12.19][yhkim] */
+		UPDATE
+				TMDM_KFR_BP_SHPR 
+		SET
+				DEL_YN = 'Y'
+				,MOD_ID        = #gv_userId#
+                ,MOD_DT        = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') 
+		WHERE
+				SHPR_ID = #SHPR_LSP_ID#
+		AND
+				DEL_YN = 'N'
+	</update>
+	
+   	<update id="deleteWorkDiv">
+   		/* [userMgmService][deleteWorkDiv][상담원분배 삭제][2018.12.19][yhkim] */
+		UPDATE
+				TBCT_WORK_DIV_MNG 
+		SET 
+				 CONSULT_ID = ''
+				,DEL_YN 	= 'Y'
+				,MOD_ID 	= #gv_userId#
+				,MOD_DT 	= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') 	/* 수정날짜 */
+		WHERE
+				ATTRIBUTE1 = #SEQ_NO#
+		AND
+				DIV_SEQ = #DIV_SEQ#
+   	</update>
+   	
+	<insert id="insertWorkDiv">
+		/* [userMgmService][insertWorkDiv][상담원분배 등록][2018.12.19][yhkim] */
+		MERGE INTO TBCT_WORK_DIV_MNG
+			
+        USING DUAL ON(
+        					ATTRIBUTE1 	= #SEQ_NO#
+        				AND DIV_SEQ 	= #DIV_SEQ#
+        				)
+				WHEN MATCHED THEN
+				UPDATE
+				SET
+					 CONSULT_ID		= #DIV_CONSULT_ID#
+					,DEL_YN 		= 'N'
+					,MOD_ID 		= #gv_userId#
+					,MOD_DT 		= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') 	/* 수정날짜 */
+				WHEN NOT MATCHED THEN
+				INSERT
+					(
+						 DIV_SEQ
+						,WORK_GB
+						,CONSULT_ID
+						,ATTRIBUTE1
+						,DEL_YN
+						,REG_ID
+						,REG_DT
+					)VALUES (
+						 (SELECT MAX(DIV_SEQ) + 1 FROM TBCT_WORK_DIV_MNG)
+						,#WORK_GB#
+						,#DIV_CONSULT_ID#
+						,#SEQ_NO#
+						,'N'
+						,#gv_userId#
+						,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+				)
+    </insert>
+    
+   	<update id="deleteTempUser">
+   		/* [userMgmService][deleteTempUser][준회원 삭제][2018.12.20][yhkim] */
+   		UPDATE
+   				TADM_KFR_USER
+		SET
+				 DEL_YN = 'Y'
+				,MOD_ID = #gv_userId# 
+				,MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE
+				SEQ_NO	= #SEQ_NO#
+		AND
+				ID 		= #ID#
+		AND
+				STATUS 	= 0
+   	</update>
+   	
+    <select id="getBizRegNoDup" resultClass="String">
+		SELECT
+			COUNT(*)
+		FROM
+			TMDM_KFR_BP_LSP
+		WHERE
+			1=1
+			AND DEL_YN = 'N'
+			AND BIZ_REG_NO = #BIZ_REG_NO#
+	</select>
+	
+	<update id="updateFileInfo">
+	    /* [userMgmService][updateFileInfo][파일 업로드시 관련테이블 UPDATE][2018.11.01][DYCho] */
+	    UPDATE TMDM_KFR_COMM_FILE 
+		SET SOURCE_FILE_NM 			= #SOURCE_FILE_NM# 
+		     , UPLOADED_DIR_PATH 	= #UPLOADED_DIR_PATH# 
+		     , UPLOADED_FILE_NM 	= #UPLOADED_FILE_NM# 
+		     , FILE_SIZE 			= #FILE_SIZE#
+		     , FILE_GB   			= #FILE_GB#
+		     , MOD_ID 				= #gv_userId#
+		     , MOD_DT 				= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		     , NEW_SAVE_YN 			= 'N'
+		 WHERE WRK_NO = #WRK_NO# 
+		   AND FILE_SEQ = #FILE_SEQ#      
+    </update>
+    
+    <update id="updateEqpMgmDelete">
+	    /* [userMgmService][updateEqpMgmDelete][차량삭제][2018.11.01][DYCho] */
+	    UPDATE TMDM_KFR_CT_EQP
+		   SET DEL_YN = 'Y'
+		  	  ,MOD_ID = #gv_userId# 
+		  	  ,MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') 
+		  	  ,FIRSTJOIN_YN = 'N'
+		 WHERE LSP_ID = #LSP_ID#
+		   AND VHCL_NO = #VHCL_NO#   
+		   AND CNTRL_NO = #CNTRL_NO#  
+    </update>
+    
+    <update id="updateEqpMgmDeleteFirstjoinYn">
+	    /* [userMgmService][updateEqpMgmDeleteFirstjoinYn][차량삭제시 FIRSTJOIN_YN 바꾸기][2018.11.01][DYCho] */
+	    UPDATE TMDM_KFR_CT_EQP
+           SET FIRSTJOIN_YN = 'Y'
+         WHERE VHCL_NO = #VHCL_NO#
+            AND DEL_YN = 'N'
+            AND REG_DT = (SELECT MIN(REG_DT)
+                                          FROM TMDM_KFR_CT_EQP
+                                         WHERE VHCL_NO = #VHCL_NO#
+                                           AND DEL_YN = 'N')
+            AND ROWNUM = 1   
+    </update>
+	
+	 <update id="updateDeleteEqpClaim4EqpDelete">
+	    /* [userMgmService][updateDeleteEqpClaim4EqpDelete][차량삭제시 클레임 삭제][2018.11.01][DYCho] */
+	    UPDATE TMDM_KFR_CT_EQP_CLAIM_HIST
+    	   SET DEL_YN = 'Y'
+    	 WHERE LSP_ID  =#LSP_ID#
+		   AND VHCL_NO =#VHCL_NO#   
+    </update> 
+    
+    <!-- 운송가맹점 / 차주 차량이 삭제되는 경우 공차등록내용 삭제 -->
+	<delete id="deleteTrVehicleRegistInfo">
+		 /* [userMgmService][deleteTrVehicleRegistInfo][운송가맹점 / 차주 차량이 삭제되는 경우 공차등록내용 삭제][2018.11.01][DYCho] */
+		DELETE FROM TBCT_TR_VEHICLE_REGISTER
+		 WHERE LSP_ID = #LSP_ID#
+		   AND VHCL_NO = #VHCL_NO#
+	</delete>
+	
+	<!-- MDM차량 DUP체크 -->
+	<select id="getCheckDup" resultClass="String">
+		/* [userMgmService.xml][getCheckDup][MDM차량 DUP체크][2018.11.01][SSM] */
+		SELECT 
+		       CASE WHEN D.JOIN_TYPE = 'T05' THEN (CASE WHEN T05_CHK <![CDATA[>=]]> 1 THEN 'T05_DUPLI' ELSE 'OK' END)
+		            ELSE (CASE WHEN D.T04_CHK <![CDATA[>=]]> 1 THEN 'T04_DUPLI' ELSE 'OK' END)
+		        END AS RESULT
+		  FROM (SELECT C.T04_CHK
+				      ,C.T05_CHK
+				      ,(SELECT JOIN_TYPE
+				          FROM TMDM_KFR_BP_LSP
+				         WHERE LSP_ID = #LSP_ID#) AS JOIN_TYPE
+				  FROM (SELECT SUM(B.T04_CHK) AS T04_CHK
+						      ,SUM(B.T05_CHK) AS T05_CHK
+						  FROM (SELECT COUNT(*) AS T04_CHK
+								      ,0 AS T05_CHK
+								  FROM TMDM_KFR_CT_EQP A 
+								 WHERE LSP_ID = #LSP_ID#
+								   AND VHCL_NO = replace(#EQP_NO#, ' ', '')
+								   AND DEL_YN = 'N'
+								UNION ALL  
+								SELECT 0
+								      ,COUNT(*)
+								  FROM TMDM_KFR_CT_EQP
+								 WHERE LSP_ID = #LSP_ID#
+								   AND DEL_YN = 'N') B) C) D
+    </select>
+    
+    <!-- 등록하려는 차량이 원소속구분 Flag 조회 - Y인 것은 한개여야 함 -->
+	<select id="checkFirstJoinYn" resultClass="int">
+		/* [userMgmService.xml][checkFirstJoinYn][원소속구분 Flag 조회][2018.11.01][SSM] */
+		SELECT 
+		       COUNT(*) AS CNT
+		  FROM TMDM_KFR_CT_EQP
+		 WHERE VHCL_NO = #EQP_NO#
+		   AND FIRSTJOIN_YN = 'Y'
+		   AND DEL_YN = 'N'	
+	</select>
+	
+	 <!-- 정보센터 차량삭제 TEMP -->
+   	<update id="updateEqpTempMgmDelete">
+   		/* [userMgmService.xml][updateEqpTempMgmDelete][정보센터 차량삭제 TEMP][2018.11.01][SSM] */
+		UPDATE TMDM_KFR_CT_EQP_TEMP
+		   SET TEMP_DEL_YN 			= 'Y'
+		   	  ,TEMP_CON_YN 			= 'A'
+		  	  ,MOD_ID 	   			= #gv_userId# 
+		  	  ,MOD_DT	   			= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') 
+		  	  ,TEMP_FIRSTJOIN_YN 	= 'N'
+		 WHERE TEMP_LSP_ID = #LSP_ID#
+		   AND TEMP_SEQ_NO = #TEMP_SEQ_NO#
+		   AND TEMP_VHCL_NO = #VHCL_NO#
+	</update>
+	
+	<!-- MDM 차량등록 -->
+	<update id="createTransVehicle">
+		/* [userMgmService.xml][createTransVehicle][MDM 차량등록][2018.11.01][SSM] */
+		MERGE INTO TMDM_KFR_CT_EQP A 
+		USING DUAL
+		   ON A.LSP_ID = #LSP_ID# AND  A.VHCL_NO = #VHCL_NO#
+		 WHEN MATCHED THEN
+	   UPDATE
+		  SET A.TON_CD 				= #TON_CD#
+	     ,A.VHCL_KND_CD 			= #VHCL_KND_CD#
+		     ,A.DRV_NM 				= #DRV_NM#
+		     ,A.DRV_MOBILE1  		= #DRV_MOBILE1#
+		     ,A.DRV_MOBILE2 		= #DRV_MOBILE2#
+		     ,A.DRV_MOBILE3 		= AESENCRYPT(TRIM(#DRV_MOBILE3#))
+		     ,A.FIRSTJOIN_YN 		= #FIRSTJOIN_YN#
+		     ,A.USE_YN 				= 'Y'
+		     ,A.DEL_YN 				= 'N'
+			 ,A.ORI_LSP_NM          = #ORI_LSP_NM#
+			 ,A.ORI_EQP_CLS         = #ORI_EQP_CLS#
+			 ,A.LSP_LONG_TERM_START = #LSP_LONG_TERM_START#
+			 ,A.LSP_LONG_TERM_END   = #LSP_LONG_TERM_END#
+			 ,A.LSP_IMSI_EQP_CLS    = #LSP_IMSI_EQP_CLS#
+			 ,A.LSP_LONG_TERM_YN    = #LSP_LONGTERM_YN#
+			 ,A.LSP_IMSI_ORI_NM     = #LSP_IMSI_ORI_NM#
+			 ,A.KX_LONG_TERM_YN     = #LONG_TERM_YN#
+			 ,A.KX_LONG_TERM_START  = #LONGTERM_START#
+			 ,A.KX_LONG_TERM_END    = #LONGTERM_END#
+			 ,A.MOD_ID				= #gv_userId#
+		     ,A.MOD_DT            	= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		     ,A.VHCL_CLS            = #VHCL_CLS# 
+		WHEN NOT MATCHED THEN
+	   INSERT (LSP_ID
+			  ,VHCL_NO 
+			  ,CNTRL_NO 
+			  ,TON_CD
+			  ,VHCL_KND_CD 
+			  ,DRV_NM
+			  ,DRV_MOBILE1 
+			  ,DRV_MOBILE2 
+			  ,DRV_MOBILE3 
+			  ,FIRSTJOIN_YN 
+			  ,ORI_LSP_NM
+			  ,ORI_EQP_CLS
+			  ,LSP_LONG_TERM_START
+			  ,LSP_LONG_TERM_END
+			  ,LSP_IMSI_EQP_CLS
+			  ,LSP_LONG_TERM_YN
+			  ,LSP_IMSI_ORI_NM
+			  ,KX_LONG_TERM_YN
+			  ,KX_LONG_TERM_START
+			  ,KX_LONG_TERM_END
+			  ,USE_YN
+			  ,DEL_YN 
+			  ,REG_ID 
+			  ,REG_DT
+		      ,VHCL_CLS) 
+	   VALUES (#LSP_ID#
+		      ,REPLACE(#VHCL_NO#, ' ', '')
+		      ,('KX' || LPAD(SEQ_TMDM_KFR_CT_EQP.NEXTVAL, 6, 0))
+		      ,#TON_CD#
+		      ,#VHCL_KND_CD#
+		      ,#DRV_NM#
+		      ,#DRV_MOBILE1#
+		      ,#DRV_MOBILE2#
+		      ,AESENCRYPT(TRIM(#DRV_MOBILE3#))
+		      ,#FIRSTJOIN_YN#
+		      ,NVL(DECODE(#FIRSTJOIN_YN# , 'Y', #ORI_LSP_NM# , '.'), '.')
+		      ,#ORI_EQP_CLS#
+			  ,#LSP_LONG_TERM_START#
+			  ,#LSP_LONG_TERM_END#
+			  ,#LSP_IMSI_EQP_CLS#
+			  ,#LSP_LONGTERM_YN#
+			  ,#LSP_IMSI_ORI_NM#
+			  ,#LONG_TERM_YN#
+			  ,#LONGTERM_START#
+			  ,#LONGTERM_END#
+		      ,'Y'
+		      ,'N'
+		      ,#gv_userId#
+		      ,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') 
+		      ,#VHCL_CLS#
+		      )
+	</update>
+	
+	<update id="updateCenterEqpTempConYn">
+		/* [userMgmService.xml][updateCenterEqpTempConYn][2018.11.01][SSM] */
+		UPDATE TMDM_KFR_CT_EQP_TEMP 
+		SET TEMP_CON_YN		= 'A'
+			, MOD_ID = #gv_userId#
+			, MOD_DT = TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS')
+		WHERE 1=1
+			AND	TEMP_SEQ_NO = #TEMP_SEQ_NO#
+			AND	TEMP_LSP_ID = #LSP_ID#
+			AND TEMP_VHCL_NO = REPLACE(#VHCL_NO#, ' ', '')
+	</update>	
+	
+	 <!-- 엑셀업로드 검증(차량 임시저장에 따른 검증) (20151010)  -->
+	<select id="checkVhclValid" resultClass="String">
+		/* [userMgmService.xml][checkVhclValid][2018.11.01][SSM] */
+		SELECT 
+		         (CASE WHEN AA.CAR_DUP_CHK <![CDATA[<>]]> 'OK' THEN 'E'
+		               WHEN AA.CNT > 0 THEN 'E'
+		          ELSE 'Y' END) AS RESULT
+		  FROM (
+					SELECT (SELECT (CASE WHEN COUNT(*) > 0 THEN 'NO' ELSE 'OK' END) AS CAR_DUP_CHK
+							  FROM (SELECT B.VHCL_NO
+							          FROM TMDM_KFR_BP_LSP A,
+							               TMDM_KFR_CT_EQP B,
+							               TADM_KFR_USER   C
+							         WHERE A.LSP_ID = B.LSP_ID
+							           AND A.LSP_ID = C.LSP_ID
+							           AND C.JOIN_TYPE = 'T05'
+							           AND A.JOIN_TYPE = 'T05'
+							           AND B.VHCL_NO = #VHCL_NO#
+							           AND A.DEL_YN = 'N'
+							           AND B.DEL_YN = 'N'
+							         UNION ALL
+							         SELECT B.TEMP_VHCL_NO
+							          FROM TADM_KFR_USER A,
+							               TMDM_KFR_CT_EQP_TEMP B
+							         WHERE A.SEQ_NO = B.TEMP_SEQ_NO
+							           AND A.JOIN_TYPE = 'T05'
+			                           AND B.TEMP_CON_YN NOT IN ('D')
+							           AND B.TEMP_VHCL_NO = #VHCL_NO#
+							           AND A.DEL_YN = 'N'
+							        ) A
+							  ) AS CAR_DUP_CHK,
+						  (CASE WHEN #FIRSTJOIN_YN# = 'N' THEN 0
+				                ELSE (SELECT COUNT(*)
+			                            FROM (SELECT B.VHCL_NO
+			                                    FROM TMDM_KFR_BP_LSP A,
+			                                         TMDM_KFR_CT_EQP B,
+			                                         TADM_KFR_USER   C
+			                                   WHERE A.LSP_ID = B.LSP_ID
+			                                     AND A.LSP_ID = C.LSP_ID
+			                                     AND C.JOIN_TYPE IN ( 'T04', 'T05')
+			                                     AND A.JOIN_TYPE IN ( 'T04', 'T05')
+			                                     AND B.VHCL_NO = #VHCL_NO#
+			                                     AND B.FIRSTJOIN_YN = 'Y'
+			                                     AND A.DEL_YN = 'N'
+			                                     AND B.DEL_YN = 'N'
+			                                   UNION ALL
+			                                   SELECT B.TEMP_VHCL_NO
+			                                    FROM TADM_KFR_USER A,
+			                                         TMDM_KFR_CT_EQP_TEMP B
+			                                   WHERE A.SEQ_NO = B.TEMP_SEQ_NO
+			                                     AND A.JOIN_TYPE IN ( 'T04', 'T05')
+			                                     AND B.TEMP_CON_YN NOT IN ('D')
+			                                     AND B.TEMP_VHCL_NO = #VHCL_NO#
+			                                     AND B.TEMP_FIRSTJOIN_YN = 'Y'
+			                                     AND A.DEL_YN = 'N'
+			                                  ) A
+							  		)
+				          END ) AS CNT
+			      FROM DUAL
+			 ) AA
+	</select>
+	
+	<!-- MDM차량 DUP체크  -->
+	<select id="checkKicVhclDup"  resultClass="String">
+		/* [userMgmService.xml][checkKicVhclDup][2018.11.01][SSM] */
+		SELECT (CASE WHEN COUNT(*) > 0 THEN 'NO' ELSE 'OK' END) AS RESULT
+		  FROM (SELECT B.VHCL_NO
+		          FROM TMDM_KFR_BP_LSP A,
+		               TMDM_KFR_CT_EQP B,
+		               TADM_KFR_USER   C
+		         WHERE A.LSP_ID = B.LSP_ID
+		           AND A.LSP_ID = C.LSP_ID
+		           AND C.JOIN_TYPE = 'T05'
+		           AND A.JOIN_TYPE = 'T05'
+		           AND C.STATUS = '1'
+		           AND B.VHCL_NO = #VHCL_NO#
+		           AND A.DEL_YN = 'N'
+		           AND B.DEL_YN = 'N'
+		         UNION ALL
+		         SELECT B.TEMP_VHCL_NO
+		          FROM TADM_KFR_USER A,
+		               TMDM_KFR_CT_EQP_TEMP B
+		         WHERE A.SEQ_NO = B.TEMP_SEQ_NO
+		           AND A.JOIN_TYPE = 'T05'
+			       AND B.TEMP_CON_YN NOT IN ('D')
+		           AND B.TEMP_VHCL_NO = #VHCL_NO#
+		           and B.TEMP_SEQ_NO <![CDATA[<>]]> #SEQ_NO#
+		           AND A.STATUS = '0'
+		           AND A.DEL_YN = 'N'
+		        ) A
+	</select>
+	
+	<!-- 임시차량 존재 여부 확인.  -->
+	<select id="checkVhclCnt"  resultClass="Integer">
+		/* [userMgmService.xml][checkVhclCnt][2018.11.01][SSM] */
+		SELECT COUNT(*) AS CNT
+		FROM TMDM_KFR_CT_EQP_TEMP
+		WHERE TEMP_SEQ_NO = #SEQ_NO#
+		AND TEMP_VHCL_NO = #OLD_VHCL_NO#
+	</select>
+	
+	<!-- 차량 임시테이블에 수정 -->
+	<update id="updateReqVhclTemp">
+		/* [userMgmService.xml][updateReqVhclTemp][2018.11.01][SSM] */
+	   	UPDATE TMDM_KFR_CT_EQP_TEMP
+		  SET TEMP_VHCL_NO             	= #VHCL_NO#
+		     ,TEMP_DRV_MOBILE1 		   	= #DRV_MOBILE1#
+		     ,TEMP_DRV_MOBILE2 		   	= #DRV_MOBILE2#
+		     ,TEMP_DRV_MOBILE3 		   	= AESENCRYPT(TRIM(#DRV_MOBILE3#))
+		     ,MOD_ID 	   				= #gv_userId#
+		     ,MOD_DT 		   			= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE TEMP_SEQ_NO = #SEQ_NO#
+		AND TEMP_VHCL_NO = #OLD_VHCL_NO#    
+	</update>
+	
+	<!-- 차량 임시테이블에 등록 -->
+	<insert id="insertReqVhclTemp">
+		/* [userMgmService.xml][insertReqVhclTemp][2018.11.01][SSM] */
+	   	INSERT INTO TMDM_KFR_CT_EQP_TEMP
+	   	(TEMP_SEQ_NO
+   		  ,TEMP_VHCL_NO
+		  ,TEMP_DRV_MOBILE1
+		  ,TEMP_DRV_MOBILE2
+		  ,TEMP_DRV_MOBILE3
+		  ,TEMP_USE_YN
+		  ,TEMP_DEL_YN
+		  ,REG_ID
+		  ,REG_DT
+		  ,TEMP_CON_YN)
+	   	VALUES (#SEQ_NO#
+			      ,#VHCL_NO#
+			      ,#DRV_MOBILE1#
+			      ,#DRV_MOBILE2#
+			      ,AESENCRYPT(TRIM(#DRV_MOBILE3#))
+			      ,'Y'
+			      ,'N'
+			      ,#gv_userId#
+			      ,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') 
+			      ,'I')
+	</insert>
+	
+	<!-- MDM 고객 정보 조회.  -->
+	<select id="getMdmShprInfo"  resultClass="java.util.HashMap">
+		/* [userMgmService.xml][getMdmShprInfo][2018.11.01][SSM] */
+		SELECT ABBR_NM
+				, PRSNT_NM
+		FROM TMDM_BP_SHPR_IF
+		WHERE DEL_YN = 'N'
+		AND USE_YN ='Y'
+		AND SHPR_ID = #MDM_SHPR_ID#
+	</select>	
+	
+	<!-- 고객 정보 수정 수정 -->
+	<update id="updateMdmShprInfo">
+		/* [userMgmService.xml][updateMdmShprInfo][2018.11.01][SSM] */
+	   	UPDATE TMDM_KFR_BP_SHPR
+		  SET SHPR_LOCAL_NM             = #ABBR_NM#
+		     ,SHPR_NM 		   			= #ABBR_NM#
+		     ,PRSNT_NM 		   			= #PRSNT_NM#
+		     ,MOD_ID 	   				= #gv_userId#
+		     ,MOD_DT 		   			= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE SHPR_ID = #SHPR_ID#
+	</update>	
+	
+	<!-- 포탈권한 부여 중복 검사  -->
+	<select id="getShprUserCheck"  resultClass="Integer">
+		/* [userMgmService.xml][getShprUserCheck][2018.11.01][SSM] */
+		SELECT COUNT(*) AS CNT
+		FROM TADM_KFR_USER 
+		WHERE DEL_YN = 'N'
+		AND SHPR_ID = #SHPR_ID#
+	</select>	
+	
+	<!-- 포탈권한 부여 등록  -->
+	<insert id="insertShprUser" >
+		/* [userMgmService.xml][insertShprUser][2018.11.01][SSM] */
+		INSERT INTO TADM_KFR_USER 
+         ( 
+             SEQ_NO ,
+             JOIN_TYPE ,
+             STATUS ,
+             ID ,
+             MASTER_YN ,
+             MASTER_SEQ ,
+             BIZ_TYPE ,
+             SHPR_ID,            
+             BIZ_NM ,
+             BIZ_REG_NO ,
+             RCIV_SMS ,
+             RCIV_EMAIL ,
+             NAME ,         
+             EMAIL1 ,
+             EMAIL2 ,
+             CORP_ID ,
+             E_CORP_ID ,
+             REG_ID ,
+             REG_DT          
+         ) 
+         SELECT SEQ_TADM_KFR_USER.NEXTVAL
+              , JOIN_TYPE
+              , STATUS
+              , CASE WHEN SHPR_CNT >0 THEN 'b'||BIZ_REG_NO || '_' || SHPR_CNT ELSE 'b'||BIZ_REG_NO END ID 
+              , MASTER_YN
+              , MASTER_SEQ
+              , BIZ_TYPE
+              , SHPR_ID
+              , BIZ_NM
+              , BIZ_REG_NO
+              , RCIV_SMS
+              , RCIV_EMAIL
+              , NAME
+              , EMAIL1
+              , EMAIL2
+              , CORP_ID
+              , E_CORP_ID
+              , REG_ID
+              , REG_DT||REG_TM REG_DT
+          FROM              
+          (SELECT 
+               JOIN_TYPE,
+               '1' STATUS,
+               (SELECT COUNT(SHPR_ID) FROM TMDM_KFR_BP_SHPR WHERE SHPR_ID = SHPR.SHPR_ID) SHPR_CNT, 
+               'b'||BIZ_REG_NO ID,
+               'Y' MASTER_YN ,
+               99999999 MASTER_SEQ,
+               BIZ_TYPE,
+               SHPR_ID,
+               SHPR_NM BIZ_NM,
+               BIZ_REG_NO,
+               'N' RCIV_SMS,
+               'N' RCIV_EMAIL,
+               SHPR_NM NAME,          
+               (CASE WHEN EMAIL1 IS NULL THEN '' ELSE AESENCRYPT(TRIM(EMAIL1)) END ) EMAIL1,
+               EMAIL2,
+               BASE_CORP_ID CORP_ID,
+               BASE_CORP_ID E_CORP_ID,
+               REG_ID ,
+               TO_CHAR(SYSDATE, 'YYYYMMDD') REG_DT,
+               TO_CHAR(SYSDATE, 'HH24MISS') REG_TM
+          FROM TMDM_KFR_BP_SHPR SHPR  
+         WHERE SHPR_ID = #SHPR_ID#)
+	</insert>
+	
+	<!-- 출장소 정보 조회 -->
+    <select id="getCustInfoList43" resultClass="java.util.HashMap">
+    /* [userMgmService.xml][getCustInfoList43][2018.11.01][SSM] */
+		SELECT '0' AS CHK
+		     , SHPR_ID
+			 , CORP_ID
+			 , BIZ_CD
+			 , SVC_CD
+			 , SVC_CD2
+			 , FN_MDM_GET_BP_CORP_NM(T2.CORP_ID) AS CORP_ID_NM
+			 , JOIN_TYPE
+			 , FN_MDM_GET_MC_CODE_NM('CM100',T2.JOIN_TYPE) AS JOIN_TYPE_NM
+			 , FN_MDM_GET_MC_CODE_NM('BIZ_TYPE', T2.BIZ_TYPE) AS BIZ_TYPE_NM
+			 , NVL2 (T2.EMAIL1, AESDECRYPT (TRIM (T2.EMAIL1)) || '@' || T2.EMAIL2, '') AS EMAIL
+			 , SHPR_LOCAL_NM
+			 , BIZ_TYPE
+			 , BIZ_REG_NO
+			 , BASE_CORP_ID
+			 , FN_MDM_GET_BP_CORP_NM(T2.BASE_CORP_ID) AS BASE_CORP_NM
+			 , PRSNT_NM
+			 , BANKS
+			 , BANKL
+			 , MDM_SHPR_ID AS MDM_ID
+			 , USE_YN
+			 , DEL_YN
+             , CNTRT_YN
+		  FROM (SELECT *
+			      FROM (SELECT ROW_NUMBER () OVER (ORDER BY REG_DT DESC) AS NO
+			                 , SHPR_ID
+			                 , CORP_ID
+			                 , BIZ_CD
+			                 , SVC_CD
+			                 , SVC_CD2
+			                 , BIZ_TYPE
+			                 , JOIN_TYPE
+			                 , SHPR_LOCAL_NM
+			                 , BIZ_REG_NO
+			                 , BASE_CORP_ID
+			                 , PRSNT_NM
+			                 , EMAIL1
+			                 , EMAIL2
+			                 , BANKS
+			                 , BANKL
+			                 , MDM_SHPR_ID
+			                 , USE_YN
+			                 , DEL_YN
+                             , (SELECT 'Y' FROM TBCU_CNTRT_GEN WHERE EXE_CORP_ID = S.BASE_CORP_ID AND SHPR_ID = S.SHPR_ID AND CNTRT_STAT_CD = '30' AND ROWNUM = 1) AS CNTRT_YN
+				          FROM TMDM_KFR_BP_SHPR S
+				         WHERE 1 = 1
+					       AND SUBSTR (MDM_SHPR_ID, 1, 2) IN ('43')
+					       <isNotEmpty prepend="AND" property="BASE_CORP_ID">
+					           BASE_CORP_ID = #BASE_CORP_ID#
+					       </isNotEmpty>
+					       <isNotEmpty prepend="AND" property="SHPR_LOCAL_NM">
+					           SHPR_LOCAL_NM LIKE '%' || #SHPR_LOCAL_NM# || '%'
+					       </isNotEmpty>
+					       <isNotEmpty prepend="AND" property="BIZ_REG_NO">
+					           BIZ_REG_NO LIKE '%' || #BIZ_REG_NO# || '%'
+					       </isNotEmpty>
+					       <isNotEmpty prepend="AND" property="MDM_SHPR_ID">
+					           MDM_SHPR_ID LIKE '%' || #MDM_SHPR_ID# || '%'
+					       </isNotEmpty>
+					       <isNotEmpty prepend="AND" property="JOIN_TYPE">
+					           JOIN_TYPE = #JOIN_TYPE#
+					       </isNotEmpty>
+				       )T1
+			   )T2
+    </select>
+    
+    <!-- 포탈권한 부여 등록  -->
+	<insert id="insertBusinessUser" >
+		/* [userMgmService.xml][insertBusinessUser][2018.11.01][SSM] */
+		INSERT INTO TMDM_KFR_BP_LSP
+		(
+		       LSP_ID
+		     , SITE_CD
+		     , JOIN_TYPE
+		     , BIZ_TYPE
+		     , CORP_ID
+		     , BASE_CORP_ID
+		     , LSP_GRADE
+		     , CUST_YN
+		     , MDM_LSP_ID
+		     , PART_TYPE
+		     , BUKRS
+		     , KTOKK
+		     , BIZ_REG_NO
+		     , LSP_LOCAL_NM
+		     , FITYP
+		     , ZTERM_V
+		     , LSP_NM
+		     , PRSNT_NM
+		     , COMP_ZIP1
+		     , COMP_ZIP2
+		     , COMP_ADDR1
+		     , COMP_ADDR2
+		     , NATION_CD
+		     , STCDT
+		     , BIZ_TYP_NM
+		     , IND_TYP_NM
+		     , ACTSS
+		     , ZAHLS
+		     , AKONT
+		     , ZUAWA
+		     , CASH_CTRL
+		     , VEND_CLS
+		     , WAERS
+		     , BIZ_DIV_LARGE
+		     , BIZ_DIV_MED
+		     , RETURN_YN
+		     , USE_YN
+		     , DEL_YN
+		     , COMP_ADDR_X
+		     , COMP_ADDR_Y
+		     , MOLIT_YN
+		     , REG_ID
+		     , REG_DT
+		)
+		SELECT ('L' || LPAD(SEQ_TMDM_KFR_BP_LSP.NEXTVAL, 7, 0)) LSP_ID 
+		     , 'CJKX'                                           SITE_CD
+		     , 'T04'                                            JOIN_TYPE
+		     , 'C'                                              BIZ_TYPE
+		     , ''                                               CORP_ID
+		     , #BASE_CORP_ID#                                   BASE_CORP_ID
+		     , 'C'                                              LSP_GRADE
+		     , 'N'                                              CUST_YN
+		     , LSP.LSP_ID                                       MDM_LSP_ID
+		     , LSP.PART_TYPE                                    PART_TYPE
+		     , '1000'                                           BUKRS
+		     , LSP.KTOKK                                        KTOKK
+		     , LSP.BIZREG_NO                                    BIZ_REG_NO
+		     , NM.NM                                            LSP_LOCAL_NM 
+		     , LSP.TAX_TYP                                      FITYP
+		     , LSP.ZTERM_V                                      ZTERM_V
+		     , NM.NM                                            LSP_NM
+		     , LSP.PRSNT_NM                                     PRSNT_NM
+		     , ''                                               COMP_ZIP1
+		     , ''                                               COMP_ZIP2
+		     , ''                                               COMP_ADDR1
+		     , ''                                               COMP_ADDR2
+		     , LSP.NATION_CD                                    NATION_CD
+		     , '00'                                             STCDT
+		     , LSP.BIZCOND                                      BIZ_TYP_NM
+		     , LSP.CAT_BUSI                                     IND_TYP_NM
+		     , '03'                                             ACTSS       
+		     , ''                                               ZAHLS
+		     , '0021011000-K-1000'                              AKONT
+		     , '000'                                            ZUAWA
+		     , 'E1'                                             CASH_CTRL
+		     , 'ILC'                                            VEND_CLS
+		     , 'KRW'                                            WAERS
+		     , 'Z'                                              BIZ_DIV_LARGE
+		     , 'T'                                              BIZ_DIV_MED
+		     , 'N'                                              RETURN_YN
+		     , 'Y'                                              USE_YN                                           
+		     , LSP.DEL_YN                                       DEL_YN
+		     , ''                                               COMP_ADDR_X
+		     , ''                                               COMP_ADDR_Y
+		     , 'N'                                              MOLIT_YN 
+		     , #GV_USERID#                                      REG_ID
+		     , TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')             REG_DT
+		  FROM TMDM_BP_LSP LSP 
+		 INNER JOIN TMDM_BP_NAME_IF NM
+		         ON LSP.LSP_ID = NM.RCP_ID
+		        AND NM.RCP_TCD = 'LSP'
+		        AND NM.NM_TCD = 'N001'
+		        AND NM.DEL_YN = 'N'
+		        AND LANG_CD='KO'
+		 WHERE  LSP_ID=#MDM_SHPR_ID#
+	</insert>
+</sqlMap>
+
+

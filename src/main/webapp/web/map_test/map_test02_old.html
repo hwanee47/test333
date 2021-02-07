@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	
+	<link rel="stylesheet" type="text/css" href="common.css" />
+
+	<!-- Google Map 관련 라이센스 및 JS 파일 -->
+	<script src="https://maps.googleapis.com/maps/api/js?client=gme-cjkoreaexpress&amp&region=KR" async="" defer="defer"></script>
+	<script type="text/javascript" src="../../js/jquery.js"></script>
+	<script type="text/javascript" src="../../js/googleMap/control_main.js"></script>
+	<script type="text/javascript" src="../../js/googleMap/proj4js-combined.js"></script>
+	<script type="text/javascript" src="../../js/gmap.js"></script>
+
+</head>
+
+<body style="background:#2c2b2e;">
+
+<div class="wrapper">
+	<!-- 좌측 지도 영역 -->
+	<div id="map" class="map_box_l"></div>
+	<!-- //좌측 지도 영역 -->
+
+	<!-- 우측 정보 영역 -->
+	<div class="info_box_r">
+		<div class="top_info_box01">
+			<!-- 날씨 -->
+			<div class="wh_bx">
+				<i class="wi wi-day-cloudy-high"></i>
+				<p>전국</p>
+			</div>
+			<!-- //날씨 -->
+			<p class="date">2018년 12월 23일</p>
+			<p class="time">AM 10:00:35</p>
+			<p class="tx_info01">
+				<span class="tx01">위수탁 가동율</span> 97%
+			</p>
+		</div>
+
+		<!-- tab-->
+		<div class="tab_customer">
+			<ul>
+				<li><a href="#"" class="on">영차</a></li>
+				<li><a href="#">공차</a></li>
+				<li class="last"><a href="#">완료</a></li>
+			</ul>
+		</div>
+		<!-- //tab-->
+		<div class="in_bx_r02" style="margin-bottom:20px;">
+			<!-- 테이블 영역 -->
+			<div class="board_wrap">
+				<table cellspacing="0" cellpadding="0" class="board_common03" summary="수도권 테이블로 지역의 항목으로 구성되어 있습니다.">
+					<caption>수도권</caption>
+					<colgroup>
+					<col width="40" />
+					<col width="30" />
+					<col width="*" />
+					<col width="135" />
+					<col width="285" />
+					<col width="125" />
+					</colgroup>
+					<thead>
+						<tr>
+							<th>No</th>
+							<th></th>
+							<th>차량번호</th>
+							<th>운전자정보</th>
+							<th>상태</th>
+							<th>공차예정시간</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>1</td>
+							<td class="dot_yellow">●</td>
+							<td><div class="display"><div><input class="header dark L" id="display01_01" /></div></div></td>
+							<td>
+								<div class="display"><div><input class="header dark L" id="display01_02" /></div></div><br/>
+								<div class="display" style="margin-top:-8px;"><div><input class="header dark L" id="display01_022" /></div></div>
+							</td>
+							<td>
+								<div class="display"><div><input class="header dark L" id="display01_03" /></div></div><br/>
+								<div class="display" style="margin-top:-8px;"><div><input class="header dark L" id="display01_033" /></div></div>
+							</td>
+							<td><div class="display"><div><input class="header dark L" id="display01_04" /></div></div></td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td class="dot_yellow">●</td>
+							<td><div class="display"><div><input class="header dark L" id="display02_01" /></div></div></td>
+							<td>
+								<div class="display"><div><input class="header dark L" id="display02_02" /></div></div><br/>
+								<div class="display" style="margin-top:-8px;"><div><input class="header dark L" id="display02_022" /></div></div>
+							</td>
+							<td>
+								<div class="display"><div><input class="header dark L" id="display02_03" /></div></div><br/>
+								<div class="display" style="margin-top:-8px;"><div><input class="header dark L" id="display02_033" /></div></div>
+							</td>
+							<td><div class="display"><div><input class="header dark L" id="display02_04" /></div></div></td>
+						</tr>
+						<tr>
+							<td>3</td>
+							<td class="dot_red">●</td>
+							<td>대전98바3456<br/>카고/25</td>
+							<td>홍길동<br/>010-8789-0989</td>
+							<td>상차지 이동중</td>
+							<td>11:00</td>
+						</tr>
+						<tr>
+							<td>4</td>
+							<td class="dot_red">●</td>
+							<td>대전98바3456<br/>카고/25</td>
+							<td>홍길동<br/>010-8789-0989</td>
+							<td>상차지 이동중</td>
+							<td>11:00</td>
+						</tr>
+						<tr>
+							<td>5</td>
+							<td class="dot_yellow">●</td>
+							<td>대전98바3456<br/>카고/25</td>
+							<td>홍길동<br/>010-8789-0989</td>
+							<td>상차지 이동중</td>
+							<td>11:00</td>
+						</tr>
+						<tr>
+							<td>6</td>
+							<td class="dot_yellow">●</td>
+							<td>대전98바3456<br/>카고/25</td>
+							<td>홍길동<br/>010-8789-0989</td>
+							<td>상차지 이동중</td>
+							<td>11:00</td>
+						</tr>
+						<tr>
+							<td>7</td>
+							<td class="dot_yellow">●</td>
+							<td>대전98바3456<br/>카고/25</td>
+							<td>홍길동<br/>010-8789-0989</td>
+							<td>상차지 이동중</td>
+							<td>11:00</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- //테이블 영역 -->
+		</div>
+
+		<!-- tab-->
+		<div class="tab_customer">
+			<ul>
+				<li class="last"><a href="#"" class="on">하차지 분포</a></li>
+			</ul>
+		</div>
+		<!-- //tab-->
+		<div class="in_bx_r02" style="height:87px;">
+			<!-- 테이블 영역 -->
+			<div class="board_wrap">
+				<table cellspacing="0" cellpadding="0" class="board_common04" summary="수도권 테이블로 지역의 항목으로 구성되어 있습니다.">
+					<caption>수도권</caption>
+					<colgroup>
+					<col width="20%" />
+					<col width="20%" />
+					<col width="20%" />
+					<col width="20%" />
+					<col width="20%" />
+					</colgroup>
+					<thead>
+							<th>수도권</th>
+							<th>강원권</th>
+							<th>충청권</th>
+							<th>영남권</th>
+							<th>호남권</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>34 / 20%</td>
+							<td>34 / 20%</td>
+							<td>34 / 20%</td>
+							<td>34 / 20%</td>
+							<td>34 / 20%</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<!-- //우측 정보 영역 -->
+</div>
+
+<link href="flapper.css" type="text/css" rel="stylesheet" />
+<script src="jquery.min.js"></script>
+<script src="transform/dist/jquery.transform-0.9.3.min.js"></script>
+<script src="jshashtable.js"></script>
+<script src="numberformatter/jquery.numberformatter-1.2.3.min.js"></script>
+<script src="jquery.flapper.js"></script>
+
+<script language="javascript">
+$(document).ready(function() {
+    var 
+    $display01_01 = $('#display01_01');
+    $display01_02 = $('#display01_02');
+    $display01_022 = $('#display01_022');
+    $display01_03 = $('#display01_03');
+    $display01_033 = $('#display01_033');
+    $display01_04 = $('#display01_04');
+
+    $display02_01 = $('#display02_01');
+    $display02_02 = $('#display02_02');
+    $display02_022 = $('#display02_022');
+    $display02_03 = $('#display02_03');
+    $display02_033 = $('#display02_033');
+    $display02_04 = $('#display02_04');
+
+    $display01_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display01_02.flapper({
+        width: 3,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+     $display01_022.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display01_03.flapper({
+        width: 7,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+     $display01_033.flapper({
+        width: 13,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display01_04.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+
+    setTimeout(function(){
+        $display01_01.val('대전98바3456').change();
+        $display01_02.val('홍길동').change();
+        $display01_022.val('카고/25').change();
+        $display01_03.val('상차지 이동중').change();
+        $display01_033.val('010-8789-0989').change();
+        $display01_04.val('11:00').change();
+    }, 0);
+
+    $display02_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display02_02.flapper({
+        width: 3,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+     $display02_022.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display02_03.flapper({
+        width: 7,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+     $display02_033.flapper({
+        width: 13,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display02_04.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+
+    setTimeout(function(){
+        $display02_01.val('대전98바3456').change();
+        $display02_02.val('홍길동').change();
+        $display02_022.val('카고/25').change();
+        $display02_03.val('상차지 이동중').change();
+        $display02_033.val('010-8789-0989').change();
+        $display02_04.val('13:00').change();
+    }, 0);
+
+    /*setTimeout(function(){
+        $display08.val('운송지연').change();
+    }, 3000);*/
+
+});
+</script>
+<style type="text/css">
+.flapper.header.red.L .digit div {color:red;}
+</style>
+
+</body>
+</html>

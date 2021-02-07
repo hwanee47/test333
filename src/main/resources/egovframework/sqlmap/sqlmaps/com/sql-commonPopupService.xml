@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="commonPopupService">
+<!-- 
+	 * 공통 팝업에서 사용되는 팝업용sql을 관리한다. [it Oh 2018.08.24]
+	 1. commonPopupService.getLspInfoAll
+	 	- 운송가매점을 조회
+	 2. commonPopupService.getLspList
+	 	- 구매처 팝업 정보를 조회
+	 3. commonPopupService.getNodeAreaInfo
+	 	- 상차지 하차지 팝업의 노드 정보를 조회한다.
+	 4. commonPopupService.getItemInfo
+	 	- 품목 팝업 정보를 조회한다.
+	 ... TODO Add on..
+ -->
+
+<!-- 개발가이드 1.2 명명규칙에 따라 조회 get + 의미있는명사 + List -->
+    <select id="getLspInfoAll" resultClass="java.util.HashMap">
+   	<dynamic>
+   		<isEqual property="MOD" compareProperty="MOD" compareValue="eqpMgmAddPopup">
+		/*[sql-commonPopupService.xml][commonPopupService.getLspInfoAll][운송가매점을 조회한다.][it Oh] */
+		SELECT TKBL.LSP_ID                                                                            AS LSP_ID_ORG    /** 협력사를 구분하는 KEY VALUE **/
+		      ,TKBL.LSP_ID || '/' || TKBL.LSP_LOCAL_NM || '/' || TKBL.BIZ_TYPE                        AS LSP_DATA      /** 주석없음 어디에 사용되는지 모르는 COLUMN **/
+		      ,TKBL.LSP_LOCAL_NM                                                                      AS LSP_LOCAL_NM  /** 협력사를 나타내는 대표 명 **/
+		      ,TKBL.LSP_LOCAL_NM                                                                      AS LSP_NM        /** 협력사를 나타내는 대표 명2 **/
+		      ,TKBL.PRSNT_NM                                                                          AS PRSNT_NM      /** 대표자명 **/
+		      ,CASE WHEN TKBL.TEL1 IS NULL OR TKBL.TEL2 IS NULL OR TKBL.TEL3 IS NULL THEN '-' 
+		            ELSE TKBL.TEL1 || '-' || TKBL.TEL2 || '-' || ''/*gcom.KXDECRYPT(TRIM(TEL3))*/ END AS TEL          /** 전화번호 TODO- FUNCTION 생성시 변경예정 **/
+		      ,NVL(TKBL.COMP_ADDR1 || ' ' || ''/*gcom.KXDECRYPT(TRIM(TKBL.COMP_ADDR2))*/, '-')        AS COMP_ADDR    /** 주소 TODO- FUNCTION 생성시 변경예정 **/
+		      ,TKBL.BASE_CORP_ID                                                                      AS BASE_CORP_ID /** 관리실행거점 **/
+		      ,TBCI.ABBR_NM                                                                           AS BASE_CORP_NM /** 거점을 나타내는 약어 명 **/
+		      ,TKBL.BIZ_TYPE                                                                          AS BIZ_TYPE     /** 가입 사업자 종류 **/
+		      ,TKBL.JOIN_TYPE                                                                         AS JOIN_TYPE    /** 가입 유형 **/
+		      ,TKMC.CD_NM                                                                             AS JOIN_TYPE_NM /** 가입유형명칭 **/
+		      ,CASE WHEN SUBSTR(TKBL.MDM_LSP_ID,0,2) = '42' THEN TKBL.MDM_LSP_ID ELSE TKBL.LSP_ID END AS LSP_ID       /** RETURN CODE **/
+		      ,TKBL.MDM_LSP_ID                                                                        AS MDM_LSP_ID   /** MDM코드 **/
+		      ,TKBL.BIZ_REG_NO                                                                        AS BIZ_REG_NO   /** 사업자번호 **/
+		      ,TKBL.COMP_ZIP1||TKBL.COMP_ZIP2                                                         AS COMP_ZIP     /** 우편번호 **/
+		FROM   TMDM_KFR_BP_LSP  TKBL  /** 협력사 정보 관리 (화물운송) **/
+		      ,TMDM_BP_CORP_IF  TBCI  /** 시스템을 사용하는 업체의 내부권역법인이 등록되는 권역법인 마스터 **/
+		      ,TMDM_KFR_MC_CODE TKMC  /** 공통코드 **/
+		WHERE  TKBL.JOIN_TYPE IN ('T04', 'T05') /** 고정 PARAM **/
+		AND    TKBL.DEL_YN     = 'N'
+		AND    TKBL.USE_YN     = 'Y'
+		AND    TBCI.DEL_YN(+)  = 'N'
+		AND    TKMC.DEL_YN(+)  = 'N'
+		AND    TKMC.CD_TCD(+)  = 'CM100'
+		AND    TBCI.CORP_ID(+) = TKBL.BASE_CORP_ID
+		AND    TKMC.CD     (+) = TKBL.JOIN_TYPE
+		<isNotEmpty prepend="AND" property="USER_JOIN_TYPE">
+		TKBL.JOIN_TYPE = #USER_JOIN_TYPE#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="LSP_LOCAL_NM">
+		TKBL.LSP_LOCAL_NM LIKE '%' || #LSP_LOCAL_NM# || '%'
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="PRSNT_NM">
+		TKBL.PRSNT_NM LIKE '%' || #PRSNT_NM# || '%'
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="CORP_ID">
+		TKBL.BASE_CORP_ID = #CORP_ID#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_GB">
+			<isEqual prepend="AND" property="CUST_GB" compareValue="001">
+			LSP_LOCAL_NM like '%' || #ID_NM# ||'%'
+			</isEqual>
+			<isEqual prepend="AND" property="CUST_GB" compareValue="002">
+			LSP_ID like '%' || #ID_NM# ||'%'
+			</isEqual>		
+			<isEqual prepend="AND" property="CUST_GB" compareValue="003">
+			MDM_LSP_ID LIKE '%' || #ID_NM# || '%'
+			</isEqual>
+			<isEqual prepend="AND" property="CUST_GB" compareValue="004">
+			BIZ_REG_NO like '%' || #ID_NM# ||'%'
+			</isEqual>
+		</isNotEmpty>
+		ORDER BY TBCI.ABBR_NM , TKBL.LSP_LOCAL_NM
+   		</isEqual>
+   	</dynamic>
+    </select>
+    
+    <select id="getCusmersList" resultClass="java.util.HashMap">
+	/*[sql-commonPopupService.xml][commonPopupService.getCusmersList][고객 팝업 조회.][it Oh] */
+	SELECT TKBS.SHPR_ID                                                          AS SHPR_ID                /** 고객를 구분하는 KEY VALUE **/
+	      ,TKBS.JOIN_TYPE                                                        AS JOIN_TYPE              /** 가입 유형 **/
+	      ,FN_MDM_GET_MC_CODE_NM('CM100', TKBS.JOIN_TYPE)                   	 AS JOIN_TYPE_NM           /** 가입 유형명 **/
+	      ,TKBS.MDM_SHPR_ID                                                      AS MDM_SHPR_ID            /** 고객코드 **/
+	      ,TKBS.SHPR_LOCAL_NM                                                    AS ORI_SHPR_LOCAL_NM      /** 고객사를 나타내는 대표 명 **/
+	      ,FN_KCC_GET_SHPR_NM(TKBS.SHPR_ID)                                 	 AS SHPR_LOCAL_NM          /** 고객사를 나타내는 대표 명 **/
+	      ,TKBS.BIZ_REG_NO                                                       AS BIZ_REG_NO             /** 사업자등록번호 **/
+	      ,TKBS.PRSNT_NM                                                         AS PRSNT_NM               /** 대표자명 **/
+	      ,CASE WHEN TKBS.COMP_ZIP1 IS NULL AND TKBS.COMP_ZIP2 IS NULL THEN NULL
+	            ELSE TKBS.COMP_ZIP1 || '-' || TKBS.COMP_ZIP2 END                 AS COMP_ZIP               /** 우편번호 **/
+	      ,TKBS.COMP_ADDR1 || AESDECRYPT(TRIM(TKBS.COMP_ADDR2))                  AS COMP_ADDR              /** 주소지 **/
+	      ,TKBS.TEL1 || '-' || TKBS.TEL2 || '-' || AESDECRYPT(TRIM(TKBS.TEL3))   AS TEL                    /** 전화번호 **/
+	      ,TKBS.FAX1 || '-' || TKBS.FAX2 || '-' || AESDECRYPT(TRIM(TKBS.FAX3))   AS FAX                    /** 팩스번호 **/
+	      ,CASE WHEN TKBS.EMAIL1 IS NULL OR TKBS.EMAIL2 IS NULL THEN NULL
+	            ELSE AESDECRYPT(TRIM(TKBS.EMAIL1))|| '@' ||TKBS.EMAIL2 END       AS EMAIL                  /** 이메일 **/
+	      ,TKBS.ZTERM_C                                                          AS ZTERM_C                /** 수급조건 **/
+	      ,CASE WHEN SUBSTR(MDM_SHPR_ID,1,2)='10' THEN  (SELECT DEL_YN FROM TMDM_IF_IN_KFR_BP_SHPR WHERE SHPR_ID=MDM_SHPR_ID ) ELSE 'N' END AS SHPR_STATUS
+	      ,TKBS.WITHTAX_CD                                                                                 /** 세금유형 **/
+	FROM   TMDM_KFR_BP_SHPR       TKBS
+	WHERE  TKBS.DEL_YN     = 'N'
+	AND    TKBS.JOIN_TYPE IN ('T01','T02','T03','T04')
+	AND    SUBSTR(TKBS.MDM_SHPR_ID,1,2) != '42'
+	<isNotEmpty prepend="AND" property="CUST_GB">
+	(  /** PARAM ASIS custGb , idNm **/
+	   ( #CUST_GB# = '001' AND FN_KCC_GET_SHPR_NM(TKBS.SHPR_ID) LIKE '%' || #ID_NM# ||'%' )
+	OR ( #CUST_GB# = '002' AND TKBS.SHPR_ID     LIKE '%' || #ID_NM# ||'%' )
+	OR ( #CUST_GB# = '003' AND TKBS.MDM_SHPR_ID LIKE '%' || #ID_NM# ||'%' )
+	OR ( #CUST_GB# = '004' AND TKBS.BIZ_REG_NO  LIKE '%' || #ID_NM# ||'%' )
+	OR ( #CUST_GB# = '005' AND NVL( TKBS.TEL1||TKBS.TEL2 || AESDECRYPT(TRIM(TKBS.TEL3)), 'X' ) LIKE '%' || replace(#ID_NM#, '-', '') || '%' )
+	)
+	</isNotEmpty>
+	<isEqual prepend="AND" property="TMS_GB" compareValue="TMS">
+	TKBS.JOIN_TYPE in ('T01', 'T02')    /** PARAM ASIS TmsGb **/
+	</isEqual>
+	<isNotEmpty prepend="AND" property="JOIN_TYPE">
+	TKBS.JOIN_TYPE = #JOIN_TYPE#        /** PARAM ASIS joinType **/
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="BASE_CORP_ID">
+	TKBS.BASE_CORP_ID = #BASE_CORP_ID#  /** PARAM ASIS BaseCorpCd **/
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="SHPR_ETC">
+	SUBSTR(TKBS.MDM_SHPR_ID,1,2) != '42' /** PARAM ASIS shprEtc **/
+	</isNotEmpty>
+    </select>
+    
+    
+    <select id="getCusmersOnLoadList" resultClass="java.util.HashMap">
+	/*[sql-commonPopupService.xml][commonPopupService.getCusmersOnLoadList][조회조건 없이 최초 조회시 개인화정보를 조회하며 form Load시 한번만 조회.][it Oh 2018.12.05] */
+	SELECT TKBS.SHPR_ID                                                          AS SHPR_ID                /** 고객를 구분하는 KEY VALUE **/
+	      ,TKBS.JOIN_TYPE                                                        AS JOIN_TYPE              /** 가입 유형 **/
+	      ,FN_MDM_GET_MC_CODE_NM('CM100', TKBS.JOIN_TYPE)                   	 AS JOIN_TYPE_NM           /** 가입 유형명 **/
+	      ,TKBS.MDM_SHPR_ID                                                      AS MDM_SHPR_ID            /** 고객코드 **/
+	      ,TKBS.SHPR_LOCAL_NM                                                    AS ORI_SHPR_LOCAL_NM      /** 고객사를 나타내는 대표 명 **/
+	      ,FN_KCC_GET_SHPR_NM(TKBS.SHPR_ID)                                 	 AS SHPR_LOCAL_NM          /** 고객사를 나타내는 대표 명 **/
+	      ,TKBS.BIZ_REG_NO                                                       AS BIZ_REG_NO             /** 사업자등록번호 **/
+	      ,TKBS.PRSNT_NM                                                         AS PRSNT_NM               /** 대표자명 **/
+	      ,CASE WHEN TKBS.COMP_ZIP1 IS NULL AND TKBS.COMP_ZIP2 IS NULL THEN NULL
+	            ELSE TKBS.COMP_ZIP1 || '-' || TKBS.COMP_ZIP2 END                 AS COMP_ZIP               /** 우편번호 **/
+	      ,TKBS.COMP_ADDR1 || AESDECRYPT(TRIM(TKBS.COMP_ADDR2))                  AS COMP_ADDR              /** 주소지 **/
+	      ,TKBS.TEL1 || '-' || TKBS.TEL2 || '-' || AESDECRYPT(TRIM(TKBS.TEL3))   AS TEL                    /** 전화번호 **/
+	      ,TKBS.FAX1 || '-' || TKBS.FAX2 || '-' || AESDECRYPT(TRIM(TKBS.FAX3))   AS FAX                    /** 팩스번호 **/
+	      ,CASE WHEN TKBS.EMAIL1 IS NULL OR TKBS.EMAIL2 IS NULL THEN NULL
+	            ELSE AESDECRYPT(TRIM(TKBS.EMAIL1))|| '@' ||TKBS.EMAIL2 END       AS EMAIL                  /** 이메일 **/
+	      ,TKBS.ZTERM_C                                                          AS ZTERM_C                /** 수급조건 **/
+	      ,CASE WHEN SUBSTR(MDM_SHPR_ID,1,2)='10' THEN  (SELECT TKBS.DEL_YN FROM TMDM_IF_IN_KFR_BP_SHPR WHERE TKBS.SHPR_ID=MDM_SHPR_ID ) ELSE 'N' END AS SHPR_STATUS
+	      ,TKBS.WITHTAX_CD                                                                                 /** 세금유형 **/
+	FROM   TMDM_KFR_BP_SHPR TKBS
+	      ,TPSN_SHPR_INFO   TSIF
+	WHERE  TSIF.USER_ID = #gv_userId#
+	AND    TKBS.DEL_YN  = 'N'
+	AND    TKBS.USE_YN  = 'Y'
+	AND    TKBS.SHPR_ID = TSIF.SHPR_ID
+	ORDER BY 1
+	</select>
+    
+    
+    <select id="getLspInfo" resultClass="java.util.HashMap">
+	    /*[sql-commonPopupService.xml][commonPopupService.getLspInfo][운송가맹점 팝업 조회.][it Oh 2018.08.21] */
+	     SELECT MAIN.LSP_ID
+	          , MAIN.MDM_LSP_ID
+	          , MAIN.LSP_NM
+	          , MAIN.VIEW_LSP_NM
+	          , MAIN.BIZ_REG_NO
+           FROM (SELECT TKBL.LSP_ID
+                      , TKBL.MDM_LSP_ID
+                      , TKBL.LSP_NM
+                      , TKBL.LSP_NM || ' / ' || TKBL.BIZ_REG_NO || ' / ' || TKBL.PRSNT_NM AS VIEW_LSP_NM
+                      , TKBL.BIZ_REG_NO
+                   FROM TMDM_KFR_BP_LSP TKBL
+                  WHERE TKBL.DEL_YN = 'N'
+                  UNION ALL
+                 SELECT LSP_ID
+                      , LSP_ID AS MDM_LSP_ID
+                      , NVL (SUBSTR (DECODE (NM.LANG_CD, 'KO', '000' || NM.NM, '001' || NM.NM), 4), LSP.PRSNT_NM) AS LSP_NM
+                      , NVL (SUBSTR (DECODE (NM.LANG_CD, 'KO', '000' || NM.NM, '001' || NM.NM), 4), LSP.PRSNT_NM) || ' / ' || BIZREG_NO || ' / ' || PRSNT_NM AS VIEW_LSP_NM
+                      , BIZREG_NO AS BIZ_REG_NO
+                   FROM TMDM_BP_LSP     LSP
+                      , TMDM_BP_NAME_IF NM
+                  WHERE LSP.LSP_ID    = NM.RCP_ID(+)
+                    AND LSP.DEL_YN    = 'N'
+                    AND LSP.DEL_YN    = 'N'
+                    AND LSP.LSP_ID LIKE '42%'
+                    AND NM.RCP_TCD(+) = 'LSP'
+                    AND NM.NM_TCD (+) = 'N001'
+                    AND NM.DEL_YN (+) = 'N') MAIN
+         WHERE 1=1 
+	       <isNotEmpty prepend="AND" property="LSP_NM">
+	       ( MAIN.LSP_ID LIKE '%'||#LSP_NM#||'%' OR MAIN.LSP_NM LIKE '%'||#LSP_NM#||'%' OR MAIN.MDM_LSP_ID LIKE '%'||#LSP_NM#||'%' OR MAIN.BIZ_REG_NO LIKE '%'||#LSP_NM#||'%')
+	       </isNotEmpty>
+	     ORDER BY MAIN.LSP_NM
+	</select>
+    
+    <select id="getCorpUserInfo" resultClass="java.util.HashMap">
+	/*[sql-commonPopupService.xml][commonPopupService.getCorpUserInfo][내부사용자 팝업 조회.][it Oh 2018.08.28] */
+	SELECT TBCI.CORP_ID       /** 관리지사 **/
+	      ,TBCI.ABBR_NM       /** 거점을 나타내는 약어 명 **/
+	      ,TUSR.ID            /** 아이디 **/
+	      ,TUSR.BIZ_NM        /** 사업자(법인)명 **/
+	      ,TUSR.NAME          /** 담당자명 **/
+	      ,TUSR.BIZ_REG_NO    /** 사업자 등록번호 **/
+	FROM   TMDM_BP_CORP_IF TBCI  /** 시스템을 사용하는 업체의 내부권역법인이 등록되는 권역법인 마스터-GMDMS.TMDM_BP_CORP **/
+	      ,TADM_KFR_USER   TUSR  /** 회원정보 **/
+	WHERE  TBCI.CORP_ID = TUSR.CORP_ID
+	<isNotEmpty prepend="AND" property="USER_NAME">
+	( TUSR.ID         LIKE '%'||#USER_NAME#||'%'    OR TUSR.NAME LIKE '%'||#USER_NAME#||'%' ) /** P 담당자 **/
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="CORP_ID">
+	( TBCI.CORP_ID    LIKE '%'||#CORP_ID#||'%' OR TBCI.ABBR_NM LIKE '%'||#CORP_ID#||'%' ) /** P 관리지사 **/
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="BIZ_REG_NO">
+	( TBCI.BIZ_REG_NO LIKE '%'||#BIZ_REG_NO#||'%' ) /** P 사업자 등록번호 **/
+	</isNotEmpty>
+	ORDER BY TBCI.CORP_ID , TUSR.NAME
+	</select>
+    
+    
+    <select id="getLspList" resultClass="java.util.HashMap">
+	/** [sql-commonPopupService.xml][commonPopupService.getLspList]
+	 *  구매처 팝업 정보를 조회한다.
+	 *  [it Oh 2018.08.29]
+	 **/
+	SELECT TA1.*
+	FROM (SELECT 1                                                AS SORT_GB        /** ASIS 정렬구분 **/
+	            ,FN_MDM_GET_MC_CODE_NM('CM100',LSP.JOIN_TYPE)     AS JOIN_TYPE_NM   /** ASIS 운송가맹점 **/
+	            ,LSP.LSP_ID                                       AS LSP_ID         /** 구매처ID **/
+	            ,LSP.MDM_LSP_ID                                   AS MDM_SHPR_ID    /** MDM구매처ID **/
+	            ,LSP.LSP_LOCAL_NM                                 AS SHPR_LOCAL_NM  /** 사업자명 **/
+	            ,LSP.BIZ_REG_NO                                   AS BIZ_REG_NO     /** 사업자번호 **/
+	            ,LSP.PRSNT_NM                                     AS PRSNT_NM       /** 대표자명 **/
+	            ,LSP.COMP_ZIP1||'-'||COMP_ZIP2                    AS COMP_ZIP       /** 우편번호 **/
+	            ,LSP.COMP_ADDR1||AESDECRYPT(TRIM(COMP_ADDR2))     AS COMP_ADDR      /** 주소 **/
+	            ,LSP.TEL1||'-'||TEL2||'-'||AESDECRYPT(TRIM(TEL3)) AS TEL            /** 전화번호 **/
+	            ,LSP.FAX1||'-'||FAX2||'-'||AESDECRYPT(TRIM(FAX3)) AS FAX            /** 팩스번호 **/
+	            ,AESDECRYPT(TRIM(EMAIL1))||'@'||EMAIL2            AS EMAIL          /** 이메일 **/
+	            ,NULL                                             AS SHPR_STATUS
+	            ,LSP.BIZ_TYPE                                     AS BIZ_TYPE       /** 가입 사업자 종류 **/
+	            ,LSP.ZTERM_V                                      AS ZTERM_V        /** 지급조건 **/
+	            ,LSP.BASE_CORP_ID                                 AS BASE_CORP_ID   /** 관리실행거점 **/
+	            ,FN_MDM_GET_BP_CORP_NM(BASE_CORP_ID)              AS BASE_CORP_NM   /** 관리실행거점명 **/
+	      FROM   TMDM_KFR_BP_LSP LSP
+	      WHERE  LSP.DEL_YN     = 'N'
+	      AND    LSP.JOIN_TYPE IN ('T04','T05')
+	      /*************************************************************************************************
+	      UNION ALL
+	      SELECT  2 SORT_GB
+	            ,'위수탁' AS JOIN_TYPE_NM
+	            ,NULL AS LSP_ID
+	            ,EQP.CONSIGN_COMP AS MDM_LSP_ID
+	            ,FN_TMS_GET_CODE_NAME_TMDM_BP_LSP('TMDM_BP_LSP', 'KO', EQP.CONSIGN_COMP) AS LSP_LOCAL_NM
+	            ,NULL AS BIZ_REG_NO
+	            ,NULL AS PRSNT_NM
+	            ,NULL AS COMP_ZIP
+	            ,NULL AS COMP_ADDR
+	            ,NULL AS TEL
+	            ,NULL AS FAX
+	            ,NULL AS EMAIL
+	            ,(SELECT DEL_YN FROM TMDM_BP_LSP_IF WHERE LSP_ID=EQP.CONSIGN_COMP) AS STATUS
+	            ,NULL AS BIZ_TYPE
+	            ,NULL AS BASE_CORP_ID
+	            ,NULL AS BASE_CORP_NM
+	      FROM   TMDM_CT_EQP_IF EQP
+	      WHERE  EQP.CONSIGN_COMP IS NOT NULL
+	      AND    EQP.EQP_CLS_CD    = '2'
+	      *************************************************************************************************/
+		 ) TA1
+		 WHERE   1=1
+		<isNotEmpty prepend="AND" property="CUST_GB">
+		(  /** PARAM ASIS custGb , idNm **/
+		   ( #CUST_GB# = '001' AND TA1.SHPR_LOCAL_NM LIKE '%' || #ID_NM# ||'%' )
+		OR ( #CUST_GB# = '002' AND TA1.LSP_ID        LIKE '%' || #ID_NM# ||'%' )
+		OR ( #CUST_GB# = '003' AND TA1.MDM_SHPR_ID   LIKE '%' || #ID_NM# ||'%' )
+		OR ( #CUST_GB# = '004' AND TA1.BIZ_REG_NO    LIKE '%' || #ID_NM# ||'%' )
+		)
+		</isNotEmpty>
+	ORDER BY TA1.LSP_ID
+	 </select>
+    
+    <select id="getNodeAreaInfo" resultClass="java.util.HashMap">
+	/** [sql-commonPopupService.xml][commonPopupService.getNodeAreaInfo]
+	 *  상차지 하차지 팝업의 노드 정보를 조회한다.
+	 *  [it Oh 2018.09.10]
+	 **/
+	SELECT LST.LV         /** 조회용으로는 활용되지 않는다. **/
+	      ,LST.NODE_ID    /** 노드 ID **/
+	      ,LST.NODE_DESC  /** 노드 설명 **/
+	      ,LST.NODE_NM    /** 노드명 **/
+	      ,LST.ZIP        /** 우편번호 **/
+	      ,LST.DETL_ADDR  /** 상세 주소 **/
+	      ,LST.LAT        /** 위도 **/
+	      ,LST.LON        /** 경도 **/
+	FROM ( SELECT TSNF.NODE_ID                   AS NODE_ID    
+	             ,LEVEL AS LV
+	             ,TSNF.NODE_DESC                 AS NODE_DESC 
+	             ,CASE INSTR(TSNF.NODE_DESC,' ',-1) WHEN 0 THEN TSNF.NODE_DESC
+	                   ELSE SUBSTR( TSNF.NODE_DESC,INSTR(TSNF.NODE_DESC,' ',-1)+1,LENGTH(TSNF.NODE_DESC)) END AS NODE_NM
+	             ,TSNF.ZIP                       AS ZIP        
+	             ,AESDECRYPT(TSNF.DETL_ADDR) AS DETL_ADDR  /** 상세 주소 **/
+	             ,TSNF.LAT                       AS LAT        /** 위도 **/
+	             ,TSNF.LON                       AS LON        /** 경도 **/
+	       FROM   TMDM_ST_NODE_IF TSNF
+	       START WITH TSNF.PRNT_NODE_ID IS NULL
+	       CONNECT BY PRIOR TSNF.NODE_ID = TSNF.PRNT_NODE_ID
+	       ORDER SIBLINGS BY TSNF.NODE_ID
+	     ) LST
+	WHERE  LST.ZIP IS NOT NULL
+	<isNotEmpty prepend="AND" property="NODE_NM">
+	( UPPER(LST.NODE_DESC) LIKE '%'||UPPER(#NODE_NM#)||'%' OR UPPER(LST.NODE_ID) LIKE '%'||UPPER(#NODE_NM#)||'%' )
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="SHPR_ID">
+	LST.NODE_ID IN (SELECT DISTINCT NODE_ID
+				    FROM ( SELECT DTL.DEP_NODE_ID AS NODE_ID
+				           FROM   TBCU_CNTRT_GEN      MST
+				                 ,TBCU_CNTRT_RATE_DTL DTL
+				           WHERE  MST.AR_CNTRT_NO = DTL.AR_CNTRT_NO
+				           AND    MST.SHPR_ID     = #SHPR_ID#
+				           UNION
+				           SELECT DTL.ARR_NODE_ID
+				           FROM   TBCU_CNTRT_GEN      MST
+				                 ,TBCU_CNTRT_RATE_DTL DTL
+				           WHERE  MST.AR_CNTRT_NO = DTL.AR_CNTRT_NO
+				           AND    MST.SHPR_ID     = #SHPR_ID#
+				         )
+				)
+	</isNotEmpty>
+	</select>
+    
+    <select id="getItemInfo" resultClass="java.util.HashMap">
+	/** [sql-commonPopupService.xml][commonPopupService.getItemInfo]
+	 *  품목 팝업 정보를 조회한다.
+	 *  [it Oh 2018.09.10]
+	 **/
+	SELECT IIMI.ITEM_CCD
+	      ,FN_MDM_GET_MC_CODE_NM('ITEM_CCD',IIMI.ITEM_CCD) AS ITEM_CCD_NM
+	      ,IIMI.ITEM_CD
+	      ,IIMI.ITEM_NM
+	FROM   TMDM_IT_ITEM_MSTR_IF IIMI
+	WHERE  IIMI.DEL_YN = 'N'
+	<isNotEmpty prepend="AND" property="ITEM_NM">
+	( UPPER(IIMI.ITEM_CD) LIKE '%'||UPPER(#ITEM_NM#)||'%' OR UPPER(IIMI.ITEM_NM) LIKE '%'||UPPER(#ITEM_NM#)||'%' )
+	</isNotEmpty>
+	ORDER BY IIMI.ITEM_CCD , IIMI.ITEM_CD
+	</select>
+	
+    <select id="getAddrList" resultClass="java.util.HashMap">
+	/** [sql-commonPopupService.xml][commonPopupService.getAddrList]
+	 *  주소정보를 조회한다.
+	 *  [it Oh 2018.09.14]
+	 **/
+	SELECT MST.ZIP_CD                /** 우편번호코드         **/
+	      ,MST.NATION_CD             /** 국가 코드            **/
+	      ,MST.ZIP                   /** 우편번호             **/
+	      ,MST.SITE_CD               /** 사이트 코드          **/
+	      ,MST.LCL_ADDR_STATES       /** 시도, 주(Local)      **/
+	      ,MST.LCL_ADDR_CUNTY        /** 시군구, 도시(Local)  **/
+	      ,MST.LCL_ADDR_DONG         /** 읍면동(Local)        **/
+	      ,MST.LCL_ADDR_RI           /** 리(Local)            **/
+	      ,MST.LCL_ADDR_ISLAND       /** 도서(Local)          **/
+	      ,MST.GLBL_ADDR_STATES      /** 시도, 주(EN)         **/
+	      ,MST.GLBL_ADDR_CUNTY       /** 시군구, 도시(EN)     **/
+	      ,MST.GLBL_ADDR_DONG        /** 읍면동(EN)           **/
+	      ,MST.GLBL_ADDR_RI          /** 리(EN)               **/
+	      ,MST.GLBL_ADDR_ISLAND      /** 도서(EN)             **/
+	      ,MST.LCL_MNT_BUNJI         /** 산번지, 주도코드     **/
+	      ,MST.LCL_STAT_MAIN_BUNJI   /** 시작번지㈜           **/
+	      ,MST.LCL_STAT_SUB_BUNJI    /** 시작번지(부)         **/
+	      ,MST.LCL_END_MAIN_BUNJI    /** 끝번지㈜             **/
+	      ,MST.LCL_END_SUB_BUNJI     /** 끝번지(부)           **/
+	      ,MST.LCL_BUILDING_NM       /** 아파트건물명         **/
+	      ,MST.LCL_COURIER_CD        /** 택배집하코드         **/
+	      ,MST.LCL_ADDR1             /** 주소1(Local)         **/
+	      ,MST.LCL_ADDR2             /** 주소2(Local)         **/
+	      ,MST.GLBL_ADDR1            /** 주소1(EN)            **/
+	      ,MST.GLBL_ADDR2            /** 주소2(EN)            **/
+	      ,MST.STATE_PRV_CD          /** 주 도 코드           **/
+	      ,MST.GLBL_CITY_CD          /** 국제 도시 코드       **/
+	      ,MST.ADD_ADDR_TXT          /** 추가 주소 내역       **/
+	      ,MST.FROM_LAT              /** FROM 위도            **/
+	      ,MST.TO_LAT                /** TO 위도              **/
+	      ,MST.FROM_LON              /** FROM 경도            **/
+	      ,MST.TO_LON                /** TO 경도              **/
+	      ,MST.DEL_YN                /** 삭제 여부            **/
+	      ,MST.ZIP_TYPE              /** ZIP_TYPE             **/
+	FROM   TMDM_GS_ZIP_IF MST
+	WHERE  1=1
+	<isNotEqual property="LCL_ADDR_STATES" prepend="AND" compareValue="전체" >
+	MST.LCL_ADDR_STATES    = #LCL_ADDR_STATES#      /** 시도, 주(Local)      **/
+	</isNotEqual>
+	<isNotEqual property="LCL_ADDR_CUNTY" prepend="AND" compareValue="전체" >
+	MST.LCL_ADDR_CUNTY     = #LCL_ADDR_CUNTY#       /** 시군구, 도시(Local)  **/
+	</isNotEqual>
+	AND    MST.LCL_ADDR1       LIKE '%'||#LCL_ADDR1#||'%'  /** 주소1(Local)         **/
+	ORDER BY MST.LCL_ADDR1
+	</select>
+
+    <select id="getRateNodeAreaInfo" resultClass="java.util.HashMap">
+    /** [sql-commonPopupService.xml][commonPopupService.getRateNodeAreaInfo]
+	 *  상차지 하차지 팝업의 노드 정보를 조회한다.
+	 *  [Jae Hyun 2018.11.16]
+	**/
+	SELECT LST.LV                            						/** 조회용으로는 활용되지 않는다. **/
+	    , LST.NODE_ID                          						/** 노드 ID **/
+	    , LST.NODE_DESC                        						/** 노드 설명 **/
+	    , LST.NODE_NM                          						/** 노드명 **/
+	    , LST.ZIP                              						/** 우편번호 **/
+	    , LST.DETL_ADDR                        						/** 상세 주소 **/
+	    , LST.LAT                              						/** 위도 **/
+	    , LST.LON                              						/** 경도 **/
+	FROM (SELECT TSNF.NODE_ID AS NODE_ID    
+	            , LEVEL AS LV
+	            , TSNF.NODE_DESC AS NODE_DESC 
+	            , CASE INSTR(TSNF.NODE_DESC,' ',-1) WHEN 0 THEN TSNF.NODE_DESC
+	                                                ELSE SUBSTR( TSNF.NODE_DESC,INSTR(TSNF.NODE_DESC,' ',-1)+1,LENGTH(TSNF.NODE_DESC)) 
+	              END AS NODE_NM
+	            , TSNF.ZIP AS ZIP        
+	            , AESDECRYPT(TSNF.DETL_ADDR) AS DETL_ADDR       	/** 상세 주소 **/
+	            , TSNF.LAT AS LAT                               	/** 위도 **/
+	            , TSNF.LON AS LON                               	/** 경도 **/
+	       FROM TMDM_ST_NODE_IF TSNF
+	       START WITH TSNF.PRNT_NODE_ID IS NULL
+	       CONNECT BY PRIOR TSNF.NODE_ID = TSNF.PRNT_NODE_ID
+	       ORDER SIBLINGS BY TSNF.NODE_ID
+	    ) LST
+		, (SELECT DISTINCT DECODE(#NODE_TYPE#, '01', DTL.DEP_NODE_ID, '02', DTL.ARR_NODE_ID) AS NODE_ID
+		   FROM TBCU_CNTRT_GEN GEN
+		        , TBCU_RATE_DEGREE DEG
+		        , TBCU_CNTRT_RATE_DTL DTL
+		   WHERE 1=1
+		   AND GEN.SITE_CD = DEG.SITE_CD
+		   AND DEG.SITE_CD = DTL.SITE_CD
+		   AND GEN.AR_CNTRT_NO = DEG.AR_CNTRT_NO
+		   AND DEG.AR_CNTRT_NO = DTL.AR_CNTRT_NO
+		   AND DEG.AR_RATE_NO = DTL.AR_RATE_NO
+		   AND TO_CHAR(SYSDATE, 'YYYYMMDD') BETWEEN GEN.CNTRT_STAT_DATE AND GEN.CNTRT_END_DATE
+		   AND DEG.AR_RATE_NO = NVL((SELECT MAX(AR_RATE_NO) 
+		                               FROM TBCU_RATE_DEGREE
+		                              WHERE AR_CNTRT_NO = DEG.AR_CNTRT_NO 
+		                                AND DEL_YN = 'N'
+		                                AND TO_CHAR(SYSDATE, 'YYYYMMDD') BETWEEN TERM_STAT_DATE AND TERM_END_DATE)
+		                          , (SELECT MAX(AR_RATE_NO)
+		                               FROM TBCU_RATE_DEGREE 
+		                              WHERE AR_CNTRT_NO = DEG.AR_CNTRT_NO
+		                                AND DEL_YN = 'N'))
+		    AND GEN.DEL_YN = 'N'
+		    AND DEG.DEL_YN = 'N'
+		    AND DTL.DEL_YN = 'N'
+		    AND DTL.DEP_NODE_ID IS NOT NULL
+		    AND GEN.SHPR_ID = #SHPR_ID#
+		    AND DTL.RATE_CLS_CD = #RATE_CLS_CD#
+			<isNotEmpty prepend="AND" property="VHCL_KND_CD">
+			    DTL.VHCL_KND_CD = #VHCL_KND_CD#
+			</isNotEmpty>
+			<isEqual property="RATE_CLS_CD" compareValue="2">
+				AND DTL.VHCL_TON_CD IS NULL
+			</isEqual>
+			<isNotEqual property="RATE_CLS_CD" compareValue="2">
+				<isNotEmpty prepend="AND" property="VHCL_TON_CD">
+				    DTL.VHCL_TON_CD = #VHCL_TON_CD#
+				</isNotEmpty>
+			</isNotEqual>
+		    ) RATE		
+	WHERE LST.ZIP IS NOT NULL
+	AND LST.NODE_ID = RATE.NODE_ID
+	<isNotEmpty prepend="AND" property="NODE_NM">
+	(UPPER(LST.NODE_DESC) LIKE '%' || UPPER(#NODE_NM#) || '%' OR UPPER(LST.NODE_ID) LIKE '%' || UPPER(#NODE_NM#)||'%')
+	</isNotEmpty>
+    </select>
+    
+    <select id="getUserInfo" resultClass="java.util.HashMap">
+		/*[sql-commonPopupService.xml][getUserInfo][내부사용자 팝업 조회 ver.2][yhkim][2019.01.03] */
+		SELECT
+        		 USE.CORP_ID 			/* 실행거점 */
+        		,FN_GET_CORP_NM(USE.CORP_ID) AS CORP_NM
+				,USE.ID 				/* 유저ID */
+				,USE.NAME 				/* 고객이름 */
+		FROM
+				TADM_KFR_USER USE
+		WHERE
+				USE.DEL_YN = 'N'
+		AND
+				USE.JOIN_TYPE = 'T00'
+		<isNotEmpty prepend="AND" property="USER_NAME">
+			USE.NAME LIKE '%'||#USER_NAME#||'%'
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="USER_ID">
+			USE.ID = #USER_ID#
+		</isNotEmpty>
+		ORDER BY USE.CORP_ID ASC
+	</select>
+</sqlMap>

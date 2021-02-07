@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimEmpMgmtService">
+	
+	
+	<select id="getEmpInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimEmpMgmtService.xml][baimEmpMgmtService.getEmpInfoList]
+		 *  [사원 리스트 조회]
+		 *  [KimJinHwan 2020.02.14]
+		 **/
+		SELECT
+		    A.EMP_NO,
+		    A.EMP_NM,
+		    A.EMP_NM_ENG,
+		    A.BRAN_CD,
+		    B.BRAN_NM,
+		    A.EMP_DUTY_DV,
+		    CONCAT(CELL_NO_1,CELL_NO_2,FC_AES_DECRYPT(CELL_NO_3)) AS TOTAL_CELL_NO
+		FROM
+		    TB_BAIM_EMP_MGT_C A,
+		    TB_BAIM_BRAN_MGT_C B
+		WHERE
+		    A.BRAN_CD = B.BRAN_CD
+		<isNotEmpty property="EMP_NO">
+		AND A.EMP_NO = #EMP_NO#
+		</isNotEmpty>
+		<isNotEmpty property="EMP_NM">
+		AND A.EMP_NM LIKE CONCAT('%', #EMP_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="EMP_DUTY_DV">
+		AND A.EMP_DUTY_DV = #EMP_DUTY_DV#
+		</isNotEmpty>
+		ORDER BY EMP_NO
+		
+	</select>
+	
+	<select id="getEmpList" resultClass="java.util.HashMap">
+		/** [sql-baimEmpMgmtService.xml][baimEmpMgmtService.getEmpList]
+		 *  [사원 리스트 조회]
+		 *  [jckim 2020.08.31]
+		 **/
+		SELECT EMP_NO
+		     , EMP_NM
+		  FROM TB_BAIM_EMP_MGT_C
+		 WHERE BRAN_CD = #BRAN_CD#
+		   AND USER_TYPE = #USER_TYPE#
+		   AND USE_YN = #USE_YN#
+		 ORDER BY EMP_NO
+		     
+	</select>
+	
+	
+</sqlMap>

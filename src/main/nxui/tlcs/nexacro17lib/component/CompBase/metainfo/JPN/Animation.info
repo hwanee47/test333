@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaInfo version="2.0">
+  <Object id="nexacro.Animation">
+    <ObjectInfo inheritance="" classname="nexacro.Animation" shorttypename="Animation" csstypename="" csscontrolname="" group="Object" subgroup="Object" csspseudo="" container="false" composite="false" tabstop="false" cssstyle="false" contents="false" formats="false" contentseditor="" defaultwidth="" defaultheight="" registration="deny" edittype="" useinitvalue="false" popup="false" edittypecomponent="" dblclickevent="" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アイテムに登録されたコンポーネントにアニメーション効果を適用するオブジェクトです。" />
+    <PropertyInfo>
+      <Property name="beziercurve" group="Action" subgroup="" refreshinfo="" edittype="String" readonly="false" initonly="false" hidden="false" control="false" expr="false" bind="false" deprecated="false" unused="false" mandatory="false" objectinfo="" enuminfo="" enuminfo2="" unitinfo="" delimiter="" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="easingプロパティ値が「custom」の場合、アニメーション効果に適用されるBezier曲線を直接設定するプロパティです。" csspropertyname="" csselementname="" normalpropertyname="beziercurve" />
+      <Property name="delay" group="Action" subgroup="" refreshinfo="" edittype="Number" defaultvalue="0" readonly="false" initonly="false" hidden="false" control="false" expr="false" bind="false" deprecated="false" unused="false" mandatory="false" objectinfo="" enuminfo="" enuminfo2="" unitinfo="" delimiter="" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果の開始が遅延される時間を設定するプロパティです。" csspropertyname="" csselementname="" normalpropertyname="delay" />
+      <Property name="direction" group="Action" subgroup="" refreshinfo="" edittype="Enum" defaultvalue="normal" readonly="false" initonly="false" hidden="false" control="false" expr="false" bind="false" deprecated="false" unused="false" mandatory="false" objectinfo="" enuminfo="AniDirection" enuminfo2="" unitinfo="" delimiter="" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果の進行方向を設定するプロパティです。" csspropertyname="" csselementname="" normalpropertyname="direction" />
+      <Property name="duration" group="Action" subgroup="" refreshinfo="" edittype="Number" defaultvalue="1000" readonly="false" initonly="false" hidden="false" control="false" expr="false" bind="false" deprecated="false" unused="false" mandatory="false" objectinfo="" enuminfo="" enuminfo2="" unitinfo="" delimiter="" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果が実行される時間を設定するプロパティです。" csspropertyname="" csselementname="" normalpropertyname="duration" />
+      <Property name="easing" group="Action" subgroup="" refreshinfo="" edittype="Enum" defaultvalue="easeoutelastic" readonly="false" initonly="false" hidden="false" control="false" expr="false" bind="false" deprecated="false" unused="false" mandatory="false" objectinfo="" enuminfo="AniEasing" enuminfo2="" unitinfo="" delimiter="" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果に適用されるInterpolation関数を設定するプロパティです。" csspropertyname="" csselementname="" normalpropertyname="easing" />
+      <Property name="elasticity" group="Action" subgroup="" refreshinfo="" edittype="Number" defaultvalue="0" readonly="false" initonly="false" hidden="false" control="false" expr="false" bind="false" deprecated="false" unused="false" mandatory="false" objectinfo="" enuminfo="" enuminfo2="" unitinfo="" delimiter="" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果に適用される弾力を設定するプロパティです。" csspropertyname="" csselementname="" normalpropertyname="elasticity" />
+      <Property name="id" group="Information" subgroup="" refreshinfo="" edittype="ID" readonly="true" initonly="true" hidden="false" control="false" expr="false" bind="false" deprecated="false" unused="true" mandatory="true" objectinfo="" enuminfo="" enuminfo2="" unitinfo="" delimiter="" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="Animationオブジェクトの一意の識別子を設定するプロパティです。" csspropertyname="" csselementname="" normalpropertyname="id" />
+      <Property name="items" group="Collection" subgroup="" refreshinfo="" edittype="Object" readonly="true" initonly="false" hidden="true" control="true" expr="false" bind="false" deprecated="false" unused="false" mandatory="false" objectinfo="" enuminfo="" enuminfo2="" unitinfo="" delimiter="" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="Animationオブジェクトに登録されたすべてのAnimationItemオブジェクトを持っている読み取り専用のプロパティです。" csspropertyname="" csselementname="" normalpropertyname="items" />
+      <Property name="loop" group="Action" subgroup="" refreshinfo="" edittype="Boolean" defaultvalue="false" readonly="false" initonly="false" hidden="false" control="false" expr="false" bind="false" deprecated="false" unused="false" mandatory="false" objectinfo="" enuminfo="" enuminfo2="" unitinfo="" delimiter="" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果の繰り返し有無を設定するプロパティです。" csspropertyname="" csselementname="" normalpropertyname="loop" />
+      <Property name="loopcount" group="Action" subgroup="" refreshinfo="" edittype="Number" readonly="false" initonly="false" hidden="false" control="false" expr="false" bind="false" deprecated="false" unused="false" mandatory="false" objectinfo="" enuminfo="" enuminfo2="" unitinfo="" delimiter="" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="loopプロパティ値がtrueの場合、アニメーション効果の繰り返し回数を設定するプロパティです。" csspropertyname="" csselementname="" normalpropertyname="loopcount" />
+      <Property name="name" group="Information" subgroup="" refreshinfo="" edittype="String" readonly="false" initonly="false" hidden="true" control="false" expr="false" bind="false" deprecated="false" unused="false" mandatory="false" objectinfo="" enuminfo="" enuminfo2="" unitinfo="" delimiter="" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="Animationオブジェクトの名前を設定するプロパティです。" csspropertyname="" csselementname="" normalpropertyname="name" />
+    </PropertyInfo>
+    <CSSInfo>
+      <PropertyInfo />
+    </CSSInfo>
+    <StatusInfo />
+    <ControlInfo />
+    <MethodInfo>
+      <Method name="addTarget" group="" async="false" usecontextmenu="false" deprecated="false" unused="false" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果が適用される対象のコンポーネントをAnimationオブジェクトにアイテムとして追加するメソッドです。">
+        <Syntax text="Animation.addTarget( strID, objComp, strProps );">
+          <Return type="Number" description="追加されたAnimationItemオブジェクトのインデックスを返します。&#xA;&#xA;AnimationItemオブジェクトが正常に追加されない場合は-1を返します。" />
+          <Arguments>
+            <Argument name="objComp" type="Object" in="false" out="false" option="false" variable="false" description="アニメーション効果が適用されるコンポーネントをオブジェクト型に設定します。" />
+            <Argument name="strID" type="String" in="false" out="false" option="false" variable="false" description="Animationオブジェクトに追加されるAnimationオブジェクトのIDを文字列に設定します。" />
+            <Argument name="strProps" type="String" in="false" out="false" option="false" variable="false" description="アニメーション効果が適用されるプロパティとプロパティ値を文字列に設定します。&#xA;&#xA;パラメータ値の設定方法については、AnimationItemオブジェクトのpropsプロパティページをご覧ください。" />
+          </Arguments>
+        </Syntax>
+      </Method>
+      <Method name="pause" group="" async="false" usecontextmenu="false" deprecated="false" unused="false" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="進行中のアニメーション効果を一時停止するメソッドです。">
+        <Syntax text="Animation.pause()">
+          <Return type="Boolean" description="メソッドの実行に成功した場合、trueを返します。&#xA;&#xA;メソッドの実行に失敗した場合、falseを返します。" />
+          <Arguments />
+        </Syntax>
+      </Method>
+      <Method name="play" group="" async="false" usecontextmenu="false" deprecated="false" unused="false" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果を開始するメソッドです。">
+        <Syntax text="Animation.play()">
+          <Return type="Boolean" description="メソッドの実行に成功した場合、trueを返します。&#xA;&#xA;メソッドの実行に失敗した場合、falseを返します。" />
+          <Arguments />
+        </Syntax>
+      </Method>
+      <Method name="removeTarget" group="" async="false" usecontextmenu="false" deprecated="false" unused="false" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="Animationオブジェクトにアイテムとして追加されたAnimationItemオブジェクトを削除するメソッドです。">
+        <Syntax text="Animation.removeTarget( strID );">
+          <Return type="Object" description="Animationオブジェクトから削除されたAnimationItemオブジェクトを返します。" />
+          <Arguments>
+            <Argument name="strID" type="String" in="false" out="false" option="false" variable="false" description="Animationオブジェクトに登録されたアイテムから削除するAnimationItemオブジェクトのIDを文字列に設定します。" />
+          </Arguments>
+        </Syntax>
+      </Method>
+      <Method name="reverse" group="" async="false" usecontextmenu="false" deprecated="false" unused="false" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果の方向を逆に変更するメソッドです。">
+        <Syntax text="Animation.reverse()">
+          <Return type="Boolean" description="メソッドの実行に成功した場合、trueを返します。&#xA;&#xA;メソッドの実行に失敗した場合、falseを返します。" />
+          <Arguments />
+        </Syntax>
+      </Method>
+      <Method name="seek" group="" async="false" usecontextmenu="false" deprecated="false" unused="false" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果の進行位置を特定時間に移動するメソッドです。">
+        <Syntax text="Animation.seek( nMSecond )">
+          <Return type="Number" description="メソッドの実行によって、実際に変更された位置の進行時間を返します。" />
+          <Arguments>
+            <Argument name="nMSecond" type="Number" in="false" out="false" option="false" variable="false" description="移動させる位置の時間をミリ秒単位の数値に設定します。&#xA;&#xA;durationプロパティに設定された全進行時間の範囲内の値を設定してください。&#xA;進行時間外の値を設定すると、最小値または最大値に適用されます。" />
+          </Arguments>
+        </Syntax>
+      </Method>
+      <Method name="stop" group="" async="false" usecontextmenu="false" deprecated="false" unused="false" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="進行中のアニメーション効果を停止するメソッドです。">
+        <Syntax text="Animation.stop()">
+          <Return type="Boolean" description="メソッドの実行に成功した場合、trueを返します。&#xA;&#xA;メソッドの実行に失敗した場合、falseを返します。" />
+          <Arguments />
+        </Syntax>
+      </Method>
+    </MethodInfo>
+    <EventHandlerInfo>
+      <EventHandler name="onbegin" group="" deprecated="false" unused="false" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果が開始されたときに発生するイベントです。">
+        <Syntax text="Animation.onbegin(obj:nexacro.Animation,e:nexacro.AnimationEventInfo);">
+          <Return type="" description="" />
+          <Arguments>
+            <Argument name="e" type="AnimationEventInfo" in="false" out="false" option="false" variable="false" description="" />
+          </Arguments>
+        </Syntax>
+      </EventHandler>
+      <EventHandler name="oncomplete" group="" deprecated="false" unused="false" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果が終了されたときに発生するイベントです。">
+        <Syntax text="Animation.oncomplete(obj:nexacro.Animation,e:nexacro.AnimationEventInfo);">
+          <Return type="" description="" />
+          <Arguments>
+            <Argument name="e" type="AnimationEventInfo" in="false" out="false" option="false" variable="false" description="" />
+          </Arguments>
+        </Syntax>
+      </EventHandler>
+      <EventHandler name="onrun" group="" deprecated="false" unused="false" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="アニメーション効果の実行中にTickごとに発生するイベントです。">
+        <Syntax text="Animation.onrun(obj:nexacro.Animation,e:nexacro.AnimationEventInfo);">
+          <Return type="" description="" />
+          <Arguments>
+            <Argument name="e" type="AnimationEventInfo" in="false" out="false" option="false" variable="false" description="" />
+          </Arguments>
+        </Syntax>
+      </EventHandler>
+      <EventHandler name="onupdate" group="" deprecated="false" unused="false" requirement="IE8,IE9,IE10,IE11,Chrome,Safari,Firefox,Opera,Windows nexacro Browser,macOS nexacro Browser,Android nexacro Browser,iOS nexacro Browser,Android Default Web Browser,iOS Default Web Browser" description="play()メソッドが実行されると、アニメーション効果が終了するまでTickごとに発生するイベントです。">
+        <Syntax text="Animation.onupdate(obj:nexacro.Animation,e:nexacro.AnimationEventInfo);">
+          <Return type="" description="" />
+          <Arguments>
+            <Argument name="e" type="AnimationEventInfo" in="false" out="false" option="false" variable="false" description="" />
+          </Arguments>
+        </Syntax>
+      </EventHandler>
+    </EventHandlerInfo>
+  </Object>
+</MetaInfo>

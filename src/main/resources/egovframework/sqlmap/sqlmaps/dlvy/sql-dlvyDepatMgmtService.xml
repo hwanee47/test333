@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dlvyDepatMgmtService">
+
+	<select id="getDlvyDepatList" resultClass="java.util.HashMap">
+	/** [sql-dlvyDepatMgmtService.xml][dlvyDepatMgmtService.getDlvyDepatList]
+		 *  [배달출발 조회]
+		 *  [JinSeonJu 2020.02.22]
+		 **/
+		SELECT A.BRAN_CD                   											/** 점소코드 */ 
+			, E.BRAN_NM                       										/** 점소명  */
+			, A.CRG_ST                       	 									/** 화물상태 */
+			, D.CD_NM AS 'CRG_ST_NM'          										/** 화물상태명  */
+			, C.EMP_NM                     											/** 사원명  */
+			, C.EMP_NO																/** 사원번호  */
+			, A.WAYBILL_NO                    										/** 운송장번호  */
+			, A.PIDV_EXPCT_HOUR_CD         											/** 집배예정시간코드  */
+			, CONCAT(A.PIDV_EXPCT_START_HOUR,'-', A.PIDV_EXPCT_END_HOUR) AS EXPCT_DTIME /** 집배예정시간  */
+			, DATE_FORMAT( A.REG_DTIME,'%Y-%m-%d') AS REG_DTIME						/** 등록일  */
+			, A.EQUIP_DV_CD                   										/** 장비구분코드  */
+			, F.CD_NM AS 'EQUIP_DIV_NM'		  										/** 장비구분코드명  */
+			, A.WORK_YMD
+		FROM
+			TB_PIDV_DEPAT_SCAN_C A,
+			TB_WAYBILL_REG_MST_C B,
+			TB_BAIM_EMP_MGT_C C,
+			TMDM_MC_CODE_B D,
+			TB_BAIM_BRAN_MGT_C E,
+			TMDM_MC_CODE_B F
+		WHERE A.WAYBILL_NO = B.WAYBILL_NO
+		AND A.PIDV_EMP_NO = C.EMP_NO
+		AND D.CD = A.CRG_ST
+		AND D.CD_TCD = 'ST019'
+		ANd D.CD IN ('13', '82') /** 집화출발, 배달출발 */ 
+		AND F.CD = A.EQUIP_DV_CD
+		AND F.CD_TCD = 'PD004'
+		AND A.BRAN_CD = E.BRAN_CD
+		<isNotEmpty property="WORK_YMD">
+		AND A.WORK_YMD = #WORK_YMD#
+		</isNotEmpty>
+		<isNotEmpty property="BRAN_CD">
+		AND A.BRAN_CD = #BRAN_CD#
+		</isNotEmpty>
+		<isNotEmpty property="EMP_NO">
+		AND A.PIDV_EMP_NO = #EMP_NO#
+		</isNotEmpty>
+	</select>
+	
+
+	<select id="getDlvyDepatList_20200619" resultClass="java.util.HashMap">
+	/** [sql-dlvyDepatMgmtService.xml][dlvyDepatMgmtService.getDlvyDepatList]
+		 *  [배달출발 조회]
+		 *  [JinSeonJu 2020.02.22]
+		 **/
+		SELECT A.BRAN_CD                   											/** 점소코드 */ 
+			, E.BRAN_NM                       										/** 점소명  */
+			, A.CRG_ST                       	 									/** 화물상태 */
+			, D.CD_NM AS 'CRG_ST_NM'          										/** 화물상태명  */
+			, C.ID  AS USER_NM                     											/** 사원명  */
+			, C.ID  AS EMP_ID																	/** 사원번호  */
+			, A.WAYBILL_NO                    										/** 운송장번호  */
+			, A.PIDV_EXPCT_HOUR_CD         											/** 집배예정시간코드  */
+			, CONCAT(A.PIDV_EXPCT_START_HOUR,'-', A.PIDV_EXPCT_END_HOUR) AS EXPCT_DTIME /** 집배예정시간  */
+			, DATE_FORMAT( A.REG_DTIME,'%Y-%m-%d') AS REG_DTIME						/** 등록일  */
+			, A.EQUIP_DV_CD                   										/** 장비구분코드  */
+			, F.CD_NM AS 'EQUIP_DIV_NM'		  										/** 장비구분코드명  */
+		FROM
+			TB_PIDV_DEPAT_SCAN_C A,
+			TB_WAYBILL_REG_MST_C B,
+			TADM_KFR_USER C,
+			TMDM_MC_CODE_B D,
+			TB_BAIM_BRAN_MGT_C E,
+			TMDM_MC_CODE_B F
+		WHERE A.WAYBILL_NO = B.WAYBILL_NO
+		AND A.PIDV_EMP_NO = C.ID
+		AND D.CD = A.CRG_ST
+		AND D.CD_TCD = 'ST019'
+		AND F.CD = A.EQUIP_DV_CD
+		AND F.CD_TCD = 'PD004'
+		AND A.CRG_ST = #CRG_ST#
+		AND A.BRAN_CD = E.BRAN_CD
+		<isNotEmpty property="WORK_YMD">
+		AND A.WORK_YMD = #WORK_YMD#
+		</isNotEmpty>
+		<isNotEmpty property="BRAN_CD">
+		AND A.BRAN_CD = #BRAN_CD#
+		</isNotEmpty>
+		<isNotEmpty property="EMP_NO">
+		AND A.PIDV_EMP_NO = #EMP_NO#
+		</isNotEmpty>
+	</select>	
+	
+	<select id="getChkDepatDupl" resultClass="Integer">
+	/** [sql-dlvyDepatMgmtService.xml][dlvyDepatMgmtService.getChkDepatDupl]
+		 *  [집배출발 INSERT전 중복체크]
+		 *  [JinSeonJu 2020.02.22]
+		 **/
+		SELECT COUNT(*)
+		FROM TB_PIDV_DEPAT_SCAN_C A
+		WHERE A.WAYBILL_NO = #WAYBILL_NO#
+		AND A.WORK_YMD = #WORK_YMD#
+		AND A.CRG_ST = #CRG_ST#
+	</select>
+	
+	<insert id="insertDepatInfo">
+	/** [sql-dlvyDepatMgmtService.xml][dlvyDepatMgmtService.insertDepatInfo]
+		 *  [집배출발 INSERT]
+		 *  [JinSeonJu 2020.02.22]
+		 **/
+		INSERT INTO TB_PIDV_DEPAT_SCAN_C
+		 (
+		   WORK_YMD
+		  ,CRG_ST
+		  ,WAYBILL_NO
+		  ,BRAN_CD
+		  ,PIDV_EMP_NO
+		  ,WORK_HOUR
+		  ,EQUIP_DV_CD
+		  ,PIDV_EXPCT_HOUR_CD
+		  ,PIDV_EXPCT_START_HOUR
+		  ,PIDV_EXPCT_END_HOUR
+		  ,REG_EMP_ID
+		  ,REG_DTIME
+		  ,MODI_EMP_ID
+		  ,MODI_DTIME
+		) VALUES (
+		   #WORK_YMD#
+		  ,#CRG_ST#
+		  ,#WAYBILL_NO#
+		  ,#BRAN_CD#
+		  ,#EMP_NO#
+		  ,TIME_FORMAT(now(), "%H%i%s")
+		  ,#EQUIP_DV_CD#
+		  ,IFNULL(#PIDV_EXPCT_HOUR_CD#,'')
+		  ,IFNULL(#PIDV_EXPCT_START_HOUR#,'')
+		  ,IFNULL(#PIDV_EXPCT_END_HOUR#,'')
+		  ,#gv_userId#                                       
+		  ,REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','') 
+		  ,#gv_userId#                                       
+		  ,REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','') 
+		)
+	</insert>
+	
+	<update id="updateDepatInfo">
+	/** [sql-dlvyDepatMgmtService.xml][dlvyDepatMgmtService.insertDepatInfo]
+		 *  [집배출발 update]
+		 *  [JinSeonJu 2020.02.22]
+		 **/
+		UPDATE TB_PIDV_DEPAT_SCAN_C 
+		SET
+		  PIDV_EMP_NO = #EMP_NO#
+		  ,PIDV_EXPCT_HOUR_CD = IFNULL(#PIDV_EXPCT_HOUR_CD#,'')
+		  ,PIDV_EXPCT_START_HOUR= IFNULL(#PIDV_EXPCT_START_HOUR#,'')
+		  ,PIDV_EXPCT_END_HOUR = IFNULL(#PIDV_EXPCT_END_HOUR#,'')
+		  ,BRAN_CD = #BRAN_CD#
+		  ,WORK_HOUR = TIME_FORMAT(now(), "%H%i%s")
+		  ,MODI_EMP_ID = #gv_userId#
+		  ,MODI_DTIME = REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+		WHERE WORK_YMD = #WORK_YMD#
+		  AND CRG_ST = #CRG_ST#
+		  AND WAYBILL_NO = #WAYBILL_NO#
+	</update>
+	
+	<insert id="insertDepatInfo_H">
+	/** [sql-dlvyDepatMgmtService.xml][dlvyDepatMgmtService.insertDepatInfo]
+		 *  [삭제 전 집배출발_H INSERT]
+		 *  [JinSeonJu 2020.02.22]
+		 **/
+	 	INSERT INTO TB_PIDV_DEPAT_SCAN_H (
+		   SEQ
+		  ,WORK_YMD
+		  ,CRG_ST
+		  ,WAYBILL_NO
+		  ,BRAN_CD
+		  ,PIDV_EMP_NO
+		  ,WORK_HOUR
+		  ,EQUIP_DV_CD
+		  ,PIDV_EXPCT_HOUR_CD
+		  ,PIDV_EXPCT_START_HOUR
+		  ,PIDV_EXPCT_END_HOUR
+		  ,REG_EMP_ID
+		  ,REG_DTIME
+		  ,MODI_EMP_ID
+		  ,MODI_DTIME
+		) VALUES (
+		   (SELECT IFNULL(MAX(SEQ)+1,1) FROM TB_PIDV_DEPAT_SCAN_H A WHERE A.WORK_YMD= #WORK_YMD#)
+		  ,#WORK_YMD#
+		  ,#CRG_ST#
+		  ,#WAYBILL_NO#
+		  ,#BRAN_CD#
+		  ,#EMP_NO#
+		  ,TIME_FORMAT(now(), "%H%i%s")
+		  ,#EQUIP_DV_CD#
+		  ,IFNULL(#PIDV_EXPCT_HOUR_CD#,'')
+		  ,IFNULL(#PIDV_EXPCT_START_HOUR#,'')
+		  ,IFNULL(#PIDV_EXPCT_END_HOUR#,'')
+		  ,#gv_userId#                                       
+		  ,REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','') 
+		  ,#gv_userId#                                       
+		  ,REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','') 
+		)
+	</insert>
+	
+	<delete id="deleteDepatInfo">
+		DELETE FROM TB_PIDV_DEPAT_SCAN_C 
+		WHERE WORK_YMD = #WORK_YMD#
+		AND WAYBILL_NO = #WAYBILL_NO#
+		AND CRG_ST = #CRG_ST#
+	</delete>
+</sqlMap>

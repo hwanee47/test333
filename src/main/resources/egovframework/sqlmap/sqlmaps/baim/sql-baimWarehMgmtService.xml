@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimWarehMgmtService">
+	
+	<select id="checkDupWarehCd" resultClass="int">
+		/** [sql-baimWarehMgmtService.xml][baimWarehMgmtService.checkDupWarehCd]
+		 *  [창고코드 중복체크]
+		 *  [KimJinHwan 2020.07.21]
+		 **/	
+		SELECT
+			COUNT(*)
+		FROM
+			TB_WMS_WAREH_MGMT_MST_C TWWMMC
+		WHERE
+			TWWMMC.WAREH_CD = #WAREH_CD#
+	</select>
+	
+	
+	<select id="getWarehList" resultClass="java.util.HashMap">
+		/** [sql-baimWarehMgmtService.xml][baimWarehMgmtService.getWarehList]
+		 *  [창고정보 조회]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		SELECT
+			'' AS CHK
+			,A.WAREH_CD
+			,A.WAREH_NM
+			,A.WAREH_TYPE
+			,A.WAREH_DESC
+			,A.ZIP_NO
+			,CONCAT(A.ADDR, ' ', FC_AES_DECRYPT(A.DETAIL_ADDR)) AS FULL_ADDR
+			,A.ADDR
+			,FC_AES_DECRYPT(A.DETAIL_ADDR) AS DETAIL_ADDR
+			,A.TEL_NO_1
+			,A.TEL_NO_2
+			,FC_AES_DECRYPT(A.TEL_NO_3) AS TEL_NO_3
+			,A.FAX_NO_1
+			,A.FAX_NO_2
+			,FC_AES_DECRYPT(A.FAX_NO_3) AS FAX_NO_3
+			,USE_YN
+			,'' AS USER_ID
+		FROM
+			TB_WMS_WAREH_MGMT_MST_C A
+		WHERE
+			1=1
+		<!-- 사용자 창고권한 -->
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C B WHERE B.WAREH_CD = A.WAREH_CD AND USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="gv_warehCd">
+		AND A.WAREH_CD = #gv_warehCd#
+		</isNotEmpty>
+		<isNotEmpty property="WAREH_NM">
+		AND A.WAREH_NM LIKE CONCAT('%', #WAREH_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="USE_YN">
+		AND A.USE_YN = #USE_YN#
+		</isNotEmpty>
+		
+	</select>
+	
+	
+	<select id="getWarehListPop" resultClass="java.util.HashMap">
+		/** [sql-baimWarehMgmtService.xml][baimWarehMgmtService.getWarehListPop]
+		 *  [창고정보 조회(팝업)]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		SELECT
+			'' AS CHK
+			,A.WAREH_CD
+			,A.WAREH_NM
+			,A.WAREH_TYPE
+			,A.WAREH_DESC
+			,CONCAT(A.ADDR, ' ', FC_AES_DECRYPT(A.DETAIL_ADDR)) AS FULL_ADDR
+		FROM
+			TB_WMS_WAREH_MGMT_MST_C A
+		WHERE
+			A.USE_YN = 'Y'
+		<!-- 사용자 창고권한 -->
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C B WHERE B.WAREH_CD = A.WAREH_CD AND USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="WAREH_CD">
+		AND A.WAREH_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="WAREH_NM">
+		AND A.WAREH_NM LIKE CONCAT('%', #WAREH_NM#, '%')
+		</isNotEmpty>
+	</select>
+	
+	<insert id="insertWarehInfo">
+		/** [sql-baimWarehMgmtService.xml][baimWarehMgmtService.insertWarehInfo]
+		 *  [창고정보 추가]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		INSERT INTO TB_WMS_WAREH_MGMT_MST_C
+		(
+			WAREH_CD
+			,WAREH_NM
+			,WAREH_TYPE
+			,WAREH_DESC
+			,ZIP_NO
+			,ADDR
+			,DETAIL_ADDR
+			,TEL_NO_1
+			,TEL_NO_2
+			,TEL_NO_3
+			,FAX_NO_1
+			,FAX_NO_2
+			,FAX_NO_3
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#WAREH_CD#
+			,#WAREH_NM#
+			,#WAREH_TYPE#
+			,#WAREH_DESC#
+			,#ZIP_NO#
+			,#ADDR#
+			,FC_AES_ENCRYPT(#DETAIL_ADDR#)
+			,#TEL_NO_1#
+			,#TEL_NO_2#
+			,FC_AES_ENCRYPT(#TEL_NO_3#)
+			,#FAX_NO_1#
+			,#FAX_NO_2#
+			,FC_AES_ENCRYPT(#FAX_NO_3#)
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)		
+	</insert>
+
+
+	<update id="updateWarehInfo">
+		/** [sql-baimWarehMgmtService.xml][baimWarehMgmtService.updateWarehInfo]
+		 *  [창고정보 수정]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		UPDATE TB_WMS_WAREH_MGMT_MST_C
+		SET
+			WAREH_NM = #WAREH_NM#
+			,WAREH_TYPE = #WAREH_TYPE#
+			,WAREH_DESC = #WAREH_DESC#
+			,ZIP_NO = #ZIP_NO#
+			,ADDR = #ADDR#
+			,DETAIL_ADDR = FC_AES_ENCRYPT(#DETAIL_ADDR#)
+			,TEL_NO_1 = #TEL_NO_1#
+			,TEL_NO_2 = #TEL_NO_2#
+			,TEL_NO_3 = FC_AES_ENCRYPT(#TEL_NO_3#)
+			,FAX_NO_1 = #FAX_NO_1#
+			,FAX_NO_2 = #FAX_NO_2#
+			,FAX_NO_3 = FC_AES_ENCRYPT(#FAX_NO_3#)
+			,USE_YN = #USE_YN#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			WAREH_CD = #WAREH_CD#
+	</update>
+	
+	
+	<update id="updateWarehUseYn">
+		/** [sql-baimWarehMgmtService.xml][baimWarehMgmtService.updateWarehUseYn]
+		 *  [창고 미사용 처리]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		UPDATE TB_WMS_WAREH_MGMT_MST_C
+		SET
+			USE_YN = 'N'
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			WAREH_CD = #WAREH_CD#
+	</update>
+</sqlMap>

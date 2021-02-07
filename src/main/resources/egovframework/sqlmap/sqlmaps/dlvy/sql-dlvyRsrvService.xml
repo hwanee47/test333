@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dlvyRsrvService">
+
+	<select id="checkIsOrinvcNo" resultClass="int">
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.checkIsOrinvcNo]
+		 *  [원운송장번호로 접수된 내역이 있는지 확인]
+		 *  [KimJinHwan 2020.06.12]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_IFST_RSRV_C TIRC
+		WHERE
+			TIRC.CUST_ID = #CUST_ID#
+		AND WAYBILL_NO = #ORINVC_NO#
+		AND RCPT_DV = '01'	/*일반*/
+	</select>
+
+	<select id="checkDupOrinvcNo" resultClass="int">
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.checkDupOrinvcNo]
+		 *  [원운송장번호가 이미 반품예약접수되었는지 확인]
+		 *  [KimJinHwan 2020.06.12]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_IFST_RSRV_C TIRC
+		WHERE
+			TIRC.CUST_ID = #CUST_ID#
+		AND ORINVC_NO = #ORINVC_NO#
+		AND RCPT_DV = '02'	/*반품*/
+	</select>
+
+
+	<select id="selectDlvyRsrvList" resultClass="java.util.HashMap">
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.selectDlvyRsrvList]
+		 *  [기업고객 건별접수 리스트 조회]
+		 *  [KimJinHwan 2020.06.11]
+		 **/
+		 SELECT
+		    TIRC.CUST_ID
+		    ,TBECC.CUST_NM
+		    ,TBSCC.SEND_CUST_NO
+		    ,TBCLC.CUST_NM AS SEND_CUST_NM
+		    ,TIRC.RCPT_YMD
+		    ,TIRC.CUST_USE_NO
+		    ,TIRC.RCPT_DV
+		    ,TIRC.WORK_DV_CD
+		    ,TIRC.REQ_DV_CD
+		    ,TIRC.MPCK_KEY
+		    ,TIRC.MPCK_SEQ
+		    ,TIRC.CAL_DV_CD
+		    ,TIRC.FRT_DV_CD
+		    ,TIRC.CNTR_ITEM_CD
+		    ,TIRC.BOX_TYPE_CD
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(TIRC.BOX_QTY, 0))) AS BOX_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(TIRC.FRT, 0))) AS FRT
+		    ,TIRC.CUST_MGMT_DLCM_CD
+		    ,TBSCC.SEND_CUST_NO AS SENDR_NO
+		    ,TIRC.SENDR_NM
+		    ,TIRC.SENDR_TEL_NO_1
+		    ,TIRC.SENDR_TEL_NO_2
+		    ,FC_AES_DECRYPT(TIRC.SENDR_TEL_NO_3) AS SENDR_TEL_NO_3
+		    ,TIRC.SENDR_CELL_NO_1
+		    ,TIRC.SENDR_CELL_NO_2
+		    ,FC_AES_DECRYPT(TIRC.SENDR_CELL_NO_3) AS SENDR_CELL_NO_3
+		    ,TIRC.SENDR_ZIP_NO
+		    ,TIRC.SENDR_ADDR
+		    ,FC_AES_DECRYPT(TIRC.SENDR_DETAIL_ADDR) AS SENDR_DETAIL_ADDR
+		    ,TIRC.RCVR_NM
+		    ,TIRC.RCVR_TEL_NO_1
+		    ,TIRC.RCVR_TEL_NO_2
+		    ,FC_AES_DECRYPT(TIRC.RCVR_TEL_NO_3) AS RCVR_TEL_NO_3
+		    ,TIRC.RCVR_CELL_NO_1
+		    ,TIRC.RCVR_CELL_NO_2
+		    ,FC_AES_DECRYPT(TIRC.RCVR_CELL_NO_3) AS RCVR_CELL_NO_3
+		    ,TIRC.RCVR_ZIP_NO
+		    ,TIRC.RCVR_ADDR
+		    ,FC_AES_DECRYPT(TIRC.RCVR_DETAIL_ADDR) AS RCVR_DETAIL_ADDR
+		    ,TIRC.ORDRR_NM
+		    ,TIRC.ORDRR_TEL_NO_1
+		    ,TIRC.ORDRR_TEL_NO_2
+		    ,FC_AES_DECRYPT(TIRC.ORDRR_TEL_NO_3) AS ORDRR_TEL_NO_3
+		    ,TIRC.ORDRR_CELL_NO_1
+		    ,TIRC.ORDRR_CELL_NO_2
+		    ,FC_AES_DECRYPT(TIRC.ORDRR_CELL_NO_3) AS ORDRR_CELL_NO_3
+		    ,TIRC.ORDRR_ZIP_NO
+		    ,TIRC.ORDRR_ADDR
+		    ,FC_AES_DECRYPT(TIRC.ORDRR_DETAIL_ADDR) AS ORDRR_DETAIL_ADDR
+		    ,TIRC.WAYBILL_NO
+		    ,TIRC.ORINVC_NO
+		    ,TIRC.PICKUP_EXPCT_YMD
+		    ,TIRC.REMARK_1
+		    ,TIRC.GDS_CD
+		    ,TIRC.GDS_NM
+		FROM
+		    TB_IFST_RSRV_C TIRC
+	        ,TB_BAIM_ENTER_CUST_C TBECC
+	        ,TB_BAIM_SEND_CUST_C TBSCC
+	        ,TB_BAIM_CUST_LIST_C TBCLC
+		WHERE
+			TIRC.CUST_ID = TBECC.CUST_ID
+    	AND TBSCC.SEND_CUST_NO = TBCLC.CUST_ID
+		AND TIRC.CUST_ID = #CUST_ID#
+		AND TBSCC.SEND_CUST_NO = #SEND_CUST_NO#
+		AND TIRC.PICKUP_EXPCT_YMD = #PICKUP_EXPCT_YMD#
+		AND TIRC.REQ_DV_CD='01' /*택배건별접수(01)*/
+		ORDER BY WAYBILL_NO ASC
+	</select>
+	
+	
+	<select id="selectFileRsrvList" resultClass="java.util.HashMap">
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.selectFileRsrvList]
+		 *  [기업고객 파일접수 리스트 조회]
+		 *  [KimJinHwan 2020.06.17]
+		 **/
+		SELECT
+		  TIRC.CUST_ID
+		  ,TBECC.CUST_NM
+		  ,TIRC.CUST_MGMT_DLCM_CD
+		  ,DATE_FORMAT(TIRC.RCPT_YMD, '%Y-%m-%d') AS RCPT_YMD
+		  ,COUNT(TIRC.CUST_ID) AS RSRV_CNT
+		  ,IFNULL(SUM(CASE WHEN TIRC.RCPT_ERR_YN='Y' THEN 1 ELSE 0 END),0) AS ERR_CNT
+		FROM
+		  TB_IFST_RSRV_C TIRC
+		  ,TB_BAIM_ENTER_CUST_C TBECC
+		WHERE
+		  TBECC.CUST_ID = TIRC.CUST_ID
+		AND TIRC.CUST_ID = #CUST_ID#<!-- 'CODE00001' -->
+		AND TIRC.RCPT_YMD = #RCPT_YMD#<!-- '20200617' -->
+		AND TIRC.CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#<!-- 'CODE00001' -->
+		AND TIRC.REQ_DV_CD='02' /*택배파일접수(02)*/
+	</select>
+	
+	
+	<select id="selectDlvyRsrvErrList" resultClass="java.util.HashMap">
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.selectDlvyRsrvErrList]
+		 *  [기업고객 파일접수 오류리스트 조회]
+		 *  [KimJinHwan 2020.06.17]
+		 **/
+		SELECT
+		  '' AS CHK
+		  ,TIRC.CUST_ID
+		  ,TIRC.RCPT_YMD
+		  ,TIRC.CUST_USE_NO
+		  ,TIRC.RCPT_DV
+		  ,TIRC.WORK_DV_CD
+		  ,TIRC.REQ_DV_CD
+		  ,TIRC.MPCK_KEY
+		  ,TIRC.MPCK_SEQ
+		  ,TIRC.CAL_DV_CD
+		  ,TIRC.FRT_DV_CD
+		  ,TIRC.CNTR_ITEM_CD
+		  ,TIRC.BOX_TYPE_CD
+		  ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(TIRC.BOX_QTY, 0))) AS BOX_QTY
+		  ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(TIRC.FRT, 0))) AS FRT
+		  ,TIRC.CUST_MGMT_DLCM_CD
+		  ,TIRC.SENDR_NM
+		  ,TIRC.SENDR_TEL_NO_1
+		  ,TIRC.SENDR_TEL_NO_2
+		  ,FC_AES_DECRYPT(TIRC.SENDR_TEL_NO_3) AS SENDR_TEL_NO_3
+		  ,TIRC.SENDR_CELL_NO_1
+		  ,TIRC.SENDR_CELL_NO_2
+		  ,FC_AES_DECRYPT(TIRC.SENDR_CELL_NO_3) AS SENDR_CELL_NO_3
+		  ,TIRC.SENDR_ZIP_NO
+		  ,TIRC.SENDR_ADDR
+		  ,FC_AES_DECRYPT(TIRC.SENDR_DETAIL_ADDR) AS SENDR_DETAIL_ADDR
+		  ,TIRC.RCVR_NM
+		  ,TIRC.RCVR_TEL_NO_1
+		  ,TIRC.RCVR_TEL_NO_2
+		  ,FC_AES_DECRYPT(TIRC.RCVR_TEL_NO_3) AS RCVR_TEL_NO_3
+		  ,TIRC.RCVR_CELL_NO_1
+		  ,TIRC.RCVR_CELL_NO_2
+		  ,FC_AES_DECRYPT(TIRC.RCVR_CELL_NO_3) AS RCVR_CELL_NO_3
+		  ,TIRC.RCVR_ZIP_NO
+		  ,TIRC.RCVR_ADDR
+		  ,FC_AES_DECRYPT(TIRC.RCVR_DETAIL_ADDR) AS RCVR_DETAIL_ADDR
+		  ,TIRC.ORDRR_NM
+		  ,TIRC.ORDRR_TEL_NO_1
+		  ,TIRC.ORDRR_TEL_NO_2
+		  ,FC_AES_DECRYPT(TIRC.ORDRR_TEL_NO_3) AS ORDRR_TEL_NO_3
+		  ,TIRC.ORDRR_CELL_NO_1
+		  ,TIRC.ORDRR_CELL_NO_2
+		  ,FC_AES_DECRYPT(TIRC.ORDRR_CELL_NO_3) AS ORDRR_CELL_NO_3
+		  ,TIRC.ORDRR_ZIP_NO
+		  ,TIRC.ORDRR_ADDR
+		  ,FC_AES_DECRYPT(TIRC.ORDRR_DETAIL_ADDR) AS ORDRR_DETAIL_ADDR
+		  ,TIRC.WAYBILL_NO
+		  ,TIRC.ORINVC_NO
+		  ,TIRC.PICKUP_EXPCT_YMD
+		  ,TIRC.REMARK_1
+		  ,TIRC.REMARK_2
+		  ,TIRC.REMARK_3
+		  ,TIRC.GDS_CD
+		  ,TIRC.GDS_NM
+		  ,TIRC.RCPT_ERR_YN
+		  ,TIRC.RCPT_ERR_MSG
+		  ,TIRC.REG_EMP_ID
+		  ,TKU.NAME AS REG_EMP_NM
+		  ,DATE_FORMAT(TIRC.REG_DTIME, '%Y-%m-%d %H:%i:%s') AS REG_DTIME
+		FROM
+		  TB_IFST_RSRV_C TIRC
+		  LEFT OUTER JOIN TADM_KFR_USER TKU ON (TIRC.REG_EMP_ID = TKU.ID)
+		WHERE
+		  TIRC.CUST_ID = #CUST_ID#
+		AND TIRC.RCPT_YMD = #RCPT_YMD#
+		AND TIRC.RCPT_ERR_YN = 'Y'
+		<isNotEmpty property="RSVT_DV">
+		AND TIRC.RCPT_DV = #RSVT_DV#
+		</isNotEmpty>
+	</select>
+	
+	
+	<select id="selectOrinvcInfo"  resultClass="java.util.HashMap">
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.selectDlvyRsrvList]
+		 *  [기업고객 건별접수 원운송장번호로 정보조회]
+		 *  [KimJinHwan 2020.06.12]
+		 **/
+		SELECT
+		  TWRMC.ENTER_CUST_NO AS CUST_ID
+		  ,TWRMC.SEND_CUST_NO AS SENDR_NO
+		  ,TWRMC.WAYBILL_NO
+		  ,TIRC.SENDR_NM
+		  ,TIRC.SENDR_TEL_NO_1
+		  ,TIRC.SENDR_TEL_NO_2
+		  ,FC_AES_DECRYPT(TIRC.SENDR_TEL_NO_3) AS SENDR_TEL_NO_3
+		  ,TIRC.SENDR_CELL_NO_1
+		  ,TIRC.SENDR_CELL_NO_2
+		  ,FC_AES_DECRYPT(TIRC.SENDR_CELL_NO_3) AS SENDR_CELL_NO_3
+		  ,TIRC.SENDR_ZIP_NO
+		  ,TIRC.SENDR_ADDR
+		  ,FC_AES_DECRYPT(TIRC.SENDR_DETAIL_ADDR) AS SENDR_DETAIL_ADDR
+		  ,TIRC.RCVR_NM
+		  ,TIRC.RCVR_TEL_NO_1
+		  ,TIRC.RCVR_TEL_NO_2
+		  ,FC_AES_DECRYPT(TIRC.RCVR_TEL_NO_3) AS RCVR_TEL_NO_3
+		  ,TIRC.RCVR_CELL_NO_1
+		  ,TIRC.RCVR_CELL_NO_2
+		  ,FC_AES_DECRYPT(TIRC.RCVR_CELL_NO_3) AS RCVR_CELL_NO_3
+		  ,TIRC.RCVR_ZIP_NO
+		  ,TIRC.RCVR_ADDR
+		  ,FC_AES_DECRYPT(TIRC.RCVR_DETAIL_ADDR) AS RCVR_DETAIL_ADDR
+		  ,TWRMC.GDS_CD
+		  ,TWRMC.ITEM_NM AS GDS_NM
+		  ,TWRMC.BOX_DV AS BOX_TYPE_DV
+		  ,TWRMC.QTY AS BOX_QTY
+		  ,TWRMC.CUST_ORD_NO AS CUST_USE_NO
+		FROM
+		  TB_WAYBILL_REG_MST_C TWRMC
+		  ,TB_IFST_RSRV_C TIRC
+		WHERE
+		  TWRMC.ENTER_CUST_NO = TIRC.CUST_ID
+		AND TWRMC.WAYBILL_NO = TIRC.WAYBILL_NO
+		AND TWRMC.ENTER_CUST_NO = #CUST_ID#
+		AND TWRMC.SEND_CUST_NO = #SEND_CUST_NO#
+		AND TWRMC.WAYBILL_NO = #ORINVC_NO#
+	
+	</select>
+
+	<insert id="insertDlvyRsrv">
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.insertDlvyRsrv]
+		 *  [기업고객 건별접수 신규추가]
+		 *  [KimJinHwan 2020.06.11]
+		 **/
+		INSERT INTO TB_IFST_RSRV_C
+		(
+			CUST_ID
+			,RCPT_YMD
+			,CUST_USE_NO
+			,RCPT_DV
+			,WORK_DV_CD
+			,REQ_DV_CD
+			,MPCK_KEY
+			,MPCK_SEQ
+			,CAL_DV_CD
+			,FRT_DV_CD
+			,BOX_TYPE_CD
+			,BOX_QTY
+			,FRT
+			,CUST_MGMT_DLCM_CD
+			,SENDR_NM
+			,SENDR_TEL_NO_1
+			,SENDR_TEL_NO_2
+			,SENDR_TEL_NO_3
+			,SENDR_CELL_NO_1
+			,SENDR_CELL_NO_2
+			,SENDR_CELL_NO_3
+			,SENDR_ZIP_NO
+			,SENDR_ADDR
+			,SENDR_DETAIL_ADDR
+			,RCVR_NM
+			,RCVR_TEL_NO_1
+			,RCVR_TEL_NO_2
+			,RCVR_TEL_NO_3
+			,RCVR_CELL_NO_1
+			,RCVR_CELL_NO_2
+			,RCVR_CELL_NO_3
+			,RCVR_ZIP_NO
+			,RCVR_ADDR
+			,RCVR_DETAIL_ADDR
+			,WAYBILL_NO
+			,ORINVC_NO
+			,PICKUP_EXPCT_YMD
+			,REMARK_1
+			,REMARK_2
+			,REMARK_3
+			,GDS_CD
+			,GDS_NM
+			,RCPT_ERR_YN
+			,RCPT_ERR_MSG
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#CUST_ID#
+			,DATE_FORMAT(NOW(), '%Y%m%d')
+			,IFNULL(#CUST_USE_NO#,'123123')
+			,#RCPT_DV#
+			,'01'
+			,#REQ_DV_CD#
+			,#MPCK_KEY#
+			,#MPCK_SEQ#
+			,(CASE WHEN #FRT_DV_CD#='02' THEN '03' ELSE #CAL_DV_CD# END)
+			,#FRT_DV_CD#
+			,#BOX_TYPE_CD#
+			,#BOX_QTY#
+			,#FRT#
+			,#CUST_MGMT_DLCM_CD#
+			,#SENDR_NM#
+			,#SENDR_TEL_NO_1#
+			,#SENDR_TEL_NO_2#
+			,FC_AES_ENCRYPT(#SENDR_TEL_NO_3#)
+			,#SENDR_CELL_NO_1#
+			,#SENDR_CELL_NO_2#
+			,FC_AES_ENCRYPT(#SENDR_CELL_NO_3#)
+			,#SENDR_ZIP_NO#
+			,#SENDR_ADDR#
+			,FC_AES_ENCRYPT(#SENDR_DETAIL_ADDR#)
+			,#RCVR_NM#
+			,#RCVR_TEL_NO_1#
+			,#RCVR_TEL_NO_2#
+			,FC_AES_ENCRYPT(#RCVR_TEL_NO_3#)
+			,#RCVR_CELL_NO_1#
+			,#RCVR_CELL_NO_2#
+			,FC_AES_ENCRYPT(#RCVR_CELL_NO_3#)
+			,#RCVR_ZIP_NO#
+			,#RCVR_ADDR#
+			,FC_AES_ENCRYPT(#RCVR_DETAIL_ADDR#)
+			,#WAYBILL_NO#
+			,#ORINVC_NO#
+			,#PICKUP_EXPCT_YMD#
+			,#REMARK_1#
+			,#REMARK_2#
+			,#REMARK_3#
+			,#GDS_CD#
+			,#GDS_NM#
+			,#RCPT_ERR_YN#
+			,#RCPT_ERR_MSG#
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		
+	
+	</insert>
+	
+	
+	<update id="updateDlvyRsrv">
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.updateDlvyRsrv]
+		 *  [기업고객 건별접수 수정]
+		 *  [KimJinHwan 2020.06.12]
+		 **/
+		UPDATE TB_IFST_RSRV_C
+		SET
+			PICKUP_EXPCT_YMD = #PICKUP_EXPCT_YMD#
+			,SENDR_NM = #SENDR_NM#
+			,SENDR_TEL_NO_1 = #SENDR_TEL_NO_1#
+			,SENDR_TEL_NO_2 = #SENDR_TEL_NO_2#
+			,SENDR_TEL_NO_3 = FC_AES_ENCRYPT(#SENDR_TEL_NO_3#)
+			,SENDR_CELL_NO_1 = #SENDR_CELL_NO_1#
+			,SENDR_CELL_NO_2 = #SENDR_CELL_NO_2#
+			,SENDR_CELL_NO_3 = FC_AES_ENCRYPT(#SENDR_CELL_NO_3#)
+			,SENDR_ZIP_NO = #SENDR_ZIP_NO#
+			,SENDR_ADDR = #SENDR_ADDR#
+			,SENDR_DETAIL_ADDR = FC_AES_ENCRYPT(#SENDR_DETAIL_ADDR#)
+			,RCVR_NM = #RCVR_NM#
+			,RCVR_TEL_NO_1 = #RCVR_TEL_NO_1#
+			,RCVR_TEL_NO_2 = #RCVR_TEL_NO_2#
+			,RCVR_TEL_NO_3 = FC_AES_ENCRYPT(#RCVR_TEL_NO_3#)
+			,RCVR_CELL_NO_1 = #RCVR_CELL_NO_1#
+			,RCVR_CELL_NO_2 = #RCVR_CELL_NO_2#
+			,RCVR_CELL_NO_3 = FC_AES_ENCRYPT(#RCVR_CELL_NO_3#)
+			,RCVR_ZIP_NO = #RCVR_ZIP_NO#
+			,RCVR_ADDR = #RCVR_ADDR#
+			,RCVR_DETAIL_ADDR = FC_AES_ENCRYPT(#RCVR_DETAIL_ADDR#)
+			,ORDRR_NM = #ORDRR_NM#
+			,ORDRR_TEL_NO_1 = #ORDRR_TEL_NO_1#
+			,ORDRR_TEL_NO_2 = #ORDRR_TEL_NO_2#
+			,ORDRR_TEL_NO_3 = FC_AES_ENCRYPT(#ORDRR_TEL_NO_3#)
+			,ORDRR_CELL_NO_1 = #ORDRR_CELL_NO_1#
+			,ORDRR_CELL_NO_2 = #ORDRR_CELL_NO_2#
+			,ORDRR_CELL_NO_3 = FC_AES_ENCRYPT(#ORDRR_CELL_NO_3#)
+			,ORDRR_ZIP_NO = #ORDRR_ZIP_NO#
+			,ORDRR_ADDR = #ORDRR_ADDR#
+			,ORDRR_DETAIL_ADDR = FC_AES_ENCRYPT(#ORDRR_DETAIL_ADDR#)
+			,GDS_CD = #GDS_CD#
+			,GDS_NM = #GDS_NM#
+			,FRT_DV_CD = #FRT_DV_CD#
+			,BOX_TYPE_CD = #BOX_TYPE_CD#
+			,BOX_QTY = (CASE WHEN IFNULL(#BOX_QTY#,'') = '' THEN NULL ELSE #BOX_QTY# END)
+			,FRT = (CASE WHEN IFNULL(#FRT#,'') = '' THEN NULL ELSE #FRT# END)
+			,WAYBILL_NO = #WAYBILL_NO#
+			,ORINVC_NO = #ORINVC_NO#
+			,REMARK_1 = #REMARK_1#
+			,REMARK_2 = #REMARK_2#
+			,REMARK_3 = #REMARK_3#
+			,RCPT_ERR_YN = #RCPT_ERR_YN#
+			,RCPT_ERR_MSG = #RCPT_ERR_MSG#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			CUST_ID = #CUST_ID#
+		AND RCPT_YMD = #RCPT_YMD#
+		AND CUST_USE_NO = #CUST_USE_NO#
+		AND RCPT_DV = #RCPT_DV#
+		AND WORK_DV_CD = #WORK_DV_CD#
+		AND REQ_DV_CD = #REQ_DV_CD#
+		AND MPCK_KEY = #MPCK_KEY#
+		AND MPCK_SEQ = #MPCK_SEQ#
+	</update>
+	
+	
+	<select id="getCustLayoutList" resultClass="java.util.HashMap">
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.getCustLayoutList]
+		 *  [고객레이아웃 리스트 조회]
+		 *  [KimJinHwan 2020.06.15]
+		 **/
+		SELECT 
+			TBUXFC.CUST_ID
+			,TBUXFC.WAREIO_DV
+			,TBUXFC.XLS_FRM_NM
+			,TBUXFC.XLS_FRM_NM AS XLS_FRM_NM_ORG
+			,TBUXFC.REG_EMP_ID
+			,TKU.NAME AS REG_EMP_NM
+			,DATE_FORMAT(TBUXFC.REG_DTIME, '%Y-%m-%d') AS REG_DTIME
+		FROM
+			TB_BAIM_USER_XLS_FRM_C TBUXFC
+			LEFT OUTER JOIN TADM_KFR_USER TKU ON (TBUXFC.REG_EMP_ID = TKU.ID)
+		WHERE
+			TBUXFC.CUST_ID = #CUST_ID#
+		<isNotEmpty property="RSVT_DV">
+		AND TBUXFC.WAREIO_DV = #RSVT_DV#
+		</isNotEmpty>
+		<isNotEmpty property="WAREIO_DV">
+		AND TBUXFC.WAREIO_DV = #WAREIO_DV#
+		</isNotEmpty>
+	</select>
+	
+	
+	
+	<select id="getCustLayout" resultClass="java.util.HashMap">
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.getCustLayout]
+		 *  [고객레이아웃 조회]
+		 *  [KimJinHwan 2020.06.15]
+		 **/
+		SELECT 
+			TBUXFC.CUST_ID
+			,TBUXFC.WAREIO_DV
+			,TBUXFC.XLS_FRM_NM
+			,TBUXFC.XLS_FRM_NM AS XLS_FRM_NM_ORG
+			,TBUXFC.XLS_HD_LIST
+			,TBUXFC.REG_EMP_ID
+			,TKU.NAME AS REG_EMP_NM
+			,DATE_FORMAT(TBUXFC.REG_DTIME, '%Y-%m-%d') AS REG_DTIME
+		FROM
+			TB_BAIM_USER_XLS_FRM_C TBUXFC
+			LEFT OUTER JOIN TADM_KFR_USER TKU ON (TBUXFC.REG_EMP_ID = TKU.ID)
+		WHERE
+			TBUXFC.CUST_ID = #CUST_ID#
+		<isNotEmpty property="RSVT_DV">
+		AND TBUXFC.WAREIO_DV = #RSVT_DV#
+		</isNotEmpty>
+		<isNotEmpty property="WAREIO_DV">
+		AND TBUXFC.WAREIO_DV = #WAREIO_DV#
+		</isNotEmpty>
+		AND TBUXFC.XLS_FRM_NM = #XLS_FRM_NM# 
+	</select>
+	
+	
+	<select id="checkDupCustLayout" resultClass="int">
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.checkDupCustLayout]
+		 *  [엑셀양식 중복체크]
+		 *  [KimJinHwan 2020.06.16]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_BAIM_USER_XLS_FRM_C
+		WHERE
+			CUST_ID	= #CUST_ID#
+		AND WAREIO_DV  = #WAREIO_DV#
+		AND XLS_FRM_NM = #XLS_FRM_NM#
+	
+	</select>
+	
+	<insert id="mergeCustLayout" >
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.mergeCustLayout]
+		 *  [기업고객 파일접수 고객레이아웃  저장]
+		 *  [KimJinHwan 2020.06.16]
+		 **/
+		INSERT INTO TB_BAIM_USER_XLS_FRM_C
+		(
+			CUST_ID
+			,WAREIO_DV
+			,XLS_FRM_NM
+			,XLS_HD_LIST
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#CUST_ID#
+			,#WAREIO_DV#
+			,#XLS_FRM_NM#
+			,#XLS_HD_LIST#
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		ON
+			DUPLICATE KEY
+		UPDATE
+			XLS_FRM_NM		= #XLS_FRM_NM_NEW#
+			,XLS_HD_LIST	= #XLS_HD_LIST#
+			,MODI_EMP_ID    = #gv_userId#
+			,MODI_DTIME     = NOW()
+	</insert>
+	
+	
+	<delete	id="deleteCustLayout">
+		/** [sql-dlvyRsrvService.xml][dlvyRsrvService.deleteCustLayout]
+		 *  [기업고객 파일접수 고객레이아웃  삭제]
+		 *  [KimJinHwan 2020.06.16]
+		 **/
+		DELETE FROM TB_BAIM_USER_XLS_FRM_C
+		WHERE
+			CUST_ID	= #CUST_ID#
+		AND WAREIO_DV  = #WAREIO_DV#
+		AND XLS_FRM_NM = #XLS_FRM_NM#	
+	</delete>
+</sqlMap>

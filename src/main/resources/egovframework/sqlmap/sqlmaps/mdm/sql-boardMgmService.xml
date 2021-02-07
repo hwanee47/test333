@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="boardMgmService">
+	
+	<!-- 게시물 목록조회 -->
+    <select id="getBoardList" resultClass="java.util.HashMap">
+    	/* [sql-boardMgmService.xml][getBoardList][게시물 목록조회][2018.08.13][yhkim] */
+    	SELECT
+    			ALL_DATA.*
+		FROM
+			(
+			SELECT
+				 RESULT.AUTO_SEQ			/** 자동순번 **/
+				,RESULT.COMP_NM				/** 회사명 **/
+				,RESULT.USER_NAME			/** 문의자명 **/
+				,RESULT.USER_TEL			/** 문의자 전화번호(암호화) **/
+				,RESULT.USER_EMAIL			/** 문의자 이메일(암호화)	 **/
+				,RESULT.SUBJECT				/** 제목 **/
+				,CASE WHEN RESULT.REPLY_CNT > 0
+				      THEN 'Y' 
+	                  ELSE 'N' 
+				 END AS REPLY_YN			/** 답변 여부 **/
+				,TO_CHAR(TO_DATE(RESULT.REG_DT,'YYYYMMDDHH24MISS'),'YY/MM/DD HH24:MI') AS INS_DT	/** 문의 일자 **/
+	        FROM
+	            (
+					SELECT
+						DATA.*
+						,(
+							SELECT
+								COUNT(*)
+							FROM
+								TBXP_BOARD_LIST                
+							WHERE
+								ORG_AUTO_SEQ = DATA.AUTO_SEQ                  
+							AND DEL_YN = 'N'
+						 ) AS REPLY_CNT
+						,(
+							SELECT
+								CONTENTS
+							FROM
+								TBXP_BOARD_LIST                
+							WHERE
+								ORG_AUTO_SEQ = DATA.AUTO_SEQ                  
+							AND DEL_YN = 'N'
+						) AS REPLY_CONTENT 
+					FROM
+	                (
+						SELECT
+							AUTO_SEQ
+							,COMP_NM
+							,USER_NAME
+							,FN_COMM_GET_MOBILE_NO(USER_TEL) AS USER_TEL
+							,USER_EMAIL
+							,SUBJECT
+							,REG_DT
+							,CONTENTS
+						FROM
+							TBXP_BOARD_LIST
+						WHERE	CATEGORY = '01'
+						AND 	CONTENT_TYPE = '01'
+						AND 	DEL_YN = 'N'
+						<isNotEmpty prepend="AND" property="STA_DT">
+							<isNotEmpty property="END_DT">
+								REG_DT BETWEEN #STA_DT# AND #END_DT#
+							</isNotEmpty>
+						</isNotEmpty>
+		                <isNotEmpty prepend="AND" property="SUBJECT">
+		                	SUBJECT LIKE '%' || #SUBJECT# || '%'
+		                </isNotEmpty>
+		                <isNotEmpty prepend="AND" property="CONTENT">
+		                	CONTENTS LIKE '%' || #CONTENT# || '%'
+		                </isNotEmpty>
+	                
+	                ) DATA
+	            )RESULT
+			)ALL_DATA
+			WHERE
+                1 = 1
+			<isNotEmpty prepend="AND" property="REPLY_YN">
+			REPLY_YN =  #REPLY_YN#
+			</isNotEmpty>
+    </select>
+    
+    <!-- 사용여부 공통코드 조회 -->
+    <select id="getCommCode" resultClass="java.util.HashMap">
+    	/* [sql-boardMgmService.xml][getCommCode][사용여부 공통코드 조회][2018.08.14][yhkim] */
+		SELECT
+		        DATA.*
+		FROM
+		(
+		    SELECT
+		            ''      AS CODE
+		           ,'전체'  AS NAME
+		    FROM
+		            DUAL
+		    UNION ALL
+		    SELECT
+		            CD      AS CODE
+		           ,CD_NM   AS NAME
+		    FROM
+		            TMDM_KFR_MC_CODE
+		    WHERE
+		            CD_TCD = 'HE0180'
+		)DATA
+    </select>
+
+	<!-- 게시물 상세내용조회 -->
+    <select id="getBoardInfo" resultClass="java.util.HashMap">
+    	/* [sql-boardMgmService.xml][getBoardInfo][게시물 상세내용조회][2018.08.14][yhkim] */
+    	SELECT
+    			ALL_DATA.*
+		FROM
+			(
+			SELECT
+				 RESULT.AUTO_SEQ			/** 자동순번 **/
+				,RESULT.COMP_NM				/** 회사명 **/
+				,RESULT.USER_NAME			/** 문의자명 **/
+				,RESULT.USER_TEL			/** 문의자 전화번호(암호화) **/
+				,RESULT.USER_EMAIL			/** 문의자 이메일(암호화)	 **/
+				,RESULT.DC_USER_TEL			/** 문의자 전화번호(복호화) **/
+				,RESULT.DC_USER_EMAIL		/** 문의자 이메일(복호화)	 **/
+				,RESULT.SUBJECT				/** 제목 **/
+				,CASE WHEN RESULT.REPLY_CNT > 0
+				      THEN 'Y' 
+	                  ELSE 'N' 
+				 END AS REPLY_YN			/** 답변 여부 **/
+				,TO_CHAR(TO_DATE(RESULT.REG_DT,'YYYYMMDDHH24MISS'),'YY/MM/DD HH24:MI')	AS INS_DT				/** 문의 일자 **/
+				,REPLACE(RESULT.CONTENTS,'<![CDATA[<br/>]]>',chr(13) || chr(10))		AS CONTENT				/** 문의 내용**/
+				,REPLACE(RESULT.REPLY_CONTENT,'<![CDATA[<br/>]]>',chr(13) || chr(10)) 	AS REPLY_CONTENT		/** 답변 내용 **/
+	        FROM
+	            (
+					SELECT
+						DATA.*
+						,(
+							SELECT
+								COUNT(*)
+							FROM
+								TBXP_BOARD_LIST                
+							WHERE
+								ORG_AUTO_SEQ = DATA.AUTO_SEQ                  
+							AND DEL_YN = 'N'
+						 ) AS REPLY_CNT
+						,(
+							SELECT
+								CONTENTS
+							FROM
+								TBXP_BOARD_LIST                
+							WHERE
+								ORG_AUTO_SEQ = DATA.AUTO_SEQ                  
+							AND DEL_YN = 'N'
+						) AS REPLY_CONTENT 
+					FROM
+	                (
+						SELECT
+							 AUTO_SEQ
+							,COMP_NM
+							,USER_NAME
+							,AESENCRYPT(USER_TEL)	AS DC_USER_TEL
+							,AESENCRYPT(USER_EMAIL) AS DC_USER_EMAIL
+							,USER_TEL
+							,USER_EMAIL
+							,SUBJECT
+							,REG_DT
+							,CONTENTS
+						FROM
+							TBXP_BOARD_LIST
+						WHERE
+							AUTO_SEQ	= #AUTO_SEQ# 
+	                )DATA
+	            )RESULT
+			)ALL_DATA
+
+	</select>
+	
+	<!-- 게시판 답변 여부 확인 -->
+	<select id="selectReplyChek" resultClass="java.util.HashMap">
+		/* [sql-boardMgmService.xml][selectReplyChek][게시판 답변 여부 확인][2018.08.14][yhkim] */
+		SELECT
+				ORG_AUTO_SEQ
+		FROM
+				TBXP_BOARD_LIST
+		WHERE
+				ORG_AUTO_SEQ = #AUTO_SEQ#
+				
+	</select>
+	
+	<!-- 게시판 답변 등록 -->
+    <insert id="insertReplyInfo">
+    	/* [sql-boardMgmService.xml][insertReplyInfo][게시물 상세내용조회][2018.08.14][yhkim] */
+		INSERT INTO TBXP_BOARD_LIST(
+				 AUTO_SEQ		/** 자동순번 **/
+				,COMP_NM		/** 회사명 **/
+				,USER_NAME		/** 문의자 **/
+				,USER_TEL		/** 문의자번호 **/
+				,USER_EMAIL		/** 문의자 이메일 **/
+				,CATEGORY		/** 문의유형 - 01 **/
+				,SUBJECT		/** 제목 **/
+				,CONTENTS		/** 내용 **/
+		    	,CONTENT_TYPE	/** 내용 유형 - 01(질문) 02(답변) **/
+		    	,ORG_AUTO_SEQ	/** 질문의 자동순번 **/
+		    	,OPEN_YN		/** 공개여부 **/
+		    	,DEL_YN			/** 삭제여부 **/
+		    	,REG_ID			/** 등록자 **/
+		    	,REG_DT			/** 등록일자 **/
+		    	,SITE_CD		/** 사이트 코드 **/
+		    )VALUES(
+		    	 ('TBXP_BOARD_LIST' || LPAD(SEQ_TMDM_KFR_CT_EQP.NEXTVAL, 6, 0))
+		    	,#COMP_NM#
+		    	,#USER_NAME#
+		    	,#USER_TEL#
+		    	,#USER_EMAIL#
+		    	,'01'
+		    	,#SUBJECT#
+		    	,#REPLY_CONTENT#
+		    	,'02'
+		    	,#AUTO_SEQ#
+		    	,'Y'
+		    	,'N'
+		    	,#gv_userId#
+				,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+				,#gv_siteCd#
+		    )
+    </insert>
+    
+    <!-- 게시판 답변 수정 -->
+    <update id="updateReplyInfo">
+    	/* [sql-boardMgmService.xml][updateReplyInfo][게시판 답변 수정][2018.08.14][yhkim] */
+    	UPDATE
+    			TBXP_BOARD_LIST
+    	SET
+    			 CONTENT  	= #REPLY_CONTENT#
+    			,MOD_ID		= #gv_userId#
+    			,MOD_DT		= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE
+				ORG_AUTO_SEQ = #AUTO_SEQ#
+    </update>
+</sqlMap>

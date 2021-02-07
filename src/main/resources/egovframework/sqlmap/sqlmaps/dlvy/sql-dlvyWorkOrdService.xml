@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dlvyWorkOrdService">
+	
+	<select id="getWorkOrdList" resultClass="java.util.HashMap">
+		/** [sql-dlvyWorkOrdService.xml][dlvyWorkOrdService.getWorkOrdList]
+		 *  [작업지시 리스트 조회]
+		 *  [KimJinHwan 2020.02.19]
+		 **/
+		SELECT
+		    Z.BRAN_CD,
+		    Z.BRAN_NM,
+		    Z.WORK_YMD,
+		    Z.PIDV_EMP_NO,
+		    Z.PIDV_EMP_NM,
+		    Z.CNT,							/*출발건수*/
+		    Z.DC,							/*완료건수*/
+		    Z.DF,							/*실패건수*/
+		    (Z.CNT-(Z.DC+Z.DF)) RST,		/*기타*/
+		    TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM ROUND(DC/CNT,4)*100)) AS RTO		/*진행률*/
+		    <!-- TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM (CASE WHEN DC = 0 THEN 0 ELSE ROUND(DC/CNT,4)*100 END))) AS RTO -->
+		FROM
+		(
+		    SELECT
+		        A.BRAN_CD,
+		        B.BRAN_NM,
+		        A.WORK_YMD,
+		        A.PIDV_EMP_NO,
+		        C.EMP_NM AS PIDV_EMP_NM,
+		        COUNT(1) AS CNT,
+		        SUM(
+		            CASE WHEN 
+		                (SELECT COUNT(1) FROM TB_PIDV_CRG_ST_C M 
+		                  WHERE M.WAYBILL_NO=A.WAYBILL_NO AND M.WORK_YMD=A.WORK_YMD AND M.EMP_NO=A.PIDV_EMP_NO
+		                    AND M.GDS_ST_CD='91') > 0 THEN 1 
+		                 ELSE 0 
+		            END
+		        ) AS DC,  /* 배달완료처리된 건수 */
+		        SUM(
+		            CASE WHEN 
+		                (SELECT COUNT(1) FROM TB_PIDV_CRG_ST_C M 
+		                  WHERE M.WAYBILL_NO=A.WAYBILL_NO AND M.WORK_YMD=A.WORK_YMD AND M.EMP_NO=A.PIDV_EMP_NO
+		                    AND M.GDS_ST_CD='84') > 0 THEN 1 
+		                 ELSE 0 
+		            END
+		        ) AS DF  /* 미배달처리된 건수 */
+		    FROM
+		        TB_PIDV_DEPAT_SCAN_C A
+		        ,TB_BAIM_BRAN_MGT_C B
+		        ,TB_BAIM_EMP_MGT_C C
+		    WHERE
+		        A.BRAN_CD = B.BRAN_CD
+		    AND A.PIDV_EMP_NO = C.EMP_NO
+		    AND A.CRG_ST = '82'	/* 배달출발 */
+		    AND A.WORK_YMD = #WORK_YMD#
+		    AND A.WORK_HOUR <![CDATA[>=]]> #WORK_HOUR_FR#
+		    AND A.WORK_HOUR <![CDATA[<=]]> #WORK_HOUR_TO#
+		   <!--  AND B.BRAN_MGMT_NO LIKE (  
+		    	/* 작업계정에 등록된 점소코드로 관리상위점소코드 조회*/
+		    	SELECT CONCAT('%', BRAN_MGMT_NO, '%')
+		    	FROM TB_BAIM_BRAN_MGT_C
+		    	WHERE BRAN_CD = (SELECT BRAN_CD 
+		    					 FROM TB_BAIM_EMP_MGT_C 
+		    					 WHERE EMP_NO = #gv_userId#)
+		    ) -->
+		    <isNotEmpty property="BRAN_CD">
+		   	AND A.BRAN_CD = #BRAN_CD#
+		    </isNotEmpty>
+		    <isNotEmpty property="EMP_NO">
+		   	AND A.PIDV_EMP_NO = #EMP_NO#
+		    </isNotEmpty>
+		    GROUP BY A.BRAN_CD, B.BRAN_NM, A.WORK_YMD, A.PIDV_EMP_NO, C.EMP_NM
+		) Z
+		
+	</select>
+	
+	
+	<select id="getWorkOrdDetailList" resultClass="java.util.HashMap">
+		/** [sql-dlvyWorkOrdService.xml][dlvyWorkOrdService.getWorkOrdDetailList]
+		 *  [작업지시 상세 리스트 조회]
+		 *  [KimJinHwan 2020.02.19]
+		 **/
+		SELECT
+		    A.WAYBILL_NO,   /* 운송장번호 */
+		    C.SENDR_NM, /* 송하인명 */
+		    (SELECT MAX(GDS_ST_CD) FROM TB_PIDV_CRG_ST_C M WHERE M.WAYBILL_NO=A.WAYBILL_NO) AS LAST_GDS_ST_CD, /* 최종상태 */
+		    (
+		        CASE WHEN (SELECT MAX(GDS_ST_CD) FROM TB_PIDV_CRG_ST_C M WHERE M.WAYBILL_NO=A.WAYBILL_NO)='84' 
+		            THEN (SELECT LCATE_RSN_CD FROM TB_PIDV_CRG_ST_C WHERE WAYBILL_NO=A.WAYBILL_NO AND GDS_ST_CD=(SELECT MAX(GDS_ST_CD) FROM TB_PIDV_CRG_ST_C M WHERE M.WAYBILL_NO=A.WAYBILL_NO))
+		            ELSE ''
+		        END
+		    ) AS RSN_CD,  /* 미배달사유 */
+		    A.PIDV_EMP_NO,   /* 집배사원번호(SM사원번호) */
+		    D.EMP_NM AS PIDV_EMP_NM,    /* 집배사원명(SM사원명) */
+		    IFNULL(B.QTY, C.QTY) AS QTY,    /* 수량 */
+		    C.RCVR_NM,   /* 수하인명 */
+		    CONCAT(C.RCVR_ADDR, ' ', FC_AES_DECRYPT(C.RCVR_DETAIL_ADDR)) AS RCVR_ADDR,     /* 수하인주소 */
+		    CONCAT(C.RCVR_TEL_NO_1, '-', C.RCVR_TEL_NO_2, '-', FC_AES_DECRYPT(C.RCVR_TEL_NO_3)) AS RCVR_TEL_NO,   /* 수하인전화번호 */
+		    CONCAT(C.RCVR_CELL_NO_1, '-', C.RCVR_CELL_NO_2, '-', FC_AES_DECRYPT(C.RCVR_CELL_NO_3)) AS RCVR_CELL_NO,  /* 수하인휴대폰번호 */
+		    B.GDS_CD,   /* 상품코드 */
+		    B.ITEM_NM,  /* 상품명 */
+		    IFNULL(B.COD_YN, C.COD_YN) AS COD_YN, /* COD여부 */
+		    IFNULL(B.COD_FRT, C.COD_FRT) AS COD_FRT, /* COD운임 */
+		    IFNULL(B.COD_PAYMNT_METH, C.PAYMNT_METH) AS COD_PAYMNT_METH, /* COD결재방법 */
+		    B.FRT_DV,	/* 운임구분 */
+		    IFNULL(B.WH_FRT, C.BASIC_FRT) AS WH_FRT, /* 총운임 */
+		    C.REMARK_1 /* 배송메세지 */
+		FROM
+		    TB_PIDV_DEPAT_SCAN_C A    
+		    LEFT OUTER JOIN TB_WAYBILL_REG_MST_C B ON (A.WAYBILL_NO=B.WAYBILL_NO)
+		    LEFT OUTER JOIN TB_RCPT_LIST_C C ON (A.WAYBILL_NO=C.WAYBILL_NO),           
+		    TB_BAIM_EMP_MGT_C D
+		WHERE
+		    A.PIDV_EMP_NO = D.EMP_NO
+		AND A.CRG_ST = '82' /* 배송출발 */
+		AND A.BRAN_CD = #BRAN_CD#
+		AND A.WORK_YMD = #WORK_YMD#
+		AND A.WORK_HOUR <![CDATA[>=]]> #WORK_HOUR_FR#
+		AND A.WORK_HOUR <![CDATA[<=]]> #WORK_HOUR_TO#
+		<isNotEmpty property="PIDV_EMP_NO">
+	   	AND A.PIDV_EMP_NO = #PIDV_EMP_NO#
+	    </isNotEmpty>
+		<!-- AND A.BRAN_CD = 'P1_C1'
+		AND A.WORK_YMD = '20200219'
+		AND A.WORK_HOUR >= '000000'
+		AND A.WORK_HOUR <= '235959'
+		AND A.PIDV_EMP_NO = 'KJH' -->
+		
+
+	</select>
+	
+</sqlMap>

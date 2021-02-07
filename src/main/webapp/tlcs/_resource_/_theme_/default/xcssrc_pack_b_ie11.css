@@ -1,0 +1,5622 @@
+﻿/* *********************************************************************************** */
+/* application 공통 */
+/* *********************************************************************************** */
+
+@media screen and (min-width:0\0) and (-ms-high-contrast: active) 
+{ 
+.nexacontentsbox {-ms-high-contrast-adjust:none; } 
+} 
+
+html, body
+{
+  position:absolute;
+  width:100%;
+  height:100%;
+  /*font:10pt ""나눔고딕"";*/
+  font:12pt Verdana;
+}
+
+div
+{
+  position:absolute;
+  box-sizing:border-box;
+  overflow:hidden;
+  background-origin:padding-box;
+  background-repeat:no-repeat;
+  white-space : pre;
+  -ms-user-select:none;
+  -moz-user-select:-moz-none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-appearance:none;
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
+  outline:none;
+}
+
+table
+{
+  position:absolute;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+
+input
+{
+  position:absolute;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+
+img
+{
+  position:absolute;
+  box-sizing:border-box;
+}
+
+input::-ms-clear,input::-ms-reveal
+{
+  display: none;
+}
+
+/* *********************************************************************************** */
+
+/* *********************************************************************************** */
+
+.nexacontainer
+{
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:100%;
+  height:100%;
+}
+.nexacontainer.withvscroll
+{
+  right:14px;
+}
+.nexacontainer.withhscroll
+{
+  bottom:14px;
+}
+.nexacontainer.withbothscroll
+{
+  right:14px;
+  bottom:14px;
+}
+
+.nexalefttop
+{
+  left:0px;
+  top:0px;
+  background-repeat:no-repeat;
+  background-position:left top;
+  font-size:1px;
+}
+.nexaleftbottom
+{
+  left:0px;
+  bottom:0px;
+  background-repeat:no-repeat;
+  background-position:left bottom;
+  font-size:1px;
+}
+.nexarightbottom
+{
+  right:0px;
+  bottom:0px;
+  background-repeat:no-repeat;
+  background-position:right bottom;
+  font-size:1px;
+}
+.nexarighttop
+{
+  right:0px;
+  top:0px;
+  background-repeat:no-repeat;
+  background-position:right top;
+}
+.nexaedge
+{
+  width:100%;
+  height:100%;
+}
+.nexamodaloverlay
+{
+  width:100%;
+  height:100%;
+}
+.nexainnercontainer
+{
+  transform : translate3d(0px, 0px, 0);
+}
+
+.nexatransform
+{
+  transform : translate3d(0px, 0px, 0);
+}
+
+.nexacontentsbox
+{
+  position:relative;
+  display:table-cell;
+  background-position:left center;
+  background-repeat:no-repeat;
+  vertical-align:middle;
+  pointer-events:none;
+}
+.nexatextitem
+{
+  position:relative;
+  vertical-align:middle;
+  white-space:inherit;
+  word-wrap:inherit;
+  word-break:inherit;
+  text-decoration:inherit;
+}
+.nexaiconitem
+{
+  position:relative;
+  vertical-align:middle;
+  background-position:center center;
+  background-repeat:no-repeat;
+}
+
+.nexainput
+{
+  font:inherit;
+  color:inherit;
+  cursor:inherit;
+  letter-spacing:inherit;
+  word-spacing:inherit;
+  border:none;
+  outline:none;
+  background:transparent;
+  padding : 0px;
+}
+
+.nexatextarea
+{
+  font:inherit;
+  color:inherit;
+  cursor:inherit;
+  line-height : inherit;
+  letter-spacing:inherit;
+  word-spacing:inherit;
+  white-space:pre;
+  word-wrap:normal;
+  border:none;
+  outline:none;
+  resize:none;
+  background:transparent;
+  padding : 0px;
+  box-sizing:border-box;		
+}
+
+.nexaleftalign
+{
+  text-align:left;
+}
+
+.nexarightalign
+{
+  text-align:right;
+}
+
+.nexacenteralign
+{
+  text-align:center;
+}
+
+.nexamap div *
+{
+  overflow:visible;
+}
+
+.nexanativescroll
+{
+  overflow:scroll;
+  -ms-overflow-style:none;
+  color:black;
+}
+
+
+/* *********************************************************************************** */
+
+/* *********************************************************************************** */
+.celltreeline
+{
+  border : 1px dotted #999999;
+}
+/* *********************************************************************************** */
+
+/* *********************************************************************************** */
+.Edit, .MaskEdit, .TextArea, .EditControl, .MaskEditControl, .TextAreaControl
+{
+  cursor:text;
+}
+.Button .nexacontentsbox, .ButtonControl .nexacontentsbox
+{
+  text-align:center;
+  background-position:center center;
+}
+
+.FileDownload  .nexacontentsbox, .FileDownloadControl .nexacontentsbox
+{
+  text-align:center;
+  background-position:center center;
+}
+
+.IconTextControl .nexacontentsbox, .IconControl .nexacontentsbox
+{
+  text-align:center;
+  background-position:center center;
+}
+
+.DatePickerDayItemControl .nexacontentsbox, .DatePickerWeekItemControl .nexacontentsbox, .TitleBarButtonControl .nexacontentsbox
+{
+  text-align:center;
+  background-position:center center;
+}
+
+.MainFrame, .VScrollBarControl, .HScrollBarControl
+{
+  cursor:default;
+}
+/* *********************************************************************************** */
+
+.MainFrame.bg_border01
+{
+	border : 1px solid #003284;
+}
+.ChildFrame.bg_border02
+{
+	border : 1px solid #003284;
+}
+.Form
+{
+	font : 12px "돋움체";
+	border : 0px none;
+	background : transparent;
+}
+.Form.bg_ty01
+{
+	background : #f1f2f7;
+}
+.Form.bg_pop01
+{
+	background : #27538a;
+}
+.Div.gnb_bg
+{
+	border-top : 0px;
+	border-right : 1px solid #e4e4e4;
+	border-bottom : 0px;
+	border-left : 0px;
+	background : #ffffff;
+	border-radius : 0px;
+}
+.Div.bg_work
+{
+	background : #fcfcfc;
+}
+.Div.customer_list01
+{
+	background : #ffffff;
+	border : 1px solid #bdbdc5;
+}
+.Div.count_top_box01
+{
+	background : #ffffff;
+	border : 1px solid #bdbdc5;
+	border-radius : 2px;
+}
+.Div.count_top_box01_on
+{
+	background : #ffffff;
+	border : 1px solid #2b5799;
+	border-radius : 2px;
+}
+.Div.main_box_ty01
+{
+	background : #ffffff;
+	border : 1px solid #e4e4e4;
+	border-radius : 5px;
+}
+.Div.bmk_bx_orange_off
+{
+	border-top : 2px solid #e06200;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #dddddd;
+	border-left : 1px solid #dddddd;
+}
+.Div.bmk_bx_orange_on
+{
+	border : 2px solid #e06200;
+}
+.Div.bmk_bx_blue_off
+{
+	border-top : 2px solid #1a3867;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #dddddd;
+	border-left : 1px solid #dddddd;
+}
+.Div.bmk_bx_blue_on
+{
+	border : 2px solid #1a3867;
+}
+.Button.gnb_menu01
+{
+	background : URL("./images/gnb_icon01_off2.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu01 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu01_on
+{
+	background : URL("./images/gnb_icon01_rgb_on2.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu01_on .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu02
+{
+	background : URL("./images/gnb_icon02_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu02 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu02_on
+{
+	background : URL("./images/gnb_icon02_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu02_on .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu03
+{
+	background : URL("./images/gnb_icon_order_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu03 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu03_on
+{
+	background : URL("./images/gnb_icon_order_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu03_on .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu04
+{
+	background : URL("./images/gnb_icon04_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu04 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu04_on
+{
+	background : URL("./images/gnb_icon04_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu04_on .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu05
+{
+	background : URL("./images/gnb_icon_graph_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu05 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu05_on
+{
+	background : URL("./images/gnb_icon_graph_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu05_on .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu06
+{
+	background : URL("./images/gnb_icon06_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu06 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu06_on
+{
+	background : URL("./images/gnb_icon06_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu06_on .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu07
+{
+	background : URL("./images/gnb_icon07_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu07 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu07_on
+{
+	background : URL("./images/gnb_icon07_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu07_on .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu08
+{
+	background : URL("./images/gnb_icon_output_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu08 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu08_on
+{
+	background : URL("./images/gnb_icon_output_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu08_on .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu_2dep
+{
+	background : url('./images/arr_dp2.png') no-repeat right #ffffff;
+	color : #777777;
+	font : 12px "돋움체";
+	border-top : 1px solid #f2f2f2;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px none;
+}
+.Button.gnb_menu_2dep .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+.Button.gnb_menu_2dep_first
+{
+	background : url('./images/arr_dp2.png') no-repeat right #ffffff;
+	color : #777777;
+	font : 12px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px none;
+}
+.Button.gnb_menu_2dep_first .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+.Button.top_alert
+{
+	background : #004080;
+	color : #ffffff;
+	font : 12px "돋움체";
+	border : 0px;
+	border-radius : 2px;
+}
+.Button.top_alert .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+.Button.btn_drop_down
+{
+	border : 0px;
+}
+.Button.btn_drop_up
+{
+	border : 0px;
+}
+.Button.btn_top_search01
+{
+	border : 0px;
+}
+.Button.btn_search01
+{
+	border-top : 1px solid #9c9c9c;
+	border-right : 1px solid #9c9c9c;
+	border-bottom : 1px solid #9c9c9c;
+	border-left : 0px;
+	background : #ffffff;
+}
+.Button.btn_search02
+{
+	border-top : 1px solid #dddddd;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #dddddd;
+	border-left : 0px;
+	background : #ffffff;
+}
+.Button.btn_MDI_01
+{
+	background : #ECEBEB;
+	color : #717477;
+	font : normal 13px/normal "돋움체";
+	border-top : 0px;
+	border-right : 1px solid #dddddd;
+	border-bottom : 0px;
+	border-left : 0px;
+}
+.Button.btn_MDI_01 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.btn_MDI_02
+{
+	background : #ffffff;
+	color : #153e29;
+	font : normal bold 13px/normal "돋움체";
+	border-top : 1px solid #ffffff;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #ffffff;
+	border-left : 1px solid #ffffff;
+}
+.Button.btn_MDI_02 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.btn_MDI_03_off
+{
+	border : 0px;
+	background : url('./images/tab_icon02_off.png') no-repeat;
+}
+.Button.btn_MDI_03_on
+{
+	border : 0px;
+	background : url('./images/tab_icon02_on.png') no-repeat;
+}
+.Button.btn_MDI_04_off
+{
+	border : 0px;
+	background : url('./images/btn_tab_open_off.png') no-repeat;
+}
+.Button.btn_MDI_04_on
+{
+	border : 0px;
+	background : url('./images/btn_tab_open_on.png') no-repeat;
+}
+.Button.btn_ty01
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #333333;
+	border : 1px solid #939393;
+	border-radius : 1px;
+}
+.Button.btn_ty01 .nexacontentsbox
+{
+	vertical-align : top;
+	background-position-y : top;
+}
+.Button.btn_ty02
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #333333;
+	border : 1px solid #939393;
+	border-radius : 1px;
+	font : normal 11px/normal "돋움체";
+}
+.Button.btn_ty02 .nexacontentsbox
+{
+	vertical-align : top;
+	background-position-y : top;
+}
+.Button.btn_ty03
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #333333;
+	border : 1px solid #939393;
+	border-radius : 1px;
+}
+.Button.btn_ty03 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.btn_ty03_01
+{
+	background : #393b3d;
+	color : #ffffff;
+	border : 1px solid #393b3d;
+	border-radius : 1px;
+	font : normal bold 15px/normal "돋움체";
+}
+.Button.btn_ty03_01 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.btn_ty03_02
+{
+	background : #e78f31;
+	color : #ffffff;
+	border : 1px solid #b9752c;
+	border-radius : 1px;
+	font : normal bold 14px/normal "돋움체";
+}
+.Button.btn_ty03_02 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.btn_ty01_search
+{
+	background : #cb8a41;
+	background : linear-gradient(to bottom,#cb8a41 10%,#cb8a45 27%);
+	color : #ffffff;
+	border : 1px solid #959595;
+	border-radius : 1px;
+}
+.Button.btn_ty01_search .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.btn_ty01_new
+{
+	background : #ededed;
+	background : linear-gradient( center top, #ededed 5%, #cccccc 100% );
+	color : #000000;
+	border : 1px solid #959595;
+	border-radius : 1px 1px 0px;
+}
+.Button.btn_ty01_new .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.btn_ty01_excel
+{
+	background : #ededed;
+	background : linear-gradient( center top, #ededed 5%, #cccccc 100% );
+	color : #000000;
+	border : 1px solid #959595;
+	border-radius : 1px;
+}
+.Button.btn_ty01_excel .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.btn_ty01_copy
+{
+	background : #ffffff;
+	background : linear-gradient(#ffffff,#cdcdcd);
+	color : #000000;
+	border : 1px solid #959595;
+	border-radius : 1px;
+}
+.Button.btn_ty01_copy .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.btn_ty01_delete
+{
+	background : #ededed;
+	background : linear-gradient( center top, #ededed 5%, #cccccc 100% );
+	color : #a81e1e;
+	border : 1px solid #959595;
+	border-radius : 1px 1px 0px;
+}
+.Button.btn_ty01_delete .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.btn_ty01_save
+{
+	background : #ededed;
+	background : linear-gradient( center top, #ededed 5%, #cccccc 100% );
+	color : #000000;
+	border : 1px solid #959595;
+	border-radius : 1px;
+}
+.Button.btn_ty01_save .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.btn_search_open01
+{
+	color : #000000;
+	border : 1px solid #959595;
+	border-radius : 1px;
+	background : url('./images/icon_btn_open01.png') no-repeat left top;
+}
+.Button.btn_search_close01
+{
+	color : #000000;
+	border : 1px solid #959595;
+	border-radius : 1px;
+	background : url('./images/icon_btn_close01.png') no-repeat left top;
+}
+.Button.btn_btm_ty01
+{
+	font : normal bold 12px/normal "돋움체";
+	background : #596b82;
+	color : #ffffff;
+	border : 0px;
+	border-radius : 2px;
+}
+.Button.btn_btm_ty02
+{
+	font : normal bold 12px/normal "돋움체";
+	background : #7e858f;
+	color : #ffffff;
+	border : 0px;
+	border-radius : 2px;
+}
+.Button.pop_btn_ty01
+{
+	background : #4a659c;
+	color : #ffffff;
+	border : 1px solid #4a659c;
+	font : normal bold 12px/normal "돋움체";
+	border-radius : 2px;
+}
+.Button.menu_customer_list01
+{
+	background : #ffffff;
+	color : #000000;
+	font : 12px "돋움체";
+	border-top : 1px solid #f5f5f5;
+	border-right : 0px;
+	border-bottom : 1px solid #f5f5f5;
+	border-left : 0px none;
+}
+.Button.menu_customer_list01 .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+.Button.tab_ty01_off
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #3d404c;
+	border : 0px;
+	background : url('./images/tab_blit01_off.png') no-repeat left #ecedf2;
+}
+.Button.tab_ty01_off >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_off.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+.Button.tab_ty01_on
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #ffffff;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #425e8c;
+}
+.Button.tab_ty01_on >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+.Button.tab_ty02_off
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #3d404c;
+	border : 0px;
+	background : url('./images/tab_blit01_off.png') no-repeat left #ecedf2;
+}
+.Button.tab_ty02_off >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_off.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+.Button.tab_ty02_on
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #fff47c;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #2d5aa5;
+}
+.Button.tab_ty02_on >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt02_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+.Button.btn_day
+{
+	background : #7f8da5;
+	color : #ffffff;
+	font : normal bold 13px/normal "돋움체";
+	border : 0px;
+	border-radius : 10px;
+}
+.Button.btn_day .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.btn_pop_img_close
+{
+	border : 0px;
+	background : transparent;
+}
+.Button.count_mid_btn01_off
+{
+	background : transparent;
+	color : #333333;
+	font : normal bold 15px/normal "돋움체";
+	border : 0px;
+}
+.Button.count_mid_btn01_off .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+.Button.count_mid_btn01_on
+{
+	background : transparent;
+	color : #2b5799;
+	font : normal bold 15px/normal "돋움체";
+	border : 0px;
+}
+.Button.count_mid_btn01_on .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+.Button.btn_phone01
+{
+	color : #333333;
+	border : 1px solid #939393;
+	border-radius : 1px;
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+}
+.Button.btn_phone02
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #333333;
+	border : 1px solid #939393;
+	border-radius : 1px;
+	font : normal 11px/normal "돋움체";
+}
+.Button.btn_phone02 .nexacontentsbox
+{
+	vertical-align : top;
+	background-position-y : top;
+}
+.Button.btn_user_plus
+{
+	border : 0px;
+	background : url('./images/img_user02_off.png') no-repeat center #8d96a0;
+}
+.Button.btn_user_ty01
+{
+	color : #333333;
+	border : 1px solid #acacac;
+	background : url('./images/img_user01_off.png') no-repeat center;
+}
+.Button.btn_user_ty02
+{
+	color : #363636;
+	border : 1px solid #acacac;
+	font : normal 700 15px/normal "돋움체";
+	background : #f4f4f4;
+}
+.Button.btn_calcu_ty01
+{
+	font : normal bold 20px/normal "돋움체";
+	background : #ffffff;
+	color : #3b3b3b;
+	border : 1px solid #b9bbbd;
+	border-radius : 0px;
+}
+.Button.btn_order_ty01_off
+{
+	background : #d1d2d8;
+	color : #6b7086;
+	border : 1px solid #8c90a4;
+}
+.Button.btn_order_ty01_off .nexacontentsbox
+{
+	vertical-align : top;
+	background-position-y : top;
+}
+.Button.btn_order_ty01_on
+{
+	background : #495176;
+	color : #ffffff;
+	border : 1px solid #495176;
+}
+.Button.btn_order_ty01_on .nexacontentsbox
+{
+	vertical-align : top;
+	background-position-y : top;
+}
+.Static.bg_main
+{
+	border : 0px none;
+	background : #f1f2f7;
+	border-radius : 0px;
+}
+.Static.bg_top
+{
+	border : 0px none;
+	background : #27538a;
+	border-radius : 0px;
+}
+.Static.bg_work
+{
+	border : 0px none;
+	background : #f1f2f7;
+	border-radius : 0px;
+}
+.Static.sta_thead_th01
+{
+	background : #666666;
+	border : 1px solid #666666;
+}
+.Static.sta_tbody_th01
+{
+	color : #000000;
+	background : #f3f3f3;
+	border : 1px solid #dddddd;
+	font : normal 11px/normal "돋움체";
+}
+.Static.sta_tbody_th01_imp
+{
+	color : #000000;
+	background : #f3f3f3;
+	border : 1px solid #dddddd;
+	font : normal bold 11px/normal "돋움체";
+}
+.Static.sta_tbody_th02
+{
+	color : #333333;
+	background : #e5eced;
+	border : 1px solid #b2cccf;
+	font : normal 11px/normal "돋움체";
+}
+.Static.sta_tbody_td01
+{
+	background : #ffffff;
+	border : 1px solid #dddddd;
+	font : normal 11px/normal "돋움체";
+}
+.Static.sta_tbody_td02
+{
+	background : #ffffff;
+	border : 1px solid #b2cccf;
+	font : normal 11px/normal "돋움체";
+}
+.Static.top_search_ty01
+{
+	background : #27538a;
+	border : 0px;
+	color : #ffffff;
+}
+.Static.top_search_ty02
+{
+	background : #cfbda9;
+	border : 0px;
+	color : #ffffff;
+}
+.Static.top_search_ty03
+{
+	background : #b3c4de;
+	color : #4f5e76;
+	font : normal bold 13px/normal "돋움체";
+}
+.Static.top_search_tx01
+{
+	color : #ffffff;
+	background : url('./images/blit_white01.png') no-repeat left;
+}
+.Static.top_search_tx01 .nexacontentsbox
+{
+	vertical-align : top;
+	background-position-y : top;
+}
+.Static.top_search_tx02
+{
+	color : #34190c;
+	background : url('./images/blit_black01.png') no-repeat left;
+}
+.Static.top_search_tx02 .nexacontentsbox
+{
+	vertical-align : top;
+	background-position-y : top;
+}
+.Static.tit_box01
+{
+	background : #b3c4de;
+	color : #4f5e76;
+	font : normal bold 13px/normal "돋움체";
+}
+.Static.tit_box02
+{
+	background : #cfbda9;
+	color : #34190c;
+}
+.Static.txt_search01
+{
+	color : #ffffff;
+	font : 12px "돋움체";
+}
+.Static.top_alert_tx01
+{
+	background : #d85b5b;
+	color : #ffffff;
+	font : normal bold 12px/normal "돋움체";
+	border-radius : 2px;
+	cursor : pointer;
+}
+.Static.top_alert_tx01 .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Static.top_alert_tx01_off
+{
+	background : #999999;
+	color : #ffffff;
+	font : normal bold 12px/normal "돋움체";
+	border-radius : 2px;
+}
+.Static.top_alert_tx01_off .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Static.pop_tit01
+{
+	border : 0px none;
+	background : #488bf7;
+	border-radius : 0px;
+}
+.Static.pop_tit_txt01
+{
+	border : 0px none;
+	border-radius : 0px;
+	font : normal bold 13px/normal "돋움체";
+	color : #ffffff;
+	background : url('./images/pop_tit_icon01.png') no-repeat left;
+}
+.Static.tit_customer_list01
+{
+	font : normal 13px/normal "돋움체";
+	color : #000000;
+}
+.Static.bg_btm_btns
+{
+	background : #ffffff;
+	border-top : 0px;
+	border-right : 1px solid #dddde1;
+	border-bottom : 1px solid #dddde1;
+	border-left : 1px solid #dddde1;
+}
+.Static.tab_in_box_off
+{
+	font : 8px "돋움체";
+	color : #ffffff;
+	background : #637488;
+	border-radius : 2px;
+}
+.Static.tab_in_box_off .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Static.tab_in_box_on
+{
+	font : 8px "돋움체";
+	color : #ffffff;
+	background : #404040;
+	border-radius : 2px;
+}
+.Static.tab_in_box_on .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Static.tit_ty01
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #ffffff;
+}
+.Static.tit_ty02
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #000000;
+}
+.Static.tab_ty01_on
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #ffffff;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #425e8c;
+}
+.Static.tab_ty01_on >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+.Static.tab_ty02_on
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #000000;
+	border : 0px;
+	background : url('./images/tab_blit02_on.png') no-repeat left #cfbda9;
+}
+.Static.tab_ty02_on >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt02_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+.Static.count_top_tx01
+{
+	background : #eeeeee;
+	color : #636363;
+	font : normal bold 14px/normal "돋움체";
+}
+.Static.count_top_tx01 .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Static.count_top_tx01_on
+{
+	background : #2b5799;
+	color : #ffffff;
+	font : normal bold 14px/normal "돋움체";
+}
+.Static.count_top_tx01_on .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Static.count_mid_tx01_off
+{
+	color : #666666;
+	font : normal 15px/normal "돋움체";
+}
+.Static.count_mid_tx01_on
+{
+	color : #666666;
+	font : normal bold 15px/normal "돋움체";
+}
+.Static.count_mid_tx02_off
+{
+	color : #dd2038;
+	font : normal bold 15px/normal "돋움체";
+}
+.Static.count_mid_tx02_off .nexacontentsbox
+{
+	text-align : right;
+	background-position-x : right;
+}
+.Static.count_mid_tx02_on
+{
+	color : #dd2038;
+	font : normal bold 15px/normal "돋움체";
+}
+.Static.count_mid_tx02_on .nexacontentsbox
+{
+	text-align : right;
+	background-position-x : right;
+}
+.Static.count_mid_tx03_off
+{
+	color : #333333;
+	font : normal bold 15px/normal "돋움체";
+}
+.Static.count_mid_tx03_off .nexacontentsbox
+{
+	text-align : right;
+	background-position-x : right;
+}
+.Static.count_mid_tx03_on
+{
+	color : #333333;
+	font : normal bold 15px/normal "돋움체";
+}
+.Static.count_mid_tx03_on .nexacontentsbox
+{
+	text-align : right;
+	background-position-x : right;
+}
+.Static.count_mid_tx04_off
+{
+	color : #666666;
+	font : normal 15px/normal "돋움체";
+}
+.Static.count_mid_tx04_off .nexacontentsbox
+{
+	text-align : right;
+	background-position-x : right;
+}
+.Static.count_mid_tx04_on
+{
+	color : #666666;
+	font : normal 15px/normal "돋움체";
+}
+.Static.count_mid_tx04_on .nexacontentsbox
+{
+	text-align : right;
+	background-position-x : right;
+}
+.Static.in_tit01
+{
+	font : normal bold 12px/normal "돋움체";
+	color : #333333;
+	background : url('./images/blit_black01.png') no-repeat left;
+}
+.Static.pop_cont
+{
+	background : url('./images/pop_shadow.png') repeat-x center top #ffffff;
+}
+.Static.circle_tx01_red
+{
+	color : #3b3b3b;
+	background : url('./images/dot_red01.png') no-repeat left;
+	font : normal bold 12px/normal "돋움체";
+}
+.Static.circle_tx01_red .nexacontentsbox
+{
+	vertical-align : top;
+	background-position-y : top;
+}
+.Static.circle_tx01_yellow
+{
+	color : #3b3b3b;
+	background : url('./images/dot_yellow01.png') no-repeat left;
+	font : normal bold 12px/normal "돋움체";
+}
+.Static.circle_tx01_yellow .nexacontentsbox
+{
+	vertical-align : top;
+	background-position-y : top;
+}
+.Static.circle_tx01_green
+{
+	color : #3b3b3b;
+	background : url('./images/dot_green01.png') no-repeat left;
+	font : normal bold 12px/normal "돋움체";
+}
+.Static.circle_tx01_green .nexacontentsbox
+{
+	vertical-align : top;
+	background-position-y : top;
+}
+.Static.btn_pop_goto
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #333333;
+	border : 1px solid #939393;
+	border-radius : 1px;
+	cursor : pointer;
+}
+.Static.btn_pop_goto .nexacontentsbox
+{
+	vertical-align : top;
+	background-position-y : top;
+}
+.Static.main_tit01
+{
+	color : #000000;
+	font : normal 18px/normal "돋움체";
+}
+.Static.main_top_bg
+{
+	border-top : 0px none;
+	border-right : 0px none;
+	border-bottom : 1px solid #dddddd;
+	border-left : 0px none;
+}
+.Static.main_info_ty01
+{
+	background : #4ab2ba;
+	border-top : 0px none;
+	border-right : 0px none;
+	border-bottom : 1px solid #dddddd;
+	border-left : 0px none;
+	border-radius : 8px;
+	color : #ffffff;
+	font : normal bold 13px/normal "돋움체";
+}
+.Static.main_info_ty01 .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Static.main_info_ty02
+{
+	background : #f99678;
+	border-top : 0px none;
+	border-right : 0px none;
+	border-bottom : 1px solid #dddddd;
+	border-left : 0px none;
+	border-radius : 8px;
+	color : #ffffff;
+	font : normal bold 13px/normal "돋움체";
+}
+.Static.main_info_ty02 .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Static.map_box01_top_off
+{
+	color : #ffffff;
+	font : normal 900 14px/normal "돋움체";
+	border-radius : 3px 3px 0px 0px;
+	background : #9b9ea0;
+}
+.Static.map_box01_top_off .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Static.map_box01_btm_off
+{
+	color : #9b9ea0;
+	font : normal 13px/normal "휴먼둥근헤드라인";
+	border : 2px solid #9b9ea0;
+	border-radius : 0px 0px 3px 3px;
+	background : #ffffff;
+}
+.Static.map_box01_btm_off .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Static.map_box01_top_on
+{
+	color : #ffffff;
+	font : normal 900 14px/normal "돋움체";
+	border-radius : 3px 3px 0px 0px;
+	background : #0faeff;
+}
+.Static.map_box01_top_on .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Static.map_box01_btm_on
+{
+	color : #333333;
+	font : normal 13px/normal "휴먼둥근헤드라인";
+	border : 2px solid #0faeff;
+	border-radius : 0px 0px 3px 3px;
+	background : #ffffff;
+}
+.Static.map_box01_btm_on .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Edit.top_sel01
+{
+	background : #0153a6;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #99badb;
+	border-left : 0px;
+	color : #ffffff;
+	font : normal bold 12px/normal "돋움체";
+}
+.Edit.inp_ty01
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+.Edit.inp_ty02
+{
+	background : #ffffff;
+	border : 1px solid #dddddd;
+	font : normal 11px/normal "돋움체";
+}
+.Radio.top_search_tx01
+{
+	color : #ffffff;
+}
+.Radio.top_search_tx02
+{
+	color : #000000;
+}
+.Radio.rad_ty01
+{
+	color : #777777;
+}
+.Radio.rad_ty02
+{
+	font : normal 11px/normal "돋움체";
+	color : #000000;
+}
+.CheckBox.top_search_tx01
+{
+	color : #ffffff;
+}
+.CheckBoxControl.top_search_tx01
+{
+	color : #ffffff;
+}
+.CheckBox.ck_ty02
+{
+	font : normal 11px/normal "돋움체";
+	color : #000000;
+}
+.CheckBoxControl.ck_ty02
+{
+	font : normal 11px/normal "돋움체";
+	color : #000000;
+}
+.Combo.sel_ty01
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+.ComboControl.sel_ty01
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+.ListBoxControl.popupCombosel_ty01combolist.dummy.dummy
+{
+	font : 12px 돋움체;
+	color : #555555;
+	background : #ffffff;
+	border : 1px solid #b1b1b1;
+}
+.ListBoxControl.popupComboControlsel_ty01combolist.dummy.dummy
+{
+	font : 12px 돋움체;
+	color : #555555;
+	background : #ffffff;
+	border : 1px solid #b1b1b1;
+}
+.Combo.sel_ty02
+{
+	font : normal 11px/normal "돋움체";
+	background : #ffffff;
+	border : 1px solid #dddddd;
+}
+.ComboControl.sel_ty02
+{
+	font : normal 11px/normal "돋움체";
+	background : #ffffff;
+	border : 1px solid #dddddd;
+}
+.Combo.comb_ty02
+{
+	background : #ffffff;
+	border : 1px solid #dddddd;
+}
+.Calendar.cal_ty01
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+.CalendarControl.cal_ty01
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+.Calendar.cal_ty02
+{
+	background : #ffffff;
+	border : 1px solid #dddddd;
+}
+.CalendarControl.cal_ty02
+{
+	background : #ffffff;
+	border : 1px solid #dddddd;
+}
+.TextArea.txa_ty02
+{
+	background : #ffffff;
+	border : 1px solid #dddddd;
+}
+.TextArea.txa_ty02 .nexatextarea
+{
+	padding : 9px 9px 9px 9px;
+}
+.TextAreaControl.txa_ty02
+{
+	background : #ffffff;
+	border : 1px solid #dddddd;
+}
+.TextAreaControl.txa_ty02 .nexatextarea
+{
+	padding : 9px 9px 9px 9px;
+}
+.Tab.tab_ty01 .tabpageTab.tabpageTabtab_ty01
+{
+	border-top : 0px;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Tab.tab_ty01 .tabbuttonitemTab.tabbuttonitemTabtab_ty01
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #3d404c;
+	border : 0px;
+	background : url('./images/tab_blit01_off.png') no-repeat left #ecedf2;
+}
+.Tab.tab_ty01 .tabbuttonitemTab.tabbuttonitemTabtab_ty01 >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_off.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+.Tab.tab_ty02 .tabpageTab.tabpageTabtab_ty02
+{
+	border-top : 0px;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Tab.tab_ty02 .tabbuttonitemTab.tabbuttonitemTabtab_ty02
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #3d404c;
+	border : 0px;
+	background : url('./images/tab_blit01_off.png') no-repeat left #ecedf2;
+}
+.Tab.tab_ty02 .tabbuttonitemTab.tabbuttonitemTabtab_ty02 >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_off.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+.Tab.in_tab_ty01 .tabpageTab.tabpageTabin_tab_ty01
+{
+	border-top : 0px;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Tab.in_tab_ty01 .tabbuttonitemTab.tabbuttonitemTabin_tab_ty01
+{
+	font : 12px "돋움체";
+	color : #3d404c;
+	border : 0px;
+	background : transparent;
+}
+.Tab.in_tab_ty01 .tabbuttonitemTab.tabbuttonitemTabin_tab_ty01 >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/in_tab01_off.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+.Grid.tb_ty00
+{
+	background : #ffffff;
+	border-top : 1px solid #435d89;
+	border-right : 1px solid #dddde1;
+	border-bottom : 1px solid #dddde1;
+	border-left : 1px solid #dddde1;
+}
+.Grid.tb_ty00 .head .row .cell
+{
+	font : 12px "돋움체";
+	color : #ffffff;
+	background : #5a7db6;
+	border : 1px solid #435d89;
+}
+.Grid.tb_ty00 .head .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty00 .body .row .cell
+{
+	color : #526170;
+	border-top : 1px solid #9aadc0;
+	border-right : 1px solid #9aadc0;
+	border-bottom : 1px solid #9aadc0;
+	border-left : 1px solid #e9eaeb;
+	font : normal 11px/normal "돋움체";
+	background : #f1f6fb;
+}
+.Grid.tb_ty00 .body .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty00 .body .row .cell.oddcell
+{
+	background : #ffffff;
+}
+.Grid.tb_ty00 .summary
+{
+	border-top : 1px solid #c8c1c2;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.tb_ty00 .summary .row .cell
+{
+	font : bold 12px 돋움체;
+	color : #333333;
+	background : #fdfbe5;
+	border : 1px solid #c8c1c2;
+}
+.Grid.tb_ty00 .summary .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty00 .hscrollbar
+{
+	border-top : 1px solid #b1b1b1;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.tb_ty01
+{
+	background : #ffffff;
+	border-top : 1px solid #354649;
+	border-right : 1px solid #dddde1;
+	border-bottom : 1px solid #dddde1;
+	border-left : 1px solid #dddde1;
+}
+.Grid.tb_ty01 .head .row .cell
+{
+	font : 500 12px "돋움체";
+	color : #ffffff;
+	background : #27538a;
+	border-top : 0px;
+	border-right : 1px solid #8f98a2;
+	border-bottom : 1px solid #8f98a2;
+	border-left : 0px;
+}
+.Grid.tb_ty01 .head .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty01 .head .row .cell.imp.dummy.dummy.dummy
+{
+	font : normal bold 12px/normal "돋움체";
+}
+.Grid.tb_ty01 .body .row .cell
+{
+	color : #526170;
+	border-top : 1px solid #9aadc0;
+	border-right : 1px solid #e9eaeb;
+	border-bottom : 1px solid #9aadc0;
+	border-left : 1px solid #e9eaeb;
+	font : normal 11px/normal "돋움체";
+	background : #F8F8F8;
+}
+.Grid.tb_ty01 .body .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty01 .body .row .cell.oddcell
+{
+	background : #ffffff;
+}
+.GridCellControl .cellcombo
+{
+	color : #666666;
+}
+.GridCellControl .celledit
+{
+	color : #666666;
+}
+.GridCellControl .cellmaskedit
+{
+	color : #666666;
+}
+.Grid.tb_ty01 .summary
+{
+	border-top : 1px solid #c8c1c2;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.tb_ty01 .summary .row .cell
+{
+	font : bold 12px 돋움체;
+	color : #333333;
+	background : #FFF0D2;
+	border : 1px solid #E0E0E0;
+}
+.Grid.tb_ty01 .summary .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty01 .hscrollbar
+{
+	border-top : 1px solid #b1b1b1;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.tb_ty02
+{
+	background : #ffffff;
+	border-top : 1px solid #abaaa5;
+	border-right : 1px solid #dddde1;
+	border-bottom : 1px solid #dddde1;
+	border-left : 1px solid #dddde1;
+}
+.Grid.tb_ty02 .head .row .cell
+{
+	font : 12px "돋움체";
+	color : #52503a;
+	background : #e7dccc;
+	border : 1px solid #abaaa5;
+}
+.Grid.tb_ty02 .head .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty02 .head .row .cell.imp.dummy.dummy.dummy
+{
+	font : normal bold 12px/normal "돋움체";
+}
+.Grid.tb_ty02 .body .row .cell
+{
+	color : #777777;
+	border : 1px solid #e9e9e3;
+	font : normal 11px/normal "돋움체";
+	background : #fefefb;
+}
+.Grid.tb_ty02 .body .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty02 .body .row .cell.oddcell
+{
+	background : #ffffff;
+}
+.Grid.tb_ty02 .summary
+{
+	border-top : 1px solid #c8c1c2;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.tb_ty02 .summary .row .cell
+{
+	font : bold 12px 돋움체;
+	color : #333333;
+	background : #fdfbe5;
+	border : 1px solid #c8c1c2;
+}
+.Grid.tb_ty02 .summary .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty02 .hscrollbar
+{
+	border-top : 1px solid #b1b1b1;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.tb_ty03
+{
+	background : #ffffff;
+	border-top : 1px solid #abaaa5;
+	border-right : 1px solid #dddde1;
+	border-bottom : 1px solid #dddde1;
+	border-left : 1px solid #dddde1;
+}
+.Grid.tb_ty03 .head .row .cell
+{
+	font : 12px "돋움체";
+	color : #49545f;
+	background : #dfe1e3;
+	border-top : 1px solid #9da9bb;
+	border-right : 1px solid #9da9bb;
+	border-bottom : 1px solid #9da9bb;
+	border-left : 1px solid #9da9bb;
+}
+.Grid.tb_ty03 .head .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty03 .head .row .cell.imp.dummy.dummy.dummy
+{
+	font : normal bold 12px/normal "돋움체";
+}
+.Grid.tb_ty03 .body .row .cell
+{
+	color : #888888;
+	border : 1px solid #d4d4d4;
+	font : normal 11px/normal "돋움체";
+	background : #fbfbfb;
+}
+.Grid.tb_ty03 .body .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty03 .body .row .cell.oddcell
+{
+	background : #ffffff;
+}
+.Grid.tb_ty03 .summary
+{
+	border-top : 1px solid #c8c1c2;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.tb_ty03 .summary .row .cell
+{
+	font : bold 12px 돋움체;
+	color : #333333;
+	background : #fdfbe5;
+	border : 1px solid #c8c1c2;
+}
+.Grid.tb_ty03 .summary .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty03 .hscrollbar
+{
+	border-top : 1px solid #b1b1b1;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.tb_ty04
+{
+	background : #ffffff;
+	border-top : 1px solid #abaaa5;
+	border-right : 1px solid #dddde1;
+	border-bottom : 1px solid #dddde1;
+	border-left : 1px solid #dddde1;
+}
+.Grid.tb_ty04 .head .row .cell
+{
+	font : 12px "돋움체";
+	color : #000000;
+	background : #f3f4f4;
+	border : 1px solid #cacaca;
+}
+.Grid.tb_ty04 .head .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty04 .body .row .cell
+{
+	color : #777777;
+	border : 1px solid #dbdee2;
+	font : normal 11px/normal "돋움체";
+	background : #ffffff;
+}
+.Grid.tb_ty04 .body .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty04 .body .row .cell.oddcell
+{
+	background : #ffffff;
+}
+.Grid.tb_ty04 .summary
+{
+	border-top : 1px solid #c8c1c2;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.tb_ty04 .summary .row .cell
+{
+	font : bold 12px 돋움체;
+	color : #333333;
+	background : #fdfbe5;
+	border : 1px solid #c8c1c2;
+}
+.Grid.tb_ty04 .summary .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty04 .hscrollbar
+{
+	border-top : 1px solid #b1b1b1;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.tb_ty05
+{
+	background : #ffffff;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px;
+}
+.Grid.tb_ty05 .head .row .cell
+{
+	font : 12px "돋움체";
+	color : #ffffff;
+	background : #5a7db6;
+	border : 1px solid #435d89;
+}
+.Grid.tb_ty05 .head .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty06
+{
+	background : transparent;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px;
+}
+.Grid.tb_ty06 .head .row .cell
+{
+	font : 12px "돋움체";
+	color : #ffffff;
+	background : #5a7db6;
+	border : 1px solid #435d89;
+}
+.Grid.tb_ty06 .head .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty05 .body .row .cell
+{
+	color : #526170;
+	border-top : 1px solid #9aadc0;
+	border-right : 1px solid #e9eaeb;
+	border-bottom : 1px solid #9aadc0;
+	border-left : 1px solid #e9eaeb;
+	font : normal 11px/normal "돋움체";
+	background : #fafafa;
+}
+.Grid.tb_ty05 .body .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty05 .body .row .cell.oddcell
+{
+	background : #ffffff;
+}
+.Grid.tb_ty05 .summary
+{
+	border-top : 1px solid #c8c1c2;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.tb_ty05 .summary .row .cell
+{
+	font : bold 12px 돋움체;
+	color : #333333;
+	background : #fdfbe5;
+	border : 1px solid #c8c1c2;
+}
+.Grid.tb_ty05 .summary .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty05 .hscrollbar
+{
+	border-top : 1px solid #b1b1b1;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid .body .row .cell.bg_red01.dummy.dummy.dummy
+{
+	background : #ffd5d5;
+}
+.Grid .body .row .cell.bg_red01.dummy.dummy.dummy.oddcell
+{
+	background : #ffd5d5;
+}
+.Grid .body .row .cell.bg_orange01.dummy.dummy.dummy
+{
+	background : #fec178;
+}
+.Grid .body .row .cell.bg_orange01.dummy.dummy.dummy.oddcell
+{
+	background : #fec178;
+}
+.Grid .body .row .cell.bg_orange02.dummy.dummy.dummy
+{
+	background : #faecc5;
+}
+.Grid .body .row .cell.bg_orange02.dummy.dummy.dummy.oddcell
+{
+	background : #faecc5;
+}
+.Grid .body .row .cell.bg_yellow01.dummy.dummy.dummy
+{
+	background : #fbee7c;
+}
+.Grid .body .row .cell.bg_yellow01.dummy.dummy.dummy.oddcell
+{
+	background : #fbee7c;
+}
+.Grid .body .row .cell.bg_green01.dummy.dummy.dummy
+{
+	background : #7fe781;
+}
+.Grid .body .row .cell.bg_green01.dummy.dummy.dummy.oddcell
+{
+	background : #7fe781;
+}
+.Grid .body .row .cell.bg_blue01.dummy.dummy.dummy
+{
+	background : #97c0ee;
+}
+.Grid .body .row .cell.bg_blue01.dummy.dummy.dummy.oddcell
+{
+	background : #97c0ee;
+}
+.Grid .body .row .cell.bg_purple01.dummy.dummy.dummy
+{
+	background : #ddc0f6;
+}
+.Grid .body .row .cell.bg_purple01.dummy.dummy.dummy.oddcell
+{
+	background : #ddc0f6;
+}
+.Grid .body .row .cell.bg_gray01.dummy.dummy.dummy
+{
+	background : #dbdbdb;
+}
+.Grid .body .row .cell.bg_gray01.dummy.dummy.dummy.oddcell
+{
+	background : #dbdbdb;
+}
+.Grid .body .row .cell.fc_red.dummy.dummy.dummy
+{
+	color : #de2222;
+}
+.Grid .body .row .cell.fc_blue.dummy.dummy.dummy
+{
+	color : #0d5dc9;
+}
+.Grid .body .row .cell.fc_green.dummy.dummy.dummy
+{
+	color : #0dc92c;
+}
+.Grid.menu_customer_list01
+{
+	background : #ffffff;
+	border-top : 1px solid #f5f5f5;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.menu_customer_list01 .head .row .cell
+{
+	font : 12px "돋움체";
+	color : #ffffff;
+	background : transparent;
+	border : 0px;
+}
+.Grid.menu_customer_list01 .head .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.menu_customer_list01 .body .row .cell
+{
+	background : #ffffff;
+	color : #000000;
+	font : 12px "돋움체";
+	border-top : 1px solid #f5f5f5;
+	border-right : 0px;
+	border-bottom : 1px solid #f5f5f5;
+	border-left : 0px none;
+}
+.Grid.menu_customer_list01 .body .row .cell > .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+.Grid.menu_customer_list01 .body .row .cell.active.dummy.dummy.dummy
+{
+	background : #e7f1f9;
+	color : #0068d2;
+	font : 12px "돋움체";
+	border-top : 1px solid #f5f5f5;
+	border-right : 0px;
+	border-bottom : 1px solid #f5f5f5;
+	border-left : 0px none;
+}
+.Grid.menu_customer_list01 .summary
+{
+	border-top : 1px solid #c8c1c2;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.menu_customer_list01 .summary .row .cell
+{
+	font : bold 12px 돋움체;
+	color : #333333;
+	background : #fdfbe5;
+	border : 1px solid #c8c1c2;
+}
+.Grid.menu_customer_list01 .summary .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.menu_customer_list01 .hscrollbar
+{
+	border-top : 1px solid #b1b1b1;
+	border-right : 0px none;
+	border-bottom : 0px none;
+	border-left : 0px none;
+}
+.Grid.tb_ty_main
+{
+	background : #ffffff;
+	border-top : 1px solid #e4e4e4;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px;
+}
+.Grid.tb_ty_main .head .row .cell
+{
+	font : normal 13px/normal "돋움체";
+	color : #333333;
+	background : #ffffff;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #efefef;
+	border-left : 0px;
+}
+.Grid.tb_ty_main .head .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty_main .body .row .cell
+{
+	color : #777777;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #efefef;
+	border-left : 0px;
+	font : normal 12px/normal "돋움체";
+	background : #fcfcf;
+}
+.Grid.tb_ty_main .body .row .cell > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+	text-align : center;
+	background-position-x : center;
+}
+.Grid.tb_ty_main .body .row .cell.oddcell
+{
+	background : #ffffff;
+}
+.Button.btn_WF_Search
+{
+	background : #2c4898;
+	border : 1px solid #21367e;
+	color : #ffffff;
+	cursor : pointer;
+	font : bold 9 돋움체;
+}
+.Button.btn_MF_home
+{
+	border-top : 0px;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #dddddd;
+	border-left : 0px;
+	background : #fcfcfc;
+	border-radius : 0px;
+}
+.Button.btn_MF_home .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+	vertical-align : middle;
+	background-position-y : center;
+}
+.PopupDiv.top_alert_box01
+{
+	background : #5a89bd;
+	border-radius : 10px;
+	border : 1px solid #54687e;
+	box-shadow : 0px 3px 5px #dadada;
+}
+.Static.order_top_search_tx01
+{
+	color : #c9dbf7;
+	background : url('./images/blit_order01.png') no-repeat left;
+	font : bold 12px/normal "돋움체";
+}
+.Static.order_top_search_tx01 .nexacontentsbox
+{
+	vertical-align : top;
+	background-position-y : top;
+}
+.Div.bx_n_ty01_off
+{
+	background : url('./images/bg_n01_off.png') no-repeat left;
+}
+.Div.bx_n_ty01_on
+{
+	background : url('./images/bg_n01_on.png') no-repeat left;
+}
+.Div.bx_n_ty01_off_first
+{
+	background : url('./images/bg_n01_off_first.png') no-repeat left;
+}
+.Div.bx_n_ty01_on_first
+{
+	background : url('./images/bg_n01_on_first.png') no-repeat left;
+}
+.Static.bx_n_in_tx01_off
+{
+	color : #646b88;
+}
+.Static.bx_n_in_tx01_on
+{
+	color : #ffffff;
+}
+.Static.bx_n_in_tx01_02_on
+{
+	color : #676767;
+}
+.Div.bx_n_ty02_01_off
+{
+	background : url('./images/bg_n02_01_off.png') no-repeat left;
+}
+.Div.bx_n_ty02_01_on
+{
+	background : url('./images/bg_n02_01_on.png') no-repeat left;
+}
+.Div.bx_n_ty02_02_off
+{
+	background : url('./images/bg_n02_02_off.png') no-repeat left;
+}
+.Div.bx_n_ty02_02_on
+{
+	background : url('./images/bg_n02_02_on.png') no-repeat left;
+}
+.Div.bx_n_ty02_03_off
+{
+	background : url('./images/bg_n02_03_off.png') no-repeat left;
+}
+.Div.bx_n_ty02_03_on
+{
+	background : url('./images/bg_n02_03_on.png') no-repeat left;
+}
+.Div.bx_n_ty02_04_off
+{
+	background : url('./images/bg_n02_04_off.png') no-repeat left;
+}
+.Div.bx_n_ty02_04_on
+{
+	background : url('./images/bg_n02_04_on.png') no-repeat left;
+}
+.Div.bx_n_ty02_05_off
+{
+	background : url('./images/bg_n02_05_off.png') no-repeat left;
+}
+.Div.bx_n_ty02_05_on
+{
+	background : url('./images/bg_n02_05_on.png') no-repeat left;
+}
+.Div.bx_n_ty02_06_off
+{
+	background : url('./images/bg_n02_06_off.png') no-repeat left;
+}
+.Div.bx_n_ty02_06_on
+{
+	background : url('./images/bg_n02_06_on.png') no-repeat left;
+}
+.Static.bx_n_in_tx02_off
+{
+	color : #4e5471;
+}
+.Static.bx_n_in_tx02_on
+{
+	color : #ffffff;
+}
+.Button.gnb_menu09
+{
+	background : URL('./images/gnb_icon_graph_line_off.png') no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu09 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu09_on
+{
+	background : URL("./images/gnb_icon_graph_line_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu09_on .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu10
+{
+	background : URL("./images/gnb_icon_input_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu10 .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Button.gnb_menu10_on
+{
+	background : URL("./images/gnb_icon_input_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+.Button.gnb_menu10_on .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+.Static.top_title_route01
+{
+	color : #354649;
+	font : bold 15px/normal "돋움체";
+}
+.Static.top_title_prefix01
+{
+	color : #ba7b39;
+	font : normal 700 12pt/normal "돋움체";
+}
+.Edit.inp_ty01_req
+{
+	background : papayawhip;
+	border : 1px solid #c4c4c4;
+}
+.MaskEdit.inp_ty01
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+.Spin.inp_ty01
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+.TextArea.inp_ty01
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+.MaskEdit.inp_ty01_req
+{
+	background : papayawhip;
+	border : 1px solid #c4c4c4;
+}
+.Spin.inp_ty01_req
+{
+	background : papayawhip;
+	border : 1px solid #c4c4c4;
+}
+.TextArea.inp_ty01_req
+{
+	background : papayawhip;
+	border : 1px solid #c4c4c4;
+}
+.CheckBox.ck_ty02_req
+{
+	font : normal 11px/normal "돋움체";
+	color : #000000;
+	background : papayawhip;
+}
+.Calendar.cal_ty01_req
+{
+	background : papayawhip;
+	border : 1px solid #c4c4c4;
+}
+.Combo.sel_ty02_req
+{
+	font : normal 11px/normal "돋움체";
+	background : papayawhip;
+	border : 1px solid #dddddd;
+}
+.Combo.sel_ty01_req
+{
+	background : papayawhip;
+	border : 1px solid #c4c4c4;
+}
+.Button.btn_WF_menuClose
+{
+	background : #FFFFFF;
+	border-radius : 0px 3px 3px 0px;
+	border-top : 1px solid #b8baba;
+	border-right : 1px solid #b8baba;
+	border-bottom : 1px solid #b8baba;
+	border-left : 1px solid #ffffff;
+}
+.Button.btn_WF_menuOpen
+{
+	border-radius : 0px 5px 5px 0px;
+	border : 1px solid #ededed;
+}
+.Grid .body .row .cell.excel_selected.dummy.dummy.dummy
+{
+	color : black;
+	font : 12px "돋움체";
+	border : 1px solid #435d89;
+}
+.Grid .body .row .cell.excel_selected.dummy.dummy.dummy > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Grid .body .row .cell.excel_required.dummy.dummy.dummy
+{
+	background : #5a7db6;
+	color : #ffffff;
+	font : 12px "돋움체";
+	border : 1px solid #435d89;
+}
+.Grid .body .row .cell.excel_required.dummy.dummy.dummy > .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+}
+.Button.btn_top_menu
+{
+	background : #27538a;
+	color : #FFFFFF;
+	font : 500 14px "돋움체";
+	border : 0px;
+}
+.Div.div_top_menu
+{
+	color : #fefefe;
+}
+.Button.btn_left_menu
+{
+	background : #FFFFFF;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px;
+}
+.Button.btn_left_menu .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+.Button.btn_LF_BookMark_D_off
+{
+	background : #EFEFEF;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px;
+}
+.Button.btn_LF_selectMenu_on
+{
+	background : #FFFFFF;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #ffffff;
+	border-left : 0px;
+}
+.Button.btn_MDI_05_on
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMarkS_14.png') no-repeat;
+}
+.Button.btn_MDI_bookmark_N_off
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMark_N_off.png') no-repeat;
+}
+.Button.btn_MDI_bookmark_N_on
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMark_N_on.png') no-repeat;
+}
+.Button.btn_MDI_bookmark_Y_off
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMark_Y_off.png') no-repeat;
+}
+.Button.btn_MDI_bookmark_Y_on
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMark_Y_on.png') no-repeat;
+}
+.Button.btn_LF_BookMark_D_on
+{
+	background : #FFFFFF;
+	border : 0px;
+}
+.Button.btn_LF_selectMenu_off
+{
+	background : #EFEFEF;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px;
+}
+.Button.btn_main_noice_more
+{
+	font : bold 13px/normal "맑은 고딕";
+	color : #c4c4c4;
+	background : #ffffff;
+	border : 0px;
+}
+#nexacontainer .Button.gnb_menu01[status=mouseover]
+{
+	background : URL("./images/gnb_icon01_rgb_on2.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu01[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu01[status=focused]
+{
+	background : URL("./images/gnb_icon01_off2.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu01[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu01_on[status=mouseover]
+{
+	background : URL("./images/gnb_icon01_rgb_on2.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu01_on[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu01_on[status=focused]
+{
+	background : URL("./images/gnb_icon01_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu01_on[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu02[status=mouseover]
+{
+	background : URL("./images/gnb_icon02_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu02[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu02[status=focused]
+{
+	background : URL("./images/gnb_icon02_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu02[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu02_on[status=mouseover]
+{
+	background : URL("./images/gnb_icon02_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu02_on[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu02_on[status=focused]
+{
+	background : URL("./images/gnb_icon02_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu02_on[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu03[status=mouseover]
+{
+	background : URL("./images/gnb_icon_order_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu03[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu03[status=focused]
+{
+	background : URL("./images/gnb_icon_order_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu03[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu03_on[status=mouseover]
+{
+	background : URL("./images/gnb_icon_order_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu03_on[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu03_on[status=focused]
+{
+	background : URL("./images/gnb_icon_order_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu03_on[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu04[status=mouseover]
+{
+	background : URL("./images/gnb_icon04_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu04[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu04[status=focused]
+{
+	background : URL("./images/gnb_icon04_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu04[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu04_on[status=mouseover]
+{
+	background : URL("./images/gnb_icon04_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu04_on[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu04_on[status=focused]
+{
+	background : URL("./images/gnb_icon04_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu04_on[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu05[status=mouseover]
+{
+	background : URL("./images/gnb_icon_graph_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu05[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu05[status=focused]
+{
+	background : URL("./images/gnb_icon_graph_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu05[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu05_on[status=mouseover]
+{
+	background : URL("./images/gnb_icon_graph_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu05_on[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu05_on[status=focused]
+{
+	background : URL("./images/gnb_icon_graph_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu05_on[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu06[status=mouseover]
+{
+	background : URL("./images/gnb_icon06_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu06[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu06[status=focused]
+{
+	background : URL("./images/gnb_icon06_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu06[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu06_on[status=mouseover]
+{
+	background : URL("./images/gnb_icon06_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu06_on[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu06_on[status=focused]
+{
+	background : URL("./images/gnb_icon06_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu06_on[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu07[status=mouseover]
+{
+	background : URL("./images/gnb_icon07_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu07[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu07[status=focused]
+{
+	background : URL("./images/gnb_icon07_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu07[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu07_on[status=mouseover]
+{
+	background : URL("./images/gnb_icon07_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu07_on[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu07_on[status=focused]
+{
+	background : URL("./images/gnb_icon07_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu07_on[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu08[status=mouseover]
+{
+	background : URL("./images/gnb_icon_output_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu08[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu08[status=focused]
+{
+	background : URL("./images/gnb_icon_output_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu08[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu08_on[status=mouseover]
+{
+	background : URL("./images/gnb_icon_output_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu08_on[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu08_on[status=focused]
+{
+	background : URL("./images/gnb_icon_output_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu08_on[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu_2dep[status=mouseover]
+{
+	background : url('./images/arr_dp2_on.png') no-repeat right #ffffff;
+	color : #2e7ccc;
+	font : 12px "돋움체";
+	border-top : 1px solid #f2f2f2;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu_2dep[status=focused]
+{
+	background : url('./images/arr_dp2_on.png') no-repeat right #ffffff;
+	color : #2e7ccc;
+	font : normal bold 12px/normal "돋움체";
+	border-top : 1px solid #f2f2f2;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu_2dep_first[status=mouseover]
+{
+	background : url('./images/arr_dp2_on.png') no-repeat right #ffffff;
+	color : #2e7ccc;
+	font : 12px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu_2dep_first[status=focused]
+{
+	background : url('./images/arr_dp2_on.png') no-repeat right #ffffff;
+	color : #2e7ccc;
+	font : normal bold 12px/normal "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px none;
+}
+#nexacontainer .Button.top_alert[status=mouseover]
+{
+	background : #004080;
+	color : #ffffff;
+	font : 12px "돋움체";
+	border : 0px;
+}
+#nexacontainer .Button.top_alert[status=focused]
+{
+	background : #004080;
+	color : #ffffff;
+	font : 12px "돋움체";
+	border : 0px;
+}
+#nexacontainer .Button.btn_drop_down[status=mouseover]
+{
+	border : 0px;
+}
+#nexacontainer .Button.btn_drop_down[status=focused]
+{
+	border : 0px;
+}
+#nexacontainer .Button.btn_drop_up[status=mouseover]
+{
+	border : 0px;
+}
+#nexacontainer .Button.btn_drop_up[status=focused]
+{
+	border : 0px;
+}
+#nexacontainer .Button.btn_top_search01[status=mouseover]
+{
+	border : 0px;
+}
+#nexacontainer .Button.btn_top_search01[status=focused]
+{
+	border : 0px;
+}
+#nexacontainer .Button.btn_search01[status=mouseover]
+{
+	border-top : 1px solid #9c9c9c;
+	border-right : 1px solid #9c9c9c;
+	border-bottom : 1px solid #9c9c9c;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_search01[status=focused]
+{
+	border-top : 1px solid #9c9c9c;
+	border-right : 1px solid #9c9c9c;
+	border-bottom : 1px solid #9c9c9c;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_search02[status=mouseover]
+{
+	border-top : 1px solid #dddddd;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #dddddd;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_search02[status=focused]
+{
+	border-top : 1px solid #dddddd;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #dddddd;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_MDI_01[status=mouseover]
+{
+	background : #fcfcfc;
+	color : #717477;
+	border-top : 0px;
+	border-right : 1px solid #dddddd;
+	border-bottom : 0px;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_MDI_01[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.btn_MDI_01[status=focused]
+{
+	background : #fcfcfc;
+	color : #717477;
+	border-top : 0px;
+	border-right : 1px solid #dddddd;
+	border-bottom : 0px;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_MDI_01[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.btn_MDI_02[status=mouseover]
+{
+	background : #ffffff;
+	color : #153e29;
+	border-top : 1px solid #ffffff;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #ffffff;
+	border-left : 1px solid #ffffff;
+}
+#nexacontainer .Button.btn_MDI_02[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.btn_MDI_02[status=focused]
+{
+	background : #ffffff;
+	color : #153e29;
+	border-top : 1px solid #ffffff;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #ffffff;
+	border-left : 1px solid #ffffff;
+}
+#nexacontainer .Button.btn_MDI_02[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.btn_MDI_03_off[status=mouseover]
+{
+	border : 0px;
+	background : url('./images/tab_icon02_off.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_03_off[status=focused]
+{
+	border : 0px;
+	background : url('./images/tab_icon02_off.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_03_on[status=mouseover]
+{
+	border : 0px;
+	background : url('./images/tab_icon02_on.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_03_on[status=focused]
+{
+	border : 0px;
+	background : url('./images/tab_icon02_on.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_04_off[status=mouseover]
+{
+	border : 0px;
+	background : url('./images/btn_tab_open_off.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_04_off[status=focused]
+{
+	border : 0px;
+	background : url('./images/btn_tab_open_off.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_04_on[status=mouseover]
+{
+	border : 0px;
+	background : url('./images/btn_tab_open_on.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_04_on[status=focused]
+{
+	border : 0px;
+	background : url('./images/btn_tab_open_on.png') no-repeat;
+}
+#nexacontainer .Button.btn_ty01[status=mouseover]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty01[status=focused]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty02[status=mouseover]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty02[status=focused]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty03[status=mouseover]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty03[status=focused]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty03_01[status=mouseover]
+{
+	background : #393b3d;
+	color : #ffffff;
+	border : 1px solid #393b3d;
+}
+#nexacontainer .Button.btn_ty03_01[status=focused]
+{
+	background : #393b3d;
+	color : #ffffff;
+	border : 1px solid #393b3d;
+}
+#nexacontainer .Button.btn_ty03_02[status=mouseover]
+{
+	background : #e78f31;
+	color : #ffffff;
+	border : 1px solid #b9752c;
+}
+#nexacontainer .Button.btn_ty03_02[status=focused]
+{
+	background : #e78f31;
+	color : #ffffff;
+	border : 1px solid #b9752c;
+}
+#nexacontainer .Button.btn_ty01_search[status=mouseover]
+{
+	background : #ab5a0f;
+	color : #ffffff;
+	border : 1px solid #713b25;
+}
+#nexacontainer .Button.btn_ty01_search[status=focused]
+{
+	background : #ab5a0f;
+	color : #ffffff;
+	border : 1px solid #713b25;
+}
+#nexacontainer .Button.btn_ty01_new[status=mouseover]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty01_new[status=focused]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty01_excel[status=mouseover]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty01_excel[status=focused]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty01_copy[status=mouseover]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty01_copy[status=focused]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty01_delete[status=mouseover]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #a81e1e;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty01_delete[status=focused]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #a81e1e;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty01_save[status=mouseover]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_ty01_save[status=focused]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_search_open01[status=mouseover]
+{
+	background : #f1f1f1;
+	color : #000000;
+	border : 1px solid #959595;
+}
+#nexacontainer .Button.btn_search_open01[status=focused]
+{
+	background : #f1f1f1;
+	color : #000000;
+	border : 1px solid #959595;
+}
+#nexacontainer .Button.btn_search_close01[status=mouseover]
+{
+	color : #000000;
+	border : 1px solid #959595;
+	border-radius : 1px;
+	background : url('./images/icon_btn_close01.png') no-repeat left top;
+}
+#nexacontainer .Button.btn_search_close01[status=focused]
+{
+	color : #000000;
+	border : 1px solid #959595;
+	border-radius : 1px;
+	background : url('./images/icon_btn_close01.png') no-repeat left top;
+}
+#nexacontainer .Button.btn_btm_ty01[status=mouseover]
+{
+	background : #4a659c;
+	color : #ffffff;
+	border : 0px;
+}
+#nexacontainer .Button.btn_btm_ty01[status=focused]
+{
+	background : #4a659c;
+	color : #ffffff;
+	border : 0px;
+}
+#nexacontainer .Button.btn_btm_ty02[status=mouseover]
+{
+	background : #7e858f;
+	color : #ffffff;
+	border : 0px;
+}
+#nexacontainer .Button.btn_btm_ty02[status=focused]
+{
+	background : #7e858f;
+	color : #ffffff;
+	border : 0px;
+}
+#nexacontainer .Button.pop_btn_ty01[status=mouseover]
+{
+	background : #4a659c;
+	color : #ffffff;
+	border : 1px solid #4a659c;
+}
+#nexacontainer .Button.pop_btn_ty01[status=focused]
+{
+	background : #4a659c;
+	color : #ffffff;
+	border : 1px solid #4a659c;
+}
+#nexacontainer .Button.menu_customer_list01[status=mouseover]
+{
+	background : #e7f1f9;
+	color : #0068d2;
+	font : 12px "돋움체";
+	border-top : 1px solid #f5f5f5;
+	border-right : 0px;
+	border-bottom : 1px solid #f5f5f5;
+	border-left : 0px none;
+}
+#nexacontainer .Button.menu_customer_list01[status=focused]
+{
+	background : #e7f1f9;
+	color : #0068d2;
+	font : 12px "돋움체";
+	border-top : 1px solid #f5f5f5;
+	border-right : 0px;
+	border-bottom : 1px solid #f5f5f5;
+	border-left : 0px none;
+}
+#nexacontainer .Button.tab_ty01_off[status=mouseover]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #ffffff;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #425e8c;
+}
+#nexacontainer .Button.tab_ty01_off[status=mouseover] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Button.tab_ty01_off[status=focused]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #ffffff;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #425e8c;
+}
+#nexacontainer .Button.tab_ty01_off[status=focused] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Button.tab_ty01_on[status=mouseover]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #ffffff;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #425e8c;
+}
+#nexacontainer .Button.tab_ty01_on[status=mouseover] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Button.tab_ty01_on[status=focused]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #ffffff;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #425e8c;
+}
+#nexacontainer .Button.tab_ty01_on[status=focused] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Button.tab_ty02_off[status=mouseover]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #fff47c;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #2d5aa5;
+}
+#nexacontainer .Button.tab_ty02_off[status=mouseover] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt02_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Button.tab_ty02_off[status=focused]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #fff47c;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #2d5aa5;
+}
+#nexacontainer .Button.tab_ty02_off[status=focused] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt02_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Button.tab_ty02_on[status=mouseover]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #fff47c;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #2d5aa5;
+}
+#nexacontainer .Button.tab_ty02_on[status=mouseover] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt02_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Button.tab_ty02_on[status=focused]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #fff47c;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #2d5aa5;
+}
+#nexacontainer .Button.tab_ty02_on[status=focused] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt02_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Button.btn_day[status=mouseover]
+{
+	background : #1095f2;
+	color : #ffffff;
+	font : normal bold 13px/normal "돋움체";
+	border : 0px;
+}
+#nexacontainer .Button.btn_day[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.btn_day[status=focused]
+{
+	background : #1095f2;
+	color : #ffffff;
+	font : normal bold 13px/normal "돋움체";
+	border : 0px;
+}
+#nexacontainer .Button.btn_day[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.btn_pop_img_close[status=mouseover]
+{
+	border : 0px;
+	background : transparent;
+}
+#nexacontainer .Button.btn_pop_img_close[status=focused]
+{
+	border : 0px;
+	background : transparent;
+}
+#nexacontainer .Button.count_mid_btn01_off[status=mouseover]
+{
+	background : transparent;
+	color : #333333;
+	font : normal bold 15px/normal "돋움체";
+	border : 0px;
+}
+#nexacontainer .Button.count_mid_btn01_off[status=mouseover] .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+#nexacontainer .Button.count_mid_btn01_off[status=focused]
+{
+	background : transparent;
+	color : #2b5799;
+	font : normal bold 15px/normal "돋움체";
+	border : 0px;
+}
+#nexacontainer .Button.count_mid_btn01_off[status=focused] .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+#nexacontainer .Button.count_mid_btn01_on[status=mouseover]
+{
+	background : transparent;
+	color : #2b5799;
+	font : normal bold 15px/normal "돋움체";
+	border : 0px;
+}
+#nexacontainer .Button.count_mid_btn01_on[status=mouseover] .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+#nexacontainer .Button.count_mid_btn01_on[status=focused]
+{
+	background : transparent;
+	color : #2b5799;
+	font : normal bold 15px/normal "돋움체";
+	border : 0px;
+}
+#nexacontainer .Button.count_mid_btn01_on[status=focused] .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+#nexacontainer .Button.btn_phone01[status=mouseover]
+{
+	color : #333333;
+	border : 1px solid #939393;
+	border-radius : 1px;
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	background : url('./images/icon_phone01.png') no-repeat center;
+}
+#nexacontainer .Button.btn_phone01[status=focused]
+{
+	color : #333333;
+	border : 1px solid #939393;
+	border-radius : 1px;
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	background : url('./images/icon_phone01.png') no-repeat center;
+}
+#nexacontainer .Button.btn_phone02[status=mouseover]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_phone02[status=focused]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Button.btn_user_plus[status=mouseover]
+{
+	border : 0px;
+	background : url('./images/img_user02_off.png') no-repeat center #8d96a0;
+}
+#nexacontainer .Button.btn_user_plus[status=focused]
+{
+	border : 0px;
+	background : url('./images/img_user02_off.png') no-repeat center #8d96a0;
+}
+#nexacontainer .Button.btn_user_ty01[status=mouseover]
+{
+	color : #333333;
+	border : 1px solid #acacac;
+	background : url('./images/img_user01_on.png') no-repeat center;
+}
+#nexacontainer .Button.btn_user_ty01[status=focused]
+{
+	color : #333333;
+	border : 1px solid #acacac;
+	background : url('./images/img_user01_on.png') no-repeat center;
+}
+#nexacontainer .Button.btn_user_ty02[status=mouseover]
+{
+	background : #ffffff;
+}
+#nexacontainer .Button.btn_user_ty02[status=focused]
+{
+	background : #ffffff;
+}
+#nexacontainer .Button.btn_calcu_ty01[status=mouseover]
+{
+	background : #4a659c;
+	color : #ffffff;
+	border : 0px;
+}
+#nexacontainer .Button.btn_calcu_ty01[status=focused]
+{
+	background : #4a659c;
+	color : #ffffff;
+	border : 0px;
+}
+#nexacontainer .Button.btn_order_ty01_off[status=mouseover]
+{
+	background : #d1d2d8;
+	color : #6b7086;
+	border : 1px solid #8c90a4;
+}
+#nexacontainer .Button.btn_order_ty01_off[status=focused]
+{
+	background : #d1d2d8;
+	color : #6b7086;
+	border : 1px solid #8c90a4;
+}
+#nexacontainer .Button.btn_order_ty01_on[status=mouseover]
+{
+	background : #495176;
+	color : #ffffff;
+	border : 1px solid #495176;
+}
+#nexacontainer .Button.btn_order_ty01_on[status=focused]
+{
+	background : #495176;
+	color : #ffffff;
+	border : 1px solid #495176;
+}
+#nexacontainer .Static.bg_main[status=mouseover]
+{
+	border : 0px none;
+	background : #f1f2f7;
+	border-radius : 0px;
+}
+#nexacontainer .Static.bg_top[status=mouseover]
+{
+	border : 0px none;
+	background : #27538a;
+	border-radius : 0px;
+}
+#nexacontainer .Static.bg_work[status=mouseover]
+{
+	border : 0px none;
+	background : #f1f2f7;
+	border-radius : 0px;
+}
+#nexacontainer .Static.btn_pop_goto[status=mouseover]
+{
+	background : #fdfdfd;
+	background : linear-gradient(#fdfdfd,#c4c4c4);
+	color : #b95a31;
+	border : 1px solid #b68570;
+}
+#nexacontainer .Edit.top_sel01[status=mouseover]
+{
+	background : #0153a6;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #99badb;
+	border-left : 0px;
+}
+#nexacontainer .Edit.top_sel01[status=focused]
+{
+	background : #0153a6;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #99badb;
+	border-left : 0px;
+}
+#nexacontainer .Edit.top_sel01[status=readonly]
+{
+	background : #0153a6;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #99badb;
+	border-left : 0px;
+}
+#nexacontainer .Edit.inp_ty01[status=mouseover]
+{
+	background : #ffffff;
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Edit.inp_ty01[status=focused]
+{
+	background : #ffffff;
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Edit.inp_ty01[status=readonly]
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+#nexacontainer .Edit.inp_ty02[status=mouseover]
+{
+	background : #ffffff;
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Edit.inp_ty02[status=focused]
+{
+	background : #ffffff;
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Edit.inp_ty02[status=readonly]
+{
+	background : #ffffff;
+	border : 1px solid #dddddd;
+}
+#nexacontainer .Combo.sel_ty01[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Combo.sel_ty01[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .ComboControl.sel_ty01[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .ComboControl.sel_ty01[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Combo.sel_ty01[status=readonly]
+{
+	background : #efefef;
+}
+#nexacontainer .ComboControl.sel_ty01[status=readonly]
+{
+	background : #efefef;
+}
+#nexacontainer .Combo.sel_ty02[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Combo.sel_ty02[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .ComboControl.sel_ty02[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .ComboControl.sel_ty02[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Combo.sel_ty02[status=readonly]
+{
+	background : #efefef;
+}
+#nexacontainer .ComboControl.sel_ty02[status=readonly]
+{
+	background : #efefef;
+}
+#nexacontainer .Combo.comb_ty02[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Combo.comb_ty02[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Combo.comb_ty02[status=readonly]
+{
+	background : #dddddd;
+}
+#nexacontainer .Calendar.cal_ty01[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .CalendarControl.cal_ty01[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Calendar.cal_ty01[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .CalendarControl.cal_ty01[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Calendar.cal_ty01[status=readonly]
+{
+	background : #efefef;
+}
+#nexacontainer .CalendarControl.cal_ty01[status=readonly]
+{
+	background : #efefef;
+}
+#nexacontainer .Calendar.cal_ty02[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .CalendarControl.cal_ty02[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Calendar.cal_ty02[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .CalendarControl.cal_ty02[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Calendar.cal_ty02[status=readonly]
+{
+	background : #efefef;
+}
+#nexacontainer .CalendarControl.cal_ty02[status=readonly]
+{
+	background : #efefef;
+}
+#nexacontainer .TextArea.txa_ty02[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .TextArea.txa_ty02[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .TextAreaControl.txa_ty02[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .TextAreaControl.txa_ty02[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .TextArea.txa_ty02[status=readonly]
+{
+	background : #efefef;
+	border : 1px solid #dddddd;
+}
+#nexacontainer .TextAreaControl.txa_ty02[status=readonly]
+{
+	background : #efefef;
+	border : 1px solid #dddddd;
+}
+#nexacontainer .Tab.tab_ty01 .tabbuttonitemTab.tabbuttonitemTabtab_ty01[status=mouseover]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #ffffff;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #425e8c;
+}
+#nexacontainer .Tab.tab_ty01 .tabbuttonitemTab.tabbuttonitemTabtab_ty01[status=mouseover] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Tab.tab_ty01 .tabbuttonitemTab.tabbuttonitemTabtab_ty01[status=focused]
+{
+	color : #dee4ef;
+}
+#nexacontainer .Tab.tab_ty02 .tabbuttonitemTab.tabbuttonitemTabtab_ty02[status=mouseover]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #000000;
+	border : 0px;
+	background : url('./images/tab_blit02_on.png') no-repeat left #cfbda9;
+}
+#nexacontainer .Tab.tab_ty02 .tabbuttonitemTab.tabbuttonitemTabtab_ty02[status=mouseover] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt02_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Tab.tab_ty02 .tabbuttonitemTab.tabbuttonitemTabtab_ty02[status=focused]
+{
+	color : #000000;
+}
+#nexacontainer .Tab.in_tab_ty01 .tabbuttonitemTab.tabbuttonitemTabin_tab_ty01[status=mouseover]
+{
+	font : 12px "돋움체";
+	color : #ffffff;
+	border : 0px;
+	background : transparent;
+}
+#nexacontainer .Tab.in_tab_ty01 .tabbuttonitemTab.tabbuttonitemTabin_tab_ty01[status=mouseover] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/in_tab01_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Tab.in_tab_ty01 .tabbuttonitemTab.tabbuttonitemTabin_tab_ty01[status=focused]
+{
+	color : #ffffff;
+}
+#nexacontainer .Grid.tb_ty00 .body .row .cell[status=mouseover]
+{
+	background : #f6f6f6;
+}
+#nexacontainer .Grid.tb_ty01 .body .row .cell[status=mouseover]
+{
+	background : #e8edf2;
+}
+#nexacontainer .GridCellControl .cellcombo[status=mouseover]
+{
+	color : #666666;
+}
+#nexacontainer .GridCellControl .cellcombo[status=focused]
+{
+	color : #666666;
+}
+#nexacontainer .GridCellControl .celledit[status=mouseover]
+{
+	color : #666666;
+}
+#nexacontainer .GridCellControl .celledit[status=focused]
+{
+	color : #666666;
+}
+#nexacontainer .GridCellControl .cellmaskedit[status=mouseover]
+{
+	color : #666666;
+}
+#nexacontainer .GridCellControl .cellmaskedit[status=focused]
+{
+	color : #666666;
+}
+#nexacontainer .Grid.tb_ty02 .body .row .cell[status=mouseover]
+{
+	background : #f6f6f6;
+}
+#nexacontainer .Grid.tb_ty03 .body .row .cell[status=mouseover]
+{
+	background : #f6f6f6;
+}
+#nexacontainer .Grid.tb_ty04 .body .row .cell[status=mouseover]
+{
+	background : #f6f6f6;
+}
+#nexacontainer .Grid.tb_ty05 .body .row .cell[status=mouseover]
+{
+	background : #f6f6f6;
+}
+#nexacontainer .Grid .body .row .cell.bg_red01.dummy.dummy.dummy[status=mouseover]
+{
+	background : #ffd5d5;
+}
+#nexacontainer .Grid .body .row .cell.bg_red01.dummy.dummy.dummy.oddcell[status=mouseover]
+{
+	background : #ffd5d5;
+}
+#nexacontainer .Grid .body .row .cell.bg_orange01.dummy.dummy.dummy[status=mouseover]
+{
+	background : #fec178;
+}
+#nexacontainer .Grid .body .row .cell.bg_orange01.dummy.dummy.dummy.oddcell[status=mouseover]
+{
+	background : #fec178;
+}
+#nexacontainer .Grid .body .row .cell.bg_orange02.dummy.dummy.dummy[status=mouseover]
+{
+	background : #faecc5;
+}
+#nexacontainer .Grid .body .row .cell.bg_orange02.dummy.dummy.dummy.oddcell[status=mouseover]
+{
+	background : #faecc5;
+}
+#nexacontainer .Grid .body .row .cell.bg_yellow01.dummy.dummy.dummy[status=mouseover]
+{
+	background : #fbee7c;
+}
+#nexacontainer .Grid .body .row .cell.bg_yellow01.dummy.dummy.dummy.oddcell[status=mouseover]
+{
+	background : #fbee7c;
+}
+#nexacontainer .Grid .body .row .cell.bg_green01.dummy.dummy.dummy[status=mouseover]
+{
+	background : #7fe781;
+}
+#nexacontainer .Grid .body .row .cell.bg_green01.dummy.dummy.dummy.oddcell[status=mouseover]
+{
+	background : #7fe781;
+}
+#nexacontainer .Grid .body .row .cell.bg_blue01.dummy.dummy.dummy[status=mouseover]
+{
+	background : #97c0ee;
+}
+#nexacontainer .Grid .body .row .cell.bg_blue01.dummy.dummy.dummy.oddcell[status=mouseover]
+{
+	background : #97c0ee;
+}
+#nexacontainer .Grid .body .row .cell.bg_purple01.dummy.dummy.dummy[status=mouseover]
+{
+	background : #ddc0f6;
+}
+#nexacontainer .Grid .body .row .cell.bg_purple01.dummy.dummy.dummy.oddcell[status=mouseover]
+{
+	background : #ddc0f6;
+}
+#nexacontainer .Grid .body .row .cell.bg_gray01.dummy.dummy.dummy[status=mouseover]
+{
+	background : #dbdbdb;
+}
+#nexacontainer .Grid .body .row .cell.bg_gray01.dummy.dummy.dummy.oddcell[status=mouseover]
+{
+	background : #dbdbdb;
+}
+#nexacontainer .Grid .body .row .cell.fc_red.dummy.dummy.dummy[status=mouseover]
+{
+	color : #de2222;
+}
+#nexacontainer .Grid .body .row .cell.fc_blue.dummy.dummy.dummy[status=mouseover]
+{
+	color : #0d5dc9;
+}
+#nexacontainer .Grid .body .row .cell.fc_green.dummy.dummy.dummy[status=mouseover]
+{
+	color : #0dc92c;
+}
+#nexacontainer .Grid.menu_customer_list01 .body .row .cell[status=mouseover]
+{
+	background : #ffffff;
+	color : #000000;
+	font : 12px "돋움체";
+	border-top : 1px solid #f5f5f5;
+	border-right : 0px;
+	border-bottom : 1px solid #f5f5f5;
+	border-left : 0px none;
+}
+#nexacontainer .Grid.menu_customer_list01 .body .row .cell[status=mouseover] > .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+#nexacontainer .Grid.menu_customer_list01 .body .row .cell.active.dummy.dummy.dummy[status=mouseover]
+{
+	background : #e7f1f9;
+	color : #0068d2;
+	font : 12px "돋움체";
+	border-top : 1px solid #f5f5f5;
+	border-right : 0px;
+	border-bottom : 1px solid #f5f5f5;
+	border-left : 0px none;
+}
+#nexacontainer .Grid.tb_ty_main .body .row .cell[status=mouseover]
+{
+	background : #ffffff;
+}
+#nexacontainer .Button.btn_WF_Search[status=mouseover]
+{
+	background : #2c4898;
+	border : 1px solid #21367e;
+	color : #ffffff;
+	cursor : pointer;
+	font : bold 9 돋움체;
+}
+#nexacontainer .Button.btn_MF_home[status=focused]
+{
+	border-top : 0px;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #dddddd;
+	border-left : 0px;
+	background : #fcfcfc;
+	border-radius : 0px;
+}
+#nexacontainer .Button.btn_MF_home[status=focused] .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.btn_MF_home[status=mouseover]
+{
+	border-top : 0px;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #dddddd;
+	border-left : 0px;
+	background : #fcfcfc;
+	border-radius : 0px;
+}
+#nexacontainer .Button.btn_MF_home[status=mouseover] .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu09[status=mouseover]
+{
+	background : URL("./images/gnb_icon_graph_line_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu09[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu09[status=focused]
+{
+	background : URL("./images/gnb_icon_graph_line_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu09[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu09_on[status=mouseover]
+{
+	background : URL("./images/gnb_icon_graph_line_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu09_on[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu09_on[status=focused]
+{
+	background : URL("./images/gnb_icon_graph_line_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu09_on[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu10[status=mouseover]
+{
+	background : URL("./images/gnb_icon_input_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu10[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu10[status=focused]
+{
+	background : URL("./images/gnb_icon_input_off.png") no-repeat center;
+	color : #777777;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu10[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu10_on[status=mouseover]
+{
+	background : URL("./images/gnb_icon_input_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu10_on[status=mouseover] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Button.gnb_menu10_on[status=focused]
+{
+	background : URL("./images/gnb_icon_input_rgb_on.png") no-repeat center;
+	color : #ffffff;
+	font : 13px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px none;
+}
+#nexacontainer .Button.gnb_menu10_on[status=focused] .nexacontentsbox
+{
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Edit.inp_ty01_req[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Edit.inp_ty01_req[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Edit.inp_ty01_req[status=readonly]
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+#nexacontainer .MaskEdit.inp_ty01[status=mouseover]
+{
+	background : #ffffff;
+	border : 1px solid #ed6400;
+}
+#nexacontainer .MaskEdit.inp_ty01[status=focused]
+{
+	background : #ffffff;
+	border : 1px solid #ed6400;
+}
+#nexacontainer .MaskEdit.inp_ty01[status=readonly]
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+#nexacontainer .Spin.inp_ty01[status=mouseover]
+{
+	background : #ffffff;
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Spin.inp_ty01[status=focused]
+{
+	background : #ffffff;
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Spin.inp_ty01[status=readonly]
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+#nexacontainer .TextArea.inp_ty01[status=mouseover]
+{
+	background : #ffffff;
+	border : 1px solid #ed6400;
+}
+#nexacontainer .TextArea.inp_ty01[status=focused]
+{
+	background : #ffffff;
+	border : 1px solid #ed6400;
+}
+#nexacontainer .TextArea.inp_ty01[status=readonly]
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+#nexacontainer .MaskEdit.inp_ty01_req[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .MaskEdit.inp_ty01_req[status=focused]
+{
+	background : #f6f6f6;
+}
+#nexacontainer .MaskEdit.inp_ty01_req[status=readonly]
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+#nexacontainer .Spin.inp_ty01_req[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Spin.inp_ty01_req[status=focused]
+{
+	background : #f6f6f6;
+}
+#nexacontainer .Spin.inp_ty01_req[status=readonly]
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+#nexacontainer .TextArea.inp_ty01_req[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .TextArea.inp_ty01_req[status=focused]
+{
+	background : #f6f6f6;
+}
+#nexacontainer .TextArea.inp_ty01_req[status=readonly]
+{
+	background : #ffffff;
+	border : 1px solid #9c9c9c;
+}
+#nexacontainer .CheckBox.ck_ty02[status=readonly]
+{
+	font : normal 11px/normal "돋움체";
+	color : #777777;
+}
+#nexacontainer .CheckBox.ck_ty02_req[status=readonly]
+{
+	font : normal 11px/normal "돋움체";
+	color : #777777;
+}
+#nexacontainer .Calendar.cal_ty01_req[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Calendar.cal_ty01_req[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Calendar.cal_ty01_req[status=readonly]
+{
+	background : #efefef;
+}
+#nexacontainer .Combo.sel_ty02_req[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Combo.sel_ty02_req[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Combo.sel_ty02_req[status=readonly]
+{
+	background : #efefef;
+}
+#nexacontainer .Combo.sel_ty01_req[status=mouseover]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Combo.sel_ty01_req[status=focused]
+{
+	border : 1px solid #ed6400;
+}
+#nexacontainer .Combo.sel_ty01_req[status=readonly]
+{
+	background : #efefef;
+}
+#nexacontainer .Button.btn_WF_menuClose[status=mouseover]
+{
+	background : #6C7A89;
+	color : #FFFFFF;
+}
+#nexacontainer .Button.btn_WF_menuClose[status=focused]
+{
+	background : #6C7A89;
+	color : #FFFFFF;
+}
+#nexacontainer .Button.btn_WF_menuOpen[status=mouseover]
+{
+	background : #6C7A89;
+	color : #FFFFFF;
+}
+#nexacontainer .Button.btn_WF_menuOpen[status=focused]
+{
+	background : #6C7A89;
+	color : #FFFFFF;
+}
+#nexacontainer .Grid .body .row .cell.excel_required.dummy.dummy.dummy[status=mouseover]
+{
+	background : #5a7db6;
+	color : #ffffff;
+}
+#nexacontainer .Grid .body .row .cell.excel_selected.dummy.dummy.dummy[status=mouseover]
+{
+	color : black;
+}
+#nexacontainer .Grid .body .row .cell.excel_required.dummy.dummy.dummy[status=focused]
+{
+	background : #5a7db6;
+	color : #ffffff;
+}
+#nexacontainer .Grid .body .row .cell.excel_selected.dummy.dummy.dummy[status=focused]
+{
+	color : black;
+}
+#nexacontainer .Button.btn_top_menu[status=mouseover]
+{
+	background : #27538a;
+	color : #26B3CB;
+	font : bold 14px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 3px solid #ffffff;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_top_menu[status=focused]
+{
+	background : #27538a;
+	color : #26B3CB;
+	font : bold 14px "돋움체";
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 3px solid #ffffff;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_left_menu[status=mouseover]
+{
+	background : #FFFFFF;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_left_menu[status=focused]
+{
+	background : #FFFFFF;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_LF_BookMark_D_off[status=mouseover]
+{
+	background : #EFEFEF;
+	border-top : 3px solid #26b3cb;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_LF_selectMenu_on[status=mouseover]
+{
+	background : #FFFFFF;
+	border-top : 3px solid #26b3cb;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_LF_selectMenu_on[status=focused]
+{
+	background : #FFFFFF;
+	border-top : 3px solid #26b3cb;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_MDI_05_on[status=mouseover]
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMarkS_14.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_05_on[status=focused]
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMarkS_14.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_05_off[status=mouseover]
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMarkN_14.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_05_off[status=focused]
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMarkN_14.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_bookmark_N_off[status=mouseover]
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMark_N_off.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_bookmark_N_off[status=focused]
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMark_N_off.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_bookmark_N_on[status=mouseover]
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMark_N_on.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_bookmark_N_on[status=focused]
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMark_N_on.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_bookmark_Y_off[status=mouseover]
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMark_Y_off.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_bookmark_Y_off[status=focused]
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMark_Y_off.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_bookmark_Y_on[status=mouseover]
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMark_Y_on.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_bookmark_Y_on[status=focused]
+{
+	border : 0px;
+	background : url('./images/btn_WF_bookMark_Y_on.png') no-repeat;
+}
+#nexacontainer .Button.btn_LF_BookMark_D_on[status=mouseover]
+{
+	background : #FFFFFF;
+	border-top : 3px solid #26b3cb;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_LF_BookMark_D_on[status=focused]
+{
+	background : #FFFFFF;
+	border-top : 3px solid #26b3cb;
+	border-right : 0px;
+	border-bottom : 0px;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_LF_selectMenu_off[status=mouseover]
+{
+	background : #EFEFEF;
+	border-top : 3px solid #26b3cb;
+	border-right : 0px;
+	border-bottom : 1px solid #e4e4e4;
+	border-left : 0px;
+}
+#nexacontainer .Button.btn_main_noice_more[status=mouseover]
+{
+	background : #ffffff;
+	color : #26B3CB;
+	border : 0px;
+}
+#nexacontainer .Button.btn_main_noice_more[status=focused]
+{
+	background : #ffffff;
+	border : 0px;
+}
+#nexacontainer .Button.btn_MDI_03_off[userstatus=selected]
+{
+	border : 0px;
+	background : url('./images/tab_icon02_off.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_03_on[userstatus=selected]
+{
+	border : 0px;
+	background : url('./images/tab_icon02_on.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_04_off[userstatus=selected]
+{
+	border : 0px;
+	background : url('./images/btn_tab_open_off.png') no-repeat;
+}
+#nexacontainer .Button.btn_MDI_04_on[userstatus=selected]
+{
+	border : 0px;
+	background : url('./images/btn_tab_open_on.png') no-repeat;
+}
+#nexacontainer .Tab.tab_ty01 .tabbuttonitemTab.tabbuttonitemTabtab_ty01[userstatus=selected]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #ffffff;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #425e8c;
+}
+#nexacontainer .Tab.tab_ty01 .tabbuttonitemTab.tabbuttonitemTabtab_ty01[userstatus=selected] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Tab.tab_ty02 .tabbuttonitemTab.tabbuttonitemTabtab_ty02[userstatus=selected]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #000000;
+	border : 0px;
+	background : url('./images/tab_blit02_on.png') no-repeat left #cfbda9;
+}
+#nexacontainer .Tab.tab_ty02 .tabbuttonitemTab.tabbuttonitemTabtab_ty02[userstatus=selected] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt02_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Tab.in_tab_ty01 .tabbuttonitemTab.tabbuttonitemTabin_tab_ty01[userstatus=selected]
+{
+	font : 12px "돋움체";
+	color : #ffffff;
+	border : 0px;
+	background : transparent;
+}
+#nexacontainer .Tab.in_tab_ty01 .tabbuttonitemTab.tabbuttonitemTabin_tab_ty01[userstatus=selected] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/in_tab01_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Grid.tb_ty00 .body .row .cell[userstatus=selected]
+{
+	background : #f2f9ff;
+}
+#nexacontainer .Grid.tb_ty01 .body .row .cell[userstatus=selected]
+{
+	background : #e8edf2;
+	color : #000000;
+	font : normal bold 11px/normal "돋움체";
+}
+#nexacontainer .Grid.tb_ty02 .body .row .cell[userstatus=selected]
+{
+	background : #666666;
+	color : #ffffff;
+}
+#nexacontainer .Grid.tb_ty03 .body .row .cell[userstatus=selected]
+{
+	background : #666666;
+	color : #ffffff;
+}
+#nexacontainer .Grid.tb_ty04 .body .row .cell[userstatus=selected]
+{
+	background : #f0f7fb;
+}
+#nexacontainer .Grid.tb_ty05 .body .row .cell[userstatus=selected]
+{
+	background : #f1f6fb;
+}
+#nexacontainer .Grid .body .row .cell.bg_red01.dummy.dummy.dummy[userstatus=selected]
+{
+	color : #526170;
+	background : #ffd5d5;
+}
+#nexacontainer .Grid .body .row .cell.bg_red01.dummy.dummy.dummy.oddcell[userstatus=selected]
+{
+	background : #ffd5d5;
+}
+#nexacontainer .Grid .body .row .cell.bg_orange01.dummy.dummy.dummy[userstatus=selected]
+{
+	color : #526170;
+	background : #fec178;
+}
+#nexacontainer .Grid .body .row .cell.bg_orange01.dummy.dummy.dummy.oddcell[userstatus=selected]
+{
+	background : #fec178;
+}
+#nexacontainer .Grid .body .row .cell.bg_orange02.dummy.dummy.dummy[userstatus=selected]
+{
+	color : #526170;
+	background : #faecc5;
+}
+#nexacontainer .Grid .body .row .cell.bg_orange02.dummy.dummy.dummy.oddcell[userstatus=selected]
+{
+	background : #faecc5;
+}
+#nexacontainer .Grid .body .row .cell.bg_yellow01.dummy.dummy.dummy[userstatus=selected]
+{
+	color : #526170;
+	background : #fbee7c;
+}
+#nexacontainer .Grid .body .row .cell.bg_yellow01.dummy.dummy.dummy.oddcell[userstatus=selected]
+{
+	background : #fbee7c;
+}
+#nexacontainer .Grid .body .row .cell.bg_green01.dummy.dummy.dummy[userstatus=selected]
+{
+	color : #526170;
+	background : #7fe781;
+}
+#nexacontainer .Grid .body .row .cell.bg_green01.dummy.dummy.dummy.oddcell[userstatus=selected]
+{
+	background : #7fe781;
+}
+#nexacontainer .Grid .body .row .cell.bg_blue01.dummy.dummy.dummy[userstatus=selected]
+{
+	color : #526170;
+	background : #97c0ee;
+}
+#nexacontainer .Grid .body .row .cell.bg_blue01.dummy.dummy.dummy.oddcell[userstatus=selected]
+{
+	background : #97c0ee;
+}
+#nexacontainer .Grid .body .row .cell.bg_purple01.dummy.dummy.dummy[userstatus=selected]
+{
+	color : #526170;
+	background : #ddc0f6;
+}
+#nexacontainer .Grid .body .row .cell.bg_purple01.dummy.dummy.dummy.oddcell[userstatus=selected]
+{
+	background : #ddc0f6;
+}
+#nexacontainer .Grid .body .row .cell.bg_gray01.dummy.dummy.dummy[userstatus=selected]
+{
+	color : #526170;
+	background : #dbdbdb;
+}
+#nexacontainer .Grid .body .row .cell.bg_gray01.dummy.dummy.dummy.oddcell[userstatus=selected]
+{
+	background : #dbdbdb;
+}
+#nexacontainer .Grid .body .row .cell.fc_red.dummy.dummy.dummy[userstatus=selected]
+{
+	color : #ffffff;
+}
+#nexacontainer .Grid .body .row .cell.fc_blue.dummy.dummy.dummy[userstatus=selected]
+{
+	color : #ffffff;
+}
+#nexacontainer .Grid .body .row .cell.fc_green.dummy.dummy.dummy[userstatus=selected]
+{
+	color : #ffffff;
+}
+#nexacontainer .Grid.menu_customer_list01 .body .row .cell[userstatus=selected]
+{
+	background : #ffffff;
+	color : #000000;
+	font : 12px "돋움체";
+	border-top : 1px solid #f5f5f5;
+	border-right : 0px;
+	border-bottom : 1px solid #f5f5f5;
+	border-left : 0px none;
+}
+#nexacontainer .Grid.menu_customer_list01 .body .row .cell[userstatus=selected] > .nexacontentsbox
+{
+	text-align : left;
+	background-position-x : left;
+}
+#nexacontainer .Grid.menu_customer_list01 .body .row .cell.active.dummy.dummy.dummy[userstatus=selected]
+{
+	background : #e7f1f9;
+	color : #0068d2;
+	font : 12px "돋움체";
+	border-top : 1px solid #f5f5f5;
+	border-right : 0px;
+	border-bottom : 1px solid #f5f5f5;
+	border-left : 0px none;
+}
+#nexacontainer .Grid.tb_ty_main .body .row .cell[userstatus=selected]
+{
+	background : #ffffff;
+}
+#nexacontainer .Button.btn_MF_home[userstatus=pushed]
+{
+	border-top : 0px;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #dddddd;
+	border-left : 0px;
+	background : #fcfcfc;
+	border-radius : 0px;
+}
+#nexacontainer .Button.btn_MF_home[userstatus=pushed] .nexacontentsbox
+{
+	text-align : center;
+	background-position-x : center;
+	vertical-align : middle;
+	background-position-y : center;
+}
+#nexacontainer .Grid .body .row .cell.excel_required.dummy.dummy.dummy[userstatus=selected]
+{
+	background : #5a7db6;
+	color : #ffffff;
+}
+#nexacontainer .Grid .body .row .cell.excel_selected.dummy.dummy.dummy[userstatus=selected]
+{
+	color : black;
+}
+#nexacontainer .Edit.top_sel01[status=disabled]
+{
+	background : #0153a6;
+	border-top : 0px;
+	border-right : 0px;
+	border-bottom : 1px solid #99badb;
+	border-left : 0px;
+}
+#nexacontainer .Edit.inp_ty01[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .Edit.inp_ty02[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .Combo.sel_ty01[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .ComboControl.sel_ty01[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .Combo.sel_ty01 .dropbutton[status=disabled]
+{
+	opacity : 0.50;
+}
+#nexacontainer .ComboControl.sel_ty01 .dropbutton[status=disabled]
+{
+	opacity : 0.50;
+}
+#nexacontainer .Combo.sel_ty02[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .ComboControl.sel_ty02[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .Combo.comb_ty02[status=disabled]
+{
+	color : #777777;
+	background : #f0f0f0;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .Calendar.cal_ty01[status=disabled]
+{
+	color : #777777;
+	background : #f0f0f0;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .CalendarControl.cal_ty01[status=disabled]
+{
+	color : #777777;
+	background : #f0f0f0;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .Calendar.cal_ty02[status=disabled]
+{
+	color : #777777;
+	background : #f0f0f0;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .CalendarControl.cal_ty02[status=disabled]
+{
+	color : #777777;
+	background : #f0f0f0;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .TextArea.txa_ty02[status=disabled]
+{
+	color : #777777;
+	background : #f0f0f0;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .TextAreaControl.txa_ty02[status=disabled]
+{
+	color : #777777;
+	background : #f0f0f0;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .Tab.tab_ty01 .tabbuttonitemTab.tabbuttonitemTabtab_ty01[status=disabled]
+{
+	color : #ababab;
+}
+#nexacontainer .Tab.tab_ty01 .tabbuttonitemTab.tabbuttonitemTabtab_ty01 .tabbuttonitemtext[status=disabled]
+{
+	color : #c8c8c8;
+}
+#nexacontainer .Tab.tab_ty02 .tabbuttonitemTab.tabbuttonitemTabtab_ty02[status=disabled]
+{
+	color : #ababab;
+}
+#nexacontainer .Tab.tab_ty02 .tabbuttonitemTab.tabbuttonitemTabtab_ty02 .tabbuttonitemtext[status=disabled]
+{
+	color : #c8c8c8;
+}
+#nexacontainer .Grid.tb_ty00 .head .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty00 .body .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty01 .head .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .GridCellControl .cellcombo[status=disabled]
+{
+	color : #666666;
+}
+#nexacontainer .GridCellControl .celledit[status=disabled]
+{
+	color : #666666;
+}
+#nexacontainer .GridCellControl .cellmaskedit[status=disabled]
+{
+	color : #666666;
+}
+#nexacontainer .Grid.tb_ty01 .body .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty02 .head .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty02 .body .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty03 .head .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty03 .body .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty04 .head .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty04 .body .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty05 .head .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty06 .head .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty05 .body .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid .body .row .cell.bg_red01.dummy.dummy.dummy[status=disabled]
+{
+	background : #ffd5d5;
+}
+#nexacontainer .Grid .body .row .cell.bg_red01.dummy.dummy.dummy.oddcell[status=disabled]
+{
+	background : #ffd5d5;
+}
+#nexacontainer .Grid .body .row .cell.bg_orange01.dummy.dummy.dummy[status=disabled]
+{
+	background : #fec178;
+}
+#nexacontainer .Grid .body .row .cell.bg_orange01.dummy.dummy.dummy.oddcell[status=disabled]
+{
+	background : #fec178;
+}
+#nexacontainer .Grid .body .row .cell.bg_orange02.dummy.dummy.dummy[status=disabled]
+{
+	background : #faecc5;
+}
+#nexacontainer .Grid .body .row .cell.bg_orange02.dummy.dummy.dummy.oddcell[status=disabled]
+{
+	background : #faecc5;
+}
+#nexacontainer .Grid .body .row .cell.bg_yellow01.dummy.dummy.dummy[status=disabled]
+{
+	background : #fbee7c;
+}
+#nexacontainer .Grid .body .row .cell.bg_yellow01.dummy.dummy.dummy.oddcell[status=disabled]
+{
+	background : #fbee7c;
+}
+#nexacontainer .Grid .body .row .cell.bg_green01.dummy.dummy.dummy[status=disabled]
+{
+	background : #7fe781;
+}
+#nexacontainer .Grid .body .row .cell.bg_green01.dummy.dummy.dummy.oddcell[status=disabled]
+{
+	background : #7fe781;
+}
+#nexacontainer .Grid .body .row .cell.bg_blue01.dummy.dummy.dummy[status=disabled]
+{
+	background : #97c0ee;
+}
+#nexacontainer .Grid .body .row .cell.bg_blue01.dummy.dummy.dummy.oddcell[status=disabled]
+{
+	background : #97c0ee;
+}
+#nexacontainer .Grid .body .row .cell.bg_purple01.dummy.dummy.dummy[status=disabled]
+{
+	background : #ddc0f6;
+}
+#nexacontainer .Grid .body .row .cell.bg_purple01.dummy.dummy.dummy.oddcell[status=disabled]
+{
+	background : #ddc0f6;
+}
+#nexacontainer .Grid .body .row .cell.bg_gray01.dummy.dummy.dummy[status=disabled]
+{
+	background : #dbdbdb;
+}
+#nexacontainer .Grid .body .row .cell.bg_gray01.dummy.dummy.dummy.oddcell[status=disabled]
+{
+	background : #dbdbdb;
+}
+#nexacontainer .Grid .body .row .cell.fc_red.dummy.dummy.dummy[status=disabled]
+{
+	color : #de2222;
+}
+#nexacontainer .Grid .body .row .cell.fc_blue.dummy.dummy.dummy[status=disabled]
+{
+	color : #0d5dc9;
+}
+#nexacontainer .Grid .body .row .cell.fc_green.dummy.dummy.dummy[status=disabled]
+{
+	color : #0dc92c;
+}
+#nexacontainer .Grid.menu_customer_list01 .head .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.menu_customer_list01 .body .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty_main .head .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Grid.tb_ty_main .body .row .cell[status=disabled]
+{
+	color : #999999;
+}
+#nexacontainer .Edit.inp_ty01_req[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .MaskEdit.inp_ty01[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .Spin.inp_ty01[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #9c9c9c;
+}
+#nexacontainer .TextArea.inp_ty01[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #9c9c9c;
+}
+#nexacontainer .MaskEdit.inp_ty01_req[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .Spin.inp_ty01_req[status=disabled]
+{
+	background : #f6f6f6;
+}
+#nexacontainer .CheckBox.ck_ty02[status=disabled]
+{
+	font : normal 11px/normal "돋움체";
+	color : #777777;
+}
+#nexacontainer .CheckBox.ck_ty02_req[status=disabled]
+{
+	font : normal 11px/normal "돋움체";
+	color : #777777;
+}
+#nexacontainer .Calendar.cal_ty01_req[status=disabled]
+{
+	color : #777777;
+	background : #f0f0f0;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .Combo.sel_ty02_req[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .Combo.sel_ty01_req[status=disabled]
+{
+	color : #777777;
+	background : #f6f6f6;
+	border : 1px solid #c8c8c8;
+}
+#nexacontainer .Button.btn_search02[status=disabled]
+{
+	border-top : 1px solid #dddddd;
+	border-right : 1px solid #dddddd;
+	border-bottom : 1px solid #dddddd;
+	border-left : 0px;
+	background : #ffffff;
+}
+#nexacontainer .Button.btn_search01[status=disabled]
+{
+	border-top : 1px solid #9c9c9c;
+	border-right : 1px solid #9c9c9c;
+	border-bottom : 1px solid #9c9c9c;
+	border-left : 0px;
+	background : #ffffff;
+}
+#nexacontainer .Tab.tab_ty01 .tabbuttonitemTab.tabbuttonitemTabtab_ty01[status=focused][userstatus=selected]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #ffffff;
+	border : 0px;
+	background : url('./images/tab_blit01_on.png') no-repeat left #425e8c;
+}
+#nexacontainer .Tab.tab_ty01 .tabbuttonitemTab.tabbuttonitemTabtab_ty01[status=focused][userstatus=selected] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt01_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Tab.tab_ty01 .tabbuttonitemTab.tabbuttonitemTabtab_ty01[status=disabled][userstatus=selected]
+{
+	border : 1px solid #b6b8c5;
+	background : #94a9bf;
+}
+#nexacontainer .Tab.tab_ty02 .tabbuttonitemTab.tabbuttonitemTabtab_ty02[status=focused][userstatus=selected]
+{
+	font : normal bold 13px/normal "돋움체";
+	color : #000000;
+	border : 0px;
+	background : url('./images/tab_blit02_on.png') no-repeat left #cfbda9;
+}
+#nexacontainer .Tab.tab_ty02 .tabbuttonitemTab.tabbuttonitemTabtab_ty02[status=focused][userstatus=selected] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/tab_bt02_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Tab.tab_ty02 .tabbuttonitemTab.tabbuttonitemTabtab_ty02[status=disabled][userstatus=selected]
+{
+	border : 1px solid #b6b8c5;
+	background : #94a9bf;
+}
+#nexacontainer .Tab.in_tab_ty01 .tabbuttonitemTab.tabbuttonitemTabin_tab_ty01[status=focused][userstatus=selected]
+{
+	font : 12px "돋움체";
+	color : #ffffff;
+	border : 0px;
+	background : transparent;
+}
+#nexacontainer .Tab.in_tab_ty01 .tabbuttonitemTab.tabbuttonitemTabin_tab_ty01[status=focused][userstatus=selected] >.nexaedge
+{
+	border : 1px solid transparent;
+	border-top : 1px solid transparent;
+	border-left : 1px solid transparent;
+	border-bottom : 1px solid transparent;
+	border-right : 1px solid transparent;
+	border-image-source : url('./images/in_tab01_on.png');
+	border-image-slice : 1 1 fill;
+	border-image-width : 1px 1px;
+}
+#nexacontainer .Grid.tb_ty00 .body .row .cell[status=disabled][userstatus=selected]
+{
+	background : #f0f0f0;
+}
+#nexacontainer .Grid.tb_ty01 .body .row .cell[status=disabled][userstatus=selected]
+{
+	background : #f0f0f0;
+}
+#nexacontainer .Grid.tb_ty02 .body .row .cell[status=disabled][userstatus=selected]
+{
+	background : #f0f0f0;
+}
+#nexacontainer .Grid.tb_ty03 .body .row .cell[status=disabled][userstatus=selected]
+{
+	background : #f0f0f0;
+}
+#nexacontainer .Grid.tb_ty04 .body .row .cell[status=disabled][userstatus=selected]
+{
+	background : #f0f0f0;
+}
+#nexacontainer .Grid.tb_ty05 .body .row .cell[status=disabled][userstatus=selected]
+{
+	background : #f0f0f0;
+}
+#nexacontainer .Grid.tb_ty06 .body .row .cell[status=disabled][userstatus=selected]
+{
+	background : #f0f0f0;
+}
+#nexacontainer .Grid.menu_customer_list01 .body .row .cell[status=disabled][userstatus=selected]
+{
+	background : #f0f0f0;
+}
+#nexacontainer .Grid.tb_ty_main .body .row .cell[status=disabled][userstatus=selected]
+{
+	background : #f0f0f0;
+}

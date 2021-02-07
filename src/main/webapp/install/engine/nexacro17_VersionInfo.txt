@@ -1,0 +1,31 @@
+1. nexacro17 
+ 
+   - nexacro17_macOS_20180920_1\nexacro17.macos.framework.zip 
+     ==> Version : 17.0.0.1220 
+ 
+   - nexacro17_Android_20180920_1\libnexacro.so 
+     ==> Version : 17.0.0.1220 
+ 
+   - nexacro17_Android_20180920_1\nexacro17.android.jar 
+     ==> Version : 17.0.0.1220 
+ 
+   - nexacro17_iOS_20180920_1\nexacro17.ios.framework.zip 
+     ==> Version : 17.0.0.1220 
+ 
+   - nexacro17_frameworklibrary_20180920_1\nexacro17lib.zip 
+     ==> Version : 17.0.0.1220 
+ 
+   - nexacro17_SetupRuntime_x86.exe 
+     ==> Engine Setup Key : {DFC74642-2DFB-455B-879D-A097E4B97C9E} 
+     ==> Version : 17.0.0.1220 
+ 
+   - nexacro17_SetupRuntime_x64.exe 
+     ==> Engine Setup Key : {DB2D4086-A192-4FCB-A24D-77A7373B02AA} 
+     ==> Version : 17.0.0.1220 
+ 
+   - nexacro17_SetupRuntime_XP.exe 
+     ==> Engine Setup Key : {DFC74642-2DFB-455B-879D-A097E4B97C9E} 
+     ==> Version : 17.0.0.1220
+ 
+   - nexacro17_UWP.appxbundle 
+     ==> Version : 17.0.0.1220 

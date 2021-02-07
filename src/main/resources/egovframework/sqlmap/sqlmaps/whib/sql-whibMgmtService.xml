@@ -1,0 +1,839 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="whibMgmtService">
+
+	<select id="checkItemCd" resultClass="int">
+		/** [sql-whibMgmtService.xml][whibMgmtService.checkItemCd]
+		 *  [품목 존재여부 체크]
+		 *  [SCY 2020.03.15]
+		 **/
+		SELECT COUNT(*) AS CNT
+		FROM
+		    TB_WMS_ITEM_MGMT_C A
+		    ,TB_WMS_CUST_MGMT_C B
+		WHERE
+		    A.SHIPPER_ID = B.CUST_CD
+		<!-- 사용자 고객권한 -->
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C B WHERE B.CUST_ID = A.SHIPPER_ID AND USER_ID = #gv_userId#)
+			AND EXISTS (SELECT GDS_CD FROM TB_WMS_WAREI_C C WHERE C.GDS_CD = A.ITEM_CD AND REG_EMP_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+	</select>
+	
+	<select id="checkZnInfo" resultClass="int">
+		/** [sql-whibMgmtService.xml][whibMgmtService.checkZnInfo]
+		 *  [존 존재여부 체크]
+		 *  [SCY 2020.03.15]
+		 **/
+		SELECT COUNT(*)
+		FROM
+			TB_WMS_ZN_MST_C	TWZMC
+		WHERE
+			TWZMC.WAREH_CD = #CENT_CD#
+		AND TWZMC.ZN_CD = #ZN_CD#
+	</select>
+	
+	<select id="checkLocInfo" resultClass="int">
+		/** [sql-whibMgmtService.xml][whibMgmtService.checkLocInfo]
+		 *  [로케이션 존재여부 체크]
+		 *  [SCY 2020.03.15]
+		 **/
+		SELECT COUNT(*)
+		FROM
+			TB_WMS_LOC_MGMT_C	TWLMC
+		WHERE
+			TWLMC.WAREH_CD = #CENT_CD#
+		AND TWLMC.ZN_CD = #ZN_CD#
+		AND TWLMC.LOC_CD = #LOC_CD#
+	</select>
+	
+	<select id="checkRackInfo" resultClass="int">
+		/** [sql-whibMgmtService.xml][whibMgmtService.checkRackInfo]
+		 *  [랙 존재여부 체크]
+		 *  [SCY 2020.03.15]
+		 **/
+		SELECT COUNT(*)
+		FROM
+			TB_WMS_RACK_MGMT_C	TWRMC
+		WHERE
+			TWRMC.WAREH_CD = #CENT_CD#
+		AND TWRMC.ZN_CD = #ZN_CD#
+		AND TWRMC.LOC_CD = #LOC_CD#
+		AND TWRMC.RACK_CD = #RACK_CD#
+	</select>
+	
+	
+	<select id="getWhibMgmt" resultClass="java.util.HashMap">
+		/** [sql-whibMgmtService.xml][whibMgmtService.getWhibMgmt]
+		 *  [입고관예정 리스트 조회]
+		 *  [SCY 2020.02.11]
+		 **/
+		SELECT
+			 '0' AS CHK
+			,CENT_CD
+			,CUST_CD
+			,CUST_NM
+			,WAREI_EXPCT_YMD
+			,WAREI_EXPCT_NO
+			,LN_NO
+			,WAREI_TYPE
+			,GDS_CD
+			,D.ITEM_NM AS GDS_NM
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(EXPCT_QTY,0))) AS EXPCT_QTY
+			,DECIS_QTY
+			,DECIS_YMD
+			,ZN_CD
+			,LOC_CD
+			,RACK_CD
+			,ST
+			,ORD_TYPE
+			,C.CD_NM AS ST_NM
+			,DATE_FORMAT( A.EXPR_DATE, '%Y-%m-%d %H:%i:%s') AS EXPR_DATE
+			,DATE_FORMAT( PROD_YMD, '%Y%m%d') AS PROD_YMD
+			,A.REG_EMP_ID
+			,DATE_FORMAT( A.REG_DTIME, '%Y-%m-%d %H:%i:%s') AS REG_DTIME
+			,A.FLAG
+			,A.ERR_MSG
+			,A.USE_YN
+			,'I' AS ROW_TYPE
+		FROM TB_WMS_WAREI_C_TEMP A
+			LEFT OUTER JOIN TB_WMS_ITEM_MGMT_C D ON (A.CUST_CD = D.SHIPPER_ID AND A.GDS_CD = D.ITEM_CD)
+			, TB_BAIM_ENTER_CUST_C B
+			,(SELECT A.CD_TCD 
+		            ,A.CD
+		            ,A.CD_NM
+		            ,A.CD_DESC
+		            ,B.CD_ORDB
+		            ,A.DEL_YN 
+		            ,IF(A.DEL_YN = 'N','사용','미사용') AS DEL_YN_NM 
+		    FROM TMDM_MC_CODE_B A ,TMDM_MC_CODE_M B 
+		    WHERE A.CD_TCD = B.CD_TCD 
+		    AND A.CD = B.CD
+		    AND A.CD_TCD IN('ST102') 
+		    ORDER BY B.CD_ORDB) C
+		WHERE ST = IFNULL(#ST#, '0')
+		AND A.CUST_CD = B.CUST_ID
+		AND A.ST = C.CD
+		AND WAREI_EXPCT_YMD BETWEEN #FROM_DATE# AND #TO_DATE#
+		AND A.USE_YN = 'Y'
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+	        AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+	        </isNotEqual>
+        </isNotEqual>
+		<isNotEmpty property="WAREH_CD">
+		AND CENT_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_CD">
+		AND CUST_ID = #CUST_CD#
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_CD">
+		AND GDS_CD = #ITEM_CD#
+		</isNotEmpty>
+	</select>
+	
+	<select id="selectWareiExpctNo" resultClass="java.lang.String">
+		/** [sql-whibMgmtService.xml][whibMgmtService.selectWareiExpctNo]
+		 *  [입고 WAREI_EXPCT_NO 신규 생성]
+		 *  [SCY 2020.02.11]
+		 **/
+		 SELECT CONCAT('I', DATE_FORMAT( NOW(), '%Y%m%d'),LPAD(IFNULL(MAX(SUBSTR(WAREI_EXPCT_NO,10))+1,1),5,'0')) AS WAREI_EXPCT_NO
+		 FROM TB_WMS_WAREI_C
+		 WHERE 
+		 	1=1
+		 <isNotEmpty property="CENT_CD">
+		 AND CENT_CD = #CENT_CD#
+		 </isNotEmpty>
+		 <isNotEmpty property="WAREH_CD">
+		 AND CENT_CD = #WAREH_CD#
+		 </isNotEmpty>
+		 <!-- AND CUST_CD = #CUST_CD# -->
+	</select>
+	
+	<select id="selectNextLnNo" resultClass="java.lang.String">
+		/** [sql-whibMgmtService.xml][whibMgmtService.selectWareiExpctNo]
+		 *  [입고 LN_NO 신규 생성]
+		 *  [SCY 2020.02.11]
+		 **/
+		 SELECT IFNULL(MAX(LN_NO),0)+1 
+		 FROM 
+		 	TB_WMS_WAREI_C_TEMP B 
+		 WHERE 
+		 	B.REG_EMP_ID = #gv_userId# 
+		 AND B.WAREI_EXPCT_NO = #WAREI_EXPCT_NO#
+	</select>
+	
+	<select id="selectNextLnNoTemp" resultClass="java.lang.String">
+		/** [sql-whibMgmtService.xml][whibMgmtService.selectWareiExpctNo]
+		 *  [입고 LN_NO 신규 생성]
+		 *  [SCY 2020.02.11]
+		 **/
+		 SELECT IFNULL(MAX(LN_NO),0)+1 
+		 FROM 
+		 	TB_WMS_WAREI_C_TEMP B 
+		 WHERE 
+		 	B.REG_EMP_ID = #gv_userId# 
+	</select>
+	
+	<select id="selectStcDvLot" resultClass="java.lang.String">
+		/** [sql-whibMgmtService.xml][whibMgmtService.selectStcDvLot]
+		 *  [재고 LOT 신규 생성]
+		 *  [SCY 2020.02.11]
+		 **/
+		SELECT CONCAT('LOT', DATE_FORMAT( NOW(), '%Y%m%d'),LPAD(IFNULL(MAX(SUBSTR(STC_DV_LOT,12))+1,1),5,'0')) 
+		AS STC_DV_LOT FROM TB_WMS_STC_C
+	</select>
+	<insert id="insertTemp">
+		/** [sql-whibMgmtService.xml][whibMgmtService.insertTemp]
+		 *  [엑셀 temp 저장]
+		 *  [SCY 2020.02.11]
+		 **/
+		INSERT INTO TB_WMS_WAREI_C_TEMP(
+			 CENT_CD
+			,CUST_CD
+			,WAREI_EXPCT_NO
+			,WAREI_EXPCT_YMD
+			,LN_NO
+			,WAREI_TYPE
+			,GDS_CD
+			,EXPCT_QTY
+			,ZN_CD
+			,LOC_CD
+			,RACK_CD
+			,EXPR_DATE
+			,PROD_YMD
+			,ST
+			,ORD_TYPE
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+		) VALUES (
+			#CENT_CD#
+			,#CUST_CD#
+			,IFNULL(#WAREI_EXPCT_NO#, '')
+			,(CASE WHEN IFNULL(#WAREI_EXPCT_YMD#,'') = '' THEN DATE_FORMAT(NOW(),'%Y%m%d') ELSE #WAREI_EXPCT_YMD# END)
+			,IFNULL(#LN_NO#, '')
+			,IFNULL(#WAREI_TYPE#,'I1')
+			,#GDS_CD#
+			,(CASE WHEN #EXPCT_QTY#='' THEN '0' ELSE #EXPCT_QTY# END)
+			,#ZN_CD#
+			,#LOC_CD#
+			,#RACK_CD#
+			,(CASE WHEN IFNULL (#EXPR_DATE#,'')='' THEN NULL ELSE DATE_FORMAT(#EXPR_DATE#, '%Y%m%d') END)
+			,(CASE WHEN IFNULL (#PROD_YMD#,'')='' THEN NULL ELSE DATE_FORMAT(#PROD_YMD#, '%Y%m%d') END)
+			,'0'
+			,IFNULL(#ORD_TYPE#,'BI01')
+			,'Y'
+			,#gv_userId#
+			,NOW()
+		)
+	</insert>	
+	<delete id="resetTemp">
+		/** [sql-whibMgmtService.xml][whibMgmtService.resetTemp]
+		 *  [엑셀 temp 초기화]
+		 *  [SCY 2020.03.07]
+		 **/
+		DELETE FROM TB_WMS_WAREI_C_TEMP
+		WHERE
+			 REG_EMP_ID = #gv_userId#
+	</delete>	
+	<update id="updateTempLast">
+		/** [sql-whibMgmtService.xml][whibMgmtService.updateTempLast]
+		 *  [엑셀 temp FLAG]
+		 *  [SCY 2020.03.07]
+		 **/
+		UPDATE TB_WMS_WAREI_C_TEMP
+		SET	FLAG = #FLAG#
+			,WAREI_EXPCT_NO = #WAREI_EXPCT_NO#
+		WHERE LN_NO = #LN_NO#
+		AND	  REG_EMP_ID = #gv_userId#
+	</update>	
+
+	<delete id="saveAndDeleteTemp">
+		/** [sql-whibMgmtService.xml][whibMgmtService.saveAndDeleteTemp]
+		 *  [입고테이블 저장 후 temp 삭제]
+		 *  [SCY 2020.03.07]
+		 **/
+		DELETE FROM TB_WMS_WAREI_C_TEMP
+		WHERE
+			  FLAG = 'P'
+		AND	  REG_EMP_ID = #gv_userId# 	
+	</delete>
+	<delete id="deleteTemp">
+		/** [sql-whibMgmtService.xml][whibMgmtService.deleteTemp]
+		 *  [입고신규 삭제]
+		 *  [SCY 2020.03.07]
+		 **/
+		DELETE FROM TB_WMS_WAREI_C_TEMP
+		WHERE 
+			CENT_CD = #CENT_CD#
+		AND CUST_CD = #CUST_CD#
+		AND WAREI_EXPCT_YMD = #WAREI_EXPCT_YMD#
+		AND LN_NO = #LN_NO#
+		AND REG_EMP_ID = #REG_EMP_ID#
+	</delete>	
+	<update id="updateFlag">
+		/** [sql-whibMgmtService.xml][whibMgmtService.updateFlag]
+		 *  [Flag 체크]
+		 *  [SCY 2020.03.07]
+		 **/
+		UPDATE TB_WMS_WAREI_C_TEMP
+		SET 
+	 		FLAG = 'P'
+		WHERE REG_EMP_ID = #gv_userId#
+		AND WAREI_EXPCT_NO = #WAREI_EXPCT_NO#
+		AND LN_NO = #LN_NO#
+	</update>
+	<update id="updateCheckWhibOrdItem" >
+      /* [sql-whibMgmtService.xml][whibMgmtService.updateCheckWhibOrdItem]
+           [품목체크]
+           [SCY 2020.03.15]
+      */
+		UPDATE TB_WMS_WAREI_C_TEMP T
+		   SET FLAG = 'F'
+		     , ERR_MSG = '등록되지 않은 품목코드 입니다.'
+		     , WAREI_EXPCT_NO = ''
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND REG_EMP_ID = #gv_userId#
+		   AND FLAG = 'P'
+		   <!-- AND LN_NO = #LN_NO# -->
+		   AND NOT EXISTS (SELECT 1 FROM TB_WMS_ITEM_MGMT_C I WHERE T.GDS_CD = I.ITEM_CD AND T.CUST_CD = I.SHIPPER_ID)
+   </update>
+	<update id="updateCheckWhibExpctQtys" >
+      /* [sql-whibMgmtService.xml][whibMgmtService.updateCheckWhibExpctQtys]
+           [수량체크]
+           [SCY 2020.03.15]
+      */
+		UPDATE TB_WMS_WAREI_C_TEMP T
+		   SET FLAG = 'F'
+		     , ERR_MSG = '수량을 확인해주세요'
+		     , WAREI_EXPCT_NO = ''
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND REG_EMP_ID = #gv_userId#
+		   AND FLAG = 'P'
+		   <!-- AND LN_NO = #LN_NO# -->
+		   AND (EXPCT_QTY <![CDATA[<]]> 1 OR EXPCT_QTY IS NULL)
+   </update>
+	<update id="updateTemp">
+		/** [sql-whibMgmtService.xml][whibMgmtService.updateTemp]
+		 *  [엑셀업로드 데이터 업데이트]
+		 *  [SCY 2020.03.07]
+		 **/
+		UPDATE TB_WMS_WAREI_C_TEMP
+		SET WAREI_EXPCT_YMD = #WAREI_EXPCT_YMD#
+			,WAREI_TYPE =#WAREI_TYPE#
+			,ZN_CD =#ZN_CD#
+			,LOC_CD =#LOC_CD#
+			,RACK_CD =#RACK_CD#
+			,EXPR_DATE =#EXPR_DATE#
+	 		,PROD_YMD =#PROD_YMD#
+	 		,EXPCT_QTY = IFNULL(#EXPCT_QTY#, '0')
+	 		,WAREI_EXPCT_NO = #WAREI_EXPCT_NO#
+	 		,GDS_CD = #GDS_CD#
+		WHERE REG_EMP_ID = #gv_userId#
+		AND LN_NO = #LN_NO#
+	</update>
+	<insert id="insertWareiInfo">
+		/** [sql-whibMgmtService.xml][whibMgmtService.insertWareiInfo]
+		 *  [입고테이블 저장]
+		 *  [SCY 2020.03.07]
+		 **/
+		INSERT INTO TB_WMS_WAREI_C(
+			 CENT_CD
+			,CUST_CD
+			,WAREI_EXPCT_YMD
+			,WAREI_EXPCT_NO
+			,WAREI_TYPE
+			,LN_NO
+			,GDS_CD
+			,EXPCT_QTY
+			,ZN_CD
+			,LOC_CD
+			,RACK_CD
+			,EXPR_DATE
+			,PROD_YMD
+			,ST
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		) SELECT
+			 CENT_CD
+			,CUST_CD
+			,WAREI_EXPCT_YMD
+			,WAREI_EXPCT_NO
+			,WAREI_TYPE  
+			,(@ROWNUM:=@ROWNUM+1)
+			,GDS_CD
+			,EXPCT_QTY
+			,ZN_CD
+			,LOC_CD
+			,RACK_CD
+			,EXPR_DATE
+			,PROD_YMD
+			,'1' AS ST
+			,USE_YN
+			,#gv_userId#
+			,DATE_FORMAT( NOW(), '%Y%m%d')
+			,#gv_userId#
+			,DATE_FORMAT( NOW(), '%Y%m%d')
+		FROM TB_WMS_WAREI_C_TEMP A,  (SELECT @ROWNUM:=0) R
+		WHERE REG_EMP_ID = #gv_userId#
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+	        AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+	        </isNotEqual>
+        </isNotEqual>
+		AND FLAG = 'P'
+	</insert>
+
+	<update id="deleteWareiInfo">
+		/** [sql-whibMgmtService.xml][whibMgmtService.deleteWareiInfo]
+		 *  [입고확정화면 삭제]
+		 *  [SCY 2020.03.08]
+		 **/
+		UPDATE TB_WMS_WAREI_C
+		SET USE_YN = 'N',
+			MODI_EMP_ID = #gv_userId#,
+			MODI_DTIME = NOW()
+		WHERE
+			CENT_CD = #CENT_CD#
+		AND CUST_CD = #CUST_CD#
+		AND WAREI_EXPCT_YMD = #WAREI_EXPCT_YMD#
+		AND WAREI_EXPCT_NO = #WAREI_EXPCT_NO#
+		AND LN_NO = #LN_NO#
+	</update>
+
+	<update id="saveWareiDecis">
+		/** [sql-whibMgmtService.xml][whibMgmtService.saveWareiDecis]
+		 *  [엑셀 삭제]
+		 *  [SCY 2020.03.08]
+		 **/
+		UPDATE TB_WMS_WAREI_C
+		SET ST = '1',
+			MODI_EMP_ID = #gv_userId#,
+			MODI_DTIME = NOW()
+		WHERE
+			CENT_CD = #CENT_CD#
+		AND CUST_CD = #CUST_CD#
+		AND WAREI_EXPCT_YMD = #WAREI_EXPCT_YMD#
+		AND WAREI_EXPCT_NO = #WAREI_EXPCT_NO#
+	</update>	
+	
+	<select id="getWhibDecisMgmt" resultClass="java.util.HashMap">
+		/** [sql-whibMgmtService.xml][whibMgmtService.getWhibDecisMgmt]
+		 *  [입고확정 리스트 조회]
+		 *  [SCY 2020.02.11]
+		 **/
+		SELECT
+			 '0' AS CHK
+			,CENT_CD
+			,CUST_CD
+			,CUST_NM
+			,IFNULL(WAREI_EXPCT_YMD,'') AS WAREI_EXPCT_YMD
+			<!-- ,(
+		        CASE WHEN D.VDT_FLAG = '01' THEN '' 																						/*미관리*/
+		             WHEN D.VDT_FLAG = '02' THEN DATE_FORMAT(DATE_ADD(A.PROD_YMD, INTERVAL D.WAREI_VDT_PRMT_PERIOD DAY), '%Y-%m-%d')			/*생산일자*/
+		             WHEN D.VDT_FLAG = '03' THEN DATE_FORMAT(DATE_ADD(A.EXPR_DATE, INTERVAL D.WAREI_VDT_PRMT_PERIOD DAY), '%Y-%m-%d')			/*유통기한*/
+		        END
+		      ) AS EFCTV_YMD -->
+		    ,DATE_FORMAT( DATE_ADD(WAREI_EXPCT_YMD, INTERVAL IFNULL(D.WAREI_VDT_PRMT_PERIOD,0) DAY),'%Y%m%d') AS EFCTV_YMD
+		    ,D.VDT_FLAG AS EXPR_DATE_STD  
+			,WAREI_EXPCT_NO
+			,LN_NO
+			,WAREI_TYPE
+			,GDS_CD
+			,D.ITEM_NM AS GDS_NM
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(EXPCT_QTY,0))) AS EXPCT_QTY
+			,CASE
+				WHEN #ST#='1' THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(DECIS_QTY,0)))
+				WHEN #ST#='2' THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(DECIS_QTY,0)))
+		        ELSE 'C'
+			 END AS DECIS_QTY
+			
+			,IFNULL(WAREI_EXPCT_YMD,'') AS DECIS_YMD
+			,ZN_CD
+			,LOC_CD
+			,RACK_CD
+			,ST
+			,A.USE_YN
+			,A.LOT_DV_VAL_1
+			,A.LOT_DV_VAL_2
+			,A.LOT_DV_VAL_3
+			,A.LOT_DV_VAL_4
+			,A.LOT_DV_VAL_5
+			,A.ETC_QTY_1
+			,A.ETC_QTY_2
+			,C.CD_NM AS ST_NM
+			,IFNULL(A.REMARK, '') AS REMARK
+			,DATE_FORMAT( A.EXPR_DATE, '%Y%m%d') AS EXPR_DATE
+			,IFNULL(DATE_FORMAT( A.EXPR_DATE, '%Y%m%d'), '') AS EXPR_YMD
+			,IFNULL(DATE_FORMAT( A.PROD_YMD, '%Y%m%d'), '') AS PROD_YMD
+			,A.REG_EMP_ID
+			,DATE_FORMAT(A.REG_DTIME, '%Y-%m-%d %H:%i:%s') AS REG_DTIME
+			,'' AS STC_DV_LOT
+			,A.RSN_CONT
+			,IFNULL(D.WAREI_VDT_PRMT_PERIOD, 0) AS WAREI_VDT_PRMT_PERIOD
+		FROM TB_WMS_WAREI_C A, TB_BAIM_ENTER_CUST_C B, TB_WMS_ITEM_MGMT_C D
+			,(SELECT A.CD_TCD 
+		            ,A.CD
+		            ,A.CD_NM
+		            ,A.CD_DESC
+		            ,B.CD_ORDB
+		            ,A.DEL_YN 
+		            ,IF(A.DEL_YN = 'N','사용','미사용') AS DEL_YN_NM 
+		    FROM TMDM_MC_CODE_B A ,TMDM_MC_CODE_M B 
+		    WHERE A.CD_TCD = B.CD_TCD 
+		    AND A.CD = B.CD
+		    AND A.CD_TCD IN('ST102') 
+		    ORDER BY B.CD_ORDB) C
+		WHERE ST = #ST#
+		AND A.CUST_CD = B.CUST_ID
+		AND A.CUST_CD = D.SHIPPER_ID
+		AND A.ST = C.CD
+		AND WAREI_EXPCT_YMD BETWEEN #FROM_DATE# AND #TO_DATE#
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+	        AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+	        </isNotEqual>
+        </isNotEqual>
+		AND A.USE_YN = 'Y'
+		AND A.GDS_CD = D.ITEM_CD
+		<isNotEmpty property="WAREH_CD">
+		AND CENT_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_CD">
+		AND CUST_CD = #CUST_CD#
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_CD">
+		AND GDS_CD = #ITEM_CD#
+		</isNotEmpty>
+	</select>
+	
+	
+	<select id="getWhibDecisMgmt_itemBarcodeList" resultClass="java.util.HashMap">
+		/** [sql-whibMgmtService.xml][whibMgmtService.getWhibDecisMgmt_itemBarcodeList]
+		 *  [입고확정 품목바코드 조회]
+		 *  [SCY 2020.08.20]
+		 **/
+		SELECT
+			 '0' AS CHK
+			,TWIBC.SHIPPER_ID
+			,TWIBC.ITEM_CD
+			,TWIBC.ITEM_BARCODE
+		FROM TB_WMS_WAREI_C A, TB_BAIM_ENTER_CUST_C B, TB_WMS_ITEM_MGMT_C D
+			,(SELECT A.CD_TCD 
+		            ,A.CD
+		            ,A.CD_NM
+		            ,A.CD_DESC
+		            ,B.CD_ORDB
+		            ,A.DEL_YN 
+		            ,IF(A.DEL_YN = 'N','사용','미사용') AS DEL_YN_NM 
+		    FROM TMDM_MC_CODE_B A ,TMDM_MC_CODE_M B 
+		    WHERE A.CD_TCD = B.CD_TCD 
+		    AND A.CD = B.CD
+		    AND A.CD_TCD IN('ST102') 
+		    ORDER BY B.CD_ORDB) C
+		    ,TB_WMS_ITEM_BRCD_C TWIBC
+		WHERE ST = #ST#
+		AND A.CUST_CD = B.CUST_ID
+		AND A.CUST_CD = D.SHIPPER_ID
+		AND A.ST = C.CD
+		AND D.SHIPPER_ID = TWIBC.SHIPPER_ID
+		AND D.ITEM_CD = TWIBC.ITEM_CD
+		AND WAREI_EXPCT_YMD BETWEEN #FROM_DATE# AND #TO_DATE#
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+	        AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+	        </isNotEqual>
+        </isNotEqual>
+		AND A.USE_YN = 'Y'
+		AND A.GDS_CD = D.ITEM_CD
+		<isNotEmpty property="WAREH_CD">
+		AND CENT_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_CD">
+		AND CUST_CD = #CUST_CD#
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_CD">
+		AND GDS_CD = #ITEM_CD#
+		</isNotEmpty>
+	</select>
+	
+	<update id="saveStcDecis">
+		/** [sql-whibMgmtService.xml][whibMgmtService.saveStcDecis]
+		 *    [입고확정 확정]
+		 *    [SCY 2020.03.09]
+		**/
+		UPDATE TB_WMS_WAREI_C
+		SET ST = '2',
+			ZN_CD = #ZN_CD#,
+			LOC_CD = #LOC_CD#,
+			RACK_CD = #RACK_CD#,
+			DECIS_QTY = #DECIS_QTY#,
+			DECIS_YMD = DATE_FORMAT( #DECIS_YMD#, '%Y%m%d'),
+			WAREI_EXPCT_YMD = DATE_FORMAT( #WAREI_EXPCT_YMD#, '%Y%m%d'),
+			REMARK = #REMARK#,
+			RSN_CD = '',
+			RSN_CONT = '',
+			MODI_EMP_ID = #gv_userId#,
+			MODI_DTIME = NOW()
+		WHERE
+			CENT_CD = #CENT_CD#
+		AND CUST_CD = #CUST_CD#
+		AND WAREI_EXPCT_YMD = #WAREI_EXPCT_YMD#
+		AND WAREI_EXPCT_NO = #WAREI_EXPCT_NO#
+		AND LN_NO = #LN_NO#
+	</update>	
+	
+	<update id="updateWhibErr">
+		/** [sql-whibMgmtService.xml][whibMgmtService.updateWhibErr]
+		 *  [입고 확정 에러처리]
+		 *  [KJH 2020.07.08]
+		**/
+		UPDATE TB_WMS_WAREI_C
+		SET 
+			RSN_CONT = #RSN_CONT#,
+			MODI_EMP_ID = #gv_userId#,
+			MODI_DTIME = NOW()
+		WHERE
+			CENT_CD = #CENT_CD#
+		AND CUST_CD = #CUST_CD#
+		AND WAREI_EXPCT_YMD = #WAREI_EXPCT_YMD#
+		AND WAREI_EXPCT_NO = #WAREI_EXPCT_NO#
+		AND LN_NO = #LN_NO#
+	</update>
+	
+	<update id="cancelWarei">
+		/**-[sql-whibMgmtService.xml][whibMgmtService.cancelWarei]
+		  *   [입고취소]
+		  *   [SCY 2020.03.09]
+		 **/
+		UPDATE TB_WMS_WAREI_C
+		SET USE_YN = 'N',
+			MODI_EMP_ID = #gv_userId#,
+			MODI_DTIME = NOW()
+		WHERE
+			CENT_CD = #CENT_CD#
+		AND CUST_CD = #CUST_CD#
+		AND WAREI_EXPCT_YMD = #WAREI_EXPCT_YMD#
+		AND WAREI_EXPCT_NO = #WAREI_EXPCT_NO#
+		AND LN_NO = #LN_NO#
+	</update>		
+
+	<insert id="insertStcDecisT1_T9">
+		/** [sql-whibMgmtService.xml][whibMgmtService.insertStcDecisT1_T9]
+		  *   [재고 일반입고/가용재고 신규]
+		  *  [SCY 2020.03.09]
+		 **/
+		INSERT INTO TB_WMS_STC_C(
+			 CENT_CD
+			,CUST_CD
+			,GDS_CD
+			,STC_DV_LOT
+			,ZN_CD
+			,LOC_CD
+			,RACK_CD
+			,STC_TYPE
+			,STC_QTY		<!--재고수량 -->
+			,USBL_STC		<!--가용재고 -->
+			,ALLOC_QTY		<!--할당수량 -->
+			,PICKING_QTY	<!--피킹수량 -->
+			,HOLDING_QTY	<!--홀딩수량 -->
+			,CRECT_QTY		<!--보정수량 -->
+			,WAREO_RSRV
+			,EXPR_DATE
+			,WAREI_YMD
+			,NO_USE_STC_QTY	<!--불용재고 -->
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		) VALUES (
+			 #CENT_CD#
+			,#CUST_CD#
+			,#GDS_CD#
+			,#STC_DV_LOT#
+			,#ZN_CD#
+			,#LOC_CD#
+			,#RACK_CD#
+			,#WAREI_TYPE#
+			,#DECIS_QTY#		<!--재고수량 -->
+			,#DECIS_QTY#		<!--가용재고 -->
+			,'0'				<!--할당수량 -->
+			,'0'				<!--피킹수량 -->
+			,'0'				<!--홀딩수량 -->
+			,'0'				<!--보정수량 -->
+			,'0'
+			,#EXPR_DATE#
+			,#DECIS_YMD#
+			,'0'				<!--불용재고 -->
+		    ,#gv_userId#
+		    ,NOW()
+		    ,#gv_userId#
+		    ,NOW()
+		)
+	</insert>	
+
+	<insert id="insertStcDecisT5_T10">
+		/** [sql-whibMgmtService.xml][whibMgmtService.insertStcDecisT5_T10]
+		  *   [재고 반품입고 신규]
+		  *  [SCY 2020.03.09]
+		 **/
+		INSERT INTO TB_WMS_STC_C(
+			 CENT_CD
+			,CUST_CD
+			,GDS_CD
+			,STC_DV_LOT
+			,ZN_CD
+			,LOC_CD
+			,RACK_CD
+			,STC_TYPE
+			,STC_QTY		<!--재고수량 -->
+			,USBL_STC		<!--가용재고 -->
+			,ALLOC_QTY		<!--할당수량 -->
+			,PICKING_QTY	<!--피킹수량 -->
+			,HOLDING_QTY	<!--홀딩수량 -->
+			,CRECT_QTY		<!--보정수량 -->
+			,WAREO_RSRV
+			,EXPR_DATE
+			,WAREI_YMD
+			,NO_USE_STC_QTY	<!--불용재고 -->
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		) VALUES (
+			 #CENT_CD#
+			,#CUST_CD#
+			,#GDS_CD#
+			,#STC_DV_LOT#
+			,#ZN_CD#
+			,#LOC_CD#
+			,#RACK_CD#
+			,#WAREI_TYPE#
+			,#DECIS_QTY#		<!--재고수량 -->
+			,'0'				<!--가용재고 -->
+			,'0'				<!--할당수량 -->
+			,'0'				<!--피킹수량 -->
+			,#DECIS_QTY#		<!--홀딩수량 -->
+			,'0'				<!--보정수량 -->
+			,'0'
+			,#EXPR_DATE#
+			,#DECIS_YMD#
+			,'0'				<!--불용재고 -->
+		    ,#gv_userId#
+		    ,NOW()
+		    ,#gv_userId#
+		    ,NOW()
+		)
+	</insert>	
+
+	<insert id="insertStcDecisT11">
+		/** [sql-whibMgmtService.xml][whibMgmtService.insertStcDecisT11]
+		  *   [재고 이송입고 이동보류 신규]
+		  *  [SCY 2020.03.09]
+		 **/
+		INSERT INTO TB_WMS_STC_C(
+			 CENT_CD
+			,CUST_CD
+			,GDS_CD
+			,STC_DV_LOT
+			,ZN_CD
+			,LOC_CD
+			,RACK_CD
+			,STC_TYPE
+			,STC_QTY		<!--재고수량 -->
+			,USBL_STC		<!--가용재고 -->
+			,ALLOC_QTY		<!--할당수량 -->
+			,PICKING_QTY	<!--피킹수량 -->
+			,HOLDING_QTY	<!--홀딩수량 -->
+			,CRECT_QTY		<!--보정수량 -->
+			,WAREO_RSRV
+			,EXPR_DATE
+			,WAREI_YMD
+			,NO_USE_STC_QTY	<!--불용재고 -->
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		) VALUES (
+			 #CENT_CD#
+			,#CUST_CD#
+			,#GDS_CD#
+			,#STC_DV_LOT#
+			,#ZN_CD#
+			,#LOC_CD#
+			,#RACK_CD#
+			,#WAREI_TYPE#
+			,#DECIS_QTY#		<!--재고수량 -->
+			,'0'				<!--가용재고 -->
+			,'0'				<!--할당수량 -->
+			,'0'				<!--피킹수량 -->
+			,'0'				<!--홀딩수량 -->
+			,'0'				<!--보정수량 -->
+			,'0'
+			,#EXPR_DATE#
+			,#DECIS_YMD#
+			,#DECIS_QTY#		<!--불용재고 -->
+		    ,#gv_userId#
+		    ,NOW()
+		    ,#gv_userId#
+		    ,NOW()
+		)
+	</insert>
+
+	<insert id="insertWhibHistory">
+		/** [sql-whibMgmtService.xml][whibMgmtService.insertWhibHistory]
+		  *   [입고히스토리]
+		  *   [SCY 2020.03.09]
+		 **/
+		INSERT INTO TB_WMS_STC_MV_MGMT_C(
+			 SERIAL
+			,OCCR_YMD
+			,TRANSACTION_KEY
+			,CENT_CD
+			,TRANSACTION_TYPE
+			,CUST_CD
+			,GDS_CD
+			,TRANSACTION_QTY
+			,DOC_YMD
+			,DOC_NO
+			,DOC_LN
+			,DOC_ORD_TYPE
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		) VALUES (
+			 (SELECT (COUNT(1) + 1) FROM TB_WMS_STC_MV_MGMT_C B)
+			,DATE_FORMAT( NOW(), '%Y%m%d')
+			,(SELECT (COUNT(1) + 1) FROM TB_WMS_STC_MV_MGMT_C B)
+			,#CENT_CD#
+			,#TRANSACTION_TYPE#
+			,#CUST_CD#
+			,#GDS_CD#
+			,#DECIS_QTY#
+			,#DECIS_YMD#
+			,#WAREI_EXPCT_NO#
+			,#LN_NO#
+			,#ORD_TYPE#
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+	</insert>	
+</sqlMap>

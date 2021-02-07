@@ -1,0 +1,4190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ifeai2-sql">
+
+	<!-- 고객사정보 인터페이스 Temp 조회 -->
+	<select id="IFEAI2_TMDM_IF_BP_CUST_C_SELECT"  resultClass="java.util.HashMap">
+		SELECT INSTANCEID
+		    , EAI_STATE
+		    , PV_KUNNR
+		    , PV_PART_TYPE
+		    , PV_LAND1
+		    , PV_EIKTO
+		    , PV_STATUS
+		    , EAI_OP
+		    , PV_MASTTYPE
+		    , PV_ADDRESS_ZIPCODE
+		    , AESDECRYPT(PV_ADDRESS_ADDR1) AS PV_ADDRESS_ADDR1
+		    , AESDECRYPT(PV_ADDRESS_ADDR1)||AESDECRYPT(PV_ADDRESS_ADDR2) LCL_ADDR
+		    , PV_ADDRESS_GLOBALADDR1||PV_ADDRESS_GLOBALADDR2||PV_ADDRESS_GLOBALADDR3||PV_ADDRESS_GLOBALADDR4 GLBL_ADDR
+ 		  FROM TMDM_IF_BP_CUST_C
+		 WHERE INSTANCEID = #INSTANCEID#	 
+	</select>
+	
+	<!-- 업체 명 체크  조회 -->
+	<select id="IFEAI2_TMDM_IF_BP_CUST_C_NM_SELECT"  resultClass="java.util.HashMap">
+		SELECT INSTANCEID
+		     , PV_KUNNR
+		     , LANG
+		     , PV_PART_NM
+		  FROM TMDM_IF_BP_CUST_C_NM
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND LANG = #LANG_CD#	
+	</select>
+	
+	<!-- 업체 명 공백 체크  조회 -->
+	<select id="IFEAI2_TMDM_IF_BP_CUST_C_NM_EMP_SELECT"  resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS CNT_EMP
+		  FROM TMDM_IF_BP_CUST_C_NM
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND PV_PART_NM IS NULL	
+	</select>		
+	
+	<!-- 언어정보 체크 조회 -->
+	<select id="IFEAI2_TMDM_IF_GS_LANG_SELECT"  resultClass="java.util.HashMap">
+		SELECT LANG_CD
+		  FROM TMDM_GS_LANG
+		 WHERE LANG_CD = #LANG_CD#
+		   AND DEL_YN = 'N'
+	</select>
+	
+	<!-- 고객사정보 입력 -->
+	<!-- MDM 속성 추가 2013.02.26 -->
+	<update id="IFEAI2_TMDM_BP_CUST_MERGE04">
+		MERGE INTO TMDM_BP_CUST A
+		USING ( SELECT NVL(PV_PART_TYPE,'X') AS PV_PART_TYPE_BK,
+		               'AR' AS PV_PART_TYPE, '' PV_AIRLINE_CLS,
+					   PV_KUNNR, PV_STCD2, PV_J_1KFREPRE, PV_J_1KFTIND, 
+		               PV_J_1KFTBUS, '' PV_CARR_SIGN, PV_LAND1, PV_CITY, 
+		               PV_TELF1, PV_TELFX, PV_SMTP_ADDR, PV_SORT1, 'CUST' RCP_TCD,
+		               'Y' PV_FORBID, PV_REPREPART_ID, '' CORP_ID, '' LABOR_UNION_POSITION_CD,
+		               PV_STCD1, DECODE(NVL(PV_KTOKD,'X'),'1100','P','C') OBJ_TCD, PV_BEF_PART_CD, PV_SVC_TYPE, CASE WHEN PV_STATUS = 'BLCK' THEN 'Y' ELSE 'N' END AS DEL_YN,
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME,
+		               PV_GUBUN
+		               , PV_SYSDIV
+		               , PV_APLOFCBIZDIV
+		               , PV_CNVYDLVDIV
+		               , PV_STHDIV
+		               , PV_ALTKN
+		               , PV_PART_NM_LO
+		          FROM TMDM_IF_BP_CUST_C
+		         WHERE INSTANCEID =  #INSTANCEID# ) B
+		   ON (A.CUST_TCD = 'AR'
+		  AND A.CUST_ID = B.PV_KUNNR)
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.BIZREG_NO   = B.PV_STCD2, 
+		             A.PRSNT_NM    = B.PV_J_1KFREPRE, 
+		             A.BIZ_TYP_NM  = B.PV_J_1KFTBUS, 
+		             A.IND_TYP_NM  = B.PV_J_1KFTIND, 
+		             A.CARR_REP_CD = B.PV_CARR_SIGN, 
+		             A.CARR_ID     = B.PV_AIRLINE_CLS, 
+		             A.NATION_CD   = B.PV_LAND1, 
+		             A.CITY_CD     = B.PV_CITY, 
+		             A.TEL_NO      = B.PV_TELF1, 
+		             A.FAX_NO      = B.PV_TELFX, 
+		             A.EMAIL       = B.PV_SMTP_ADDR, 
+		             A.ABBR_NM     = B.PV_SORT1, 
+		             A.RCP_TCD     = B.RCP_TCD,
+		             A.RCP_ID      = B.PV_KUNNR, 
+		             A.USE_YN      = B.PV_FORBID, 
+		             A.REP_CUST    = B.PV_REPREPART_ID, 
+		             A.CORP_ID     = B.CORP_ID, 
+		             A.LABOR_UNION_POSITION_CD = B.LABOR_UNION_POSITION_CD, 
+		             A.JUMIN_NO      = B.PV_STCD1, 
+		             A.OBJ_TCD       = B.OBJ_TCD, 
+		             A.MDM_CUST_TCD  = B.PV_PART_TYPE_BK,
+		             A.BEF_CUST_CD   = B.PV_BEF_PART_CD,
+		             A.SVC_CCD       = B.PV_SVC_TYPE,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME,
+		             A.AIR_SHIP_GBN  = B.PV_GUBUN
+		             , A.SYSDIV = B.PV_SYSDIV
+		             , A.APLOFCBIZDIV = B.PV_APLOFCBIZDIV
+		             , A.CNVYDLVDIV = B.PV_CNVYDLVDIV
+		             , A.STHDIV = B.PV_STHDIV
+		             , A.ALTKN = B.PV_ALTKN
+		             , A.PART_NM_LO = B.PV_PART_NM_LO
+
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.CUST_TCD, A.CUST_ID, A.BIZREG_NO, A.PRSNT_NM, A.BIZ_TYP_NM, 
+		               A.IND_TYP_NM, A.CARR_REP_CD, A.CARR_ID, A.NATION_CD, A.CITY_CD, 
+		               A.TEL_NO, A.FAX_NO, A.EMAIL, A.ABBR_NM, A.RCP_TCD, 
+		               A.RCP_ID, A.USE_YN, A.REP_CUST, A.CORP_ID, A.LABOR_UNION_POSITION_CD, 
+		               A.JUMIN_NO, A.OBJ_TCD, A.MDM_CUST_TCD, A.BEF_CUST_CD, A.SVC_CCD, 
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME, A.AIR_SHIP_GBN
+		               , A.SYSDIV, A.APLOFCBIZDIV, A.CNVYDLVDIV, A.STHDIV, A.ALTKN, A.PART_NM_LO 
+		               )
+		      VALUES ( B.PV_PART_TYPE, B.PV_KUNNR, B.PV_STCD2, B.PV_J_1KFREPRE, B.PV_J_1KFTBUS,
+		               B.PV_J_1KFTIND, B.PV_CARR_SIGN, B.PV_AIRLINE_CLS, B.PV_LAND1, B.PV_CITY, 
+		               B.PV_TELF1, B.PV_TELFX, B.PV_SMTP_ADDR, B.PV_SORT1, B.RCP_TCD,
+		               B.PV_KUNNR, B.PV_FORBID, B.PV_REPREPART_ID, CORP_ID, LABOR_UNION_POSITION_CD,
+		               B.PV_STCD1, B.OBJ_TCD, B.PV_PART_TYPE_BK, B.PV_BEF_PART_CD, B.PV_SVC_TYPE,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME, B.PV_GUBUN
+		               , B.PV_SYSDIV, B.PV_APLOFCBIZDIV, B.PV_CNVYDLVDIV, B.PV_STHDIV, B.PV_ALTKN, B.PV_PART_NM_LO
+		               )
+	</update>
+	
+	<!-- 고객사 업체명  입력 -->
+	<update id="IFEAI2_TMDM_BP_NAME_MERGE04">
+		MERGE INTO TMDM_BP_NAME_IF A
+		USING ( SELECT #RCP_TCD# RCP_TCD, PV_KUNNR, LANG, 'N001' NM_TCD, PV_PART_NM,
+		               'N' DEL_YN,
+		               'INTERFACE' INS_ID, 
+		               TO_CHAR(SYSDATE,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(SYSDATE,'HH24MISS') INS_TIME,
+		               '' UPD_ID, 
+		               '' UPD_DATE, 
+		               '' UPD_TIME
+		          FROM TMDM_IF_BP_CUST_C_NM
+		         WHERE INSTANCEID =  #INSTANCEID#) B
+		   ON (A.RCP_TCD = #RCP_TCD#
+		  AND A.RCP_ID = B.PV_KUNNR
+		  AND A.LANG_CD = B.LANG)
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET 
+		             A.RCP_2ND_ID = B.PV_KUNNR,
+		             A.NM_TCD     = B.NM_TCD,
+		             A.NM         = B.PV_PART_NM,
+		             A.DEL_YN     = B.DEL_YN, 
+		             A.MOD_ID 	  = B.UPD_ID, 
+		             A.MOD_DT      = B.UPD_DATE || B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD, A.RCP_ID, A.RCP_2ND_ID, A.NM_TCD, A.LANG_CD, A.NM, 
+		               A.DEL_YN, A.REG_ID, A.REG_DT)
+		      VALUES ( B.RCP_TCD, B.PV_KUNNR, B.PV_KUNNR, B.NM_TCD, B.LANG, B.PV_PART_NM,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE || B.INS_TIME )
+	</update>
+	
+	<!-- 업체 LOC 주소  입력 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_LOC_MERGE04">
+		MERGE INTO TMDM_BP_ADDR_IF A
+		USING ( SELECT #RCP_TCD# RCP_TCD, PV_KUNNR, 'A001' ADDR_TCD, 'KO' LANG_CD, 
+		               PV_ADDRESS_ZIPCODE, '' NATION_NM, '' STATE_NM, PV_CITY, RTRIM(AESDECRYPT(PV_ADDRESS_ADDR1)) PV_ADDRESS_ADDR1,
+		               RTRIM(AESDECRYPT(PV_ADDRESS_ADDR2)) PV_ADDRESS_ADDR2, 'N' DEL_YN,
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               SUBSTR(CREATIONDTIME, 0, 8) INS_DATE, 
+		               SUBSTR(CREATIONDTIME, 9, 6) INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME
+		          FROM TMDM_IF_BP_CUST_C
+		         WHERE INSTANCEID =  #INSTANCEID# ) B
+		   ON (A.RCP_TCD = #RCP_TCD#
+		  AND A.RCP_ID = B.PV_KUNNR
+		  AND A.RCP_2ND_ID = B.PV_KUNNR 
+		  AND A.ADDR_TCD = B.ADDR_TCD
+		  AND A.LANG_CD = 'KO')          <!-- /* #LANG_CD# */  -->   
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ZIP           = B.PV_ADDRESS_ZIPCODE, 
+		             A.NATION_NM     = B.NATION_NM, 
+		             A.STATE_NM      = B.STATE_NM, 
+		             A.CITY_NM       = B.PV_CITY, 
+		             A.DETL_ADDR_1   = AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR1)), 
+		             A.DETL_ADDR_2   = AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR2)), 
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.MOD_ID        = B.UPD_ID, 
+		             A.MOD_DT        = B.UPD_DATE || B.UPD_TIME, 
+		             A.NEW_DETL_ADDR_1  = AESENCRYPT(TRIM(#O_NEW_ADDR1#)),
+		             A.NEW_DETL_ADDR_2  = AESENCRYPT(TRIM(#O_NEW_ADDR2#))
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD, A.RCP_ID, A.RCP_2ND_ID, A.ADDR_TCD, A.LANG_CD, 
+		               A.ZIP, A.NATION_NM, A.STATE_NM, A.CITY_NM, A.DETL_ADDR_1, 
+		               A.DETL_ADDR_2,
+		               A.DEL_YN, A.REG_ID, A.REG_DT, A.NEW_DETL_ADDR_1, A.NEW_DETL_ADDR_2 )
+		      VALUES ( B.RCP_TCD, B.PV_KUNNR, B.PV_KUNNR, B.ADDR_TCD, B.LANG_CD,
+		               B.PV_ADDRESS_ZIPCODE, B.NATION_NM, B.STATE_NM, B.PV_CITY, AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR1)),
+		               AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR2)),
+		               B.DEL_YN, B.INS_ID, B.INS_DATE || B.INS_TIME, 
+		               AESENCRYPT(TRIM(#O_NEW_ADDR1#)), 
+		               AESENCRYPT(TRIM(#O_NEW_ADDR2#)) )
+	</update>
+	
+	<!-- 업체 EN 주소  입력 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_EN_MERGE04">
+		MERGE INTO TMDM_BP_ADDR A
+		USING ( SELECT #RCP_TCD# RCP_TCD, PV_KUNNR, 'A001' ADDR_TCD, 'EN' LANG_CD,
+		               PV_ADDRESS_ZIPCODE, '' NATION_NM, '' STATE_NM, PV_CITY, RTRIM(PV_ADDRESS_GLOBALADDR1) PV_ADDRESS_GLOBALADDR1,
+		               RTRIM(PV_ADDRESS_GLOBALADDR2) PV_ADDRESS_GLOBALADDR2, RTRIM(PV_ADDRESS_GLOBALADDR3) PV_ADDRESS_GLOBALADDR3, RTRIM(PV_ADDRESS_GLOBALADDR4) PV_ADDRESS_GLOBALADDR4, 'N' DEL_YN,
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+		          FROM TMDM_IF_BP_CUST_C
+		         WHERE INSTANCEID =  #INSTANCEID# ) B
+		   ON (A.RCP_TCD = #RCP_TCD#
+		  AND A.RCP_ID  = B.PV_KUNNR
+		  AND A.LANG_CD = 'EN')
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ZIP           = B.PV_ADDRESS_ZIPCODE, 
+		             A.NATION_NM     = B.NATION_NM, 
+		             A.STATE_NM      = B.STATE_NM, 
+		             A.CITY_NM       = B.PV_CITY, 
+		             A.DETL_ADDR_1   = B.PV_ADDRESS_GLOBALADDR1, 
+		             A.DETL_ADDR_2   = B.PV_ADDRESS_GLOBALADDR2, 
+		             A.DETL_ADDR_3   = B.PV_ADDRESS_GLOBALADDR3,
+		             A.DETL_ADDR_4   = B.PV_ADDRESS_GLOBALADDR4,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD, A.RCP_ID, A.RCP_2ND_ID, A.ADDR_TCD, A.LANG_CD, 
+		               A.ZIP, A.NATION_NM, A.STATE_NM, A.CITY_NM, A.DETL_ADDR_1, 
+		               A.DETL_ADDR_2, A.DETL_ADDR_3, A.DETL_ADDR_4,
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.RCP_TCD, B.PV_KUNNR, B.PV_KUNNR, B.ADDR_TCD, B.LANG_CD,
+		               B.PV_ADDRESS_ZIPCODE, B.NATION_NM, B.STATE_NM, B.PV_CITY, B.PV_ADDRESS_GLOBALADDR1,
+		               B.PV_ADDRESS_GLOBALADDR2, B.PV_ADDRESS_GLOBALADDR3, PV_ADDRESS_GLOBALADDR4,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+	
+	<!-- 담당자 아이디 SEQ 조회 -->
+	<select id="ATTN_ID_CONT_SEQ" resultClass="java.lang.Integer">
+    	SELECT SEQ_MDM_CONT_NO.NEXTVAL FROM DUAL
+    </select>
+
+	<!-- 담당자 사원정보 조회 -->
+	<select id="IFEAI2_ATTN_ID_SELECT"  resultClass="java.util.HashMap">
+	      SELECT USER_ID ATTN_ID, USER_NM 
+            FROM TADM_USER_IF
+           WHERE USER_ID = #PV_ATTN_ID#
+	</select>
+	
+	<!-- 담당자 사원 기존데이터 비교 조회 -->
+	<select id="IFEAI2_BE_ATTN_ID_SELECT"  resultClass="java.lang.Integer">
+	      SELECT COUNT(*)
+            FROM TMDM_BP_CPCT_MPG
+           WHERE RCP_TCD = #RCP_TCD#
+             AND RCP_ID  = #PV_KUNNR#
+             AND ATTN_ID != NVL(#PV_ATTN_ID#, '0')
+             AND ATTN_TCD = 'SA'
+             AND DEL_YN   = 'N'
+	</select>
+	
+	<!--기존 담당자 삭제  -->	
+	<update id="IFEAI2_BE_ATTN_ID_UPDATE">
+        UPDATE TMDM_BP_CPCT_MPG
+           SET DEL_YN = 'Y'
+         WHERE RCP_TCD = #RCP_TCD#
+           AND RCP_ID  = #PV_KUNNR#
+           AND ATTN_TCD = 'SA'
+	</update>	
+	
+	<!-- 고객사정보 담당자 아이디  인터페이스 Temp 조회 -->
+	<select id="IFEAI2_TMDM_IF_BP_TMDM_BP_CUST_C_ATTN_ID_SELECT"  resultClass="java.util.HashMap">
+		  SELECT MAX(A.ATTN_ID) ATTN_ID
+			FROM TMDM_BP_CONT A,
+			     TMDM_IF_BP_CUST_C B
+		   WHERE A.ATTN_ID = B.PV_REPRE_NM		
+			 AND B.INSTANCEID = #INSTANCEID#			  
+	</select>	
+	
+	
+	<!-- 담당자  입력 -->
+	<update id="IFEAI2_TMDM_BP_CONT_MERGE04">
+		MERGE INTO TMDM_BP_CONT A
+		USING ( SELECT X.PV_EIKTO ATTN_ID,
+		               NVL(X.PV_ZSABE, 'NONE') PV_REPRE_NM,   
+		               Y.EMAIL, Y.TEL_NO, Y.FAX_NO, Y.HP_NO,
+		               'TEL' CONT_TCD, 'KO' LANG_CD, 'Y' USE_YN, 'N' DEL_YN,  
+		               X.LASTMODIFICATIONUSRID INS_ID, 
+		               SUBSTR(X.CREATIONDTIME, 0, 8) INS_DATE, 
+		               SUBSTR(X.CREATIONDTIME, 9, 6) INS_TIME,
+		               X.LASTMODIFICATIONUSRID UPD_ID, 
+		               SUBSTR(X.LASTMODIFICATIONDTIME, 0, 8) UPD_DATE, 
+		               SUBSTR(X.LASTMODIFICATIONDTIME, 9 ,6) UPD_TIME
+		          FROM TMDM_IF_BP_CUST_C X, TADM_USER_IF Y
+		         WHERE X.INSTANCEID =  #INSTANCEID# 
+		           AND X.PV_EIKTO = Y.USER_ID ) B
+		   ON (A.ATTN_ID = B.ATTN_ID) 
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ATTN_NM = B.PV_REPRE_NM,
+		             A.TEL_NO  = B.TEL_NO,
+		             A.EMAIL   = B.EMAIL,
+		             A.FAX_NO  = B.FAX_NO, 
+		             A.HP_NO   = B.HP_NO, 
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME 
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.ATTN_ID, A.ATTN_LNM, A.ATTN_NM, A.ATTN_ENG_NM, A.ATTN_ENG_LNM, 
+		               A.TITLE, A.EMAIL, A.TEL_NO, A.FAX_NO, A.HP_NO, 
+		               A.CONT_TCD, A.LANG_CD, A.USE_YN, 
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.ATTN_ID, '', B.PV_REPRE_NM, '', '',
+		               '', B.EMAIL, B.TEL_NO, B.FAX_NO, B.HP_NO,
+		               B.CONT_TCD, B.LANG_CD, B.USE_YN,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME ) 
+	</update>	
+	
+	<!-- 업체 담당자 Mapping 입력 -->
+	<update id="IFEAI2_TMDM_BP_CPCT_MPG_MERGE04">	
+	    MERGE INTO TMDM_BP_CPCT_MPG A
+		USING ( SELECT CAST(#RCP_TCD# AS VARCHAR(4)) RCP_TCD, NVL(PV_EIKTO, '.') AS ATTN_ID, PV_KUNNR, 'SA' ATTN_TCD, 'N' DEL_YN,
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               SUBSTR(CREATIONDTIME, 0, 8) INS_DATE, 
+		               SUBSTR(CREATIONDTIME, 9, 6) INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME
+		          FROM TMDM_IF_BP_CUST_C
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON (A.RCP_TCD  = B.RCP_TCD
+		  AND A.RCP_ID   = B.PV_KUNNR
+		  AND A.ATTN_ID  = B.ATTN_ID
+		  AND A.ATTN_TCD = B.ATTN_TCD)
+		 WHEN MATCHED THEN
+		      UPDATE
+		      	 SET A.DEL_YN        = B.DEL_YN,
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD, A.RCP_ID, A.ATTN_ID, A.ATTN_TCD, 
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME)
+		      VALUES ( B.RCP_TCD, B.PV_KUNNR, B.ATTN_ID, B.ATTN_TCD,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME) 		               
+	</update>	
+	
+	<!-- 화주 정보 입력 -->
+	<update id="IFEAI2_TMDM_BP_SHPR_MERGE04">
+	<!-- MDM 속성 추가 2013.02.26 -->
+		MERGE INTO TMDM_BP_SHPR_IF A
+		USING ( SELECT PV_KUNNR, '05' SHPR_TCD, PV_SORT1, PV_J_1KFREPRE, PV_REPREPART_ID,
+		               NVL(PV_SUP_PART_CD, '9999') PV_SUP_PART_CD, PV_STCD2, PV_TELF1, PV_TELFX, PV_SMTP_ADDR,
+		               PV_LAND1, '' STATE_CD, PV_CITY, 'Y' PV_FORBID, PV_BEF_PART_CD,
+		               PV_ORG_CD, PV_SVC_TYPE, CASE WHEN PV_STATUS = 'BLCK' THEN 'Y' ELSE 'N' END AS DEL_YN,
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               SUBSTR(CREATIONDTIME, 0, 8) INS_DATE, 
+		               SUBSTR(CREATIONDTIME, 9, 6) INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME,
+		               DECODE(NVL(PV_KTOKD,'X'),'1100','P','C') OBJ_TCD,
+		               PV_GUBUN, PV_BRAN1, PV_KTOKD, PV_PART_TYPE
+		               , PV_SYSDIV
+		               , PV_APLOFCBIZDIV
+		               , PV_CNVYDLVDIV
+		               , PV_STHDIV
+		               , PV_ALTKN
+		               , PV_FITYP, PV_ZTERM_C, PV_BEF_SAP_CD, PV_STCDT, PV_DEPT_CD
+		               , PV_REPRE_MTRL_MGMT
+		               , PV_CNTRATTR
+		               , PV_CNTRDOCTYPE
+		               , PV_CUSTSECT
+		               , SUBSTR(PV_CNTRSTDT, 0, 8) AS PV_CNTRSTDT
+		               , SUBSTR(PV_CNTRXPRDT, 0, 8) AS PV_CNTRXPRDT
+		          FROM TMDM_IF_BP_CUST_C
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON (A.SHPR_ID = B.PV_KUNNR)
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ABBR_NM       = B.PV_SORT1, 
+		             A.PRSNT_NM      = B.PV_J_1KFREPRE, 
+		             A.REP_COMP_ID   = B.PV_REPREPART_ID, 
+		             A.PRNT_SHPR_ID  = B.PV_SUP_PART_CD, 
+		             A.BIZREG_NO     = B.PV_STCD2, 
+		             A.TEL_NO        = B.PV_TELF1, 
+		             A.FAX_NO        = B.PV_TELFX, 
+		             A.EMAIL         = B.PV_SMTP_ADDR, 
+		             A.NATION_CD     = B.PV_LAND1, 
+		             A.STATE_CD      = B.STATE_CD, 
+		             A.CITY_CD       = B.PV_CITY, 
+		             A.USE_YN        = B.PV_FORBID,
+		             A.BEF_CUST_CD   = B.PV_BEF_PART_CD,
+		             A.LNK_CORP_ID   = B.PV_ORG_CD,
+		             A.SVC_CCD       = B.PV_SVC_TYPE,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.MOD_ID 		 = B.UPD_ID, 
+		             A.MOD_DT      	 = B.UPD_DATE || B.UPD_TIME, 
+		             A.OBJ_TCD       = B.OBJ_TCD,
+		             A.AIR_SHIP_GBN  = B.PV_GUBUN,
+		             A.BRAN1         = B.PV_BRAN1,
+		             A.KTOKD         = B.PV_KTOKD,
+		             A.PART_TYPE     = B.PV_PART_TYPE
+		             , A.SYSDIV = B.PV_SYSDIV
+		             , A.APLOFCBIZDIV = B.PV_APLOFCBIZDIV
+		             , A.CNVYDLVDIV = B.PV_CNVYDLVDIV
+		             , A.STHDIV = B.PV_STHDIV
+		             , A.ALTKN = B.PV_ALTKN
+		             , A.FITYP = B.PV_FITYP
+		             , A.ZTERM_C = B.PV_ZTERM_C
+		             , A.BEF_SAP_CD = B.PV_BEF_SAP_CD
+		             , A.STCDT = B.PV_STCDT
+		             , A.DEPT_CD = B.PV_DEPT_CD
+		             , A.REPRE_MTRL_MGMT = B.PV_REPRE_MTRL_MGMT
+		             , A.CNTRATTR = B.PV_CNTRATTR
+		             , A.CNTRDOCTYPE = B.PV_CNTRDOCTYPE
+		             , A.CUSTSECT = B.PV_CUSTSECT
+		             , A.CNTRSTDT = B.PV_CNTRSTDT
+					 , A.CNTRXPRDT = B.PV_CNTRXPRDT		             
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.SHPR_ID, A.SHPR_TCD, A.ABBR_NM, A.PRSNT_NM, A.REP_COMP_ID, 
+		               A.PRNT_SHPR_ID, A.BIZREG_NO, A.TEL_NO, A.FAX_NO, A.EMAIL, 
+		               A.NATION_CD, A.STATE_CD, A.CITY_CD, A.USE_YN, A.BEF_CUST_CD, 
+		               A.LNK_CORP_ID, A.SVC_CCD, A.DEL_YN, A.REG_ID, A.REG_DT, 
+		               A.OBJ_TCD, A.AIR_SHIP_GBN, A.BRAN1, A.KTOKD, A.PART_TYPE
+		               , A.SYSDIV, A.APLOFCBIZDIV, A.CNVYDLVDIV, A.STHDIV, A.ALTKN
+		               , A.FITYP, A.ZTERM_C, A.BEF_SAP_CD, A.STCDT, A.DEPT_CD
+		               , A.REPRE_MTRL_MGMT
+		               ,A.CNTRSTDT, A.CNTRXPRDT, A.CNTRATTR, A.CNTRDOCTYPE, A.CUSTSECT
+		             )
+		      VALUES ( B.PV_KUNNR, B.SHPR_TCD, B.PV_SORT1, B.PV_J_1KFREPRE, B.PV_REPREPART_ID,
+		               B.PV_SUP_PART_CD, B.PV_STCD2, B.PV_TELF1, B.PV_TELFX, B.PV_SMTP_ADDR,
+		               B.PV_LAND1, B.STATE_CD, B.PV_CITY, B.PV_FORBID, B.PV_BEF_PART_CD,
+		               B.PV_ORG_CD, B.PV_SVC_TYPE, B.DEL_YN, B.INS_ID, B.INS_DATE || B.INS_TIME, 
+		               B.OBJ_TCD, B.PV_GUBUN, B.PV_BRAN1, B.PV_KTOKD, B.PV_PART_TYPE
+		               , B.PV_SYSDIV, B.PV_APLOFCBIZDIV, B.PV_CNVYDLVDIV, B.PV_STHDIV, B.PV_ALTKN
+		               , B.PV_FITYP, B.PV_ZTERM_C, B.PV_BEF_SAP_CD, B.PV_STCDT, B.PV_DEPT_CD
+		               , B.PV_REPRE_MTRL_MGMT
+		               , B.PV_CNTRSTDT, B.PV_CNTRXPRDT, B.PV_CNTRATTR, B.PV_CNTRDOCTYPE, B.PV_CUSTSECT
+		              )
+	</update>
+	
+	<!-- 화물정보망 화주 정보 입력 -->
+	<update id="IFEAI2_TMDM_KFR_BP_SHPR_UPDATE04">
+	<!-- 화물정보망 화주 정보 입력 -->
+		UPDATE TMDM_KFR_BP_SHPR
+			SET SHPR_LOCAL_NM = (SELECT PV_SORT1 FROM TMDM_IF_BP_CUST_C WHERE INSTANCEID = #INSTANCEID#)
+				, SHPR_NM = (SELECT PV_SORT1 FROM TMDM_IF_BP_CUST_C WHERE INSTANCEID = #INSTANCEID#)
+				, PRSNT_NM = (SELECT PV_J_1KFREPRE FROM TMDM_IF_BP_CUST_C WHERE INSTANCEID = #INSTANCEID#)
+				, DEL_YN = (SELECT DECODE(PV_STATUS, 'BLCK', 'Y', 'N') FROM TMDM_IF_BP_CUST_C WHERE INSTANCEID = #INSTANCEID#)
+		WHERE MDM_SHPR_ID = (SELECT PV_KUNNR FROM TMDM_IF_BP_CUST_C WHERE INSTANCEID = #INSTANCEID#)
+	</update>
+	
+	<!-- 물류실행사  정보 입력 -->
+	<update id="IFEAI2_TMDM_BP_LSP_MERGE04">
+		MERGE INTO TMDM_BP_LSP A
+		USING ( SELECT PV_KUNNR, NVL(PV_VEND_CLS,'X') PV_VEND_CLS, PV_J_1KFREPRE, '' PV_REPREPART_ID, PV_CARR_CD,
+		               '' PV_AIRLINE_CLS, PV_STCD2, PV_TELF1, PV_TELFX, PV_SMTP_ADDR,
+		               PV_LAND1, '' STATE_CD, '' PV_CITY, '100021' CORP_ID, '' VEN_GBN, 
+		               'Y' PV_FORBID, 'N' DEL_YN,
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME,
+		               PV_FITYP, PV_STCD0, PV_J_1KFTBUS, PV_J_1KFTIND, PV_ZAHLS,
+		               PV_WAERS, PV_BIZ_TYPE, TO_CHAR(PV_ESTB_DT,'YYYYMMDD') PV_ESTB_DT, PV_LICENSE, PV_INSUR_NO,
+		               PV_EMP_NO, PV_BIZ_DIV_LARGE, PV_BIZ_DIV_MED, PV_MAIN_PRDT, PV_ANNR_RETNS,
+		               PV_APRVL_BRCH, PV_CRDT_RAT_AGENCY, TO_CHAR(PV_APRSL_DT,'YYYYMMDD') PV_APRSL_DT, PV_CRDT_GRADE, PV_CSTRT_CAPA,
+		               DECODE(NVL(PV_KTOKD,'X'),'1100','P','C') OBJ_TCD, PV_GUBUN
+		          FROM TMDM_IF_BP_CUST_C
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.LSP_ID = B.PV_KUNNR
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.LSP_TCD       = B.PV_VEND_CLS, 
+		             A.PRSNT_NM      = B.PV_J_1KFREPRE, 
+		             A.REP_COMP_ID   = B.PV_REPREPART_ID, 
+		             A.CARR_REP_CD   = B.PV_CARR_CD,
+		             A.CARR_ID       = B.PV_AIRLINE_CLS, 
+		             A.BIZREG_NO     = B.PV_STCD2,
+		             A.TEL_NO        = B.PV_TELF1, 
+		             A.FAX_NO        = B.PV_TELFX, 
+		             A.EMAIL         = B.PV_SMTP_ADDR, 
+		             A.NATION_CD     = B.PV_LAND1, 
+		             A.STATE_CD      = B.STATE_CD, 
+		             A.CITY_CD       = B.PV_CITY, 
+		             A.CORP_ID       = B.CORP_ID,
+		             A.VEN_GBN       = B.VEN_GBN,
+		             A.USE_YN        = B.PV_FORBID,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME,
+		             A.TAX_TYP       = B.PV_FITYP, 
+		             A.CORP_REG_NO   = B.PV_STCD0, 
+		             A.BIZCOND       = B.PV_J_1KFTBUS, 
+		             A.CAT_BUSI      = B.PV_J_1KFTIND, 
+		             A.GIVE_HOLD     = B.PV_ZAHLS,
+		             A.CURR          = B.PV_WAERS, 
+		             A.BIZREG_CLS    = B.PV_BIZ_TYPE, 
+		             A.FLTT_DATE     = B.PV_ESTB_DT, 
+		             A.REP_BUSI_CAT_LICE = B.PV_LICENSE, 
+		             A.HIRE_INSR_NO  = B.PV_INSUR_NO,
+		             A.RGLAR_EMP_CNT = B.PV_EMP_NO, 
+		             A.VEN_CLS_BIG   = B.PV_BIZ_DIV_LARGE, 
+		             A.VEN_CLS_MID   = B.PV_BIZ_DIV_MED, 
+		             A.PRY_PRDT      = B.PV_MAIN_PRDT, 
+		             A.YR_AR_AMT     = B.PV_ANNR_RETNS,
+		             A.ACPT_CORP_ID  = B.PV_APRVL_BRCH, 
+		             A.CRDT_VLTN_INST = B.PV_CRDT_RAT_AGENCY, 
+		             A.VLTN_DATE     = B.PV_APRSL_DT, 
+		             A.CRDT_GRD      = B.PV_CRDT_GRADE,
+		             A.CTN_CAPA_VLTN_AMT = B.PV_CSTRT_CAPA,
+		             A.OBJ_TCD       = B.OBJ_TCD,
+		             A.AIR_SHIP_GBN  = B.PV_GUBUN
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.LSP_ID, A.LSP_TCD, A.PRSNT_NM, A.REP_COMP_ID, A.CARR_REP_CD, 
+		               A.CARR_ID, A.BIZREG_NO, A.TEL_NO, A.FAX_NO, A.EMAIL, 
+		               A.NATION_CD, A.STATE_CD, A.CITY_CD, A.CORP_ID, A.VEN_GBN, 
+		               A.USE_YN, A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME,
+		               A.TAX_TYP, A.CORP_REG_NO, A.BIZCOND, A.CAT_BUSI, A.GIVE_HOLD,
+		               A.CURR, A.BIZREG_CLS, A.FLTT_DATE, A.REP_BUSI_CAT_LICE, A.HIRE_INSR_NO, 
+		               A.RGLAR_EMP_CNT, A.VEN_CLS_BIG, A.VEN_CLS_MID, A.PRY_PRDT, A.YR_AR_AMT, 
+		               A.ACPT_CORP_ID, A.CRDT_VLTN_INST, A.VLTN_DATE, A.CRDT_GRD, A.CTN_CAPA_VLTN_AMT,
+		               A.OBJ_TCD, A.AIR_SHIP_GBN )
+		      VALUES ( B.PV_KUNNR, B.PV_VEND_CLS, B.PV_J_1KFREPRE, B.PV_REPREPART_ID, B.PV_CARR_CD,
+		               B.PV_AIRLINE_CLS, B.PV_STCD2, B.PV_TELF1, B.PV_TELFX, B.PV_SMTP_ADDR,
+		               B.PV_LAND1, B.STATE_CD, B.PV_CITY, B.CORP_ID, B.VEN_GBN,
+		               B.PV_FORBID, B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME,
+		               B.PV_FITYP, B.PV_STCD0, B.PV_J_1KFTBUS, B.PV_J_1KFTIND, B.PV_ZAHLS,
+		               B.PV_WAERS, B.PV_BIZ_TYPE, B.PV_ESTB_DT, B.PV_LICENSE, B.PV_INSUR_NO,
+		               B.PV_EMP_NO, B.PV_BIZ_DIV_LARGE, B.PV_BIZ_DIV_MED, B.PV_MAIN_PRDT, B.PV_ANNR_RETNS,
+		               B.PV_APRVL_BRCH, B.PV_CRDT_RAT_AGENCY, B.PV_APRSL_DT, B.PV_CRDT_GRADE, B.PV_CSTRT_CAPA,
+		               B.OBJ_TCD, B.PV_GUBUN )
+	</update>	
+	
+	<!-- 고객 정보 삭제 -->
+	<update id="IFEAI2_TMDM_BP_CUST_UPDATE">
+		UPDATE TMDM_BP_CUST
+		   SET DEL_YN = 'Y'
+		 WHERE CUST_TCD = DECODE(#RCP_TCD#,'CSTS','AR','CSTB','AP')
+		   AND CUST_ID = #PV_KUNNR#			                  
+	</update>
+	
+	<!-- 화주 정보 삭제 -->
+	<update id="IFEAI2_TMDM_BP_SHPR_UPDATE">
+		UPDATE TMDM_BP_SHPR_IF
+		   SET DEL_YN = 'Y'
+		 WHERE SHPR_ID = #PV_KUNNR#	
+	</update>
+	
+	<!-- 화물정보망 화주 정보 삭제 -->
+	<update id="IFEAI2_TMDM_KFR_BP_SHPR_UPDATE">
+		UPDATE TMDM_KFR_BP_SHPR
+		   SET DEL_YN = 'Y'
+		 WHERE MDM_SHPR_ID = #PV_KUNNR#	
+	</update>
+	
+	<!-- 물류실행사 정보 삭제 -->
+	<update id="IFEAI2_TMDM_BP_LSP_UPDATE">
+		UPDATE TMDM_BP_LSP
+		   SET DEL_YN = 'Y'
+		 WHERE LSP_ID = #PV_KUNNR#	
+	</update>	
+	
+	<!-- 화물정보망 물류실행사 정보 삭제 -->
+	<update id="IFEAI2_TMDM_KFR_BP_LSP_UPDATE">
+		UPDATE TMDM_KFR_BP_LSP
+		   SET DEL_YN = 'Y'
+		 WHERE MDM_LSP_ID = #PV_KUNNR#	
+	</update>
+	
+	<!-- 업체명 정보 삭제 -->
+	<update id="IFEAI2_TMDM_BP_NAME_UPDATE04">
+		UPDATE TMDM_BP_NAME_IF
+		   SET DEL_YN = 'Y'
+		 WHERE RCP_ID = #PV_KUNNR#	
+	</update>
+	
+	<!-- 업체주소 정보 삭제 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_UPDATE">
+		UPDATE TMDM_BP_ADDR_IF
+		   SET DEL_YN = 'Y'
+		 WHERE RCP_ID = #PV_KUNNR#	
+	</update>	
+	
+	<!-- 업체 담당자 정보 삭제 -->
+	<update id="IFEAI2_TMDM_BP_CPCT_MPG_UPDATE">
+		UPDATE TMDM_BP_CPCT_MPG
+		   SET DEL_YN = 'Y'
+		 WHERE RCP_ID = #PV_KUNNR#	
+	</update>	
+
+	<!-- 고객사 인터페이스 시작시간 수정 -->
+	<update id="IFEAI2_TMDM_BP_CUST_C_START_UPDATE">
+        UPDATE TMDM_IF_BP_CUST_C
+           SET EAI_SDATE = current_timestamp
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<!-- 고객사 인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_BP_CUST_C_UPDATE">
+        UPDATE TMDM_IF_BP_CUST_C
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<!-- 고객사 이름 인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_BP_CUST_C_NM_UPDATE">
+        UPDATE TMDM_IF_BP_CUST_C_NM
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>				
+	
+	
+	
+	<!-- 고객사정보 인터페이스 Temp 조회 -->
+	<select id="IFEAI2_TMDM_IF_BP_CUST_V_SELECT"  resultClass="java.util.HashMap">
+		SELECT INSTANCEID
+		    , EAI_STATE
+		    , PV_KUNNR
+		    , PV_PART_TYPE
+		    , PV_LAND1
+		    , PV_REPRE_NM
+		    , PV_STATUS
+		    , EAI_OP
+		    , PV_VEND_CLS
+		    , PV_ADDRESS_ADDR1
+		    , PV_ADDRESS_ZIPCODE
+		    , PV_ADDRESS_ADDR1||PV_ADDRESS_ADDR2 LCL_ADDR
+		    , PV_ADDRESS_GLOBALADDR1||PV_ADDRESS_GLOBALADDR2||PV_ADDRESS_GLOBALADDR3||PV_ADDRESS_GLOBALADDR4 GLBL_ADDR
+ 		  FROM TMDM_IF_BP_CUST_V
+		 WHERE INSTANCEID = #INSTANCEID#	
+	</select>
+	
+	<!-- 업체 명 체크  조회 -->
+	<select id="IFEAI2_TMDM_IF_BP_CUST_V_NM_SELECT"  resultClass="java.util.HashMap">
+		SELECT INSTANCEID
+		     , PV_KUNNR
+		     , LANG
+		     , PV_PART_NM
+		  FROM TMDM_IF_BP_CUST_V_NM
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND LANG = #LANG_CD#	
+	</select>
+	
+	<!-- 업체 명 공백 체크  조회 -->
+	<select id="IFEAI2_TMDM_IF_BP_CUST_V_NM_EMP_SELECT"  resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS CNT_EMP
+		  FROM TMDM_IF_BP_CUST_V_NM
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND PV_PART_NM IS NULL	
+	</select>			
+
+	
+	<!-- 협력사정보 입력 -->
+	<update id="IFEAI2_TMDM_BP_CUST_MERGE05">
+	<!-- MDM 2.0 속성 추가 -->
+		MERGE INTO TMDM_BP_CUST A
+		USING ( SELECT NVL(PV_PART_TYPE,'X') AS PV_PART_TYPE_BK, 
+					   'AP' AS PV_PART_TYPE, '' PV_AIRLINE_CLS, 
+					   PV_KUNNR, PV_STCD2, PV_J_1KFREPRE, PV_J_1KFTIND, 
+		               PV_J_1KFTBUS, '' PV_CARR_SIGN, PV_LAND1, '' PV_CITY, 
+		               PV_TELF1, PV_TELFX, PV_SMTP_ADDR, PV_PART_NM_LO PV_SORT1, 'CUST' RCP_TCD,
+		               'Y' PV_FORBID, '' PV_REPREPART_ID, '' CORP_ID, '' LABOR_UNION_POSITION_CD,
+		               PV_STCD1, DECODE(NVL(PV_KTOKK,'X'),'1100','P','C') OBJ_TCD, PV_CARR_CD, CASE WHEN PV_STATUS = 'BLCK' THEN 'Y' ELSE 'N' END AS DEL_YN,
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               SUBSTR(CREATIONDTIME, 0 ,8) AS INS_DATE, 
+		               SUBSTR(CREATIONDTIME, 9, 6) AS INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 0 ,8) AS UPD_DATE, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 9, 6) AS UPD_TIME,
+		               PV_GUBUN, PV_BEF_PART_CD
+		               , PV_ALTKN
+		               , PV_PART_NM_LO
+		          FROM TMDM_IF_BP_CUST_V
+		         WHERE INSTANCEID =  #INSTANCEID# ) B
+		   ON (A.CUST_TCD = 'AP'
+		  AND A.CUST_ID = B.PV_KUNNR)
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.BIZREG_NO   = B.PV_STCD2, 
+		             A.PRSNT_NM    = B.PV_J_1KFREPRE, 
+		             A.BIZ_TYP_NM  = B.PV_J_1KFTBUS,
+		             A.IND_TYP_NM  = B.PV_J_1KFTIND, 
+		             A.CARR_REP_CD = B.PV_CARR_CD, 
+		             A.CARR_ID     = B.PV_AIRLINE_CLS, 
+		             A.NATION_CD   = B.PV_LAND1, 
+		             A.CITY_CD     = B.PV_CITY, 
+		             A.TEL_NO      = B.PV_TELF1, 
+		             A.FAX_NO      = B.PV_TELFX, 
+		             A.EMAIL       = B.PV_SMTP_ADDR, 
+		             A.ABBR_NM     = B.PV_SORT1, 
+		             A.RCP_TCD     = B.RCP_TCD,
+		             A.RCP_ID      = B.PV_KUNNR, 
+		             A.USE_YN      = B.PV_FORBID, 
+		             A.REP_CUST    = B.PV_REPREPART_ID, 
+		             A.CORP_ID     = B.CORP_ID, 
+		             A.LABOR_UNION_POSITION_CD = B.LABOR_UNION_POSITION_CD, 
+		             A.JUMIN_NO      = B.PV_STCD1, 
+		             A.OBJ_TCD       = B.OBJ_TCD, 
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME,
+		             A.AIR_SHIP_GBN  = B.PV_GUBUN,
+		             A.BEF_CUST_CD   = B.PV_BEF_PART_CD,
+		             A.ALTKN = B.PV_ALTKN,
+		             A.PART_NM_LO    = B.PV_PART_NM_LO
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.CUST_TCD, A.CUST_ID, A.BIZREG_NO, A.PRSNT_NM, A.BIZ_TYP_NM, 
+		               A.IND_TYP_NM, A.CARR_REP_CD, A.CARR_ID, A.NATION_CD, A.CITY_CD, 
+		               A.TEL_NO, A.FAX_NO, A.EMAIL, A.ABBR_NM, A.RCP_TCD, 
+		               A.RCP_ID, A.USE_YN, A.REP_CUST, A.CORP_ID, A.LABOR_UNION_POSITION_CD, 
+		               A.JUMIN_NO, A.OBJ_TCD, A.DEL_YN, 
+		               A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME, A.AIR_SHIP_GBN, BEF_CUST_CD
+		               , A.ALTKN, A.PART_NM_LO )
+		      VALUES ( B.PV_PART_TYPE, B.PV_KUNNR, B.PV_STCD2, B.PV_J_1KFREPRE, B.PV_J_1KFTBUS, 
+		               B.PV_J_1KFTIND, B.PV_CARR_CD, B.PV_AIRLINE_CLS, B.PV_LAND1, B.PV_CITY, 
+		               B.PV_TELF1, B.PV_TELFX, B.PV_SMTP_ADDR, B.PV_SORT1, B.RCP_TCD,
+		               B.PV_KUNNR, B.PV_FORBID, B.PV_REPREPART_ID, B.CORP_ID, B.LABOR_UNION_POSITION_CD,
+		               B.PV_STCD1, B.OBJ_TCD, B.DEL_YN, 
+		               B.INS_ID, B.INS_DATE, B.INS_TIME, B.PV_GUBUN, B.PV_BEF_PART_CD
+		               , B.PV_ALTKN, B.PV_PART_NM_LO )
+	</update>
+	
+	<!-- 협력사 업체명  입력 -->
+	<update id="IFEAI2_TMDM_BP_NAME_MERGE05">
+		MERGE INTO TMDM_BP_NAME_IF A
+		USING ( SELECT #RCP_TCD# RCP_TCD, PV_KUNNR, LANG, 'N001' NM_TCD, PV_PART_NM,
+		               'N' DEL_YN,
+		               'INTERFACE' INS_ID, 
+		               TO_CHAR(SYSDATE,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(SYSDATE,'HH24MISS') INS_TIME,
+		               '' UPD_ID, 
+		               '' UPD_DATE, 
+		               '' UPD_TIME
+		          FROM TMDM_IF_BP_CUST_V_NM
+		         WHERE INSTANCEID =  #INSTANCEID#) B
+		   ON (A.RCP_TCD = #RCP_TCD#
+		  AND A.RCP_ID = B.PV_KUNNR
+		  AND A.LANG_CD = B.LANG)
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.RCP_2ND_ID = B.PV_KUNNR,
+		             A.NM_TCD     = B.NM_TCD,
+		             A.NM         = B.PV_PART_NM,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.MOD_ID        = B.UPD_ID, 
+		             A.MOD_DT        = B.UPD_DATE|| B.UPD_TIME 
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD, A.RCP_ID, A.RCP_2ND_ID, A.NM_TCD, A.LANG_CD, A.NM, 
+		               A.DEL_YN, A.REG_ID, A.REG_DT)
+		      VALUES ( B.RCP_TCD, B.PV_KUNNR, B.PV_KUNNR, B.NM_TCD, B.LANG, B.PV_PART_NM,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE || B.INS_TIME )
+	</update>
+	
+	<!-- 업체 LOC 주소  입력 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_LOC_MERGE05">
+		MERGE INTO TMDM_BP_ADDR_IF A
+		USING ( SELECT #RCP_TCD# RCP_TCD, PV_KUNNR, 'A001' ADDR_TCD, 'KO' LANG_CD, 
+		               PV_ADDRESS_ZIPCODE, '' NATION_NM, '' STATE_NM, PV_CITY, AESDECRYPT(PV_ADDRESS_ADDR1) AS PV_ADDRESS_ADDR1,
+		               AESDECRYPT(PV_ADDRESS_ADDR2) AS PV_ADDRESS_ADDR2, 'N' DEL_YN,
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               SUBSTR(CREATIONDTIME, 0, 8) INS_DATE, 
+		               SUBSTR(CREATIONDTIME, 9, 6) INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME
+		          FROM TMDM_IF_BP_CUST_V
+		         WHERE INSTANCEID =  #INSTANCEID# ) B
+		   ON (A.RCP_TCD = #RCP_TCD#
+		  AND A.RCP_ID = B.PV_KUNNR
+		  AND A.RCP_2ND_ID = B.PV_KUNNR 
+		  AND A.ADDR_TCD = B.ADDR_TCD
+		  AND A.LANG_CD = 'KO')      <!-- /* #LANG_CD# */  -->    
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ZIP           = B.PV_ADDRESS_ZIPCODE, 
+		             A.NATION_NM     = B.NATION_NM, 
+		             A.STATE_NM      = B.STATE_NM, 
+		             A.CITY_NM       = B.PV_CITY, 
+		             A.DETL_ADDR_1   = AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR1)), 
+		             A.DETL_ADDR_2   = AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR2)), 
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.MOD_ID        = B.UPD_ID, 
+		             A.MOD_DT        = B.UPD_DATE || B.UPD_TIME, 
+		             A.NEW_DETL_ADDR_1  = AESENCRYPT(TRIM(#O_NEW_ADDR1#)),
+    		         A.NEW_DETL_ADDR_2  = AESENCRYPT(TRIM(#O_NEW_ADDR2#))
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD, A.RCP_ID, A.RCP_2ND_ID, A.ADDR_TCD, A.LANG_CD, 
+		               A.ZIP, A.NATION_NM, A.STATE_NM, A.CITY_NM, A.DETL_ADDR_1, 
+		               A.DETL_ADDR_2,
+		               A.DEL_YN, A.REG_ID, A.REG_DT, A.NEW_DETL_ADDR_1, A.NEW_DETL_ADDR_2 )
+		      VALUES ( B.RCP_TCD, B.PV_KUNNR, B.PV_KUNNR, B.ADDR_TCD, B.LANG_CD,
+		               B.PV_ADDRESS_ZIPCODE, B.NATION_NM, B.STATE_NM, B.PV_CITY, 
+		               AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR1)),
+		               AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR2)),
+		               B.DEL_YN, B.INS_ID, B.INS_DATE || B.INS_TIME,
+		               AESENCRYPT(TRIM(#O_NEW_ADDR1#)), 
+                   	   AESENCRYPT(TRIM(#O_NEW_ADDR2#)) )
+	</update>
+	
+	<!-- 업체 EN 주소  입력 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_EN_MERGE05">
+		MERGE INTO TMDM_BP_ADDR_IF A
+		USING ( SELECT #RCP_TCD# RCP_TCD, PV_KUNNR, 'A001' ADDR_TCD, 'EN' LANG_CD,
+		               PV_ADDRESS_ZIPCODE, '' NATION_NM, '' STATE_NM, PV_CITY, RTRIM(PV_ADDRESS_GLOBALADDR1) PV_ADDRESS_GLOBALADDR1,
+		               RTRIM(PV_ADDRESS_GLOBALADDR2) PV_ADDRESS_GLOBALADDR2, RTRIM(PV_ADDRESS_GLOBALADDR3) PV_ADDRESS_GLOBALADDR3, RTRIM(PV_ADDRESS_GLOBALADDR4) PV_ADDRESS_GLOBALADDR4, 'N' DEL_YN,
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               SUBSTR(CREATIONDTIME, 0, 8) INS_DATE, 
+		               SUBSTR(CREATIONDTIME, 9, 6) INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME
+		          FROM TMDM_IF_BP_CUST_V
+		         WHERE INSTANCEID =  #INSTANCEID# ) B
+		   ON (A.RCP_TCD = #RCP_TCD#
+		  AND A.RCP_ID  = B.PV_KUNNR
+		  AND A.LANG_CD = 'EN' ) 
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ZIP           = B.PV_ADDRESS_ZIPCODE, 
+		             A.NATION_NM     = B.NATION_NM, 
+		             A.STATE_NM      = B.STATE_NM, 
+		             A.CITY_NM       = B.PV_CITY, 
+		             A.DETL_ADDR_1   = B.PV_ADDRESS_GLOBALADDR1, 
+		             A.DETL_ADDR_2   = B.PV_ADDRESS_GLOBALADDR2, 
+		             A.DETL_ADDR_3   = B.PV_ADDRESS_GLOBALADDR3,
+		             A.DETL_ADDR_4   = B.PV_ADDRESS_GLOBALADDR4,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.MOD_ID        = B.UPD_ID, 
+		             A.MOD_DT        = B.UPD_DATE || B.UPD_TIME 
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD, A.RCP_ID, A.RCP_2ND_ID, A.ADDR_TCD, A.LANG_CD, 
+		               A.ZIP, A.NATION_NM, A.STATE_NM, A.CITY_NM, A.DETL_ADDR_1, 
+		               A.DETL_ADDR_2, A.DETL_ADDR_3, A.DETL_ADDR_4,
+		               A.DEL_YN, A.REG_ID, A.REG_DT )
+		      VALUES ( B.RCP_TCD, B.PV_KUNNR, B.PV_KUNNR, B.ADDR_TCD, B.LANG_CD,
+		               B.PV_ADDRESS_ZIPCODE, B.NATION_NM, B.STATE_NM, B.PV_CITY, B.PV_ADDRESS_GLOBALADDR1,
+		               B.PV_ADDRESS_GLOBALADDR2, B.PV_ADDRESS_GLOBALADDR3, B.PV_ADDRESS_GLOBALADDR4,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE || B.INS_TIME )
+	</update>
+	
+	<!-- 협렵사 정보 담당자 아이디 조회 -->
+	<select id="IFEAI2_TMDM_IF_BP_TMDM_BP_CUST_V_ATTN_ID_SELECT"  resultClass="java.util.HashMap">
+		  SELECT MAX(A.ATTN_ID) ATTN_ID
+			FROM TMDM_BP_CONT A,
+			     TMDM_IF_BP_CUST_V B
+		   WHERE A.ATTN_NM = B.PV_REPRE_NM	
+			 AND B.INSTANCEID = #INSTANCEID#
+	</select>			
+	
+	<!-- 담당자  입력 -->
+	<update id="IFEAI2_TMDM_BP_CONT_MERGE05">
+		MERGE INTO TMDM_BP_CONT A
+		USING ( SELECT #PV_ATTN_ID# ATTN_ID,
+		               NVL(#PV_REPRE_NM#, 'NONE') PV_REPRE_NM,  
+		               PV_REPRE_EMAIL, PV_REPRE_TEL, PV_TELFX, PV_TELF2,
+		               'TEL' CONT_TCD, 'KO' LANG_CD, 'Y' USE_YN, 'N' DEL_YN,  
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               SUBSTR(CREATIONDTIME,0 , 8) INS_DATE, 
+		               SUBSTR(CREATIONDTIME, 9, 6) INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               SUBSTR(LASTMODIFICATIONDTIME,0 , 8) UPD_DATE, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME
+		          FROM TMDM_IF_BP_CUST_V
+		         WHERE INSTANCEID =  #INSTANCEID# ) B
+		   ON (A.ATTN_ID = #PV_ATTN_ID#	
+		  AND A.LANG_CD = 'KO')
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ATTN_NM = B.PV_REPRE_NM,
+		             A.EMAIL   = B.PV_REPRE_EMAIL, 
+		             A.FAX_NO  = AESENCRYPT(TRIM(B.PV_TELFX)), 
+		             A.HP_NO   = B.PV_TELF2, 
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID   = B.UPD_ID, 
+		             A.UPD_DATE        = B.UPD_DATE,
+		             A.UPD_TIME        = B.UPD_TIME 
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.ATTN_ID, A.ATTN_LNM, A.ATTN_NM, A.ATTN_ENG_NM, A.ATTN_ENG_LNM, 
+		               A.TITLE, A.EMAIL, A.TEL_NO, A.FAX_NO, A.HP_NO, 
+		               A.CONT_TCD, A.LANG_CD, A.USE_YN, 
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, INS_TIME)
+		      VALUES ( B.ATTN_ID, '', B.PV_REPRE_NM, '', '',
+		               '', B.PV_REPRE_EMAIL, B.PV_REPRE_TEL, AESENCRYPT(TRIM(B.PV_TELFX)), B.PV_TELF2,
+		               B.CONT_TCD, B.LANG_CD, B.USE_YN,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME ) 
+	</update>	
+	
+	<!-- 업체 담당자 Mapping 입력 -->
+	<update id="IFEAI2_TMDM_BP_CPCT_MPG_MERGE05">	
+	    MERGE INTO TMDM_BP_CPCT_MPG A
+		USING ( SELECT CAST(#RCP_TCD# AS VARCHAR(4)) RCP_TCD, CAST(#PV_ATTN_ID# AS VARCHAR(20)) ATTN_ID, PV_KUNNR, 'SA' ATTN_TCD, 'N' DEL_YN,
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               SUBSTR(CREATIONDTIME, 0, 8) INS_DATE, 
+		               SUBSTR(CREATIONDTIME, 9, 6) INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME
+		          FROM TMDM_IF_BP_CUST_V
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON (A.RCP_TCD  = B.RCP_TCD
+		  AND A.RCP_ID   = B.PV_KUNNR
+		  AND A.ATTN_ID  = B.ATTN_ID
+		  AND A.ATTN_TCD = B.ATTN_TCD)
+		 WHEN MATCHED THEN
+		      UPDATE
+		      	 SET A.DEL_YN        = B.DEL_YN,
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD, A.RCP_ID, A.ATTN_ID, A.ATTN_TCD, 
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.RCP_TCD, B.PV_KUNNR, B.ATTN_ID, B.ATTN_TCD,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME
+		               ) 		               
+	</update>	
+	
+	<!-- 화주 정보 입력 -->
+	<update id="IFEAI2_TMDM_BP_SHPR_MERGE05">
+		MERGE INTO TMDM_BP_SHPR A
+		USING ( SELECT PV_KUNNR, '05' SHPR_TCD, '' PV_SORT1, PV_J_1KFREPRE, '' PV_REPREPART_ID,
+		               NVL(PV_SUP_PART_CD, '9999') PV_SUP_PART_CD, PV_STCD2, PV_TELF1, PV_TELFX, PV_SMTP_ADDR,
+		               PV_LAND1, '' STATE_CD, '' PV_CITY, 'Y' PV_FORBID, CASE WHEN PV_STATUS = 'BLCK' THEN 'Y' ELSE 'N' END AS DEL_YN,
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME,
+		               DECODE(NVL(PV_KTOKK,'X'),'1100','P','C') OBJ_TCD,
+		               PV_GUBUN
+		          FROM TMDM_IF_BP_CUST_V
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.SHPR_ID = B.PV_KUNNR
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ABBR_NM       = B.PV_SORT1, 
+		             A.PRSNT_NM      = B.PV_J_1KFREPRE, 
+		             A.REP_COMP_ID   = B.PV_REPREPART_ID, 
+		             A.PRNT_SHPR_ID  = B.PV_SUP_PART_CD, 
+		             A.BIZREG_NO     = B.PV_STCD2, 
+		             A.TEL_NO        = B.PV_TELF1, 
+		             A.FAX_NO        = B.PV_TELFX, 
+		             A.EMAIL         = B.PV_SMTP_ADDR, 
+		             A.NATION_CD     = B.PV_LAND1, 
+		             A.STATE_CD      = B.STATE_CD, 
+		             A.CITY_CD       = B.PV_CITY, 
+		             A.USE_YN        = B.PV_FORBID,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME,
+		             A.OBJ_TCD       = B.OBJ_TCD,
+		             A.AIR_SHIP_GBN  = B.PV_GUBUN
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.SHPR_ID, A.SHPR_TCD, A.ABBR_NM, A.PRSNT_NM, A.REP_COMP_ID, 
+		               A.PRNT_SHPR_ID, A.BIZREG_NO, A.TEL_NO, A.FAX_NO, A.EMAIL, 
+		               A.NATION_CD, A.STATE_CD, A.CITY_CD, A.USE_YN, 
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME, A.OBJ_TCD,
+		               A.AIR_SHIP_GBN )
+		      VALUES ( B.PV_KUNNR, B.SHPR_TCD, B.PV_SORT1, B.PV_J_1KFREPRE, B.PV_REPREPART_ID,
+		               B.PV_SUP_PART_CD, B.PV_STCD2, B.PV_TELF1, B.PV_TELFX, B.PV_SMTP_ADDR,
+		               B.PV_LAND1, B.STATE_CD, B.PV_CITY, B.PV_FORBID,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME, B.OBJ_TCD,
+		               B.PV_GUBUN )
+	</update>
+	
+	<!-- 물류실행사  정보 입력 -->
+	<!-- MDM 20.0 속성 추가 ALTKN -->
+	<update id="IFEAI2_TMDM_BP_LSP_MERGE05">
+		MERGE INTO TMDM_BP_LSP A
+		USING ( SELECT PV_KUNNR, NVL(PV_VEND_CLS,'X') PV_VEND_CLS, PV_J_1KFREPRE, '' PV_REPREPART_ID, PV_CARR_CD,
+		               '' PV_AIRLINE_CLS, PV_STCD2, PV_TELF1, PV_TELFX, PV_SMTP_ADDR,
+		               PV_LAND1, '' STATE_CD, '' PV_CITY, NVL(PV_RE_PLANT, '100021') CORP_ID, '' VEN_GBN, 
+		               'Y' PV_FORBID, CASE WHEN PV_STATUS = 'BLCK' THEN 'Y' ELSE 'N' END AS DEL_YN,
+		               LASTMODIFICATIONUSRID INS_ID, 
+		               SUBSTR(CREATIONDTIME, 0, 8) INS_DATE, 
+		               SUBSTR(CREATIONDTIME, 9, 6) INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME,
+		               PV_FITYP, PV_STCD0, PV_J_1KFTBUS, PV_J_1KFTIND, PV_ZAHLS,
+		               PV_WAERS, PV_BIZ_TYPE, SUBSTR(PV_ESTB_DT, 0 ,8) AS PV_ESTB_DT, PV_LICENSE, PV_INSUR_NO,
+		               PV_EMP_NO, PV_BIZ_DIV_LARGE, PV_BIZ_DIV_MED, PV_MAIN_PRDT, PV_ANNR_RETNS,
+		               PV_APRVL_BRCH, PV_CRDT_RAT_AGENCY, SUBSTR(PV_APRSL_DT, 0, 8) AS PV_APRSL_DT, PV_CRDT_GRADE, PV_CSTRT_CAPA,
+		               DECODE(NVL(PV_KTOKK,'X'),'1100','P','C') OBJ_TCD,
+		               PV_GUBUN, PV_BT_PART_CD, PV_BEF_PART_CD, PV_GU, PV_TRAN_YN,
+                       PV_SMALL_YN, PV_SU_GU, PV_LINE_CD, PV_CITY_CD, PV_BO_AMT, PV_KTOKK, PV_PART_TYPE
+                       , PV_ALTKN, PV_ZTERM_V, PV_DEAL_YN
+		          FROM TMDM_IF_BP_CUST_V
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON (A.LSP_ID = B.PV_KUNNR)
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.LSP_TCD       = B.PV_VEND_CLS, 
+		             A.PRSNT_NM      = B.PV_J_1KFREPRE, 
+		             A.REP_COMP_ID   = B.PV_REPREPART_ID, 
+		             A.CARR_REP_CD   = B.PV_CARR_CD,
+		             A.CARR_ID       = B.PV_AIRLINE_CLS, 
+		             A.BIZREG_NO     = B.PV_STCD2,
+		             A.TEL_NO        = B.PV_TELF1, 
+		             A.FAX_NO        = B.PV_TELFX, 
+		             A.EMAIL         = B.PV_SMTP_ADDR, 
+		             A.NATION_CD     = B.PV_LAND1, 
+		             A.STATE_CD      = B.STATE_CD, 
+		             A.CITY_CD       = B.PV_CITY, 
+		             A.CORP_ID       = B.CORP_ID,
+		             A.VEN_GBN       = B.VEN_GBN,
+		             A.USE_YN        = B.PV_FORBID,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.MOD_ID        = B.UPD_ID, 
+		             A.MOD_DT        = B.UPD_DATE || B.UPD_TIME, 
+		             A.TAX_TYP       = B.PV_FITYP, 
+		             A.CORP_REG_NO   = B.PV_STCD0, 
+		             A.BIZCOND       = B.PV_J_1KFTBUS, 
+		             A.CAT_BUSI      = B.PV_J_1KFTIND, 
+		             A.GIVE_HOLD     = B.PV_ZAHLS,
+		             A.CURR          = B.PV_WAERS, 
+		             A.BIZREG_CLS    = B.PV_BIZ_TYPE, 
+		             A.FLTT_DATE     = B.PV_ESTB_DT, 
+		             A.REP_BUSI_CAT_LICE = B.PV_LICENSE, 
+		             A.HIRE_INSR_NO  = B.PV_INSUR_NO,
+		             A.RGLAR_EMP_CNT = B.PV_EMP_NO, 
+		             A.VEN_CLS_BIG   = B.PV_BIZ_DIV_LARGE, 
+		             A.VEN_CLS_MID   = B.PV_BIZ_DIV_MED, 
+		             A.PRY_PRDT      = B.PV_MAIN_PRDT, 
+		             A.YR_AR_AMT     = B.PV_ANNR_RETNS,
+		             A.ACPT_CORP_ID  = B.PV_APRVL_BRCH, 
+		             A.CRDT_VLTN_INST = B.PV_CRDT_RAT_AGENCY, 
+		             A.VLTN_DATE     = B.PV_APRSL_DT, 
+		             A.CRDT_GRD      = B.PV_CRDT_GRADE,
+		             A.CTN_CAPA_VLTN_AMT = B.PV_CSTRT_CAPA,
+		             A.OBJ_TCD       = B.OBJ_TCD,
+		             A.AIR_SHIP_GBN  = B.PV_GUBUN,
+		             A.ACNT_CUST_ID  = B.PV_BT_PART_CD,
+		             A.BEF_CUST_ID   = B.PV_BEF_PART_CD,
+		             A.SHIP_GBN      = B.PV_GU,
+		             A.VHCL_OWN_YN   = B.PV_TRAN_YN,
+		             A.PARCEL_YN     = B.PV_SMALL_YN,
+		             A.SU_YN         = B.PV_SU_GU,
+		             A.LINE_CD       = B.PV_LINE_CD,
+		             A.AGT_CITY_CD   = B.PV_CITY_CD,
+		             A.BO_AMT        = B.PV_BO_AMT,
+		             A.KTOKK         = B.PV_KTOKK,
+		             A.PART_TYPE     = B.PV_PART_TYPE,
+		             A.ALTKN = B.PV_ALTKN,
+		             A.ZTERM_V = B.PV_ZTERM_V,
+		             A.DEAL_YN = B.PV_DEAL_YN
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.LSP_ID, A.LSP_TCD, A.PRSNT_NM, A.REP_COMP_ID, A.CARR_REP_CD, 
+		               A.CARR_ID, A.BIZREG_NO, A.TEL_NO, A.FAX_NO, A.EMAIL, 
+		               A.NATION_CD, A.STATE_CD, A.CITY_CD, A.CORP_ID, A.VEN_GBN, 
+		               A.USE_YN, A.DEL_YN, A.REG_ID, A.REG_DT,
+		               A.TAX_TYP, A.CORP_REG_NO, A.BIZCOND, A.CAT_BUSI, A.GIVE_HOLD,
+		               A.CURR, A.BIZREG_CLS, A.FLTT_DATE, A.REP_BUSI_CAT_LICE, A.HIRE_INSR_NO, 
+		               A.RGLAR_EMP_CNT, A.VEN_CLS_BIG, A.VEN_CLS_MID, A.PRY_PRDT, A.YR_AR_AMT, 
+		               A.ACPT_CORP_ID, A.CRDT_VLTN_INST, A.VLTN_DATE, A.CRDT_GRD, A.CTN_CAPA_VLTN_AMT,
+		               A.OBJ_TCD, A.AIR_SHIP_GBN, A.ACNT_CUST_ID, A.BEF_CUST_ID, A.SHIP_GBN, A.VHCL_OWN_YN,
+                       A.PARCEL_YN, A.SU_YN, A.LINE_CD, A.AGT_CITY_CD, A.BO_AMT, A.KTOKK, A.PART_TYPE
+                       , A.ALTKN, A.ZTERM_V, A.DEAL_YN )
+		      VALUES ( B.PV_KUNNR, B.PV_VEND_CLS, B.PV_J_1KFREPRE, B.PV_REPREPART_ID, B.PV_CARR_CD,
+		               B.PV_AIRLINE_CLS, B.PV_STCD2, B.PV_TELF1, B.PV_TELFX, B.PV_SMTP_ADDR,
+		               B.PV_LAND1, B.STATE_CD, B.PV_CITY, B.CORP_ID, B.VEN_GBN,
+		               B.PV_FORBID, B.DEL_YN, B.INS_ID, B.INS_DATE || B.INS_TIME,
+		               B.PV_FITYP, B.PV_STCD0, B.PV_J_1KFTBUS, B.PV_J_1KFTIND, B.PV_ZAHLS,
+		               B.PV_WAERS, B.PV_BIZ_TYPE, B.PV_ESTB_DT, B.PV_LICENSE, B.PV_INSUR_NO,
+		               B.PV_EMP_NO, B.PV_BIZ_DIV_LARGE, B.PV_BIZ_DIV_MED, B.PV_MAIN_PRDT, B.PV_ANNR_RETNS,
+		               B.PV_APRVL_BRCH, B.PV_CRDT_RAT_AGENCY, B.PV_APRSL_DT, B.PV_CRDT_GRADE, B.PV_CSTRT_CAPA,
+		               B.OBJ_TCD, B.PV_GUBUN, B.PV_BT_PART_CD, B.PV_BEF_PART_CD, B.PV_GU, B.PV_TRAN_YN,
+                       B.PV_SMALL_YN, B.PV_SU_GU, B.PV_LINE_CD, B.PV_CITY_CD, B.PV_BO_AMT, B.PV_KTOKK, B.PV_PART_TYPE
+                       , B.PV_ALTKN, B.PV_ZTERM_V, B.PV_DEAL_YN )
+	</update>	
+	
+	<!-- 운송 조직 협력사 체크 조회 -->
+	<select id="IFEAI2_TMDM_BP_CORP_MPG_SELECT"  resultClass="java.lang.Integer">
+		SELECT COUNT(*) CNT
+		  FROM TMDM_BP_CORP_MPG
+		 WHERE RCP_ID = #PV_KUNNR#	
+	</select>
+	
+	<!-- 운송 조직 협력사 맵핑 정보 수정 -->
+	<update id="IFEAI2_TMDM_BP_CORP_MPG_UPDATE">
+		UPDATE TMDM_BP_CORP_MPG
+		   SET DEL_YN = #DEL_YN#,
+		       RCP_TCD = #PV_VEND_CLS#
+		 WHERE RCP_ID = #PV_KUNNR#	
+	</update>	
+	
+	<!-- 협력사 인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_BP_CUST_V_UPDATE">
+        UPDATE TMDM_IF_BP_CUST_V
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<!-- 협력사 이름  인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_BP_CUST_V_NM_UPDATE">
+        UPDATE TMDM_IF_BP_CUST_V_NM
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>																	
+			
+
+	<!-- 조직정보 인터페이스 Temp 조회 -->
+	<select id="IFEAI2_TMDM_IF_BP_CORP_SELECT"  resultClass="java.util.HashMap">
+		SELECT INSTANCEID
+		    , EAI_STATE
+		    , PV_ORG_CD
+		    , PV_COUNTRY
+		    , PV_STATUS
+		    , EAI_OP
+		    , PV_COMP_CD3
+		  FROM TMDM_IF_BP_CORP
+		 WHERE INSTANCEID = #INSTANCEID#	
+	</select>
+	
+	<!-- 조직정보 입력 -->
+	<update id="IFEAI2_TMDM_BP_CORP_MERGE">
+		MERGE INTO TMDM_BP_CORP_IF A
+		USING ( 
+		        SELECT X.PV_ORG_CD, NVL(X.PV_OFFICE_TYPE,'Y') AS PV_OFFICE_TYPE, X.IF_OUT_ORG_MASTER, 
+                 ( SELECT PV_ORGSHORTNM FROM TMDM_IF_BP_CORP_NM WHERE INSTANCEID = X.INSTANCEID AND LANG = 'KO' ) PV_ORGSHORTNM, 
+		               X.PV_COUNTRY, NVL(X.PV_HEADOFFI_TYPE,' ') AS PV_HEADOFFI_TYPE, X.PV_BRANCH_TYPE, 
+		               X.PV_CURRENCY, X.PV_HARBOR_BRANCH_YN, X.PV_REGION_CT, X.PV_REPRE_REGION,
+		               NVL(X.PV_SUPER_CD,'9999') PV_SUPER_CD, X.PV_COMP_CD3, 'N' DEL_YN,
+		               X.LASTMODIFICATIONUSRID AS REG_ID, 
+		               X.CREATIONDTIME AS REG_DT, 
+		               X.LASTMODIFICATIONUSRID AS MOD_ID, 
+		               X.LASTMODIFICATIONDTIME AS MOD_DT, 
+		               PV_POB_CD, PV_OLDORG_CD, PV_COSTC, PV_ORGDIV, PV_ORG_HR_CD_RPR,
+                       PV_ORG_HR_CD1, PV_ORG_HR_CD2, PV_ORG_HR_CD3, PV_ORG_HR_CD4, PV_ORG_HR_CD5,
+                       PV_ORG_HR_CD6, PV_ORG_HR_CD7, PV_ORG_HR_CD8, PV_ORG_HR_CD9, PV_ORG_HR_CD10,
+                       PV_START_DATE, PV_END_DATE
+		          FROM TMDM_IF_BP_CORP X
+		         WHERE X.INSTANCEID = #INSTANCEID# 
+		     ) B
+		   ON (A.CORP_ID = B.PV_ORG_CD)
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.CORP_TCD      = B.PV_OFFICE_TYPE, 
+		             A.ABBR_NM       = NVL(B.PV_ORGSHORTNM,B.IF_OUT_ORG_MASTER),
+		             A.NATION_CD     = B.PV_COUNTRY, 
+		             A.STATE_CD      = '', 
+		             A.CITY_CD       = '',          
+		             A.HQ_ORG_TYP_CD = B.PV_HEADOFFI_TYPE, 
+		             A.BHO_TYP_CD    = B.PV_BRANCH_TYPE, 
+		             A.LOCAL_CURR_CD = B.PV_CURRENCY,
+		             A.PERF_CURR_CD  = B.PV_CURRENCY, 
+		             A.PRNT_CORP_ID  = B.PV_SUPER_CD, 
+		             A.WORK_CALN_CD  = B.PV_COMP_CD3, 
+		             A.BL_CORP_YN    = B.PV_HARBOR_BRANCH_YN,          
+		             A.COMP_ID       = B.PV_COMP_CD3, 
+		             A.REGION_CCD    = B.PV_REGION_CT,
+		             A.REP_NODE_ID   = B.PV_REPRE_REGION,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.MOD_ID        = B.MOD_ID, 
+		             A.MOD_DT        = B.MOD_DT, 
+		             A.POB_CD        = B.PV_POB_CD,
+		             A.OLDORG_CD     = B.PV_OLDORG_CD,
+		             A.COSTC         = B.PV_COSTC,
+		             A.ORG_GCD       = B.PV_ORGDIV,
+		             A.REP_HR_ORG_CD = B.PV_ORG_HR_CD_RPR,
+		             A.HR_ORG_CD1    = B.PV_ORG_HR_CD1,
+		             A.HR_ORG_CD2    = B.PV_ORG_HR_CD2,
+		             A.HR_ORG_CD3    = B.PV_ORG_HR_CD3,
+		             A.HR_ORG_CD4    = B.PV_ORG_HR_CD4,
+		             A.HR_ORG_CD5    = B.PV_ORG_HR_CD5,
+		             A.HR_ORG_CD6    = B.PV_ORG_HR_CD6,
+		             A.HR_ORG_CD7    = B.PV_ORG_HR_CD7,
+		             A.HR_ORG_CD8    = B.PV_ORG_HR_CD8,
+		             A.HR_ORG_CD9    = B.PV_ORG_HR_CD9,
+		             A.HR_ORG_CD10   = B.PV_ORG_HR_CD10,
+		             A.START_DATE = B.PV_START_DATE,
+		             A.END_DATE = B.PV_END_DATE
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.CORP_ID, A.CORP_TCD, A.ABBR_NM, A.NATION_CD, A.STATE_CD,
+		               A.CITY_CD, A.HQ_ORG_TYP_CD, A.BHO_TYP_CD, A.LOCAL_CURR_CD, A.PERF_CURR_CD,
+		               A.PRNT_CORP_ID, A.WORK_CALN_CD, A.BL_CORP_YN, A.COMP_ID, A.REGION_CCD,
+		               A.REP_NODE_ID, A.DEL_YN, A.REG_ID, A.REG_DT, 
+		               A.POB_CD, A.OLDORG_CD, A.COSTC, A.ORG_GCD, A.REP_HR_ORG_CD, 
+		               A.HR_ORG_CD1, A.HR_ORG_CD2, A.HR_ORG_CD3, A.HR_ORG_CD4, A.HR_ORG_CD5, 
+		               A.HR_ORG_CD6, A.HR_ORG_CD7, A.HR_ORG_CD8, A.HR_ORG_CD9, A.HR_ORG_CD10,
+		               A.START_DATE, A.END_DATE )
+		      VALUES ( B.PV_ORG_CD, B.PV_OFFICE_TYPE, NVL(B.PV_ORGSHORTNM,B.IF_OUT_ORG_MASTER), B.PV_COUNTRY, '', 
+		               '', B.PV_HEADOFFI_TYPE, B.PV_BRANCH_TYPE, B.PV_CURRENCY, B.PV_CURRENCY, 
+		               B.PV_SUPER_CD, B.PV_COMP_CD3, B.PV_HARBOR_BRANCH_YN, B.PV_COMP_CD3, B.PV_REGION_CT, 
+		               B.PV_REPRE_REGION, B.DEL_YN, B.REG_ID, B.REG_DT,
+		               B.PV_POB_CD, B.PV_OLDORG_CD, B.PV_COSTC, B.PV_ORGDIV, B.PV_ORG_HR_CD_RPR,
+                       B.PV_ORG_HR_CD1, B.PV_ORG_HR_CD2, B.PV_ORG_HR_CD3, B.PV_ORG_HR_CD4, B.PV_ORG_HR_CD5,
+                       B.PV_ORG_HR_CD6, B.PV_ORG_HR_CD7, B.PV_ORG_HR_CD8, B.PV_ORG_HR_CD9, B.PV_ORG_HR_CD10,
+                       B.PV_START_DATE, B.PV_END_DATE )
+	</update>		
+	
+	<!-- 조직명정보 입력 -->
+	<update id="IFEAI2_TMDM_BP_NAME_MERGE">
+		MERGE INTO TMDM_BP_NAME_IF A
+		USING ( 
+		    SELECT 'CORP' RCP_TCD,
+		            PV_ORG_CD,
+		            LANG,
+		            'N001' AS NM_TCD,
+		            PV_ORGNM,
+		            'N' AS DEL_YN,
+		            'INTERFACE' AS REG_ID, 
+		            TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS') AS REG_DT, 
+		            '' AS MOD_ID, 
+		            '' AS MOD_DT
+		      FROM  TMDM_IF_BP_CORP_NM
+		     WHERE  INSTANCEID = #INSTANCEID# 
+		     ) B
+		   ON (A.RCP_TCD = 'CORP'
+		  AND A.RCP_ID  = B.PV_ORG_CD
+		  AND A.LANG_CD = B.LANG)
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.RCP_2ND_ID    = B.PV_ORG_CD,
+		             A.NM_TCD        = B.NM_TCD,
+		             A.NM            = B.PV_ORGNM,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.MOD_ID        = B.MOD_ID, 
+		             A.MOD_DT        = B.MOD_DT
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD, A.RCP_ID, A.RCP_2ND_ID, A.NM_TCD, A.LANG_CD, A.NM, 
+		               A.DEL_YN, A.REG_ID, A.REG_DT)
+		      VALUES ( B.RCP_TCD, B.PV_ORG_CD, B.PV_ORG_CD, B.NM_TCD, B.LANG, B.PV_ORGNM,
+		               B.DEL_YN, B.REG_ID, B.REG_DT)
+	</update>	
+
+	<!-- 조직 정보 삭제 -->
+	<update id="IFEAI2_TMDM_BP_CORP_UPDATE">
+        UPDATE TMDM_BP_CORP_IF
+           SET DEL_YN = 'Y'
+         WHERE CORP_ID = #PV_ORG_CD#
+	</update>
+	
+	<!-- 조직명  정보 삭제 -->
+	<update id="IFEAI2_TMDM_BP_NAME_UPDATE">
+        UPDATE TMDM_BP_NAME_IF
+           SET DEL_YN  = 'Y'
+         WHERE RCP_TCD = 'CORP'
+           AND RCP_ID  = #PV_ORG_CD#
+	</update>	
+	
+	<!-- 조직정보 인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_BP_CORP_UPDATE">
+        UPDATE TMDM_IF_BP_CORP
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>	
+	
+	<!-- 조직명  인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_BP_NAME_UPDATE">
+        UPDATE TMDM_IF_BP_CORP_NM
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>						
+
+	<!-- 환율정보 인터페이스 Temp 조회 -->
+	<select id="IFEAI2_TMDM_IF_GS_EXR_SELECT"  resultClass="java.util.HashMap">
+        SELECT 
+              PV_EXRATE_CD
+            , PV_COUNTRY_CD1
+            , PV_COMP_CD2
+            , TO_CHAR(PV_EFFECT_DATE,'YYYYMMDD')   AS PV_EFFECT_DATE
+            , PV_REFF_CURR
+            , PV_TARGET_CURR
+            , PV_BASE_AMOUNT
+            , PV_TT_BUY
+            , PV_TT_SELL
+            , PV_CASH_BUY
+            , PV_CASH_SELL
+            , PV_BASIC_RATE
+            , PV_USD_RATE
+            , PV_WEEK_EXCRATE_NY
+            , TO_CHAR(CREATIONDTIME,'YYYYMMDD') AS INS_DATE
+            , TO_CHAR(CREATIONDTIME,'HH24MISS') AS INS_TIME
+            , LASTMODIFICATIONUSRID
+            , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') AS UPD_DATE
+            , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') AS UPD_TIME
+            , EAI_OP
+            , EAI_STATE
+            , TO_CHAR(EAI_DATE,'YYYYMMDD HH24MISS') AS EAI_DATE
+            , EAI_MSG
+        FROM  TMDM_IF_GS_EXR
+        WHERE INSTANCEID = #INSTANCEID#
+	</select>	
+	
+	<!-- 국가코드 체크 -->
+	<select id="IFEAI2_TMDM_GS_NATION_SELECT"  resultClass="java.util.HashMap">
+        SELECT 
+                NATION_CD
+              , NATION_NM
+              , OFFICL_LANG_CD
+        FROM  TMDM_GS_NATION
+        WHERE NATION_CD = #PV_COUNTRY_CD1#
+          AND DEL_YN    = 'N'
+	</select>
+	
+	<!-- 법인코드 체크 CM046 -->
+	<select id="IFEAI2_TMDM_MC_CODE_B_SELECT"  resultClass="java.util.HashMap">
+        SELECT 
+                CD
+              , CD_NM
+        FROM  TMDM_MC_CODE_B
+        WHERE CD_TCD = #CD_TCD#
+       <isNotEmpty prepend="AND" property="LANG_CD">		
+	     	  LANG_CD = #LANG_CD#
+	   </isNotEmpty>
+          AND CD     = #PV_COMP_CD2#
+          AND DEL_YN = 'N'
+          AND ROWNUM = 1
+	</select>	
+
+	<!-- 환율정보 입력 -->
+	<update id="IFEAI2_TMDM_GS_EXR_MERGE">
+		MERGE INTO TMDM_GS_EXR A
+        USING ( 
+            SELECT 
+                    PV_EXRATE_CD
+                  , PV_COMP_CD2
+                  , TO_CHAR(PV_EFFECT_DATE,'YYYYMMDD') AS PV_EFFECT_DATE
+                  , PV_REFF_CURR
+                  , PV_TARGET_CURR
+                  , PV_BASE_AMOUNT
+                  , PV_TT_BUY
+                  , PV_TT_SELL
+                  , PV_CASH_BUY
+                  , PV_CASH_SELL
+                  , PV_BASIC_RATE
+                  , PV_USD_RATE
+                  , PV_WEEK_EXCRATE_NY
+                  , TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+                  , TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+                  , LASTMODIFICATIONUSRID
+                  , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+                  , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+            FROM   TMDM_IF_GS_EXR
+            WHERE  INSTANCEID = #INSTANCEID#
+            ) B
+        ON 
+            A.EXR_CD = B.PV_EXRATE_CD 
+            
+        WHEN MATCHED THEN
+          UPDATE SET
+                 A.COMP_ID       = B.PV_COMP_CD2,
+                 A.EXR_APLY_DATE = B.PV_EFFECT_DATE,
+                 A.ORGN_CURR_CD  = B.PV_REFF_CURR, 
+                 A.OBJ_CURR_CD   = B.PV_TARGET_CURR,
+                 A.BASE_AMOUNT   = B.PV_BASE_AMOUNT, 
+                 A.TT_BUY        = B.PV_TT_BUY, 
+                 A.TT_SELL       = B.PV_TT_SELL, 
+                 A.CASH_BUY      = B.PV_CASH_BUY, 
+                 A.CASH_SELL     = B.PV_CASH_SELL, 
+                 A.BASIC_RATE    = B.PV_BASIC_RATE, 
+                 A.USR_RATE      = B.PV_USD_RATE, 
+                 A.WEEK_EXR_NY   = B.PV_WEEK_EXCRATE_NY, 
+                 A.DEL_YN        = 'N',
+                 A.INS_PERSON_ID = DECODE(B.UPD_DATE,NULL,LASTMODIFICATIONUSRID,A.INS_PERSON_ID),
+                 A.UPD_DATE      = B.UPD_DATE, 
+                 A.UPD_TIME      = B.UPD_TIME
+                 
+        WHEN NOT MATCHED THEN
+          INSERT ( A.EXR_CD, A.NATION_CD, A.COMP_ID, A.EXR_APLY_DATE, A.ORGN_CURR_CD,
+                   A.OBJ_CURR_CD, A.BASE_AMOUNT, A.TT_BUY, A.TT_SELL, A.CASH_BUY, 
+                   A.CASH_SELL, A.BASIC_RATE, A.USR_RATE, A.WEEK_EXR_NY, A.DEL_YN, 
+                   A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+          VALUES ( B.PV_EXRATE_CD, 'KR', B.PV_COMP_CD2, B.PV_EFFECT_DATE, B.PV_REFF_CURR, 
+                   B.PV_TARGET_CURR, B.PV_BASE_AMOUNT, B.PV_TT_BUY, B.PV_TT_SELL, B.PV_CASH_BUY, 
+                   B.PV_CASH_SELL, B.PV_BASIC_RATE, B.PV_USD_RATE, B.PV_WEEK_EXCRATE_NY, 'N', 
+                   B.LASTMODIFICATIONUSRID, B.INS_DATE, B.INS_TIME )
+	</update>	
+
+	<!-- 환율 정보 삭제 -->
+	<update id="IFEAI2_TMDM_GS_EXR_DELETE">
+        UPDATE TMDM_GS_EXR
+           SET DEL_YN = 'Y'
+         WHERE EXR_CD = #PV_EXRATE_CD#
+	</update>	
+
+	<!-- 인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_GS_EXR_UPDATE">
+        UPDATE TMDM_IF_GS_EXR
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = current_timestamp
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>	
+	
+	<!-- 포트 정보 인터페이스 Temp 조회 -->
+	<select id="IFEAI2_TMDM_IF_PORT_SELECT" resultClass="java.util.HashMap">
+		SELECT INSTANCEID
+			 , EAI_STATE
+			 , PV_PLACE_CD 
+			 , PV_LAND1
+			 , PV_STATE_CD
+			 , PV_CITY_CD
+			 , PV_ADDRESS_ZIPCODE
+			 , PV_MNG_BRCH
+			 , PV_STATUS
+			 , EAI_OP
+			 , PV_FUNC_CD
+			 , PV_UNLOC_CD
+			 , GCOM.KXDECRYPT(PV_ADDRESS_ADDR1) AS PV_ADDRESS_ADDR1
+		     , GCOM.KXDECRYPT(PV_ADDRESS_ADDR1)||GCOM.KXDECRYPT(PV_ADDRESS_ADDR2)||GCOM.KXDECRYPT(PV_ADDRESS_ADDR3)||GCOM.KXDECRYPT(PV_ADDRESS_ADDR4) LCL_ADDR
+		     , PV_ADDRESS_GLOBALADDR1||PV_ADDRESS_GLOBALADDR2||PV_ADDRESS_GLOBALADDR3||PV_ADDRESS_GLOBALADDR4 GLBL_ADDR
+		  FROM TMDM_IF_PORT 
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>
+	
+	<!-- 조직정보 이상유무 체크 에러 처리  -->
+	<select id="IFEAI2_TMDM_BP_CORP_SELECT" resultClass="java.util.HashMap">
+		SELECT CORP_ID
+			 , ABBR_NM
+		  FROM TMDM_BP_CORP_IF
+		 WHERE CORP_ID = #PV_MNG_BRCH#
+		   AND DEL_YN = 'N'
+	</select>
+	
+	<!-- 주코드 이상유무 체크 에러처리  -->
+	<select id="IFEAI2_TMDM_GS_STATEPRV_SELECT" resultClass="java.util.HashMap">
+		SELECT NATION_CD
+		     , STATE_PRV_CD
+		     , STATE_PRV_NM_1
+		  FROM TMDM_GS_STATEPRV
+		 WHERE NATION_CD = #PV_LAND1#
+		   AND STATE_PRV_CD = #PV_STATE_CD#
+		   AND DEL_YN = 'N'
+	</select>
+	
+	<!-- 국제도시 이상유무 체크 에러처리 -->
+	<select id="IFEAI2_TMDM_GS_GLBLCITY_SELECT" resultClass="java.util.HashMap">
+		SELECT GLBL_CITY_CD
+		     , LOCAL_GLBL_CITY_NM
+		  FROM TMDM_GS_GLBLCITY
+		 WHERE GLBL_CITY_CD = #PV_CITY_CD#
+		   AND DEL_YN = 'N'
+	</select>
+	
+	<!-- 우편번호 이상유무 체크 에러처리  -->
+	<select id="IFEAI2_TMDM_GS_ZIP_SELECT" resultClass="java.util.HashMap">
+		SELECT ZIP_CD
+			 , ZIP
+		  FROM TMDM_GS_ZIP_IF
+		 WHERE ZIP = #PV_ADDRESS_ZIPCODE#
+		   AND DEL_YN = 'N'
+		   AND ROWNUM = 1
+	</select>
+	
+	<!-- 포트 노드명 데이터 조회 -->
+	<select id="IFEAI2_TMDM_IF_PORT_NM_SELECT" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		  FROM TMDM_IF_PORT_NM
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND PV_PLACE_NM IS NULL
+	</select>
+	
+	<!-- 포트 언어 정보 체크 에러 처리  -->
+	<select id="IFEAI2_TMDM_IF_PORT_LANG_EMP_SELECT" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		  FROM TMDM_IF_PORT_NM A
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND NOT EXISTS
+		     ( SELECT * FROM TMDM_GS_LANG
+		        WHERE DEL_YN = 'N'
+		          AND LANG_CD = A.LANG )
+	</select>
+	
+	<!-- 노드 정보 입력 -->
+	<update id="IFEAI2_TMDM_ST_NODE_MERGE17">
+		MERGE INTO TMDM_ST_NODE A
+		USING ( SELECT PV_PLACE_CD
+			  		 , 'PT' PV_PLACE_TYPE
+			  		 , NVL(PV_FUNC_CD
+			      	 , 'X')
+			    	 PV_FUNC_CD
+		      		 , PV_MNG_ORG
+		      		 , PV_MNG_BRCH
+		      		 , PV_PLACE_NM_LO
+		      		 , PV_LAND1
+		      		 , PV_STATE_CD
+		      		 , PV_CITY_CD
+		      		 , PV_ADDRESS_ZIPCODE
+		      		 , PV_ADDRESS_SEQ
+		      		 , RTRIM(GCOM.KXDECRYPT(PV_ADDRESS_ADDR1))
+		        	 ||RTRIM(GCOM.KXDECRYPT(PV_ADDRESS_ADDR2))
+		        	 ||RTRIM(GCOM.KXDECRYPT(PV_ADDRESS_ADDR3))
+		       	 	 ||RTRIM(GCOM.KXDECRYPT(PV_ADDRESS_ADDR4)) DETL_ADDR
+		      		 , PV_LATITUD
+		      		 , PV_LONGITUD
+		      		 , 'N' DEL_YN
+		      		 , LASTMODIFICATIONUSRID INS_ID
+			  		 , TO_CHAR(CREATIONDTIME
+			  		 		 , 'YYYYMMDD') INS_DATE
+			  		 , TO_CHAR(CREATIONDTIME
+			          		 , 'HH24MISS') INS_TIME
+			  		 , LASTMODIFICATIONUSRID UPD_ID
+			  		 , TO_CHAR(LASTMODIFICATIONDTIME
+			  		 		 , 'YYYYMMDD') UPD_DATE
+			  		 , TO_CHAR(LASTMODIFICATIONDTIME
+			  		  		 , 'HH24MISS') UPD_TIME
+		  FROM TMDM_IF_PORT
+		 WHERE INSTANCEID = #INSTANCEID# ) B
+		    ON A.NODE_ID = B.PV_PLACE_CD
+		  WHEN MATCHED THEN
+			  UPDATE
+		   		 SET A.CORP_ID   = B.PV_MNG_BRCH
+		   		   , A.NODE_TCD  = B.PV_FUNC_CD
+		   	       , A.NODE_DESC = B.PV_PLACE_NM_LO
+		   	 	   , A.NATION_CD = B.PV_LAND1
+			       , A.STATE_CD  = B.PV_STATE_CD
+			       , A.CITY_CD   = B.PV_CITY_CD
+			       , A.ZIP = B.PV_ADDRESS_ZIPCODE
+			       , A.DETL_ADDR = GCOM.KXENCRYPT(TRIM(B.DETL_ADDR))
+			       , A.LAT       = B.PV_LATITUD
+			       , A.LON       = B.PV_LONGITUD 
+			       , A.DEL_YN = B.DEL_YN
+			       , A.UPD_PERSON_ID = B.UPD_ID
+			       , A.UPD_DATE = B.UPD_DATE
+			       , A.UPD_TIME = B.UPD_TIME
+	      WHEN NOT MATCHED THEN
+	          INSERT ( A.NODE_ID
+	          		 , A.NODE_CCD
+	          		 , A.NODE_TCD
+	          		 , A.NODE_CD
+	          		 , A.CORP_ID
+	          		 , A.NODE_DESC
+	          		 , A.NATION_CD
+	          		 , A.STATE_CD
+	          		 , A.CITY_CD
+	          		 , A.ZIP
+	          		 , A.DETL_ADDR
+	          		 , A.LAT
+	          		 , A.LON
+	          		 , A.DEL_YN
+	          		 , A.INS_PERSON_ID
+	          		 , A.INS_DATE
+	          		 , A.INS_TIME 
+	          		 , A.TEMP_CRE_YN)
+	          VALUES ( B.PV_PLACE_CD
+	          		 , B.PV_PLACE_TYPE
+	          		 , B.PV_FUNC_CD
+	          		 , B.PV_PLACE_CD
+	          		 , B.PV_MNG_BRCH
+	          		 , B.PV_PLACE_NM_LO
+	          		 , B.PV_LAND1
+	          		 , B.PV_STATE_CD
+	          		 , B.PV_CITY_CD
+	          		 , B.PV_ADDRESS_ZIPCODE
+	          		 , GCOM.KXENCRYPT(TRIM(B.DETL_ADDR))
+	          		 , B.PV_LATITUD
+	          		 , B.PV_LONGITUD
+	          		 , B.DEL_YN
+	          		 , B.INS_ID
+	          		 , B.INS_DATE
+	          		 , B.INS_TIME 
+	          		 , 'N' )	                 			          
+	</update>
+	
+	<!-- 포트 업체명 입력 -->
+	<update id="IFEAI2_TMDM_BP_NAME_MERGE17">
+		MERGE INTO TMDM_BP_NAME A
+		USING ( SELECT 'NODE' RCP_TCD
+				     , PV_PLACE_CD
+				     , LANG
+				     , 'N001' NM_TCD
+				     , PV_PLACE_NM
+				     , 'N' DEL_YN
+				     , 'INTERFACE' INS_ID
+				     , TO_CHAR(SYSDATE,'YYYYMMDD') INS_DATE
+				     , TO_CHAR(SYSDATE,'HH24MISS') INS_TIME
+				     , '' UPD_ID
+				     , '' UPD_DATE
+				     , '' UPD_TIME
+		          FROM TMDM_IF_PORT_NM
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.RCP_TCD = 'NODE'
+		  AND A.RCP_ID = B.PV_PLACE_CD
+		  AND A.LANG_CD = B.LANG
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.RCP_TCD       = B.RCP_TCD
+		           , A.RCP_ID        = B.PV_PLACE_CD
+		           , A.RCP_2ND_ID    = B.PV_PLACE_CD
+		           , A.NM_TCD        = B.NM_TCD
+		           , A.LANG_CD       = B.LANG
+		           , A.NM            = B.PV_PLACE_NM
+		           , A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD
+		      		 , A.RCP_ID
+		      		 , A.RCP_2ND_ID
+		      		 , A.NM_TCD
+		      		 , A.LANG_CD
+		      		 , A.NM
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME )
+		      VALUES ( B.RCP_TCD
+		      		 , B.PV_PLACE_CD
+		      		 , B.PV_PLACE_CD
+		      		 , B.NM_TCD
+		      		 , B.LANG
+		      		 , B.PV_PLACE_NM
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME )		      
+	</update>
+	
+	<!-- 업체 LOC주소 입력 국가정보에서 가져온 #OFFICL_LANG_CD# 기준 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_LOC_MERGE17">
+		MERGE INTO TMDM_BP_ADDR A
+		USING ( SELECT 'NODE' RCP_TCD
+					 , X.PV_PLACE_CD
+					 , 'A001' ADDR_TCD
+					 , X.PV_LAND1             <!-- /* #OFFICL_LANG_CD# */ -->
+					 , 'KO' OFFICL_LANG_CD    <!-- /* NATIONON.OFFICL_LANG_CD */ --> 
+					 , X.PV_ADDRESS_ZIPCODE
+					 , NATIONON.NATION_NM
+					 , STATE.STATE_PRV_NM_1
+					 , CITY.LOCAL_GLBL_CITY_NM
+					 , RTRIM(GCOM.KXDECRYPT(X.PV_ADDRESS_ADDR1)) PV_ADDRESS_ADDR1
+					 , RTRIM(GCOM.KXDECRYPT(X.PV_ADDRESS_ADDR2)) PV_ADDRESS_ADDR2
+					 , RTRIM(GCOM.KXDECRYPT(X.PV_ADDRESS_ADDR3)) PV_ADDRESS_ADDR3
+					 , RTRIM(GCOM.KXDECRYPT(X.PV_ADDRESS_ADDR4)) PV_ADDRESS_ADDR4
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR1) PV_ADDRESS_GLOBALADDR1
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR2) PV_ADDRESS_GLOBALADDR2
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR3) PV_ADDRESS_GLOBALADDR3
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR4) PV_ADDRESS_GLOBALADDR4
+					 , 'N' DEL_YN
+					 , LASTMODIFICATIONUSRID INS_ID
+					 , TO_CHAR(CREATIONDTIME, 'YYYYMMDD') INS_DATE
+					 , TO_CHAR(CREATIONDTIME, 'HH24MISS') INS_TIME
+					 , LASTMODIFICATIONUSRID UPD_ID
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+		            FROM TMDM_IF_PORT X
+		            LEFT OUTER JOIN( SELECT NATION_CD
+		            					  , NATION_NM 
+		            					  , OFFICL_LANG_CD
+		            				   FROM TMDM_GS_NATION 
+		            				  WHERE DEL_YN = 'N' ) AS NATIONON ON X.PV_LAND1 = NATIONON.NATION_CD
+		            LEFT OUTER JOIN( SELECT NATION_CD
+		            					  , STATE_PRV_CD
+		            					  , STATE_PRV_NM_1 
+		            				   FROM TMDM_GS_STATEPRV 
+		            				  WHERE DEL_YN = 'N' ) AS STATE ON X.PV_LAND1 = STATE.NATION_CD
+		                  AND X.PV_STATE_CD = STATE.STATE_PRV_CD
+		            LEFT OUTER JOIN( SELECT GLBL_CITY_CD
+		            					  , LOCAL_GLBL_CITY_NM 
+		            				   FROM TMDM_GS_GLBLCITY 
+		            				  WHERE DEL_YN = 'N') AS CITY ON CITY.GLBL_CITY_CD = X.PV_CITY_CD
+		          WHERE X.INSTANCEID = #INSTANCEID# ) B 
+		          ON A.RCP_TCD = 'NODE'
+		  			AND A.RCP_ID = B.PV_PLACE_CD
+		  			AND A.LANG_CD = 'KO'    
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ZIP           = B.PV_ADDRESS_ZIPCODE
+		           , A.NATION_NM     = B.NATION_NM
+		           , A.STATE_NM      = B.STATE_PRV_NM_1
+		           , A.CITY_NM       = B.LOCAL_GLBL_CITY_NM
+		           , A.DETL_ADDR_1   = GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR1))
+		           , A.DETL_ADDR_2   = GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR2))
+		           , A.DETL_ADDR_3   = GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR3))
+		           , A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		           , A.NEW_DETL_ADDR_1  = GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR1#))
+		           , A.NEW_DETL_ADDR_2  = GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR2#))
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD
+		      		 , A.RCP_ID
+		      		 , A.RCP_2ND_ID
+		      		 , A.ADDR_TCD
+		      		 , A.LANG_CD
+		      		 , A.ZIP
+		      		 , A.NATION_NM
+		      		 , A.STATE_NM
+		      		 , A.CITY_NM
+		      		 , A.DETL_ADDR_1
+		      		 , A.DETL_ADDR_2
+		      		 , A.DETL_ADDR_3
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME 
+		      		 , A.NEW_DETL_ADDR_1
+		      		 , A.NEW_DETL_ADDR_2 )
+		      VALUES ( B.RCP_TCD
+		      		 , B.PV_PLACE_CD
+		      		 , B.PV_PLACE_CD
+		      		 , B.ADDR_TCD
+		      		 , B.OFFICL_LANG_CD
+		      		 , B.PV_ADDRESS_ZIPCODE
+		      		 , B.NATION_NM
+		      		 , B.STATE_PRV_NM_1
+		      		 , B.LOCAL_GLBL_CITY_NM
+		      		 , GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR1))
+		      		 , GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR2))
+		      		 , GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR3))
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME
+		      		 , GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR1#))
+		      		 , GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR2#)) )
+	</update>
+	
+	<!-- 포트 업체 LOC주소 입력 국가 정보에서 가져온 EN 등록 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_EN_MERGE17">
+		MERGE INTO TMDM_BP_ADDR A
+		USING ( SELECT 'NODE' RCP_TCD
+		      , X.PV_PLACE_CD
+		      , 'A001' ADDR_TCD
+		      , 'EN' LANG_CD
+		      , X.PV_ADDRESS_ZIPCODE
+		      , NATION.NATION_NM
+		      , STATE.STATE_PRV_NM_1
+		      , CITY.LOCAL_GLBL_CITY_NM
+		      , RTRIM(X.PV_ADDRESS_ADDR1) PV_ADDRESS_ADDR1
+		      , RTRIM(X.PV_ADDRESS_ADDR2) PV_ADDRESS_ADDR2
+		      , RTRIM(X.PV_ADDRESS_ADDR3) PV_ADDRESS_ADDR3
+		      , RTRIM(X.PV_ADDRESS_ADDR4) PV_ADDRESS_ADDR4
+		      , RTRIM(X.PV_ADDRESS_GLOBALADDR1) PV_ADDRESS_GLOBALADDR1
+		      , RTRIM(X.PV_ADDRESS_GLOBALADDR2) PV_ADDRESS_GLOBALADDR2
+		      , RTRIM(X.PV_ADDRESS_GLOBALADDR3) PV_ADDRESS_GLOBALADDR3
+		      , RTRIM(X.PV_ADDRESS_GLOBALADDR4) PV_ADDRESS_GLOBALADDR4
+		      , 'N' DEL_YN
+		      , LASTMODIFICATIONUSRID INS_ID
+		      , TO_CHAR(CREATIONDTIME
+		                ,'YYYYMMDD') INS_DATE
+		      , TO_CHAR(CREATIONDTIME
+		                ,'HH24MISS') INS_TIME
+		      , LASTMODIFICATIONUSRID UPD_ID
+			  , TO_CHAR(LASTMODIFICATIONDTIME
+				       ,'YYYYMMDD') UPD_DATE
+			  , TO_CHAR(LASTMODIFICATIONDTIME
+				       ,'HH24MISS') UPD_TIME
+			FROM TMDM_IF_PORT X
+			   LEFT OUTER JOIN
+				  ( SELECT NATION_CD
+				         , NATION_NM 
+				      FROM TMDM_GS_NATION 
+				     WHERE
+		               DEL_YN = 'N' ) AS NATION
+		                              ON X.PV_LAND1 = NATION.NATION_CD
+		       LEFT OUTER JOIN
+		          ( SELECT NATION_CD
+		                 , STATE_PRV_CD
+		                 , STATE_PRV_NM_1 
+		              FROM TMDM_GS_STATEPRV 
+		             WHERE 
+		               DEL_YN = 'N' ) AS STATE
+		                              ON X.PV_LAND1 = STATE.NATION_CD
+		               AND X.PV_STATE_CD = STATE.STATE_PRV_CD
+		       LEFT OUTER JOIN
+		          ( SELECT GLBL_CITY_CD
+		          		 , LOCAL_GLBL_CITY_NM 
+		              FROM TMDM_GS_GLBLCITY 
+		             WHERE DEL_YN = 'N') AS CITY
+				     					 ON CITY.GLBL_CITY_CD = X.PV_CITY_CD
+					 WHERE X.INSTANCEID = #INSTANCEID# ) B
+		                                 ON A.RCP_TCD = 'NODE'
+		               AND A.RCP_ID = B.PV_PLACE_CD
+		               AND A.LANG_CD = 'EN'
+		WHEN MATCHED THEN
+		UPDATE 
+		   SET A.ZIP = B.PV_ADDRESS_ZIPCODE
+			 , A.NATION_NM = B.NATION_NM
+		     , A.STATE_NM = B.STATE_PRV_NM_1
+		     , A.CITY_NM = B.LOCAL_GLBL_CITY_NM
+			 , A.DETL_ADDR_1 = B.PV_ADDRESS_GLOBALADDR1
+			 , A.DETL_ADDR_2 = B.PV_ADDRESS_GLOBALADDR2
+			 , A.DETL_ADDR_3 = B.PV_ADDRESS_GLOBALADDR3
+			 , A.DEL_YN = B.DEL_YN
+			 , A.UPD_PERSON_ID = B.UPD_ID
+			 , A.UPD_DATE = B.UPD_DATE
+			 , A.UPD_TIME = B.UPD_TIME
+		WHEN NOT MATCHED THEN
+		INSERT ( A.RCP_TCD
+			   , A.RCP_ID
+			   , A.RCP_2ND_ID
+			   , A.ADDR_TCD
+			   , A.LANG_CD
+			   , A.ZIP
+			   , A.NATION_NM
+			   , A.STATE_NM
+			   , A.CITY_NM
+			   , A.DETL_ADDR_1
+			   , A.DETL_ADDR_2
+			   , A.DETL_ADDR_3
+			   , A.DEL_YN
+			   , A.INS_PERSON_ID
+			   , A.INS_DATE
+			   , A.INS_TIME )
+		VALUES ( B.RCP_TCD
+		       , B.PV_PLACE_CD
+		       , B.PV_PLACE_CD
+		       , B.ADDR_TCD
+		       , B.LANG_CD
+		       , B.PV_ADDRESS_ZIPCODE
+		       , B.NATION_NM
+		       , B.STATE_PRV_NM_1
+		       , B.LOCAL_GLBL_CITY_NM
+		       , B.PV_ADDRESS_GLOBALADDR1
+		       , B.PV_ADDRESS_GLOBALADDR2
+		       , B.PV_ADDRESS_GLOBALADDR3
+		       , B.DEL_YN
+		       , B.INS_ID
+		       , B.INS_DATE
+		       , B.INS_TIME )
+	</update>
+	
+<!-- 국제도시 등록 -->
+	<update id="IFEAI2_TMDM_GS_GLBLCITY_MERGE">
+	MERGE INTO TMDM_GS_GLBLCITY A
+	USING ( SELECT  X.PV_PLACE_CD, 
+					( SELECT PV_PLACE_NM                            
+						FROM TMDM_IF_PORT_NM                           
+						WHERE INSTANCEID = X.INSTANCEID                             
+						AND LANG = 'EN' ) ENG_PV_PLACE_NM, 
+					X.PV_PLACE_NM_LO, 
+					X.PV_LAND1, 
+					X.PV_STATE_CD, 
+					X.PV_CITY_CD, 
+					X.PV_UNLOC_CD,                
+					X.PV_IATA_CD, 
+					X.PV_LATITUD, 
+					X.PV_LONGITUD, 
+					X.PV_TIMEZONE,                
+					'N' DEL_YN,                
+					NVL(X.LASTMODIFICATIONUSRID,'X') INS_ID,                 
+					TO_CHAR(X.CREATIONDTIME,'YYYYMMDD') INS_DATE,                 
+					TO_CHAR(X.CREATIONDTIME,'HH24MISS') INS_TIME,                
+					X.LASTMODIFICATIONUSRID UPD_ID,     
+					TO_CHAR(X.LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE,                
+					TO_CHAR(X.LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME,
+					X.PV_FUNC_CD
+			FROM TMDM_IF_PORT X
+			WHERE X.INSTANCEID = #INSTANCEID# ) B
+				ON A.GLBL_CITY_CD = B.PV_UNLOC_CD
+			WHEN MATCHED THEN
+	UPDATE
+		SET A.ENG_GLBL_CITY_NM   = B.ENG_PV_PLACE_NM, 
+			A.LOCAL_GLBL_CITY_NM = B.PV_PLACE_NM_LO, 
+			A.NATION_CD          = B.PV_LAND1, 
+			A.STATE_PRV_CD       = B.PV_STATE_CD,
+			A.CITY_CD            = B.PV_CITY_CD,
+			A.UNLO_CD            = B.PV_UNLOC_CD, 
+			A.IATA_CD            = B.PV_IATA_CD, 
+			A.LAT                = B.PV_LATITUD, 
+			A.LON                = B.PV_LONGITUD, 
+			A.TZ_CD              = B.PV_TIMEZONE,
+			A.DEL_YN             = B.DEL_YN, 
+			A.UPD_PERSON_ID      = B.UPD_ID, 
+			A.UPD_DATE           = B.UPD_DATE, 
+			A.UPD_TIME           = B.UPD_TIME,
+			A.FUNC_CD = B.PV_FUNC_CD
+	WHEN NOT MATCHED THEN
+		INSERT (A.GLBL_CITY_CD, 
+				A.ENG_GLBL_CITY_NM, 
+				A.LOCAL_GLBL_CITY_NM, 
+				A.ENG_GLBL_CITY_DESC, 
+				A.LOCAL_GLBL_CITY_DESC, 
+				A.NATION_CD, 
+				A.STATE_PRV_CD, 
+				A.CITY_CD, 
+				A.UNLO_CD, 
+				A.IATA_CD, 
+				A.LAT, 
+				A.LON, 
+				A.TZ_CD, 
+				A.DEL_YN, 
+				A.INS_PERSON_ID, 
+				A.INS_DATE, 
+				A.INS_TIME,
+				A.FUNC_CD )
+	VALUES (B.PV_UNLOC_CD, 
+			B.ENG_PV_PLACE_NM, 
+			B.PV_PLACE_NM_LO, 
+			B.ENG_PV_PLACE_NM, 
+			B.PV_PLACE_NM_LO, 
+			B.PV_LAND1, 
+			B.PV_STATE_CD, 
+			B.PV_CITY_CD, 
+			B.PV_UNLOC_CD, 
+			B.PV_IATA_CD, 
+			B.PV_LATITUD, 
+			B.PV_LONGITUD, 
+			B.PV_TIMEZONE,
+			B.DEL_YN, 
+			B.INS_ID, 
+			B.INS_DATE, 
+			B.INS_TIME,
+			B.PV_FUNC_CD )
+	</update>
+	
+	<!-- ST_NODE 정보 삭제 -->
+	<update id="IFEAI2_TMDM_ST_NODE_UPDATE">
+		UPDATE TMDM_ST_NODE_IF
+		   SET DEL_YN = 'Y'
+         WHERE NODE_ID = #PV_PLACE_CD#
+	</update>
+	
+	<!-- 국제도시 정보 삭제 -->
+	<update id="IFEAI2_TMDM_GS_GLBLCITY_UPDATE">
+		UPDATE TMDM_GS_GLBLCITY
+		   SET DEL_YN = 'Y'
+         WHERE GLBL_CITY_CD = #PV_UNLOC_CD#
+	</update>	
+	
+	<!-- 포트 인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_PORT_UPDATE">
+		UPDATE TMDM_IF_PORT
+		   SET EAI_STATE = #EAI_STATE#
+		     , EAI_MSG = #EAI_MSG#
+		     , EAI_DATE = current_timestamp
+		 WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<!-- 포트 인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_PORT_NM_UPDATE">
+		UPDATE TMDM_IF_PORT_NM
+		   SET EAI_STATE = #EAI_STATE#
+  			 , EAI_MSG = #EAI_MSG#
+			 , EAI_DATE = current_timestamp
+		 WHERE INSTANCEID = #INSTANCEID#
+	</update>  
+	
+	<!-- 지역정보 인터페이스 Temp조회 -->
+	<select id="IFEAI2_TMDM_IF_REGION_SELECT" resultClass="java.util.HashMap">
+		SELECT INSTANCEID
+			 , EAI_STATE
+			 , PV_PLACE_CD
+			 , PV_LAND1
+			 , PV_STATE_CD
+			 , PV_ADDRESS_ZIPCODE
+			 , PV_MNG_BRCH
+			 , PV_CITY_CD
+			 , PV_STATUS
+			 , EAI_OP
+			 , AESDECRYPT(PV_ADDRESS_ADDR1)
+		     , AESDECRYPT(PV_ADDRESS_ADDR1)||AESDECRYPT(PV_ADDRESS_ADDR2)||AESDECRYPT(PV_ADDRESS_ADDR3)||AESDECRYPT(PV_ADDRESS_ADDR4) LCL_ADDR
+		     , PV_ADDRESS_GLOBALADDR1||PV_ADDRESS_GLOBALADDR2||PV_ADDRESS_GLOBALADDR3||PV_ADDRESS_GLOBALADDR4 GLBL_ADDR
+		  FROM TMDM_IF_REGION
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>
+	 
+	<!-- 지역 노드명 데이터 조회  -->
+	<select id="IFEAI2_TMDM_IF_REGION_NM_SELECT" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		  FROM TMDM_IF_REGION_NM
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND PV_PLACE_NM IS NULL
+	</select>
+	
+	<!-- 지역 언어 정보 체크 에러 처리  -->
+	<select id="IFEAI2_TMDM_IF_REGION_LANG_EMP_SELECT" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		  FROM TMDM_IF_REGION_NM A
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND NOT EXISTS
+		     ( SELECT * FROM TMDM_GS_LANG
+		        WHERE DEL_YN = 'N'
+		          AND LANG_CD = A.LANG )
+	</select>
+	
+	<!-- 지역 노드 정보 입력 -->
+	<update id="IFEAI2_TMDM_ST_NODE_MERGE18">
+		MERGE INTO TMDM_ST_NODE_IF A
+		USING ( SELECT PV_PLACE_CD
+				     , 'SB' PV_PLACE_TYPE
+				     , NVL(PV_LOC_TYPE, 'SL') PV_FUNC_CD
+				     , PV_MNG_BRCH
+				     , PV_PLACE_NM_LO
+				     , PV_LAND1
+				     , PV_STATE_CD
+				     , PV_CITY_CD
+				     , PV_ADDRESS_ZIPCODE
+				     , PV_ADDRESS_SEQ
+				     , RTRIM(AESDECRYPT(PV_ADDRESS_ADDR1))
+		        	 ||RTRIM(AESDECRYPT(PV_ADDRESS_ADDR2))
+		        	 ||RTRIM(AESDECRYPT(PV_ADDRESS_ADDR3))
+		       	 	 ||RTRIM(AESDECRYPT(PV_ADDRESS_ADDR4)) DETL_ADDR
+				     , PV_LATITUD
+				     , PV_LONGITUD
+                     , PV_PARENT_LOC_CD
+                     , PV_LOC_DESC 
+				     , 'N' DEL_YN
+			         , LASTMODIFICATIONUSRID INS_ID
+			  		 , SUBSTR(CREATIONDTIME, 0, 8) INS_DATE
+				     , SUBSTR(CREATIONDTIME, 9, 6) INS_TIME
+				     , LASTMODIFICATIONUSRID UPD_ID
+				     , SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE
+				     , SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME
+			      FROM TMDM_IF_REGION
+				 WHERE INSTANCEID = #INSTANCEID# ) B
+					ON (A.NODE_ID = B.PV_PLACE_CD)
+		WHEN MATCHED THEN
+			UPDATE
+				SET A.CORP_ID = B.PV_MNG_BRCH
+				  , A.NODE_TCD = B.PV_FUNC_CD
+				  , A.NODE_DESC = B.PV_LOC_DESC
+				  , A.NATION_CD = B.PV_LAND1
+				  , A.STATE_CD = B.PV_STATE_CD
+				  , A.CITY_CD = B.PV_CITY_CD
+				  , A.ZIP = B.PV_ADDRESS_ZIPCODE
+				  , A.DETL_ADDR = AESENCRYPT(TRIM(B.DETL_ADDR))
+			      , A.LAT       = B.PV_LATITUD
+			      , A.LON       = B.PV_LONGITUD 
+                  , A.PRNT_NODE_ID = B.PV_PARENT_LOC_CD
+				  , A.DEL_YN = B.DEL_YN
+				  , A.MOD_ID = B.UPD_ID
+				  , A.MOD_DT = B.UPD_DATE || B.UPD_TIME
+		WHEN NOT MATCHED THEN
+			INSERT ( A.NODE_ID
+				   , A.NODE_CCD
+				   , A.NODE_TCD
+				   , A.NODE_CD
+				   , A.CORP_ID
+				   , A.NODE_DESC
+				   , A.NATION_CD
+				   , A.STATE_CD
+				   , A.CITY_CD
+				   , A.ZIP
+				   , A.DETL_ADDR
+				   , A.LAT
+				   , A.LON 
+				   , A.PRNT_NODE_ID
+				   , A.DEL_YN
+				   , A.REG_ID
+				   , A.REG_DT
+				   , A.TEMP_CRE_YN )
+			VALUES ( B.PV_PLACE_CD
+				   , B.PV_PLACE_TYPE
+				   , B.PV_FUNC_CD
+				   , B.PV_PLACE_CD
+				   , B.PV_MNG_BRCH
+				   , B.PV_LOC_DESC
+				   , B.PV_LAND1
+				   , B.PV_STATE_CD
+				   , B.PV_CITY_CD
+				   , B.PV_ADDRESS_ZIPCODE
+				   , AESENCRYPT(TRIM(B.DETL_ADDR))
+				   , B.PV_LATITUD
+	          	   , B.PV_LONGITUD
+	          	   , B.PV_PARENT_LOC_CD
+				   , B.DEL_YN
+				   , B.INS_ID
+				   , B.INS_DATE || B.INS_TIME
+				   , 'N' )
+	</update>
+	
+	<!--지역 업체명 입력 -->
+	<update id="IFEAI2_TMDM_BP_NAME_MERGE18">
+		MERGE INTO TMDM_BP_NAME_IF A
+		USING ( SELECT 'NODE' RCP_TCD
+			         , PV_PLACE_CD
+			  		 , LANG
+			  		 , 'N001' NM_TCD
+			  		 , PV_PLACE_NM
+			  		 , 'N' DEL_YN
+			  		 , 'INTERFACE' INS_ID
+			  		 , TO_CHAR(SYSDATE
+			  		 		  ,'YYYYMMDD') INS_DATE
+			  		 , TO_CHAR(SYSDATE
+			  		 		  ,'HH24MISS') INS_TIME
+			  		 , '' UPD_ID
+			  		 , '' UPD_DATE
+			  		 , '' UPD_TIME
+		          FROM TMDM_IF_REGION_NM
+		 		 WHERE INSTANCEID = #INSTANCEID# ) B
+			ON (A.RCP_TCD = 'NODE'
+		   AND A.RCP_ID = B.PV_PLACE_CD
+		   AND A.LANG_CD = B.LANG)
+		 WHEN MATCHED THEN
+			 UPDATE
+				 SET A.RCP_2ND_ID = B.PV_PLACE_CD
+				   , A.NM_TCD = B.NM_TCD
+				   , A.NM = B.PV_PLACE_NM
+				   , A.DEL_YN = B.DEL_YN
+				   , A.MOD_ID = B.UPD_ID
+				   , A.MOD_DT = B.UPD_DATE || B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+			 INSERT ( A.RCP_TCD
+			 		, A.RCP_ID
+			 		, A.RCP_2ND_ID
+			 		, A.NM_TCD
+			 		, A.LANG_CD
+			 		, A.NM
+					, A.DEL_YN
+					, A.REG_ID
+					, A.REG_DT)
+			 VALUES ( B.RCP_TCD
+			 		, B.PV_PLACE_CD
+			 		, B.PV_PLACE_CD
+			 		, B.NM_TCD
+			 		, B.LANG
+			 		, B.PV_PLACE_NM
+			 		, B.DEL_YN
+			 		, B.INS_ID
+			 		, B.INS_DATE || B.INS_TIME)
+	</update>
+	
+	<!-- 지역 업체 LOC주소 입력 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_LOC_MERGE18">
+		MERGE INTO TMDM_BP_ADDR_IF A
+		USING ( SELECT 'NODE' RCP_TCD
+					 , X.PV_PLACE_CD
+					 , 'A001' ADDR_TCD
+					 , X.PV_LAND1  
+					 , 'KO' LANG_CD
+					 , X.PV_ADDRESS_ZIPCODE
+					 , NATION.NATION_NM
+					 , STATE.STATE_PRV_NM_1
+					 , CITY.LOCAL_GLBL_CITY_NM
+					 , RTRIM(AESDECRYPT(X.PV_ADDRESS_ADDR1)) PV_ADDRESS_ADDR1
+					 , RTRIM(AESDECRYPT(X.PV_ADDRESS_ADDR2)) PV_ADDRESS_ADDR2
+					 , RTRIM(AESDECRYPT(X.PV_ADDRESS_ADDR3)) PV_ADDRESS_ADDR3
+					 , RTRIM(AESDECRYPT(X.PV_ADDRESS_ADDR4)) PV_ADDRESS_ADDR4
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR1) PV_ADDRESS_GLOBALADDR1
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR2) PV_ADDRESS_GLOBALADDR2
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR3) PV_ADDRESS_GLOBALADDR3
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR4) PV_ADDRESS_GLOBALADDR4
+					 , 'N' DEL_YN
+					 , LASTMODIFICATIONUSRID INS_ID
+					 , SUBSTR(CREATIONDTIME, 0, 8) INS_DATE
+					 , SUBSTR(CREATIONDTIME, 9, 6) INS_TIME
+					 , LASTMODIFICATIONUSRID UPD_ID
+					 , SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE
+					 , SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME
+				  FROM TMDM_IF_REGION X
+				  LEFT OUTER JOIN ( SELECT NATION_CD
+				  						 , NATION_NM 
+				  						 , OFFICL_LANG_CD
+				  					  FROM TMDM_GS_NATION 
+				  					 WHERE DEL_YN = 'N' ) NATION
+										ON X.PV_LAND1 = NATION.NATION_CD
+				  LEFT OUTER JOIN ( SELECT NATION_CD
+				  						 , STATE_PRV_CD
+				  						 , STATE_PRV_NM_1 
+				  					  FROM TMDM_GS_STATEPRV 
+				  					 WHERE DEL_YN = 'N' ) STATE
+										ON X.PV_LAND1 = STATE.NATION_CD
+									   AND X.PV_STATE_CD = STATE.STATE_PRV_CD
+				  LEFT OUTER JOIN ( SELECT GLBL_CITY_CD
+				  						 , LOCAL_GLBL_CITY_NM 
+				  					  FROM TMDM_GS_GLBLCITY 
+				  					 WHERE DEL_YN = 'N') CITY
+										ON CITY.GLBL_CITY_CD = X.PV_CITY_CD
+				 WHERE X.INSTANCEID = #INSTANCEID# ) B
+					ON (A.RCP_TCD = 'NODE'
+				   AND A.RCP_ID = B.PV_PLACE_CD
+				   AND A.LANG_CD = 'KO'
+				   AND A.ADDR_TCD = B.ADDR_TCD)
+		WHEN MATCHED THEN
+			UPDATE
+				SET A.ZIP = B.PV_ADDRESS_ZIPCODE
+				  , A.NATION_NM = B.NATION_NM
+				  , A.STATE_NM = B.STATE_PRV_NM_1
+				  , A.CITY_NM = B.LOCAL_GLBL_CITY_NM
+				  , A.DETL_ADDR_1 = AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR1))
+				  , A.DETL_ADDR_2 = AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR2))
+				  , A.DETL_ADDR_3 = AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR3))
+				  , A.DEL_YN = B.DEL_YN
+				  , A.MOD_ID = B.UPD_ID
+				  , A.MOD_DT = B.UPD_DATE || B.UPD_TIME
+				  , A.NEW_DETL_ADDR_1  = AESENCRYPT(TRIM(#O_NEW_ADDR1#))
+				  , A.NEW_DETL_ADDR_2  = AESENCRYPT(TRIM(#O_NEW_ADDR2#))
+		WHEN NOT MATCHED THEN
+			INSERT ( A.RCP_TCD
+				   , A.RCP_ID
+				   , A.RCP_2ND_ID
+				   , A.ADDR_TCD
+				   , A.LANG_CD
+				   , A.ZIP
+				   , A.NATION_NM
+				   , A.STATE_NM
+				   , A.CITY_NM
+				   , A.DETL_ADDR_1
+				   , A.DETL_ADDR_2
+				   , A.DETL_ADDR_3
+				   , A.DEL_YN
+				   , A.REG_ID
+				   , A.REG_DT 
+				   , A.NEW_DETL_ADDR_1
+				   , A.NEW_DETL_ADDR_2 )
+			VALUES ( B.RCP_TCD
+				   , B.PV_PLACE_CD
+				   , B.PV_PLACE_CD
+				   , B.ADDR_TCD
+				   , B.LANG_CD
+				   , B.PV_ADDRESS_ZIPCODE
+				   , B.NATION_NM
+				   , B.STATE_PRV_NM_1
+				   , B.LOCAL_GLBL_CITY_NM
+				   , AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR1))
+				   , AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR2))
+				   , AESENCRYPT(TRIM(B.PV_ADDRESS_ADDR3))
+				   , B.DEL_YN
+				   , B.INS_ID
+				   , B.INS_DATE || B.INS_TIME
+				   , AESENCRYPT(TRIM(#O_NEW_ADDR1#))
+				   , AESENCRYPT(TRIM(#O_NEW_ADDR2#)))
+	</update>
+	
+	<!-- 지역 업체 LOC EN 주소 입력 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_EN_MERGE18">
+		MERGE INTO TMDM_BP_ADDR_IF A
+		USING ( SELECT 'NODE' RCP_TCD
+					 , X.PV_PLACE_CD
+					 , 'A001' ADDR_TCD
+					 , 'EN' LANG_CD  <!--/* OFFICL_LANG_CD */  -->
+					 , X.PV_ADDRESS_ZIPCODE
+					 , NATION.NATION_NM
+					 , STATE.STATE_PRV_NM_1
+					 , CITY.LOCAL_GLBL_CITY_NM
+					 , RTRIM(X.PV_ADDRESS_ADDR1) PV_ADDRESS_ADDR1
+					 , RTRIM(X.PV_ADDRESS_ADDR2) PV_ADDRESS_ADDR2
+					 , RTRIM(X.PV_ADDRESS_ADDR3) PV_ADDRESS_ADDR3
+					 , RTRIM(X.PV_ADDRESS_ADDR4) PV_ADDRESS_ADDR4
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR1) PV_ADDRESS_GLOBALADDR1
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR2) PV_ADDRESS_GLOBALADDR2
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR3) PV_ADDRESS_GLOBALADDR3
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR4) PV_ADDRESS_GLOBALADDR4
+					 , 'N' DEL_YN
+					 , LASTMODIFICATIONUSRID INS_ID
+					 , SUBSTR(CREATIONDTIME, 0, 8) INS_DATE
+					 , SUBSTR(CREATIONDTIME, 9, 6) INS_TIME
+					 , LASTMODIFICATIONUSRID UPD_ID
+					 , SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE
+					 , SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME
+				  FROM TMDM_IF_REGION X
+				  LEFT OUTER JOIN ( SELECT NATION_CD
+				  				  		 , NATION_NM 
+				  				  	  FROM TMDM_GS_NATION 
+				  				  	 WHERE DEL_YN = 'N' ) NATION
+										ON X.PV_LAND1 = NATION.NATION_CD
+				  LEFT OUTER JOIN ( SELECT NATION_CD
+				  						 , STATE_PRV_CD
+				  						 , STATE_PRV_NM_1 
+				  					  FROM TMDM_GS_STATEPRV 
+				  					 WHERE DEL_YN = 'N' ) STATE
+										ON X.PV_LAND1 = STATE.NATION_CD
+									   AND X.PV_STATE_CD = STATE.STATE_PRV_CD
+				  LEFT OUTER JOIN ( SELECT GLBL_CITY_CD
+				  						 , LOCAL_GLBL_CITY_NM 
+				  					  FROM TMDM_GS_GLBLCITY 
+				  					 WHERE DEL_YN = 'N') CITY
+										ON CITY.GLBL_CITY_CD = X.PV_CITY_CD
+				 WHERE X.INSTANCEID = #INSTANCEID# ) B
+					ON (A.RCP_TCD = 'NODE'
+				   AND A.RCP_ID = B.PV_PLACE_CD
+				   AND A.LANG_CD = 'EN')
+		WHEN MATCHED THEN
+			UPDATE
+				SET A.ZIP = B.PV_ADDRESS_ZIPCODE
+				  , A.NATION_NM = B.NATION_NM
+				  , A.STATE_NM = B.STATE_PRV_NM_1
+				  , A.CITY_NM = B.LOCAL_GLBL_CITY_NM
+				  , A.DETL_ADDR_1 = B.PV_ADDRESS_GLOBALADDR1
+				  , A.DETL_ADDR_2 = B.PV_ADDRESS_GLOBALADDR2
+				  , A.DETL_ADDR_3 = B.PV_ADDRESS_GLOBALADDR3
+				  , A.DEL_YN = B.DEL_YN
+				  , A.MOD_ID = B.UPD_ID
+				  , A.MOD_DT = B.UPD_DATE || B.UPD_TIME
+		WHEN NOT MATCHED THEN
+			INSERT ( A.RCP_TCD
+				   , A.RCP_ID
+				   , A.RCP_2ND_ID
+				   , A.ADDR_TCD
+				   , A.LANG_CD
+				   , A.ZIP
+				   , A.NATION_NM
+				   , A.STATE_NM
+				   , A.CITY_NM
+				   , A.DETL_ADDR_1
+				   , A.DETL_ADDR_2
+				   , A.DETL_ADDR_3
+				   , A.DEL_YN
+				   , A.REG_ID
+				   , A.REG_DT)
+			VALUES ( B.RCP_TCD
+				   , B.PV_PLACE_CD
+				   , B.PV_PLACE_CD
+				   , B.ADDR_TCD
+				   , B.LANG_CD
+				   , B.PV_ADDRESS_ZIPCODE
+				   , B.NATION_NM
+				   , B.STATE_PRV_NM_1
+				   , B.LOCAL_GLBL_CITY_NM
+				   , B.PV_ADDRESS_GLOBALADDR1
+				   , B.PV_ADDRESS_GLOBALADDR2
+				   , B.PV_ADDRESS_GLOBALADDR3
+				   , B.DEL_YN
+				   , B.INS_ID
+				   , B.INS_DATE || B.INS_TIME)
+	</update>	
+	<!-- 지역 인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_REGION_UPDATE">
+		UPDATE TMDM_IF_REGION
+			SET EAI_STATE = #EAI_STATE#
+		  	  , EAI_MSG = #EAI_MSG#
+		      , EAI_DATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		 WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<!-- 지역 인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_REGION_NM_UPDATE">
+		UPDATE TMDM_IF_REGION_NM
+			SET EAI_STATE = #EAI_STATE#
+			  , EAI_MSG = #EAI_MSG#
+			  , EAI_DATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		 WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<!-- 거점 정보 Temp 조회 -->
+	<select id="IFEAI2_TMDM_IF_BASE_SELECT" resultClass="java.util.HashMap">
+		SELECT INSTANCEID
+			 , EAI_STATE
+			 , PV_PLACE_CD
+			 , PV_LAND1
+			 , PV_STATE_CD
+			 , PV_ADDRESS_ZIPCODE
+			 , PV_POINT_TYPE
+			 , PV_CITY_CD
+			 , PV_MNG_BRCH
+			 , PV_STATUS
+			 , EAI_OP
+			 , GCOM.KXDECRYPT(PV_ADDRESS_ADDR1) AS PV_ADDRESS_ADDR1
+		     , GCOM.KXDECRYPT(PV_ADDRESS_ADDR1)||GCOM.KXDECRYPT(PV_ADDRESS_ADDR2)||GCOM.KXDECRYPT(PV_ADDRESS_ADDR3)||GCOM.KXDECRYPT(PV_ADDRESS_ADDR4) LCL_ADDR
+		     , PV_ADDRESS_GLOBALADDR1||PV_ADDRESS_GLOBALADDR2||PV_ADDRESS_GLOBALADDR3||PV_ADDRESS_GLOBALADDR4 GLBL_ADDR
+		  FROM TMDM_IF_BASE_MSTR
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>
+	
+	<!-- 거점 노드명 데이터 조회 -->
+	<select id="IFEAI2_TMDM_IF_BASE_NM_EMP_SELECT" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		  FROM TMDM_IF_BASE_MSTR_NM
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND PV_PLACE_NM IS NULL
+	</select>
+	
+	<!-- 거점 언어 정보 체크 에러처리 -->
+	<select id="IFEAI2_TMDM_IF_BASE_NM_LANG_EMP_CHECK" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		  FROM TMDM_IF_BASE_MSTR_NM A
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND NOT EXISTS
+		     ( SELECT * FROM TMDM_GS_LANG
+		        WHERE DEL_YN = 'N'
+		          AND LANG_CD = A.LANG )
+	</select>
+	
+	<!-- 거점 노드 정보 입력 -->
+	<!-- MDM2.0 속성추가 2013.02.26 -->
+	<update id="IFEAI2_TMDM_ST_NODE_MERGE16">
+		MERGE INTO TMDM_ST_NODE A
+		USING ( SELECT  PV_PLACE_CD
+					  , 'GS' PV_PLACE_TYPE
+					  , NVL(PV_POINT_TYPE,'X') PV_POINT_TYPE
+					  , PV_MNG_ORG
+					  , PV_MNG_BRCH
+					  , PV_SUP_PLACE_CD
+					  , PV_PLACE_NM_LO
+					  , PV_LAND1
+					  , PV_STATE_CD
+					  , PV_CITY_CD
+					  , PV_ADDRESS_ZIPCODE
+					  , PV_ADDRESS_SEQ
+					  , GCOM.KXDECRYPT(TRIM(PV_ADDRESS_ADDR1))||GCOM.KXDECRYPT(TRIM(PV_ADDRESS_ADDR2))||GCOM.KXDECRYPT(TRIM(PV_ADDRESS_ADDR3))||GCOM.KXDECRYPT(TRIM(PV_ADDRESS_ADDR4)) AS DETL_ADDR
+					  , PV_LATITUD
+					  , PV_LONGITUD
+					  , PV_BOND_SHED_NO
+					  , 'N' DEL_YN
+					  , LASTMODIFICATIONUSRID INS_ID
+					  , TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+					  , TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+					  , LASTMODIFICATIONUSRID UPD_ID
+					  , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+					  , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+					  , PV_SYSDIV
+					  , PV_ALTKN
+		          FROM TMDM_IF_BASE_MSTR
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.NODE_ID = B.PV_PLACE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.CORP_ID       = B.PV_MNG_BRCH
+		           , A.NODE_TCD      = B.PV_POINT_TYPE
+		           , A.PRNT_NODE_ID  = B.PV_SUP_PLACE_CD
+		           , A.NODE_DESC     = B.PV_PLACE_NM_LO
+		           , A.NATION_CD     = B.PV_LAND1
+		           , A.STATE_CD      = B.PV_STATE_CD
+		           , A.CITY_CD       = B.PV_CITY_CD
+		           , A.ZIP           = B.PV_ADDRESS_ZIPCODE
+		           , A.DETL_ADDR     = GCOM.KXENCRYPT(TRIM(B.DETL_ADDR))
+			       , A.LAT           = B.PV_LATITUD
+			       , A.LON           = B.PV_LONGITUD
+			       , A.BOND_WH_CD    = B.PV_BOND_SHED_NO 
+		           , A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		           , A.SYSDIV        = B.PV_SYSDIV
+		           , A.ALTKN         = B.PV_ALTKN
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.NODE_ID
+		      		 , A.NODE_CCD
+		      		 , A.NODE_TCD
+		      		 , A.NODE_CD
+		      		 , A.CORP_ID
+		      		 , A.PRNT_NODE_ID
+		      		 , A.NODE_DESC
+		      		 , A.NATION_CD
+		      		 , A.STATE_CD
+		      		 , A.CITY_CD
+		      		 , A.ZIP
+		      		 , A.DETL_ADDR
+		      		 , A.LAT
+		      		 , A.LON 
+		      		 , A.TEMP_CRE_YN
+		      		 , A.BOND_WH_CD		      		 
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME
+		      		 , A.SYSDIV
+		      		 , A.ALTKN )
+		      VALUES ( B.PV_PLACE_CD
+		      		 , B.PV_PLACE_TYPE
+		      		 , B.PV_POINT_TYPE
+		      		 , B.PV_PLACE_CD
+		      		 , B.PV_MNG_BRCH
+		      		 , B.PV_SUP_PLACE_CD
+		      		 , B.PV_PLACE_NM_LO
+		      		 , B.PV_LAND1
+		      		 , B.PV_STATE_CD
+		      		 , B.PV_CITY_CD
+		      		 , B.PV_ADDRESS_ZIPCODE
+		      		 , GCOM.KXENCRYPT(TRIM(B.DETL_ADDR))		      		 
+		      		 , B.PV_LATITUD
+					 , B.PV_LONGITUD
+					 , 'N'
+					 , B.PV_BOND_SHED_NO
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME
+		      		 , B.PV_SYSDIV
+		      		 , B.PV_ALTKN )
+	</update>
+	
+	<!-- 거점 업체명 입력 -->
+	<update id="IFEAI2_TMDM_BP_NAME_MERGE16">
+		MERGE INTO TMDM_BP_NAME A
+		USING ( SELECT #RCP_TCD# RCP_TCD
+					 , PV_PLACE_CD
+					 , LANG
+					 , 'N001' NM_TCD
+					 , PV_PLACE_NM
+					 , 'N' DEL_YN
+					 , 'INTERFACE' INS_ID
+					 , TO_CHAR(SYSDATE,'YYYYMMDD') INS_DATE
+					 , TO_CHAR(SYSDATE,'HH24MISS') INS_TIME
+					 , '' UPD_ID
+					 , '' UPD_DATE
+					 , '' UPD_TIME
+		          FROM TMDM_IF_BASE_MSTR_NM
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.RCP_TCD = #RCP_TCD#    
+		  AND A.RCP_ID  = B.PV_PLACE_CD
+		  AND A.LANG_CD = B.LANG
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.RCP_TCD       = B.RCP_TCD
+		           , A.RCP_ID        = B.PV_PLACE_CD
+		           , A.RCP_2ND_ID    = B.PV_PLACE_CD
+		           , A.NM_TCD        = B.NM_TCD
+		           , A.LANG_CD       = B.LANG
+		           , A.NM            = B.PV_PLACE_NM
+		           , A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD
+		      		 , A.RCP_ID
+		      		 , A.RCP_2ND_ID
+		      		 , A.NM_TCD
+		      		 , A.LANG_CD
+		      		 , A.NM
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME )
+		      VALUES ( B.RCP_TCD
+		      		 , B.PV_PLACE_CD
+		      		 , B.PV_PLACE_CD
+		      		 , B.NM_TCD
+		      		 , B.LANG
+		      		 , B.PV_PLACE_NM
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME )
+	</update>
+	
+	<!-- 거점 업체 LOC주소 입력 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_LOC_MERGE16">
+		MERGE INTO TMDM_BP_ADDR A
+		USING ( SELECT #RCP_TCD# RCP_TCD
+					 , X.PV_PLACE_CD
+					 , 'A001' ADDR_TCD
+					 , 'KO' LANG_CD
+					 , X.PV_ADDRESS_ZIPCODE
+					 , NATION.NATION_NM
+					 , STATE.STATE_PRV_NM_1
+					 , CITY.LOCAL_GLBL_CITY_NM
+					 , GCOM.KXDECRYPT(TRIM(X.PV_ADDRESS_ADDR1)) AS PV_ADDRESS_ADDR1
+					 , GCOM.KXDECRYPT(TRIM(X.PV_ADDRESS_ADDR2)) AS PV_ADDRESS_ADDR2
+					 , GCOM.KXDECRYPT(TRIM(X.PV_ADDRESS_ADDR3)) AS PV_ADDRESS_ADDR3
+					 , GCOM.KXDECRYPT(TRIM(X.PV_ADDRESS_ADDR4)) AS PV_ADDRESS_ADDR4
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR1) PV_ADDRESS_GLOBALADDR1
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR2) PV_ADDRESS_GLOBALADDR2
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR3) PV_ADDRESS_GLOBALADDR3
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR4) PV_ADDRESS_GLOBALADDR4
+					 , 'N' DEL_YN
+					 , LASTMODIFICATIONUSRID INS_ID
+					 , TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+					 , TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+					 , LASTMODIFICATIONUSRID UPD_ID
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+		            FROM TMDM_IF_BASE_MSTR X
+		                LEFT OUTER JOIN
+		                    ( SELECT NATION_CD
+		                    	   , NATION_NM 
+		                    	FROM TMDM_GS_NATION 
+		                       WHERE DEL_YN = 'N' ) AS NATION
+		                  ON X.PV_LAND1 = NATION.NATION_CD
+		                LEFT OUTER JOIN
+		                    ( SELECT NATION_CD
+		                    	   , STATE_PRV_CD
+		                    	   , STATE_PRV_NM_1 
+		                    	FROM TMDM_GS_STATEPRV 
+		                       WHERE DEL_YN = 'N' ) AS STATE
+		                  ON X.PV_LAND1     = STATE.NATION_CD
+		                  AND X.PV_STATE_CD = STATE.STATE_PRV_CD
+		                LEFT OUTER JOIN
+		                    ( SELECT GLBL_CITY_CD
+		                    	   , LOCAL_GLBL_CITY_NM 
+		                    	FROM TMDM_GS_GLBLCITY 
+		                       WHERE DEL_YN = 'N') AS CITY
+		                  ON CITY.GLBL_CITY_CD = X.PV_CITY_CD
+		          WHERE X.INSTANCEID = #INSTANCEID# ) B
+		   ON A.RCP_TCD = #RCP_TCD#   
+		  AND A.RCP_ID  = B.PV_PLACE_CD
+		  AND A.LANG_CD = 'KO'     <!-- /* #OFFICL_LANG_CD# */  -->    
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ZIP           = B.PV_ADDRESS_ZIPCODE
+		           , A.NATION_NM     = B.NATION_NM
+		           , A.STATE_NM      = B.STATE_PRV_NM_1
+		           , A.CITY_NM       = B.LOCAL_GLBL_CITY_NM
+		           , A.DETL_ADDR_1   = GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR1))
+		           , A.DETL_ADDR_2   = GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR2))
+		           , A.DETL_ADDR_3   = GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR3))
+		           , A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		           , A.NEW_DETL_ADDR_1  = GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR1#))
+		           , A.NEW_DETL_ADDR_2  = GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR2#))
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD
+		      		 , A.RCP_ID
+		      		 , A.RCP_2ND_ID
+		      		 , A.ADDR_TCD
+		      		 , A.LANG_CD
+		      		 , A.ZIP
+		      		 , A.NATION_NM
+		      		 , A.STATE_NM
+		      		 , A.CITY_NM
+		      		 , A.DETL_ADDR_1
+		      		 , A.DETL_ADDR_2
+		      		 , A.DETL_ADDR_3
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME 
+		      		 , A.NEW_DETL_ADDR_1
+		      		 , A.NEW_DETL_ADDR_2 )
+		      VALUES ( B.RCP_TCD
+		      		 , B.PV_PLACE_CD
+		      		 , B.PV_PLACE_CD
+		      		 , B.ADDR_TCD
+		      		 , B.LANG_CD
+		      		 , B.PV_ADDRESS_ZIPCODE
+		      		 , B.NATION_NM
+		      		 , B.STATE_PRV_NM_1
+		      		 , B.LOCAL_GLBL_CITY_NM
+		      		 , GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR1))
+		      		 , GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR2))
+		      		 , GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR3))
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME
+		      		 , GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR1#))
+		      		 , GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR2#)) )
+	</update>
+	
+	<!-- 거점 업체 LOC EN주소 입력 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_EN_MERGE16">
+		MERGE INTO TMDM_BP_ADDR A
+		USING ( SELECT #RCP_TCD# RCP_TCD
+					 , X.PV_PLACE_CD
+					 , 'A001' ADDR_TCD
+					 , 'EN' LANG_CD
+					 , X.PV_ADDRESS_ZIPCODE
+					 , NATION.NATION_NM
+					 , STATE.STATE_PRV_NM_1
+					 , CITY.LOCAL_GLBL_CITY_NM
+					 , RTRIM(X.PV_ADDRESS_ADDR1) PV_ADDRESS_ADDR1
+					 , RTRIM(X.PV_ADDRESS_ADDR2) PV_ADDRESS_ADDR2
+					 , RTRIM(X.PV_ADDRESS_ADDR3) PV_ADDRESS_ADDR3
+					 , RTRIM(X.PV_ADDRESS_ADDR4) PV_ADDRESS_ADDR4
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR1) PV_ADDRESS_GLOBALADDR1
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR2) PV_ADDRESS_GLOBALADDR2
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR3) PV_ADDRESS_GLOBALADDR3
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR4) PV_ADDRESS_GLOBALADDR4
+					 , 'N' DEL_YN
+					 , LASTMODIFICATIONUSRID INS_ID
+					 , TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+					 , TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+					 , LASTMODIFICATIONUSRID UPD_ID
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+		            FROM TMDM_IF_BASE_MSTR X
+		                LEFT OUTER JOIN
+		                    ( SELECT NATION_CD
+		                    	   , NATION_NM 
+		                    	FROM TMDM_GS_NATION 
+		                       WHERE DEL_YN = 'N' ) AS NATION
+		                  ON X.PV_LAND1 = NATION.NATION_CD
+		                LEFT OUTER JOIN
+		                    ( SELECT NATION_CD
+		                    	   , STATE_PRV_CD
+		                    	   , STATE_PRV_NM_1 
+		                    	FROM TMDM_GS_STATEPRV 
+		                       WHERE DEL_YN = 'N' ) AS STATE
+		                  ON X.PV_LAND1     = STATE.NATION_CD
+		                  AND X.PV_STATE_CD = STATE.STATE_PRV_CD
+		                LEFT OUTER JOIN
+		                    ( SELECT GLBL_CITY_CD
+		                    	   , LOCAL_GLBL_CITY_NM 
+		                    	FROM TMDM_GS_GLBLCITY 
+		                       WHERE DEL_YN = 'N') AS CITY
+		                  ON CITY.GLBL_CITY_CD = X.PV_CITY_CD
+		          WHERE X.INSTANCEID = #INSTANCEID# ) B
+		   ON A.RCP_TCD = #RCP_TCD#  
+		  AND A.RCP_ID  = B.PV_PLACE_CD
+		  AND A.LANG_CD = 'EN'
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ZIP           = B.PV_ADDRESS_ZIPCODE
+		           , A.NATION_NM     = B.NATION_NM
+		           , A.STATE_NM      = B.STATE_PRV_NM_1
+		           , A.CITY_NM       = B.LOCAL_GLBL_CITY_NM
+		           , A.DETL_ADDR_1   = B.PV_ADDRESS_GLOBALADDR1
+		           , A.DETL_ADDR_2   = B.PV_ADDRESS_GLOBALADDR2
+		           , A.DETL_ADDR_3   = B.PV_ADDRESS_GLOBALADDR3
+		           , A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD
+		      		 , A.RCP_ID
+		      		 , A.RCP_2ND_ID
+		      		 , A.ADDR_TCD
+		      		 , A.LANG_CD
+		      		 , A.ZIP
+		      		 , A.NATION_NM
+		      		 , A.STATE_NM
+		      		 , A.CITY_NM
+		      		 , A.DETL_ADDR_1
+		      		 , A.DETL_ADDR_2
+		      		 , A.DETL_ADDR_3
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME )
+		      VALUES ( B.RCP_TCD
+		      		 , B.PV_PLACE_CD
+		      		 , B.PV_PLACE_CD
+		      		 , B.ADDR_TCD
+		      		 , B.LANG_CD
+		      		 , B.PV_ADDRESS_ZIPCODE
+		      		 , B.NATION_NM
+		      		 , B.STATE_PRV_NM_1
+		      		 , B.LOCAL_GLBL_CITY_NM
+		      		 , B.PV_ADDRESS_GLOBALADDR1
+		      		 , B.PV_ADDRESS_GLOBALADDR2
+		      		 , B.PV_ADDRESS_GLOBALADDR3
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME )
+	</update>
+	
+	<!-- 거점 정보 입력 -->
+	<!-- 2013.02.06 하역능력 추가  -->
+	<!-- MDM2.0 속성추가 2013.02.26 -->
+	<update id="IFEAI2_TMDM_BASE_MSTR_MERGE16">
+		MERGE INTO TMDM_BASE_MSTR A
+		USING ( SELECT PV_PLACE_CD
+					 , PV_POINT_TYPE
+					 , PV_MNG_BRCH
+					 , PV_PLACE_NM_LO
+					 , PV_SUP_PLACE_CD
+					 , PV_LAND1
+					 , PV_ADDRESS_ZIPCODE
+					 , GCOM.KXDECRYPT(TRIM(PV_ADDRESS_ADDR1))||GCOM.KXDECRYPT(TRIM(PV_ADDRESS_ADDR2))||GCOM.KXDECRYPT(TRIM(PV_ADDRESS_ADDR3))||GCOM.KXDECRYPT(TRIM(PV_ADDRESS_ADDR4)) AS ADDR
+					 , PV_TEL
+					 , PV_FAX
+					 , PV_MNG_ORG
+					 , PV_COMP_CD
+					 , PV_DOCK_TYPE
+					 , PV_BOND_SHED_NO
+					 , PV_SS_LENGTH
+					 , PV_SS_HEIGHT
+					 , PV_SS_DEEP
+					 , PV_STATE_CD
+					 , PV_CITY_CD
+					 , PV_WH_TYPE
+					 , PV_EDI_WH_CD
+					 , PV_LEASE_CLS
+					 , PV_LATITUD
+					 , PV_LONGITUD
+					 , PV_CY_CLS
+					 , PV_ICD_YN
+					 , PV_DEVICE_CP
+					 , PV_MRCHL_CLS
+					 , PV_HOST_NM
+					 , PV_FIFO
+					 , PV_MAIN_ITEM
+					 , PV_EXST_GAS_CD
+					 , PV_BIZ_NO
+					 , PV_GAS_CLS
+					 , PV_OIL_COMP
+					 , PV_EXST_SHOP_CD
+					 , PV_PLANT_CLS
+					 , PV_PART_REPR_YN
+					 , PV_EQUP_NO
+					 , PV_REPAIR_DUTY
+					 , PV_STORAGE_TERM
+					 , PV_WAREH_GRADE
+					 , PV_BOND_WARE_GRADE
+					 , 'N' DEL_YN
+					 , LASTMODIFICATIONUSRID INS_ID
+					 , TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+					 , TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+					 , LASTMODIFICATIONUSRID UPD_ID
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+					 , PV_COSTC
+					 , PV_LOC_STORAGE_TERM
+					 , PV_OPRSALCD
+                     , PV_WERKS
+                     , PV_LGORT
+                     , PV_UNLOADING_CP
+                     <!-- 요기부터 -->
+                     , PV_SYSDIV
+                     , PV_PLACE_CD_2ND
+                     , PV_ALTKN
+                     , PV_PART_GROUP
+                     , PV_PART_TYPE
+                     , PV_ORGIN_PART_CD
+                     , PV_OLD_PART_CD
+                     , PV_REPRE_NAME
+                     , PV_EQUAL_PART_TYPE
+                     , PV_PERSON_IN_CHARGE
+                     , PV_TAX_NO
+                     , PV_TAX_COMPANY_NM
+                     , PV_TAX_REPRE_PERSON
+                     , PV_TAX_BILL_PT_YN
+                     , PV_TAX_BIZ_STATUS
+                     , PV_TAX_EVENT
+                     , PV_TAX_ADDRESS
+                     , PV_WH_GUBUN
+                     , PV_REL_CENTER_CD
+                     , PV_PENALTY_YN
+                     , PV_BIZ_STATUS_GUBUN
+                     , PV_EXCLU_QUANT_GUBUN
+                     , PV_SALESMAN_NM
+                     , PV_SALESMAN_TEL
+		          FROM TMDM_IF_BASE_MSTR
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.BASE_CD = B.PV_PLACE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.CORP_ID       = B.PV_MNG_BRCH
+		           , A.BASE_TCD      = B.PV_POINT_TYPE
+		           , A.DESC          = B.PV_PLACE_NM_LO
+		           , A.PRNT_BASE_CD  = B.PV_SUP_PLACE_CD
+		           , A.NATION_CD     = B.PV_LAND1
+		           , A.ZIP           = B.PV_ADDRESS_ZIPCODE
+		           , A.ADDR          = GCOM.KXENCRYPT(TRIM(B.ADDR))
+		           , A.TELNO         = GCOM.KXENCRYPT(TRIM(B.PV_TEL))
+		           , A.FAX_NO        = B.PV_FAX
+		           , A.BL_ORG_CD     = B.PV_MNG_ORG
+		           , A.COMP_ID       = B.PV_COMP_CD
+		           , A.QUAY_TCD      = B.PV_DOCK_TYPE
+		           , A.BONDED_WH_CD  = B.PV_BOND_SHED_NO 
+		           , A.BERTH_LEN     = B.PV_SS_LENGTH
+		           , A.BERTH_HEIGHT  = B.PV_SS_HEIGHT
+		           , A.BERTH_DEPTH   = B.PV_SS_DEEP
+		           , A.STATE_CD      = B.PV_STATE_CD
+		           , A.CITY_CD       = B.PV_CITY_CD
+		           , A.WH_TCD        = B.PV_WH_TYPE
+		           , A.EDI_WH_CD     = B.PV_EDI_WH_CD
+		           , A.LEASE_YN      = B.PV_LEASE_CLS
+		           , A.LAT           = B.PV_LATITUD
+		           , A.LON           = B.PV_LONGITUD
+		           , A.CY_TCD        = B.PV_CY_CLS
+		           , A.ICD_YN        = B.PV_ICD_YN
+		           , A.CY_CAPA       = B.PV_DEVICE_CP
+		           , A.MARSHALLING_TCD = B.PV_MRCHL_CLS
+		           , A.HOST_NM       = B.PV_HOST_NM
+		           , A.FIFO          = B.PV_FIFO
+		           , A.MAIN_MUL      = B.PV_MAIN_ITEM
+		           , A.OLD_OIL_STATION_CD = B.PV_EXST_GAS_CD
+		           , A.BUSI_NO       = B.PV_BIZ_NO
+		           , A.OIL_STATION_CLS = B.PV_GAS_CLS
+		           , A.OIL_COMP_TCD  = B.PV_OIL_COMP
+		           , A.OLD_REPAIR_CENTER_CD = B.PV_EXST_SHOP_CD
+		           , A.FAC_CCD       = B.PV_PLANT_CLS
+		           , A.SIM_REPAIR_YN = B.PV_PART_REPR_YN
+		           , A.EQP_BUSI_NO   = B.PV_EQUP_NO
+		           , A.MANAGER       = B.PV_REPAIR_DUTY
+		           , A.NODE_ID       = B.PV_PLACE_CD
+		           , A.DEVC_PERID    = B.PV_STORAGE_TERM
+		           , A.GEN_WH_GRD    = B.PV_WAREH_GRADE
+		           , A.BOND_WH_GRD   = B.PV_BOND_WARE_GRADE
+		           , A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		           , A.COSTC         = B.PV_COSTC
+		           , A.LOC_STORAGE_TERM = B.PV_LOC_STORAGE_TERM
+		           , A.OP_SALE_CD    = B.PV_OPRSALCD
+                   , A.PLANT_CD      = B.PV_WERKS
+                   , A.STRG_LOC      = B.PV_LGORT
+                   , A.UNLOADING_CP  = B.PV_UNLOADING_CP
+                   <!-- 또 여기 -->
+                   , A.SYSDIV  = B.PV_SYSDIV
+                   , A.PLACE_CD_2ND  = B.PV_PLACE_CD_2ND
+                   , A.ALTKN  = B.PV_ALTKN
+                   , A.PART_GROUP  = B.PV_PART_GROUP
+                   , A.PART_TYPE  = B.PV_PART_TYPE
+                   , A.ORGIN_PART_CD  = B.PV_ORGIN_PART_CD
+                   , A.OLD_PART_CD  = B.PV_OLD_PART_CD
+                   , A.REPRE_NAME  = B.PV_REPRE_NAME
+                   , A.EQUAL_PART_TYPE  = B.PV_EQUAL_PART_TYPE
+                   , A.PERSON_IN_CHARGE  = B.PV_PERSON_IN_CHARGE
+                   , A.TAX_NO  = B.PV_TAX_NO
+                   , A.TAX_COMPANY_NM  = B.PV_TAX_COMPANY_NM
+                   , A.TAX_REPRE_PERSON  = B.PV_TAX_REPRE_PERSON
+                   , A.TAX_BILL_PT_YN  = B.PV_TAX_BILL_PT_YN
+                   , A.TAX_BIZ_STATUS  = B.PV_TAX_BIZ_STATUS
+                   , A.TAX_EVENT  = B.PV_TAX_EVENT
+                   , A.TAX_ADDRESS  = GCOM.KXENCRYPT(TRIM(B.PV_TAX_ADDRESS))
+                   , A.WH_GUBUN  = B.PV_WH_GUBUN
+                   , A.REL_CENTER_CD  = B.PV_REL_CENTER_CD
+                   , A.PENALTY_YN  = B.PV_PENALTY_YN
+                   , A.BIZ_STATUS_GUBUN  = B.PV_BIZ_STATUS_GUBUN
+                   , A.EXCLU_QUANT_GUBUN  = B.PV_EXCLU_QUANT_GUBUN
+                   , A.SALESMAN_NM  = GCOM.KXENCRYPT(TRIM(B.PV_SALESMAN_NM))
+                   , A.SALESMAN_TEL  = B.PV_SALESMAN_TEL
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.BASE_CD
+		      		 , A.BASE_TCD
+		      		 , A.CORP_ID
+		      		 , A.DESC
+		      		 , A.PRNT_BASE_CD
+		      		 , A.NATION_CD
+		      		 , A.ZIP
+		      		 , A.ADDR
+		      		 , A.TELNO
+		      		 , A.FAX_NO
+		      		 , A.BL_ORG_CD
+		      		 , A.COMP_ID
+		      		 , A.QUAY_TCD
+		      		 , A.BONDED_WH_CD
+		      		 , A.BERTH_LEN
+		      		 , A.BERTH_HEIGHT
+		      		 , A.BERTH_DEPTH
+		      		 , A.STATE_CD
+		      		 , A.CITY_CD
+		      		 , A.WH_TCD
+		      		 , A.EDI_WH_CD
+		      		 , A.LEASE_YN
+		      		 , A.LAT
+		      		 , A.LON
+		      		 , A.CY_TCD
+		      		 , A.ICD_YN
+		      		 , A.CY_CAPA
+		      		 , A.MARSHALLING_TCD
+		      		 , A.HOST_NM
+		      		 , A.FIFO
+		      		 , A.MAIN_MUL
+		      		 , A.OLD_OIL_STATION_CD
+		      		 , A.BUSI_NO
+		      		 , A.OIL_STATION_CLS
+		      		 , A.OIL_COMP_TCD
+		      		 , A.OLD_REPAIR_CENTER_CD
+		      		 , A.FAC_CCD
+		      		 , A.SIM_REPAIR_YN
+		      		 , A.EQP_BUSI_NO
+		      		 , A.MANAGER
+		      		 , A.NODE_ID
+		      		 , A.DEVC_PERID
+		      		 , A.GEN_WH_GRD
+		      		 , A.BOND_WH_GRD
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME
+		      		 , A.COSTC
+		      		 , A.LOC_STORAGE_TERM
+		             , A.OP_SALE_CD
+                     , A.PLANT_CD
+                     , A.STRG_LOC
+                     , A.UNLOADING_CP
+                     , A.SYSDIV
+                     , A.PLACE_CD_2ND
+                     , A.ALTKN
+                     , A.PART_GROUP
+                     , A.PART_TYPE
+                     , A.ORGIN_PART_CD
+                     , A.OLD_PART_CD
+                     , A.REPRE_NAME
+                     , A.EQUAL_PART_TYPE
+                     , A.PERSON_IN_CHARGE
+                     , A.TAX_NO
+                     , A.TAX_COMPANY_NM
+                     , A.TAX_REPRE_PERSON
+                     , A.TAX_BILL_PT_YN
+                     , A.TAX_BIZ_STATUS
+                     , A.TAX_EVENT
+                     , A.TAX_ADDRESS
+                     , A.WH_GUBUN
+                     , A.REL_CENTER_CD
+                     , A.PENALTY_YN
+                     , A.BIZ_STATUS_GUBUN
+                     , A.EXCLU_QUANT_GUBUN
+                     , A.SALESMAN_NM
+                     , A.SALESMAN_TEL
+		      		  )
+		      VALUES ( B.PV_PLACE_CD
+		      		 , B.PV_POINT_TYPE
+		      		 , B.PV_MNG_BRCH
+		      		 , B.PV_PLACE_NM_LO
+		      		 , B.PV_SUP_PLACE_CD
+		      		 , B.PV_LAND1
+		      		 , B.PV_ADDRESS_ZIPCODE
+		      		 , GCOM.KXENCRYPT(TRIM(B.ADDR))
+		      		 , GCOM.KXENCRYPT(TRIM(B.PV_TEL))
+		      		 , B.PV_FAX
+		      		 , B.PV_MNG_ORG
+		      		 , B.PV_COMP_CD
+		      		 , B.PV_DOCK_TYPE
+		      		 , B.PV_BOND_SHED_NO
+		      		 , B.PV_SS_LENGTH
+		      		 , B.PV_SS_HEIGHT
+		      		 , B.PV_SS_DEEP
+		      		 , B.PV_STATE_CD
+		      		 , B.PV_CITY_CD
+		      		 , B.PV_WH_TYPE
+		      		 , B.PV_EDI_WH_CD
+		      		 , B.PV_LEASE_CLS
+		      		 , B.PV_LATITUD
+		      		 , B.PV_LONGITUD
+		      		 , B.PV_CY_CLS
+		      		 , B.PV_ICD_YN
+		      		 , B.PV_DEVICE_CP
+		      		 , B.PV_MRCHL_CLS
+		      		 , B.PV_HOST_NM
+		      		 , B.PV_FIFO
+		      		 , B.PV_MAIN_ITEM
+		      		 , B.PV_EXST_GAS_CD
+		      		 , B.PV_BIZ_NO
+		      		 , B.PV_GAS_CLS
+		      		 , B.PV_OIL_COMP
+		      		 , B.PV_EXST_SHOP_CD
+		      		 , B.PV_PLANT_CLS
+		      		 , B.PV_PART_REPR_YN
+		      		 , B.PV_EQUP_NO
+		      		 , B.PV_REPAIR_DUTY
+		      		 , B.PV_PLACE_CD
+					 , B.PV_STORAGE_TERM
+					 , B.PV_WAREH_GRADE
+					 , B.PV_BOND_WARE_GRADE
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME
+		      		 , B.PV_COSTC
+		      		 , B.PV_LOC_STORAGE_TERM
+		      		 , B.PV_OPRSALCD
+                     , B.PV_WERKS
+                     , B.PV_LGORT
+                     , B.PV_UNLOADING_CP
+                     , B.PV_SYSDIV
+                     , B.PV_PLACE_CD_2ND
+                     , B.PV_ALTKN
+                     , B.PV_PART_GROUP
+                     , B.PV_PART_TYPE
+                     , B.PV_ORGIN_PART_CD
+                     , B.PV_OLD_PART_CD
+                     , B.PV_REPRE_NAME
+                     , B.PV_EQUAL_PART_TYPE
+                     , B.PV_PERSON_IN_CHARGE
+                     , B.PV_TAX_NO
+                     , B.PV_TAX_COMPANY_NM
+                     , B.PV_TAX_REPRE_PERSON
+                     , B.PV_TAX_BILL_PT_YN
+                     , B.PV_TAX_BIZ_STATUS
+                     , B.PV_TAX_EVENT
+                     , GCOM.KXENCRYPT(TRIM(B.PV_TAX_ADDRESS))
+                     , B.PV_WH_GUBUN
+                     , B.PV_REL_CENTER_CD
+                     , B.PV_PENALTY_YN
+                     , B.PV_BIZ_STATUS_GUBUN
+                     , B.PV_EXCLU_QUANT_GUBUN
+                     , B.PV_SALESMAN_NM
+                     , GCOM.KXENCRYPT(TRIM(B.PV_SALESMAN_TEL))
+		      		  )
+	</update>
+	
+	<!-- 창고 정보 입력 -->
+	<!-- MDM2.0 속성추가 2013.02.26 -->
+	<update id="IFEAI2_TMDM_WH_MSTR_MERGE16">
+		MERGE INTO TMDM_WH_MSTR A
+		USING ( SELECT PV_PLACE_CD
+					 , PV_WH_TYPE
+					 , PV_MNG_BRCH
+					 , PV_PLACE_NM_LO
+					 , PV_LAND1
+					 , PV_STATE_CD
+					 , PV_CITY_CD
+					 , GCOM.KXENCRYPT(PV_TEL) AS PV_TEL
+					 , PV_FAX
+					 , 'N' DEL_YN
+					 , LASTMODIFICATIONUSRID INS_ID
+					 , TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+					 , TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+					 , LASTMODIFICATIONUSRID UPD_ID
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+					 , PV_SYSDIV
+					 , PV_ALTKN
+		          FROM TMDM_IF_BASE_MSTR
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.WH_CD = B.PV_PLACE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.WH_TCD        = B.PV_WH_TYPE
+		           , A.CORP_ID       = B.PV_MNG_BRCH
+		           , A.DESC          = B.PV_PLACE_NM_LO
+		           , A.NATION_CD     = B.PV_LAND1
+		           , A.STATE_CD      = B.PV_STATE_CD
+		           , A.CITY_CD       = B.PV_CITY_CD
+		           , A.TEL_NO        = B.PV_TEL
+		           , A.FAX_NO        = B.PV_FAX
+		           , A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		           , A.SYSDIV        = B.PV_SYSDIV
+		           , A.ALTKN         = B.PV_ALTKN
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.WH_CD
+		      		 , A.WH_TCD
+		      		 , A.CORP_ID
+		      		 , A.DESC
+		      		 , A.NATION_CD
+		      		 , A.STATE_CD
+		      		 , A.CITY_CD
+		      		 , A.TEL_NO
+		      		 , A.FAX_NO
+		      		 , A.NODE_ID
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME
+		      		 , A.SYSDIV
+		      		 , A.ALTKN )
+		      VALUES ( B.PV_PLACE_CD
+		      		 , B.PV_WH_TYPE
+		      		 , B.PV_MNG_BRCH
+		      		 , B.PV_PLACE_NM_LO
+		      		 , B.PV_LAND1
+		      		 , B.PV_STATE_CD
+		      		 , B.PV_CITY_CD
+		      		 , B.PV_TEL
+		      		 , B.PV_FAX
+		      		 , B.PV_PLACE_CD
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME
+		      		 , B.PV_SYSDIV
+		      		 , B.PV_ALTKN )
+	</update>
+	
+	<!-- 거점 정보 삭제  -->
+	<update id="IFEAI2_TMDM_BASE_MSTR_UPDATE">
+		UPDATE TMDM_BASE_MSTR
+		SET DEL_YN = 'Y'
+		 WHERE BASE_CD = #PV_PLACE_CD#
+	</update>
+	
+	<!-- 창고 정보 삭제  -->
+	<update id="IFEAI2_TMDM_WH_MSTR_UPDATE">
+		UPDATE TMDM_WH_MSTR
+		SET DEL_YN = 'Y'
+		 WHERE WH_CD = #PV_PLACE_CD#  <!-- /*#PV_PLACE_CD#*/ -->
+	</update>
+	
+	<!-- 거점 인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_BASE_MSTR_UPDATE">
+		UPDATE TMDM_IF_BASE_MSTR
+		SET EAI_STATE = #EAI_STATE#
+		  , EAI_MSG = #EAI_MSG#
+		  , EAI_DATE = current_timestamp
+		 WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<!-- 거점 인터페이스 NM 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_BASE_MSTR_NM_UPDATE">
+		UPDATE TMDM_IF_BASE_MSTR_NM
+		SET EAI_STATE = #EAI_STATE#
+		  , EAI_MSG = #EAI_MSG#
+		  , EAI_DATE = current_timestamp
+		 WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<!-- 고객의 거래처 정보 Temp 조회 -->
+	<select id="IFEAI2_TMDM_IF_PLACE_C_SELECT" resultClass="java.util.HashMap">
+		SELECT INSTANCEID
+			, EAI_STATE
+			, PV_PLACE_CD
+			, PV_CUST_CD
+			, PV_LAND1
+			, PV_STATE_CD
+			, PV_ADDRESS_ZIPCODE
+			, PV_CUST_PLACE_CD
+			, PV_CUST_PLACE_TYPE
+			, PV_CITY_CD
+			, PV_MNG_BRCH
+			, PV_CHARGE_NM
+			, PV_CHARGE_TEL
+			, PV_STATUS
+			, EAI_OP
+			, GCOM.KXDECRYPT(PV_ADDRESS_ADDR1) AS PV_ADDRESS_ADDR1
+		    , GCOM.KXDECRYPT(PV_ADDRESS_ADDR1)||GCOM.KXDECRYPT(PV_ADDRESS_ADDR2)||GCOM.KXDECRYPT(PV_ADDRESS_ADDR3)||GCOM.KXDECRYPT(PV_ADDRESS_ADDR4) LCL_ADDR
+		    , PV_ADDRESS_GLOBALADDR1||PV_ADDRESS_GLOBALADDR2||PV_ADDRESS_GLOBALADDR3||PV_ADDRESS_GLOBALADDR4 GLBL_ADDR
+		  FROM TMDM_IF_PLACE_C
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>
+	
+	<!-- 고객의 거래처 노드명 데이터 조회 -->
+	<select id="IFEAI2_TMDM_IF_PLACE_C_NM_EMP_SELECT" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		  FROM TMDM_IF_PLACE_C_NM
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND PV_PLACE_NM IS NULL
+	</select>
+	
+	<!-- 고객의 거래처 언어 정보 체크 에러처리 -->
+	<select id="IFEAI2_TMDM_IF_PLACE_C_NM_LANG_EMP_CHECK" resultClass="java.lang.Integer">
+		SELECT COUNT(*)
+		  FROM TMDM_IF_PLACE_C_NM A
+		 WHERE A.INSTANCEID = #INSTANCEID#
+		   AND NOT EXISTS
+		     ( SELECT * FROM TMDM_GS_LANG
+		        WHERE DEL_YN = 'N'
+		          AND LANG_CD = A.LANG)
+	</select>
+	
+	<!-- 고객의 거래처 거점 정보 삭제  -->
+	<update id="IFEAI2_TMDM_BP_INDIRECT_CUST_UPDATE">
+		UPDATE TMDM_BP_INDIRECT_CUST
+		   SET DEL_YN = 'Y'
+		 WHERE INDIR_CUST_ID = #PV_CUST_PLACE_CD#
+		   AND RCP_ID        = #PV_CUST_CD#
+	</update>
+	
+	<!-- 고객의 거래처 인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_PLACE_C_UPDATE">
+		UPDATE TMDM_IF_PLACE_C
+		SET EAI_STATE = #EAI_STATE#
+		  , EAI_MSG = #EAI_MSG#
+		  , EAI_DATE = current_timestamp
+		 WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<!-- 고객의 거래처 인터페이스 NM 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_PLACE_C_NM_UPDATE">
+		UPDATE TMDM_IF_PLACE_C_NM
+		SET EAI_STATE = #EAI_STATE#
+		  , EAI_MSG = #EAI_MSG#
+		  , EAI_DATE = current_timestamp
+		 WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<!-- 고객의 거래처 업체 담당자 아이디  인터페이스 Temp 조회 -->
+	<select id="IFEAI2_TMDM_BP_CONT_SELECT"  resultClass="java.util.HashMap">
+		SELECT ATTN_ID
+		  FROM TMDM_BP_CONT
+		 WHERE ATTN_NM = #PV_REPRE_NM#
+		   AND ROWNUM = 1
+	</select>	
+	
+	<!-- 고객의 거래처 노드 정보 입력 -->
+	<update id="IFEAI2_TMDM_ST_NODE_MERGE20">
+		MERGE INTO TMDM_ST_NODE A
+		USING ( SELECT  PV_PLACE_CD
+					 , 'OP' PV_PLACE_TYPE
+					 , NVL(PV_CUST_PLACE_TYPE,'X') PV_CUST_PLACE_TYPE
+					 , PV_MNG_ORG
+					 , PV_MNG_BRCH
+					 , PV_SUP_CUST_PLACE
+					 , PV_PLACE_NM_LO
+					 , PV_LAND1
+					 , PV_STATE_CD
+					 , PV_CITY_CD
+					 , PV_ADDRESS_ZIPCODE
+					 , RTRIM(GCOM.KXDECRYPT(PV_ADDRESS_ADDR1))||RTRIM(GCOM.KXDECRYPT(PV_ADDRESS_ADDR2))||RTRIM(GCOM.KXDECRYPT(PV_ADDRESS_ADDR3))||RTRIM(GCOM.KXDECRYPT(PV_ADDRESS_ADDR4)) DETL_ADDR
+					 , PV_LATITUD
+					 , PV_LONGITUD
+                     , PV_CUST_CD
+                     , PV_CUST_PLACE_CD
+                     , PV_LINKED_POINT					 
+					 , 'N' DEL_YN
+					 , LASTMODIFICATIONUSRID INS_ID
+					 , TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+					 , TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+					 , LASTMODIFICATIONUSRID UPD_ID
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+		             , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+ 		             , PV_TPL_ATTR_01, PV_TPL_ATTR_02, PV_TPL_ATTR_03, PV_TPL_ATTR_04, PV_TPL_ATTR_05 
+					 , PV_TPL_ATTR_06, PV_TPL_ATTR_07, PV_TPL_ATTR_08, PV_TPL_ATTR_09, PV_TPL_ATTR_10 
+					 , PV_TPL_ATTR_11, PV_TPL_ATTR_12, PV_TPL_ATTR_13, PV_TPL_ATTR_14, PV_TPL_ATTR_15 
+					 , PV_TPL_ATTR_16, PV_TPL_ATTR_17, PV_TPL_ATTR_18, PV_TPL_ATTR_19, PV_TPL_ATTR_20
+					 , PV_SYSDIV
+       				 , PV_ALTKN
+		          FROM TMDM_IF_PLACE_C
+		         WHERE INSTANCEID = #INSTANCEID# ) B 
+		   ON A.NODE_ID  = B.PV_PLACE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.CORP_ID       = B.PV_MNG_BRCH 
+		           , A.NODE_TCD      = B.PV_CUST_PLACE_TYPE
+		           , A.PRNT_NODE_ID  = B.PV_SUP_CUST_PLACE
+		           , A.NODE_DESC     = B.PV_PLACE_NM_LO 
+		           , A.NATION_CD     = B.PV_LAND1
+		           , A.STATE_CD      = B.PV_STATE_CD
+		           , A.CITY_CD       = B.PV_CITY_CD 
+		           , A.ZIP           = B.PV_ADDRESS_ZIPCODE 
+		           , A.DETL_ADDR     = GCOM.KXENCRYPT(TRIM(B.DETL_ADDR)) 
+			       , A.LAT           = B.PV_LATITUD
+			       , A.LON           = B.PV_LONGITUD 
+			       , A.RCP_TCD       = 'SHPR'
+			       , A.RCP_ID        = B.PV_CUST_CD
+			       , A.CUST_BASE_CD  = B.PV_CUST_PLACE_CD
+		           , A.DEL_YN        = B.DEL_YN 
+		           , A.UPD_PERSON_ID = B.UPD_ID 
+		           , A.UPD_DATE      = B.UPD_DATE 
+		           , A.UPD_TIME      = B.UPD_TIME
+			       , A.LNK_BASE_CD   = B.PV_LINKED_POINT
+		           , A.TPL_ATTR_01   = B.PV_TPL_ATTR_01 
+		           , A.TPL_ATTR_02   = B.PV_TPL_ATTR_02 
+		           , A.TPL_ATTR_03   = B.PV_TPL_ATTR_03 
+		           , A.TPL_ATTR_04   = B.PV_TPL_ATTR_04 
+		           , A.TPL_ATTR_05   = B.PV_TPL_ATTR_05 
+		           , A.TPL_ATTR_06   = B.PV_TPL_ATTR_06 
+		           , A.TPL_ATTR_07   = B.PV_TPL_ATTR_07 
+		           , A.TPL_ATTR_08   = B.PV_TPL_ATTR_08 
+		           , A.TPL_ATTR_09   = B.PV_TPL_ATTR_09 
+		           , A.TPL_ATTR_10   = B.PV_TPL_ATTR_10 
+		           , A.TPL_ATTR_11   = B.PV_TPL_ATTR_11 
+		           , A.TPL_ATTR_12   = B.PV_TPL_ATTR_12 
+		           , A.TPL_ATTR_13   = B.PV_TPL_ATTR_13 
+		           , A.TPL_ATTR_14   = B.PV_TPL_ATTR_14 
+		           , A.TPL_ATTR_15   = B.PV_TPL_ATTR_15 
+		           , A.TPL_ATTR_16   = B.PV_TPL_ATTR_16 
+		           , A.TPL_ATTR_17   = B.PV_TPL_ATTR_17 
+		           , A.TPL_ATTR_18   = B.PV_TPL_ATTR_18 
+		           , A.TPL_ATTR_19   = B.PV_TPL_ATTR_19 
+		           , A.TPL_ATTR_20   = B.PV_TPL_ATTR_20 
+		           , A.SYSDIV = B.PV_SYSDIV
+	   		       , A.ALTKN = B.PV_ALTKN
+	   		       , A.NEW_DETL_ADDR = GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR1#) || TRIM(#O_NEW_ADDR2#))
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.NODE_ID
+		      		 , A.NODE_CCD
+		      		 , A.NODE_TCD
+		      		 , A.NODE_CD
+		      		 , A.CORP_ID
+		      		 , A.PRNT_NODE_ID
+		      		 , A.NODE_DESC
+		      		 , A.NATION_CD
+		      		 , A.STATE_CD
+		      		 , A.CITY_CD
+		      		 , A.ZIP
+		      		 , A.DETL_ADDR
+		      		 , A.LAT
+		      		 , A.LON
+		      		 , A.TEMP_CRE_YN
+		      		 , A.RCP_TCD
+		      		 , A.RCP_ID
+		      		 , A.CUST_BASE_CD
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME
+		      		 , A.LNK_BASE_CD
+		      		 , A.TPL_ATTR_01, A.TPL_ATTR_02, A.TPL_ATTR_03, A.TPL_ATTR_04, A.TPL_ATTR_05 
+		             , A.TPL_ATTR_06, A.TPL_ATTR_07, A.TPL_ATTR_08, A.TPL_ATTR_09, A.TPL_ATTR_10 
+		             , A.TPL_ATTR_11, A.TPL_ATTR_12, A.TPL_ATTR_13, A.TPL_ATTR_14, A.TPL_ATTR_15 
+		             , A.TPL_ATTR_16, A.TPL_ATTR_17, A.TPL_ATTR_18, A.TPL_ATTR_19, A.TPL_ATTR_20
+		             , A.SYSDIV, A.ALTKN, A.NEW_DETL_ADDR   
+		             )
+		      VALUES ( B.PV_PLACE_CD
+		      		 , B.PV_PLACE_TYPE
+		      		 , B.PV_CUST_PLACE_TYPE
+		      		 , B.PV_PLACE_CD
+		      		 , B.PV_MNG_BRCH
+		      		 , B.PV_SUP_CUST_PLACE
+		      		 , B.PV_PLACE_NM_LO
+		      		 , B.PV_LAND1
+		      		 , B.PV_STATE_CD
+		      		 , B.PV_CITY_CD
+		      		 , B.PV_ADDRESS_ZIPCODE
+		      		 , GCOM.KXENCRYPT(TRIM(B.DETL_ADDR))
+		      		 , B.PV_LATITUD
+		      		 , B.PV_LONGITUD
+		      		 , 'N'
+		      		 , 'SHPR'
+		      		 , B.PV_CUST_CD
+		      		 , B.PV_CUST_PLACE_CD
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME
+		      		 , B.PV_LINKED_POINT
+		      		 , B.PV_TPL_ATTR_01, B.PV_TPL_ATTR_02, B.PV_TPL_ATTR_03, B.PV_TPL_ATTR_04, B.PV_TPL_ATTR_05 
+					 , B.PV_TPL_ATTR_06, B.PV_TPL_ATTR_07, B.PV_TPL_ATTR_08, B.PV_TPL_ATTR_09, B.PV_TPL_ATTR_10 
+					 , B.PV_TPL_ATTR_11, B.PV_TPL_ATTR_12, B.PV_TPL_ATTR_13, B.PV_TPL_ATTR_14, B.PV_TPL_ATTR_15 
+					 , B.PV_TPL_ATTR_16, B.PV_TPL_ATTR_17, B.PV_TPL_ATTR_18, B.PV_TPL_ATTR_19, B.PV_TPL_ATTR_20
+					 , B.PV_SYSDIV, B.PV_ALTKN  
+					 , GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR1#) || TRIM(#O_NEW_ADDR2#))
+					 )
+	</update>
+	
+	<!-- 고객의 거래처 업체명 입력 -->
+	<update id="IFEAI2_TMDM_BP_NAME_MERGE20">
+		MERGE INTO TMDM_BP_NAME A
+		USING ( SELECT #RCP_TCD# RCP_TCD
+					 , DECODE(#RCP_TCD#,'IDIR',Y.PV_CUST_PLACE_CD,X.PV_PLACE_CD) PV_PLACE_CD
+					 , DECODE(#RCP_TCD#,'IDIR',Y.PV_CUST_CD,X.PV_PLACE_CD) RCP_2ND_ID
+					 , X.LANG
+					 , 'N001' NM_TCD
+					 , X.PV_PLACE_NM
+					 , 'N' DEL_YN
+					 , 'INTERFACE' INS_ID
+					 , TO_CHAR(SYSDATE,'YYYYMMDD') INS_DATE
+					 , TO_CHAR(SYSDATE,'HH24MISS') INS_TIME
+					 , '' UPD_ID
+					 , '' UPD_DATE
+					 , '' UPD_TIME
+		          FROM TMDM_IF_PLACE_C_NM X, TMDM_IF_PLACE_C Y
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           AND X.INSTANCEID = Y.INSTANCEID ) B
+		   ON A.RCP_TCD    = #RCP_TCD# 
+		  AND A.RCP_ID     = B.PV_PLACE_CD
+		  AND A.RCP_2ND_ID = B.RCP_2ND_ID
+		  AND A.LANG_CD    = B.LANG
+          AND A.NM_TCD     = B.NM_TCD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.RCP_TCD       = B.RCP_TCD
+		           , A.RCP_ID        = B.PV_PLACE_CD
+		           , A.RCP_2ND_ID    = B.RCP_2ND_ID
+		           , A.NM_TCD        = B.NM_TCD
+		           , A.LANG_CD       = B.LANG
+		           , A.NM            = B.PV_PLACE_NM
+		           , A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD
+		      		 , A.RCP_ID
+		      		 , A.RCP_2ND_ID
+		      		 , A.NM_TCD
+		      		 , A.LANG_CD
+		      		 , A.NM
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME )
+		      VALUES ( B.RCP_TCD
+		      		 , B.PV_PLACE_CD
+		      		 , B.RCP_2ND_ID
+		      		 , B.NM_TCD
+		      		 , B.LANG
+		      		 , B.PV_PLACE_NM
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME )
+	</update>
+	
+	<!-- 고객의 거래처 업체 LOC주소 입력 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_LOC_MERGE20">
+		MERGE INTO TMDM_BP_ADDR A
+		USING ( SELECT #RCP_TCD# RCP_TCD
+					 , DECODE(#RCP_TCD#,'IDIR', X.PV_CUST_PLACE_CD, X.PV_PLACE_CD) PV_PLACE_CD
+					 , DECODE(#RCP_TCD#,'IDIR',X.PV_CUST_CD,X.PV_PLACE_CD) RCP_2ND_ID
+					 , 'A001' ADDR_TCD
+					 , 'KO' LANG_CD
+					 , X.PV_ADDRESS_ZIPCODE
+					 , NATION.NATION_NM
+					 , STATE.STATE_PRV_NM_1
+					 , CITY.LOCAL_GLBL_CITY_NM
+					 , RTRIM(GCOM.KXDECRYPT(X.PV_ADDRESS_ADDR1)) PV_ADDRESS_ADDR1
+					 , RTRIM(GCOM.KXDECRYPT(X.PV_ADDRESS_ADDR2)) PV_ADDRESS_ADDR2
+					 , RTRIM(GCOM.KXDECRYPT(X.PV_ADDRESS_ADDR3)) PV_ADDRESS_ADDR3
+					 , RTRIM(GCOM.KXDECRYPT(X.PV_ADDRESS_ADDR4)) PV_ADDRESS_ADDR4
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR1) PV_ADDRESS_GLOBALADDR1
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR2) PV_ADDRESS_GLOBALADDR2
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR3) PV_ADDRESS_GLOBALADDR3
+					 , RTRIM(X.PV_ADDRESS_GLOBALADDR4) PV_ADDRESS_GLOBALADDR4
+					 , 'N' DEL_YN
+					 , LASTMODIFICATIONUSRID INS_ID
+					 , TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+					 , TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+					 , LASTMODIFICATIONUSRID UPD_ID
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+		            FROM TMDM_IF_PLACE_C X
+		                LEFT OUTER JOIN
+		                    ( SELECT NATION_CD
+		                    	   , NATION_NM 
+		                    	FROM TMDM_GS_NATION 
+		                       WHERE DEL_YN = 'N' ) AS NATION
+		                  ON X.PV_LAND1 = NATION.NATION_CD
+		                LEFT OUTER JOIN
+		                    ( SELECT NATION_CD
+		                    	   , STATE_PRV_CD
+		                    	   , STATE_PRV_NM_1 
+		                    	FROM TMDM_GS_STATEPRV 
+		                       WHERE DEL_YN = 'N' ) AS STATE
+		                  ON X.PV_LAND1    = STATE.NATION_CD
+		                  AND X.PV_STATE_CD = STATE.STATE_PRV_CD
+		                LEFT OUTER JOIN
+		                    ( SELECT GLBL_CITY_CD
+		                    	   , LOCAL_GLBL_CITY_NM 
+		                    	FROM TMDM_GS_GLBLCITY 
+		                       WHERE DEL_YN = 'N') AS CITY
+		                  ON CITY.GLBL_CITY_CD = X.PV_CITY_CD
+		          WHERE X.INSTANCEID = #INSTANCEID# ) B
+		   ON A.RCP_TCD    = #RCP_TCD#   
+		  AND A.RCP_ID     = B.PV_PLACE_CD
+		  AND A.RCP_2ND_ID = B.RCP_2ND_ID
+		  AND A.LANG_CD    = 'KO'    <!-- /* #OFFICL_LANG_CD# */  -->    
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ZIP           = B.PV_ADDRESS_ZIPCODE
+		           , A.NATION_NM     = B.NATION_NM
+		           , A.STATE_NM      = B.STATE_PRV_NM_1
+		           , A.CITY_NM       = B.LOCAL_GLBL_CITY_NM
+		           , A.DETL_ADDR_1   = GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR1))
+		           , A.DETL_ADDR_2   = GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR2))
+		           , A.DETL_ADDR_3   = GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR3))
+		           , A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		           , A.NEW_DETL_ADDR_1  = GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR1#))
+		           , A.NEW_DETL_ADDR_2  = GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR2#))
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD
+		      		 , A.RCP_ID
+		      		 , A.RCP_2ND_ID
+		      		 , A.ADDR_TCD
+		      		 , A.LANG_CD
+		      		 , A.ZIP
+		      		 , A.NATION_NM
+		      		 , A.STATE_NM
+		      		 , A.CITY_NM
+		      		 , A.DETL_ADDR_1
+		      		 , A.DETL_ADDR_2
+		      		 , A.DETL_ADDR_3
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME
+		      		 , A.NEW_DETL_ADDR_1
+		      		 , A.NEW_DETL_ADDR_2 )
+		      VALUES ( B.RCP_TCD
+		      		 , B.PV_PLACE_CD
+		      		 , B.RCP_2ND_ID
+		      		 , B.ADDR_TCD
+		      		 , B.LANG_CD
+		      		 , B.PV_ADDRESS_ZIPCODE
+		      		 , B.NATION_NM
+		      		 , B.STATE_PRV_NM_1
+		      		 , B.LOCAL_GLBL_CITY_NM
+		      		 , GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR1))
+		      		 , GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR2))
+		      		 , GCOM.KXENCRYPT(TRIM(B.PV_ADDRESS_ADDR3))
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME
+		      		 , GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR1#))
+		      		 , GCOM.KXENCRYPT(TRIM(#O_NEW_ADDR2#)) )
+	</update>
+	
+	<!-- 고객의 거래처 업체 LOC EN주소 입력 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_EN_MERGE20">
+		MERGE INTO TMDM_BP_ADDR A
+		USING ( SELECT #RCP_TCD# RCP_TCD
+					 , DECODE(#RCP_TCD#,'IDIR', X.PV_CUST_PLACE_CD, X.PV_PLACE_CD) PV_PLACE_CD
+					 , DECODE(#RCP_TCD#,'IDIR',X.PV_CUST_CD,X.PV_PLACE_CD) RCP_2ND_ID
+					 , 'A001' ADDR_TCD
+					 , 'EN' LANG_CD
+					 , X.PV_ADDRESS_ZIPCODE
+					 , NATION.NATION_NM
+					 , STATE.STATE_PRV_NM_1
+					 , CITY.LOCAL_GLBL_CITY_NM
+					 , X.PV_ADDRESS_ADDR1
+					 , X.PV_ADDRESS_ADDR2
+					 , X.PV_ADDRESS_ADDR3
+					 , X.PV_ADDRESS_ADDR4
+					 , X.PV_ADDRESS_GLOBALADDR1
+					 , X.PV_ADDRESS_GLOBALADDR2
+					 , X.PV_ADDRESS_GLOBALADDR3
+					 , X.PV_ADDRESS_GLOBALADDR4
+					 , 'N' DEL_YN
+					 , LASTMODIFICATIONUSRID INS_ID
+					 , TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+					 , TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+					 , LASTMODIFICATIONUSRID UPD_ID
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+		            FROM TMDM_IF_PLACE_C X
+		                LEFT OUTER JOIN
+		                    ( SELECT NATION_CD
+		                    	   , NATION_NM 
+		                    	FROM TMDM_GS_NATION 
+		                       WHERE DEL_YN = 'N' ) AS NATION
+		                  ON X.PV_LAND1 = NATION.NATION_CD
+		                LEFT OUTER JOIN
+		                    ( SELECT NATION_CD
+		                    	   , STATE_PRV_CD
+		                    	   , STATE_PRV_NM_1 
+		                    	FROM TMDM_GS_STATEPRV 
+		                       WHERE DEL_YN = 'N' ) AS STATE
+		                  ON X.PV_LAND1    = STATE.NATION_CD
+		                  AND X.PV_STATE_CD = STATE.STATE_PRV_CD
+		                LEFT OUTER JOIN
+		                    ( SELECT GLBL_CITY_CD
+		                    	   , LOCAL_GLBL_CITY_NM 
+		                    	FROM TMDM_GS_GLBLCITY 
+		                       WHERE DEL_YN = 'N') AS CITY
+		                  ON CITY.GLBL_CITY_CD = X.PV_CITY_CD
+		          WHERE X.INSTANCEID = #INSTANCEID# ) B
+		   ON A.RCP_TCD = #RCP_TCD# 
+		  AND A.RCP_ID  = B.PV_PLACE_CD
+		  AND A.RCP_2ND_ID = B.RCP_2ND_ID
+		  AND A.LANG_CD = 'EN'
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ZIP           = B.PV_ADDRESS_ZIPCODE
+		           , A.NATION_NM     = B.NATION_NM
+		           , A.STATE_NM      = B.STATE_PRV_NM_1
+		           , A.CITY_NM       = B.LOCAL_GLBL_CITY_NM
+		           , A.DETL_ADDR_1   = B.PV_ADDRESS_GLOBALADDR1
+		           , A.DETL_ADDR_2   = B.PV_ADDRESS_GLOBALADDR2
+		           , A.DETL_ADDR_3   = B.PV_ADDRESS_GLOBALADDR3
+		           , A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD
+		      		 , A.RCP_ID
+		      		 , A.RCP_2ND_ID
+		      		 , A.ADDR_TCD
+		      		 , A.LANG_CD
+		      		 , A.ZIP
+		      		 , A.NATION_NM
+		      		 , A.STATE_NM
+		      		 , A.CITY_NM
+		      		 , A.DETL_ADDR_1
+		      		 , A.DETL_ADDR_2
+		      		 , A.DETL_ADDR_3
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME )
+		      VALUES ( B.RCP_TCD
+		      		 , B.PV_PLACE_CD
+		      		 , B.RCP_2ND_ID
+		      		 , B.ADDR_TCD
+		      		 , B.LANG_CD
+		      		 , B.PV_ADDRESS_ZIPCODE
+		      		 , B.NATION_NM
+		      		 , B.STATE_PRV_NM_1
+		      		 , B.LOCAL_GLBL_CITY_NM
+		      		 , B.PV_ADDRESS_GLOBALADDR1
+		      		 , B.PV_ADDRESS_GLOBALADDR2
+		      		 , B.PV_ADDRESS_GLOBALADDR3
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME )
+	</update>
+	
+	<!-- 고객의 거래처 담당자 정보 입력 -->
+	<update id="IFEAI2_TMDM_BP_CONT_MERGE20">
+		MERGE INTO TMDM_BP_CONT A
+		USING ( SELECT CAST(#PV_ATTN_ID# AS VARCHAR(20)) ATTN_ID
+					 , PV_CHARGE_NM ATTN_NM
+					 , PV_CHARGE_MAIL
+					 , PV_CHARGE_TEL
+					 , PV_FAX
+					 , PV_CHARGE_HP
+					 , 'TEL' CONT_TCD
+					 , 'KO' LANG_CD
+					 , 'Y' USE_YN
+					 , 'N' DEL_YN
+					 , LASTMODIFICATIONUSRID INS_ID
+					 , TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+					 , TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+					 , LASTMODIFICATIONUSRID UPD_ID
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+		          FROM TMDM_IF_PLACE_C
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.ATTN_ID = B.ATTN_ID
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ATTN_NM = B.ATTN_NM
+		           , A.EMAIL   = B.PV_CHARGE_MAIL
+		           , A.FAX_NO  = B.PV_FAX
+		           , A.HP_NO   = B.PV_CHARGE_HP
+		           , A.TEL_NO  = B.PV_CHARGE_TEL
+		           , A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.ATTN_ID
+		      		 , A.ATTN_LNM
+		      		 , A.ATTN_NM
+		      		 , A.ATTN_ENG_NM
+		      		 , A.ATTN_ENG_LNM
+		      		 , A.TITLE
+		      		 , A.EMAIL
+		      		 , A.TEL_NO
+		      		 , A.FAX_NO
+		      		 , A.HP_NO
+		      		 , A.CONT_TCD
+		      		 , A.LANG_CD
+		      		 , A.USE_YN
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME )
+		      VALUES ( B.ATTN_ID
+		      		 , ''
+		      		 , B.ATTN_NM
+		      		 , ''
+		      		 , ''
+		      		 , ''
+		      		 , B.PV_CHARGE_MAIL
+		      		 , B.PV_CHARGE_TEL
+		      		 , B.PV_FAX
+		      		 , B.PV_CHARGE_HP
+		      		 , B.CONT_TCD
+		      		 , B.LANG_CD
+		      		 , B.USE_YN
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME )
+	</update>
+	
+	<!-- 고객의 거래처 업체별 담당자 맵핑 정보 입력 -->
+	<update id="IFEAI2_TMDM_BP_CPCT_MPG_MERGE20">
+		MERGE INTO TMDM_BP_CPCT_MPG A
+		USING ( SELECT CAST(#RCP_TCD# AS VARCHAR(4)) RCP_TCD
+					 , CAST(#PV_ATTN_ID# AS VARCHAR(20)) ATTN_ID
+					 , PV_PLACE_CD
+					 , 'SA' ATTN_TCD
+					 , 'N' DEL_YN
+					 , LASTMODIFICATIONUSRID INS_ID
+					 , TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+					 , TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+					 , LASTMODIFICATIONUSRID UPD_ID
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+					 , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+		          FROM TMDM_IF_PLACE_C
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.RCP_TCD  = B.RCP_TCD
+		  AND A.RCP_ID   = B.PV_PLACE_CD
+		  AND A.ATTN_ID  = B.ATTN_ID
+		  AND A.ATTN_TCD = B.ATTN_TCD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.DEL_YN        = B.DEL_YN
+		           , A.UPD_PERSON_ID = B.UPD_ID
+		           , A.UPD_DATE      = B.UPD_DATE
+		           , A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.RCP_TCD
+		      		 , A.RCP_ID
+		      		 , A.ATTN_ID
+		      		 , A.ATTN_TCD
+		      		 , A.DEL_YN
+		      		 , A.INS_PERSON_ID
+		      		 , A.INS_DATE
+		      		 , A.INS_TIME )
+		      VALUES ( B.RCP_TCD
+		      		 , B.PV_PLACE_CD
+		      		 , B.ATTN_ID
+		      		 , B.ATTN_TCD
+		      		 , B.DEL_YN
+		      		 , B.INS_ID
+		      		 , B.INS_DATE
+		      		 , B.INS_TIME )
+	</update>
+	
+	<!-- 고객의 거래처 간접거래처 정보  입력 -->
+	<!-- GLS통합 컬럼 추가 2013.05.08 -->
+	<update id="IFEAI2_TMDM_BP_INDIRECT_CUST_MERGE20">
+		MERGE INTO TMDM_BP_INDIRECT_CUST A
+		USING ( SELECT PV_CUST_PLACE_CD
+					, PV_CUST_CD
+					, DECODE(PV_CUST_PLACE_TYPE, 'FS', 'SVDR', 'SW', 'SVDR', 'WS', 'SVDR', 'SV', 'SVDR', 'SC', 'SCST', 'SG', 'SCST') INDIR_CUST_TCD
+					, 'SHPR' RCP_TCD
+					, PV_TEL
+					, PV_FAX
+					, PV_LAND1
+					, PV_STATE_CD
+					, PV_CITY_CD
+					, 'N' DEL_YN
+					, LASTMODIFICATIONUSRID INS_ID
+					, TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+					, TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+					, LASTMODIFICATIONUSRID UPD_ID
+					, TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+					, TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+					, PV_SYSDIV /*2013.05.08 GLS 통합 컬럼 추가 시작*/
+					, PV_ALTKN 
+					, PV_EQUAL_PART_TYPE 
+					, PV_OLD_PART_CD 
+					, PV_ORGIN_PART_CD 
+					, PV_PART_GROUP 
+					, PV_PART_TYPE 
+					, PV_PERSON_IN_CHARGE 
+					, PV_PLACE_CD_2ND 
+					, PV_REPRE_NAME 
+					, PV_TAX_ADDRESS 
+					, PV_TAX_BILL_PT_YN 
+					, PV_TAX_BIZ_STATUS 
+					, PV_TAX_COMPANY_NM 
+					, PV_TAX_EVENT 
+					, PV_TAX_NO 
+					, PV_TAX_REPRE_PERSON 
+					, PV_BIZ_STATUS_GUBUN 
+					, PV_SALESMAN_NM 
+					, PV_SALESMAN_TEL 
+					, PV_EXCLU_QUANT_GUBUN 
+					, PV_REL_CENTER_CD 
+					, PV_WH_GUBUN 
+					, PV_PENALTY_YN 
+					, PV_SALDEPTBIZREGNUM 
+					, PV_SALDEPTSAPDEPTCD 
+					, PV_CTRGLSUSEYN 
+					, PV_DLVSTMTOUPDIV 
+					, PV_APLOFCBIZDIV
+		          FROM TMDM_IF_PLACE_C
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.INDIR_CUST_ID = B.PV_CUST_PLACE_CD
+		  AND A.RCP_ID        = B.PV_CUST_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.INDIR_CUST_TCD = B.INDIR_CUST_TCD
+					, A.TEL_NO         = B.PV_TEL
+					, A.FAX_NO         = B.PV_FAX
+					, A.NATION_CD      = B.PV_LAND1
+					, A.STATE_CD       = B.PV_STATE_CD
+					, A.CITY_CD        = B.PV_CITY_CD
+					, A.DEL_YN         = B.DEL_YN
+					, A.UPD_PERSON_ID = B.UPD_ID
+					, A.UPD_DATE      = B.UPD_DATE
+					, A.UPD_TIME      = B.UPD_TIME
+					, A.SYSDIV  = B.PV_SYSDIV 
+					, A.ALTKN  = B.PV_ALTKN 
+					, A.EQUAL_PART_TYPE  = B.PV_EQUAL_PART_TYPE 
+					, A.OLD_PART_CD  = B.PV_OLD_PART_CD 
+					, A.ORGIN_PART_CD  = B.PV_ORGIN_PART_CD 
+					, A.PART_GROUP  = B.PV_PART_GROUP 
+					, A.PART_TYPE  = B.PV_PART_TYPE 
+					, A.PERSON_IN_CHARGE  = B.PV_PERSON_IN_CHARGE 
+					, A.PLACE_CD_2ND  = B.PV_PLACE_CD_2ND 
+					, A.REPRE_NAME  = B.PV_REPRE_NAME 
+					, A.TAX_ADDRESS  = GCOM.KXENCRYPT(TRIM(B.PV_TAX_ADDRESS)) 
+					, A.TAX_BILL_PT_YN  = B.PV_TAX_BILL_PT_YN 
+					, A.TAX_BIZ_STATUS  = B.PV_TAX_BIZ_STATUS 
+					, A.TAX_COMPANY_NM  = B.PV_TAX_COMPANY_NM 
+					, A.TAX_EVENT  = B.PV_TAX_EVENT 
+					, A.TAX_NO  = B.PV_TAX_NO 
+					, A.TAX_REPRE_PERSON  = B.PV_TAX_REPRE_PERSON 
+					, A.BIZ_STATUS_GUBUN  = B.PV_BIZ_STATUS_GUBUN 
+					, A.SALESMAN_NM  = B.PV_SALESMAN_NM 
+					, A.SALESMAN_TEL  = B.PV_SALESMAN_TEL 
+					, A.EXCLU_QUANT_GUBUN  = B.PV_EXCLU_QUANT_GUBUN 
+					, A.REL_CENTER_CD  = B.PV_REL_CENTER_CD 
+					, A.WH_GUBUN  = B.PV_WH_GUBUN 
+					, A.PENALTY_YN  = B.PV_PENALTY_YN 
+					, A.SALDEPTBIZREGNUM  = B.PV_SALDEPTBIZREGNUM 
+					, A.SALDEPTSAPDEPTCD  = B.PV_SALDEPTSAPDEPTCD 
+					, A.CTRGLSUSEYN  = B.PV_CTRGLSUSEYN 
+					, A.DLVSTMTOUPDIV  = B.PV_DLVSTMTOUPDIV 
+					, A.APLOFCBIZDIV = B.PV_APLOFCBIZDIV
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.INDIR_CUST_ID
+					, A.RCP_ID
+					, A.INDIR_CUST_TCD
+					, A.RCP_TCD
+					, A.TEL_NO
+					, A.FAX_NO
+					, A.NATION_CD
+					, A.STATE_CD
+					, A.CITY_CD
+					, A.DEL_YN
+					, A.INS_PERSON_ID
+					, A.INS_DATE
+					, A.INS_TIME
+					, A.SYSDIV 
+					, A.ALTKN 
+					, A.EQUAL_PART_TYPE 
+					, A.OLD_PART_CD 
+					, A.ORGIN_PART_CD 
+					, A.PART_GROUP 
+					, A.PART_TYPE 
+					, A.PERSON_IN_CHARGE 
+					, A.PLACE_CD_2ND 
+					, A.REPRE_NAME 
+					, A.TAX_ADDRESS 
+					, A.TAX_BILL_PT_YN 
+					, A.TAX_BIZ_STATUS 
+					, A.TAX_COMPANY_NM 
+					, A.TAX_EVENT 
+					, A.TAX_NO 
+					, A.TAX_REPRE_PERSON 
+					, A.BIZ_STATUS_GUBUN 
+					, A.SALESMAN_NM 
+					, A.SALESMAN_TEL 
+					, A.EXCLU_QUANT_GUBUN 
+					, A.REL_CENTER_CD 
+					, A.WH_GUBUN 
+					, A.PENALTY_YN 
+					, A.SALDEPTBIZREGNUM 
+					, A.SALDEPTSAPDEPTCD 
+					, A.CTRGLSUSEYN 
+					, A.DLVSTMTOUPDIV
+					, A.APLOFCBIZDIV
+					)
+		      VALUES ( B.PV_CUST_PLACE_CD
+					, B.PV_CUST_CD
+					, B.INDIR_CUST_TCD
+					, B.RCP_TCD
+					, B.PV_TEL
+					, B.PV_FAX
+					, B.PV_LAND1
+					, B.PV_STATE_CD
+					, B.PV_CITY_CD
+					, B.DEL_YN
+					, B.INS_ID
+					, B.INS_DATE
+					, B.INS_TIME
+					, B.PV_SYSDIV 	
+					, B.PV_ALTKN 	
+					, B.PV_EQUAL_PART_TYPE 	
+					, B.PV_OLD_PART_CD 	
+					, B.PV_ORGIN_PART_CD 	
+					, B.PV_PART_GROUP 	
+					, B.PV_PART_TYPE 	
+					, B.PV_PERSON_IN_CHARGE 	
+					, B.PV_PLACE_CD_2ND 	
+					, B.PV_REPRE_NAME 	
+					, GCOM.KXENCRYPT(TRIM(B.PV_TAX_ADDRESS)) 	
+					, B.PV_TAX_BILL_PT_YN 	
+					, B.PV_TAX_BIZ_STATUS 	
+					, B.PV_TAX_COMPANY_NM 	
+					, B.PV_TAX_EVENT 	
+					, B.PV_TAX_NO 	
+					, B.PV_TAX_REPRE_PERSON 	
+					, B.PV_BIZ_STATUS_GUBUN 	
+					, B.PV_SALESMAN_NM 	
+					, B.PV_SALESMAN_TEL 	
+					, B.PV_EXCLU_QUANT_GUBUN 	
+					, B.PV_REL_CENTER_CD 	
+					, B.PV_WH_GUBUN 	
+					, B.PV_PENALTY_YN 	
+					, B.PV_SALDEPTBIZREGNUM 	
+					, B.PV_SALDEPTSAPDEPTCD 	
+					, B.PV_CTRGLSUSEYN 	
+					, B.PV_DLVSTMTOUPDIV
+					, B.PV_APLOFCBIZDIV )
+	</update>
+	
+	<!-- 업체명 정보 삭제 간접거래처 -->
+	<update id="IFEAI2_TMDM_BP_NAME_UPDATE20">
+		UPDATE TMDM_BP_NAME
+		   SET DEL_YN = 'Y'
+		 WHERE RCP_TCD = #RCP_TCD#
+		   AND RCP_ID = #PV_CUST_PLACE_CD#	
+		   AND RCP_2ND_ID = #PV_CUST_CD#
+	</update>
+	
+	<!-- 업체주소 정보 삭제 간접거래처 -->
+	<update id="IFEAI2_TMDM_BP_ADDR_UPDATE20">
+		UPDATE TMDM_BP_ADDR
+		   SET DEL_YN = 'Y'
+		 WHERE RCP_TCD = #RCP_TCD#
+		   AND RCP_ID = #PV_CUST_PLACE_CD#
+		   AND RCP_2ND_ID = #PV_CUST_CD#	
+	</update>		
+	
+	<select id="IFEAI2_TMDM_IF_BP_CUST_C_ADDR_SELECT"  resultClass="java.util.HashMap">
+		SELECT PV_ADDRESS_ZIPCODE, PV_ADDRESS_ADDR1
+		FROM TMDM_IF_BP_CUST_C
+		WHERE INSTANCEID=#INSTANCEID#
+	</select>
+	
+	
+	
+	<delete id="IFEAI2_TMDM_BP_BANKN_DELETE">
+		DELETE TMDM_BP_BANKN
+		  WHERE RCP_TCD IN(#RCP_TCD#)
+		    AND RCP_ID = #PV_KUNNR#
+		    AND RCP_2ND_ID = #PV_KUNNR#
+	</delete>		
+
+	<insert id="IFEAI2_TMDM_BP_BANKN_INSERT_C">
+		INSERT INTO TMDM_BP_BANKN
+		(
+			 RCP_TCD	
+			,RCP_ID		
+			,RCP_2ND_ID	 
+			,SEQ_NO		
+			,BANKS		
+			,BANKL		
+			,BANKN		
+			,KOINH		
+			,BKONT		
+			,BVTYP		
+			,ZDOCU		
+			,ZKOSTL
+			,ZGUBUN
+			,INS_PERSON_ID	
+			,INS_DATE		
+			,INS_TIME		
+		)
+		SELECT
+			#RCP_TCD# AS RCP_TCD,
+			PV_KUNNR AS RCP_ID,
+			PV_KUNNR AS RCP_2ND_ID,
+			PV_SEQ AS SEQ_NO,
+			PV_BANKS AS BANKS,
+			PV_BANKL AS BANKL,
+			PV_BANKN AS BANKN,
+			PV_KOINH AS KOINH,
+			PV_BKONT AS BKONT,
+			PV_BVTYP AS BVTYP,
+			PV_ZDOCU AS ZDOCU,
+			PV_ZKOSTL AS ZKOSTL,
+			PV_ZGUBUN AS ZGUBUN,
+			'INTERFACE' AS INS_PERSON_ID,
+			TO_CHAR(SYSDATE,'YYYYMMDD') AS INS_DATE,
+			TO_CHAR(SYSDATE,'HH24MISS') AS INS_TIME
+		FROM TMDM_IF_BP_CUST_BANKN_C
+		WHERE INSTANCEID = #INSTANCEID#
+	</insert>		
+	
+	<update id="IFEAI2_TMDM_BP_DEPOSIT_CUST_UPDATE">
+		UPDATE TMDM_BP_DEPOSIT_CUST
+		  SET DEL_YN = 'Y'
+		 WHERE CUST_ID = #PV_KUNNR#
+	</update>
+	
+	<update id="IFEAI2_TMDM_BP_DEPOSIT_CUST_MERGE">
+		MERGE INTO TMDM_BP_DEPOSIT_CUST A
+		USING (
+				SELECT
+					  PV_KUNNR
+					 ,PV_PART_TYPE
+					 ,PV_LAND1
+					 ,PV_ZTERM_C
+					 ,PV_PART_NM_LO
+					 ,PV_SORT1
+					 ,PV_KTOKD
+					 ,'N' DEL_YN
+			         ,LASTMODIFICATIONUSRID INS_ID
+			         ,TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+			         ,TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+			         ,LASTMODIFICATIONUSRID UPD_ID
+			         ,TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+			         ,TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+				FROM TMDM_IF_BP_CUST_C
+				WHERE INSTANCEID = #INSTANCEID#
+		) B
+		ON (A.CUST_ID = B.PV_KUNNR)
+		WHEN MATCHED THEN
+		UPDATE SET A.MDM_CUST_TCD = B.PV_PART_TYPE,
+		           A.ABBR_NM = B.PV_SORT1,
+		           A.PART_NM_LO = B.PV_PART_NM_LO,
+		           A.NATION_CD = B.PV_LAND1,
+		           A.ZTERM_C = B.PV_ZTERM_C,
+		           A.KTOKD = B.PV_KTOKD,
+		           A.DEL_YN = B.DEL_YN,
+		           A.UPD_PERSON_ID = B.UPD_ID,
+		           A.UPD_DATE = B.UPD_DATE,
+		           A.UPD_TIME = B.UPD_TIME
+		WHEN NOT MATCHED THEN
+		INSERT
+		(
+			A.CUST_ID
+			,A.MDM_CUST_TCD
+			,A.ABBR_NM
+			,A.PART_NM_LO
+			,A.NATION_CD
+			,A.ZTERM_C
+			,A.KTOKD
+			,A.DEL_YN
+			,A.INS_PERSON_ID
+			,A.INS_DATE
+			,A.INS_TIME
+		)
+		VALUES
+		(
+			B.PV_KUNNR
+			,B.PV_PART_TYPE
+			,B.PV_SORT1
+			,B.PV_PART_NM_LO
+			,B.PV_LAND1
+			,B.PV_ZTERM_C
+			,B.PV_KTOKD
+			,B.DEL_YN
+			,B.INS_ID
+			,B.INS_DATE
+			,B.INS_TIME
+		)
+	</update>
+	<delete id="IFEAI2_TMDM_BP_DEPOSIT_CUST_MAP_DELETE">
+	DELETE TMDM_BP_DEPOSIT_CUST_MAP
+	 WHERE CUST_ID = #PV_KUNNR#
+	</delete>
+
+	<update id="IFEAI2_TMDM_BP_DEPOSIT_CUST_MAP_INSERT">
+		INSERT INTO TMDM_BP_DEPOSIT_CUST_MAP
+		(
+			CUST_ID,
+			BELONG_CUST_ID,
+			INS_PERSON_ID,
+			INS_DATE,
+			INS_TIME
+		)
+		SELECT PV_KUNNR,
+		       PV_BELONG_CUST,
+			   'INTERFACE' AS INS_PERSON_ID,
+			   TO_CHAR(SYSDATE,'YYYYMMDD') AS INS_DATE,
+			   TO_CHAR(SYSDATE,'HH24MISS') AS INS_TIME
+		  FROM TMDM_IF_BP_DEPOSIT_CUST_MAP
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND PV_KUNNR = #PV_KUNNR#
+	</update>
+<!-- 
+	<delete id="IFEAI2_TMDM_BP_DEPOSIT_BANKN_DELETE">
+		DELETE FROM TMDM_BP_BANKN
+		WHERE CUST_ID = #PV_KUNNR#
+	</delete>
+	<update id="IFEAI2_TMDM_BP_DEPOSIT_BANKN_INSERT_C">
+		INSERT INTO TMDM_BP_BANKN
+		(
+			CUST_ID
+			,SEQ_NO
+			,BANKS
+			,BANKL
+			,BANKN
+			,KOINH
+			,BKONT
+			,BVTYP
+			,ZDOCU
+			,ZKOSTL
+			,INS_PERSON_ID
+			,INS_DATE
+			,INS_TIME
+		)
+		SELECT
+			PV_KUNNR AS CUST_ID,
+			PV_SEQ AS SEQ_NO,
+			PV_BANKS AS BANKS,
+			PV_BANKL AS BANKL,
+			PV_BANKN AS BANKN,
+			PV_KOINH AS KOINH,
+			PV_BKONT AS BKONT,
+			PV_BVTYP AS BVTYP,
+			PV_ZDOCU AS ZDOCU,
+			PV_ZKOSTL AS ZKOSTL,
+			'INTERFACE' AS INS_PERSON_ID,
+			TO_CHAR(SYSDATE,'YYYYMMDD') AS INS_DATE,
+			TO_CHAR(SYSDATE,'HH24MISS') AS INS_TIME
+		FROM TMDM_IF_BP_CUST_BANKN_C
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND PV_KUNNR = #PV_KUNNR#
+	</update>
+ -->	
+	<update id="IFEAI2_TMDM_IF_BP_DEPOSIT_CUST_UPDATE">
+        UPDATE TMDM_IF_BP_CUST_C
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = current_timestamp
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+</sqlMap>

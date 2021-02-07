@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimWmsItemGrpMgmtService">
+	
+	<select id="checkDupItemGrp" resultClass="int">
+		/** [sql-baimWmsItemGrpMgmtService.xml][baimWmsItemGrpMgmtService.checkDupItemGrp]
+		 *  [품목그룹 중복 체크]
+		 *  [KimJinHwan 2020.03.10]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_WMS_ITEM_GRP_C A
+		WHERE
+			A.ITEM_GRP_CD = #ITEM_GRP_CD#
+	</select>
+	
+	
+	<select id="getItemGrpList" resultClass="java.util.HashMap">
+		/** [sql-baimWmsItemGrpMgmtService.xml][baimWmsItemGrpMgmtService.getItemGrpList]
+		 *  [품목그룹리스트 조회]
+		 *  [KimJinHwan 2020.03.10]
+		 **/
+		SELECT
+			'' AS CHK
+		    ,A.ITEM_GRP_CD
+		    ,A.DESCRIPT
+			,A.ZN_CD
+			,A.USE_YN
+		FROM
+		    TB_WMS_ITEM_GRP_C A
+		WHERE
+		    1=1
+		<isNotEmpty property="ITEM_GRP_CD">
+		AND A.ITEM_GRP_CD = #ITEM_GRP_CD#
+		</isNotEmpty>
+		<isNotEmpty property="DESC">
+		AND A.DESCRIPT LIKE CONCAT('%', #DESC#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="USE_YN">
+		AND A.USE_YN = #USE_YN#
+		</isNotEmpty>
+		
+	</select>
+	
+	
+	<select id="getItemGrpListPop" resultClass="java.util.HashMap">
+		/** [sql-baimWmsItemGrpMgmtService.xml][baimWmsItemGrpMgmtService.getItemGrpListPop]
+		 *  [품목그룹정보 조회(팝업)]
+		 *  [KimJinHwan 2020.03.10]
+		 **/
+		SELECT
+			'' AS CHK
+		    ,A.ITEM_GRP_CD
+		    ,A.DESCRIPT
+			,A.ZN_CD
+			,A.USE_YN
+		FROM
+		    TB_WMS_ITEM_GRP_C A
+		WHERE
+		    A.USE_YN = 'Y'
+		<isNotEmpty property="ITEM_GRP_CD">
+		AND A.ITEM_GRP_CD = #ITEM_GRP_CD#
+		</isNotEmpty>
+		<isNotEmpty property="DESCRIPT">
+		AND A.DESCRIPT LIKE CONCAT('%', #DESCRIPT#, '%')
+		</isNotEmpty>
+		
+	</select>
+	
+	<insert id="insertItemGrpInfo">
+		/** [sql-baimWmsItemGrpMgmtService.xml][baimWmsItemGrpMgmtService.insertItemGrpInfo]
+		 *  [품목그룹정보 추가]
+		 *  [KimJinHwan 2020.03.10]
+		 **/
+		INSERT INTO TB_WMS_ITEM_GRP_C
+		(
+			ITEM_GRP_CD
+			,DESCRIPT
+			,ZN_CD
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#ITEM_GRP_CD#
+			,#DESCRIPT#
+			,#ZN_CD#
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)		
+	</insert>
+
+	<update id="updateItemGrpInfo">
+		/** [sql-baimWmsItemGrpMgmtService.xml][baimWmsItemGrpMgmtService.updateItemGrpInfo]
+		 *  [품목정보 수정]
+		 *  [KimJinHwan 2020.03.09]
+		 **/
+		UPDATE TB_WMS_ITEM_GRP_C
+		SET
+			DESCRIPT = #DESCRIPT#
+			,ZN_CD = #ZN_CD#
+			,USE_YN = #USE_YN#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			ITEM_GRP_CD = #ITEM_GRP_CD#
+	</update>
+	
+	<delete id="deleteItemGrp">
+		/** [sql-baimWmsItemGrpMgmtService.xml][baimWmsItemGrpMgmtService.deleteItemGrp]
+		 *  [품목그룹정보 삭제]
+		 *  [KimJinHwan 2020.03.10]
+		 **/
+		DELETE FROM TB_WMS_ITEM_GRP_C
+		WHERE
+			ITEM_GRP_CD = #ITEM_GRP_CD#
+	</delete>
+</sqlMap>

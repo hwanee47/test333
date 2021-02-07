@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimWmsCustMgmtService">
+	<select id="getWmsCustList" resultClass="java.util.HashMap">
+	/** [sql-baimWmsCustMgmtService.xml][baimWmsCustMgmtService.getWmsCustList]
+		 *  [WMS 고객 리스트 조회]
+		 *  [JinSeonJu 2020.03.02]
+		 **/
+		SELECT A.SHIPPER_ID         	  /* 고객를 구분하는 KEY VALUE */
+			, A.CUST_CD AS CUST_ID      /* 고객코드 */
+			, A.CUST_REPRE_NM           /* 고객사를 나타내는 대표 명 */
+			, A.ENTRP_REG_NO            /* 사업자등록번호 */
+			, A.CUST_ABRV_NM            /* 고객사를 나타내는 약자 명 */
+			, A.REPRE_NM                /* 대표자명 */
+			, CONCAT(A.BUSINESTAB_ZIP_NO_1,A.BUSINESTAB_ZIP_NO_1) AS ZIP_NO
+			, A.BUSINESTAB_ZIP_NO_1 AS ZIP_NO_1    /* 사업장 주소(우편번호 1) */
+			, A.BUSINESTAB_ZIP_NO_2 AS ZIP_NO_2    /* 사업장 주소(우편번호 2) */
+			, A.BUSINESTAB_ADDR		AS ADDR         /* 사업장 주소(주소 1) */
+			, FC_AES_DECRYPT(A.BUSINESTAB_DETAIL_ADDR) AS DETAIL_ADDR  /* 사업장 주소(주소 2, 상세주소) */
+			, CONCAT(A.BUSINESTAB_TEL_NO_1,'-',A.BUSINESTAB_TEL_NO_2,'-',FC_AES_DECRYPT(A.BUSINESTAB_TEL_NO_3)) AS TEL_NO
+			, A.BUSINESTAB_TEL_NO_1	AS TEL_NO_1					/* 사업장전화번호1 */
+			, A.BUSINESTAB_TEL_NO_2	AS TEL_NO_2					/* 사업장전화번호2 */
+			, FC_AES_DECRYPT(A.BUSINESTAB_TEL_NO_3) AS TEL_NO_3	/* 사업장전화번호3 */
+			, CONCAT(A.BUSINESTAB_FAX_NO_1,'-',A.BUSINESTAB_FAX_NO_2,'-',FC_AES_DECRYPT(A.BUSINESTAB_FAX_NO_3)) AS FAX_NO
+			, A.BUSINESTAB_FAX_NO_1   AS FAX_NO_1					/* 사업장  팩스번호1 */
+			, A.BUSINESTAB_FAX_NO_2	AS FAX_NO_2  				/* 사업장  팩스번호2 */
+			, FC_AES_DECRYPT(A.BUSINESTAB_FAX_NO_3)	AS FAX_NO_3  /* 사업장  팩스번호3 */
+			, CONCAT(A.BUSINESTAB_REPRE_EMAIL_1,'@', A.BUSINESTAB_REPRE_EMAIL_2) AS EMAIL
+			, A.BUSINESTAB_REPRE_EMAIL_1	AS EMAIL_1				/* 사업장 대표 이메일1*/
+			, A.BUSINESTAB_REPRE_EMAIL_2 	AS EMAIL_2				/* 사업장 대표 이메일2*/
+			, A.USE_YN                  /* 사용여부 */
+			, A.DEL_YN                  /* 삭제여부 */
+		    , A.REMARK
+		    , B.CP_DV
+		FROM TB_WMS_CUST_MGMT_C A
+    , TB_BAIM_ENTER_CUST_C B
+		WHERE 1=1
+    AND A.CUST_CD = B.CUST_ID
+		<isNotEmpty property="SHIPPER_ID">
+		AND SHIPPER_ID = #SHIPPER_ID#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_REPRE_NM">
+		AND CUST_REPRE_NM LIKE CONCAT(#CUST_REPRE_NM#,'%')
+		</isNotEmpty>
+		<isNotEmpty property="USE_YN">
+		AND USE_YN = #USE_YN#
+		</isNotEmpty>
+	</select>
+	
+	<insert id="insertWmsCustInfo">
+		/** [sql-baimWmsCustMgmtService.xml][baimWmsCustMgmtService.insertWmsCustInfo]
+		 *  [WMS 고객 정보 저장]
+		 *  [JinSeonJu 2020.03.02]
+		 **/
+	INSERT INTO TB_WMS_CUST_MGMT_C (
+	   SHIPPER_ID
+	  ,SITE_CD
+	  ,CUST_CD
+	  ,ENTRP_REG_NO
+	  ,CUST_REPRE_NM
+	  ,CUST_ABRV_NM
+	  ,REPRE_NM
+	  ,BUSINESTAB_ZIP_NO_1
+	  ,BUSINESTAB_ZIP_NO_2
+	  ,BUSINESTAB_ADDR
+	  ,BUSINESTAB_DETAIL_ADDR
+	  ,BUSINESTAB_TEL_NO_1
+	  ,BUSINESTAB_TEL_NO_2
+	  ,BUSINESTAB_TEL_NO_3
+	  ,BUSINESTAB_FAX_NO_1
+	  ,BUSINESTAB_FAX_NO_2
+	  ,BUSINESTAB_FAX_NO_3
+	  ,BUSINESTAB_REPRE_EMAIL_1
+	  ,BUSINESTAB_REPRE_EMAIL_2
+	  ,REMARK
+	  ,USE_YN
+	  ,DEL_YN
+	  ,REG_EMP_ID
+	  ,REG_DTIME
+	  ,MODI_EMP_ID
+	  ,MODI_DTIME
+	) VALUES (
+	   #SHIPPER_ID#
+	  ,'GWDS'
+	  ,#SHIPPER_ID#
+	  ,#ENTRP_REG_NO#
+	  ,#CUST_REPRE_NM#
+	  ,#CUST_ABRV_NM#
+	  ,#REPRE_NM#
+	  ,#ZIP_NO_1#
+	  ,#ZIP_NO_2#
+	  ,#ADDR#
+	  ,FC_AES_ENCRYPT(#DETAIL_ADDR#)
+	  ,#TEL_NO_1#
+	  ,#TEL_NO_2#
+	  ,FC_AES_ENCRYPT(#TEL_NO_3#)
+	  ,#FAX_NO_1#
+	  ,#FAX_NO_2#
+	  ,FC_AES_ENCRYPT(#FAX_NO_3#)
+	  ,#EMAIL1#
+	  ,#EMAIL2#
+	  ,#REMARK#
+	  ,#USE_YN#
+	  ,#DEL_YN#
+	  ,#gv_userId#
+	  ,REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+	  ,#gv_userId#
+	  ,REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+	)
+	</insert>
+	
+	<select id="checkShipperId" resultClass="Integer">
+		SELECT COUNT(*) FROM TB_WMS_CUST_MGMT_C
+		WHERE SHIPPER_ID = #SHIPPER_ID#
+	</select>
+	
+	<update id="updateWmsCustInfo">
+	UPDATE TB_WMS_CUST_MGMT_C SET
+	  ENTRP_REG_NO = #ENTRP_REG_NO#
+	  ,CUST_REPRE_NM = #CUST_REPRE_NM#
+	  ,CUST_ABRV_NM = #CUST_ABRV_NM#
+	  ,REPRE_NM = #REPRE_NM#
+	  ,BUSINESTAB_ZIP_NO_1 = #ZIP_NO_1#
+	  ,BUSINESTAB_ZIP_NO_2 = #ZIP_NO_2#
+	  ,BUSINESTAB_ADDR = #ADDR#
+	  ,BUSINESTAB_DETAIL_ADDR = FC_AES_ENCRYPT(#DETAIL_ADDR#)
+	  ,BUSINESTAB_TEL_NO_1 = #TEL_NO_1#	
+	  ,BUSINESTAB_TEL_NO_2 = #TEL_NO_2#	
+	  ,BUSINESTAB_TEL_NO_3 = FC_AES_ENCRYPT(#TEL_NO_3#)
+	  ,BUSINESTAB_FAX_NO_1 = #FAX_NO_1#
+	  ,BUSINESTAB_FAX_NO_2 = #FAX_NO_2#
+	  ,BUSINESTAB_FAX_NO_3 = FC_AES_ENCRYPT(#FAX_NO_3#)
+	  ,BUSINESTAB_REPRE_EMAIL_1 = #EMAIL1#
+	  ,BUSINESTAB_REPRE_EMAIL_2 = #EMAIL2#
+	  ,REMARK = #REMARK#
+	  ,USE_YN = #USE_YN#
+	  ,DEL_YN = #DEL_YN#
+	  ,MODI_EMP_ID = #gv_userId#
+	  ,MODI_DTIME = REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+	WHERE SHIPPER_ID = #SHIPPER_ID#
+	</update>
+</sqlMap>

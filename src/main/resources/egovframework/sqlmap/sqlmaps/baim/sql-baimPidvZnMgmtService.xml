@@ -1,0 +1,903 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimPidvZnMgmtService">
+	
+	<insert id="mergeJibunPidvZnDetailInfo">
+		/** [sql-baimPidvZnMgmtService.xml][baimPidvZnMgmtService.mergeJibunPidvZnDetailInfo]
+		 *  [집배구역 상세정보 저장(지번)]
+		 *  [KimJinHwan 2020.02.06]
+		 **/
+		INSERT INTO TB_BAIM_PIDV_ZN_C
+		(
+			ZIP_NO
+			,ZIP_NO_SERIAL
+			,CP_DV
+			,FCHRG_ORGNZ
+			,ZN_DV
+			,RGN_DV_CD
+			,PICKUP_BRAN_CD
+			,PICKUP_EXPCT_HOUR
+			,PICKUP_EMP_NO
+			,DLV_BRAN_CD
+			,DLV_EXPCT_HOUR
+			,DLV_EMP_NO
+			,FERRY_RATE
+			,AIR_RATE
+			,DLV_NEED_SUMDAY
+			,ILNRGN_DV
+			,DAY_PICKUP_YN
+			,DAY_RCPT_DLINE_HOUR
+			,PIDV_FAIL_YMD_FR
+			,PIDV_FAIL_YMD_TO
+			,SORT_CD
+			,HDAY_GRP_CD
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#ZIP_NO#
+			,#ZIP_NO_SERIAL#
+			,#CP_DV#
+			,#FCHRG_ORGNZ#
+			,#ZN_DV#
+			,#RGN_DV_CD#
+			,#PICKUP_BRAN_CD#
+			,NULL
+			,#PICKUP_EMP_NO#
+			,#DLV_BRAN_CD#
+			,NULL
+			,#DLV_EMP_NO#
+			,#FERRY_RATE#
+			,#AIR_RATE#
+			,#DLV_NEED_SUMDAY#
+			,#ILNRGN_DV#
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,#SORT_CD#
+			,NULL
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		ON
+			DUPLICATE KEY
+		UPDATE
+			PICKUP_BRAN_CD   = #PICKUP_BRAN_CD#
+			,PICKUP_EMP_NO   = #PICKUP_EMP_NO#
+			,DLV_BRAN_CD     = #DLV_BRAN_CD#
+			,DLV_EMP_NO      = #DLV_EMP_NO#
+			,ZN_DV           = #ZN_DV#
+			,RGN_DV_CD       = #RGN_DV_CD#
+			,FERRY_RATE      = #FERRY_RATE#
+			,AIR_RATE      	 = #AIR_RATE#
+			,DLV_NEED_SUMDAY = #DLV_NEED_SUMDAY#
+			,ILNRGN_DV       = #ILNRGN_DV#
+			,SORT_CD         = #SORT_CD#
+			,MODI_EMP_ID     = #gv_userId#
+			,MODI_DTIME      = NOW()
+	</insert>
+	
+	<insert id="mergeJibunPidvZnChg">
+		/** [sql-baimPidvZnMgmtService.xml][baimPidvZnMgmtService.mergeJibunPidvZnChg]
+		 *  [집배구역 구역변경 저장(지번)]
+		 *  [KimJinHwan 2020.02.06]
+		 **/
+		INSERT INTO TB_BAIM_PIDV_ZN_C
+		(
+			ZIP_NO
+			,ZIP_NO_SERIAL
+			,CP_DV
+			,FCHRG_ORGNZ
+			,ZN_DV
+			,RGN_DV_CD
+			,PICKUP_BRAN_CD
+			,PICKUP_EXPCT_HOUR
+			,PICKUP_EMP_NO
+			,DLV_BRAN_CD
+			,DLV_EXPCT_HOUR
+			,DLV_EMP_NO
+			,FERRY_RATE
+			,AIR_RATE
+			,DLV_NEED_SUMDAY
+			,ILNRGN_DV
+			,DAY_PICKUP_YN
+			,DAY_RCPT_DLINE_HOUR
+			,PIDV_FAIL_YMD_FR
+			,PIDV_FAIL_YMD_TO
+			,SORT_CD
+			,HDAY_GRP_CD
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#ZIP_NO#
+			,#ZIP_NO_SERIAL#
+			,#CP_DV#
+			,#FCHRG_ORGNZ#
+			,NULL
+			,NULL
+			,#PICKUP_BRAN_CD#
+			,NULL
+			,#PICKUP_EMP_NO#
+			,#DLV_BRAN_CD#
+			,NULL
+			,#DLV_EMP_NO#
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		ON
+			DUPLICATE KEY
+		UPDATE
+			PICKUP_BRAN_CD   = #PICKUP_BRAN_CD#
+			,PICKUP_EMP_NO   = #PICKUP_EMP_NO#
+			,DLV_BRAN_CD     = #DLV_BRAN_CD#
+			,DLV_EMP_NO      = #DLV_EMP_NO#
+			,MODI_EMP_ID     = #gv_userId#
+			,MODI_DTIME      = NOW()
+	</insert>
+	
+	
+	<insert id="mergeRoadPidvZnDetailInfo">
+		/** [sql-baimPidvZnMgmtService.xml][baimPidvZnMgmtService.mergeRoadPidvZnDetailInfo]
+		 *  [집배구역 상세정보 저장]
+		 *  [KimJinHwan 2020.02.06]
+		 **/
+		INSERT INTO TB_BAIM_ROAD_PIDV_ZN_C
+		(
+			ZIP_NO
+			,ZIP_NO_SERIAL
+			,CP_DV
+			,FCHRG_ORGNZ
+			,ZN_DV
+			,RGN_DV_CD
+			,PICKUP_BRAN_CD
+			,PICKUP_EXPCT_HOUR
+			,PICKUP_EMP_NO
+			,DLV_BRAN_CD
+			,DLV_EXPCT_HOUR
+			,DLV_EMP_NO
+			,FERRY_RATE
+			,AIR_RATE
+			,DLV_NEED_SUMDAY
+			,ILNRGN_DV
+			,DAY_PICKUP_YN
+			,DAY_RCPT_DLINE_HOUR
+			,PIDV_FAIL_YMD_FR
+			,PIDV_FAIL_YMD_TO
+			,SORT_CD
+			,HDAY_GRP_CD
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#ZIP_NO#
+			,#ZIP_NO_SERIAL#
+			,#CP_DV#
+			,#FCHRG_ORGNZ#
+			,#ZN_DV#
+			,#RGN_DV_CD#
+			,#PICKUP_BRAN_CD#
+			,NULL
+			,#PICKUP_EMP_NO#
+			,#DLV_BRAN_CD#
+			,NULL
+			,#DLV_EMP_NO#
+			,#FERRY_RATE#
+			,#AIR_RATE#
+			,#DLV_NEED_SUMDAY#
+			,#ILNRGN_DV#
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,#SORT_CD#
+			,NULL
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		ON
+			DUPLICATE KEY
+		UPDATE
+			PICKUP_BRAN_CD   = #PICKUP_BRAN_CD#
+			,PICKUP_EMP_NO   = #PICKUP_EMP_NO#
+			,DLV_BRAN_CD     = #DLV_BRAN_CD#
+			,DLV_EMP_NO      = #DLV_EMP_NO#
+			,ZN_DV           = #ZN_DV#
+			,RGN_DV_CD       = #RGN_DV_CD#
+			,FERRY_RATE      = #FERRY_RATE#
+			,AIR_RATE      	 = #AIR_RATE#
+			,DLV_NEED_SUMDAY = #DLV_NEED_SUMDAY#
+			,ILNRGN_DV       = #ILNRGN_DV#
+			,SORT_CD         = #SORT_CD#
+			,MODI_EMP_ID     = #gv_userId#
+			,MODI_DTIME      = NOW()
+	</insert>
+
+	<insert id="mergePidvZnDetailInfo">
+		/** [sql-baimPidvZnMgmtService.xml][baimPidvZnMgmtService.mergePidvZnDetailInfo]
+		 *  [집배구역 상세정보 저장]
+		 *  [jckim 2020.08.31]
+		 **/
+		INSERT INTO TB_BAIM_PIDV_ZN_MST
+		(
+			ZIP_NO
+			, SIDO_NM
+			, SKK_NM
+			, EMDONG_NM
+			, CP_DV
+			, FCHRG_ORGNZ
+			, ZN_DV
+			, RGN_DV_CD
+			, PICKUP_BRAN_CD
+			, PICKUP_EXPCT_HOUR
+			, PICKUP_EMP_NO
+			, DLV_BRAN_CD
+			, DLV_EXPCT_HOUR
+			, DLV_EMP_NO
+			, FERRY_RATE
+			, AIR_RATE
+			, DLV_NEED_SUMDAY
+			, ILNRGN_DV
+			, DAY_PICKUP_YN
+			, DAY_RCPT_DLINE_HOUR
+			, PIDV_FAIL_YMD_FR
+			, PIDV_FAIL_YMD_TO
+			, SORT_CD
+			, HDAY_GRP_CD
+			, USE_YN
+			, STAT_CD
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		) 
+		VALUES 
+		(
+			#ZIP_NO#
+			, #SIDO_NM#
+			, #SKK_NM#
+			, #EMDONG_NM#
+			, #CP_DV#
+			, #FCHRG_ORGNZ#
+			, #ZN_DV#
+			, #RGN_DV_CD#
+			, #PICKUP_BRAN_CD#
+			, NULL
+			, #PICKUP_EMP_NO#
+			, #DLV_BRAN_CD#
+			, NULL
+			, #DLV_EMP_NO#
+			, #FERRY_RATE#
+			, #AIR_RATE#
+			, #DLV_NEED_SUMDAY#
+			, #ILNRGN_DV# 
+			, NULL
+			, NULL
+			, NULL
+			, NULL
+			, #SORT_CD#
+			, NULL
+			, 'Y'
+			, 'U'
+			, #gv_userId#
+			, NOW()
+			, #gv_userId#
+			, NOW()
+		)
+		ON
+			DUPLICATE KEY
+		UPDATE
+			PICKUP_BRAN_CD   = #PICKUP_BRAN_CD#
+			,PICKUP_EMP_NO   = #PICKUP_EMP_NO#
+			,DLV_BRAN_CD     = #DLV_BRAN_CD#
+			,DLV_EMP_NO      = #DLV_EMP_NO#
+			,ZN_DV           = #ZN_DV#
+			,RGN_DV_CD       = #RGN_DV_CD#
+			,FERRY_RATE      = #FERRY_RATE#
+			,AIR_RATE      	 = #AIR_RATE#
+			,DLV_NEED_SUMDAY = #DLV_NEED_SUMDAY#
+			,ILNRGN_DV       = #ILNRGN_DV#
+			,SORT_CD         = #SORT_CD#
+			,STAT_CD         = 'U'
+			,MODI_EMP_ID     = #gv_userId#
+			,MODI_DTIME      = NOW()
+		
+	</insert>
+
+	<insert id="mergePidvZnChg">
+		/** [sql-baimPidvZnMgmtService.xml][baimPidvZnMgmtService.mergePidvZnChg]
+		 *  [집배구역 구역변경 저장]
+		 *  [jckim 2020.08.31]
+		 **/
+		INSERT INTO TB_BAIM_PIDV_ZN_MST
+		(
+			ZIP_NO
+			, SIDO_NM
+			, SKK_NM
+			, EMDONG_NM
+			, CP_DV
+			, FCHRG_ORGNZ
+			, ZN_DV
+			, RGN_DV_CD
+			, PICKUP_BRAN_CD
+			, PICKUP_EXPCT_HOUR
+			, PICKUP_EMP_NO
+			, DLV_BRAN_CD
+			, DLV_EXPCT_HOUR
+			, DLV_EMP_NO
+			, FERRY_RATE
+			, AIR_RATE
+			, DLV_NEED_SUMDAY
+			, ILNRGN_DV
+			, DAY_PICKUP_YN
+			, DAY_RCPT_DLINE_HOUR
+			, PIDV_FAIL_YMD_FR
+			, PIDV_FAIL_YMD_TO
+			, SORT_CD
+			, HDAY_GRP_CD
+			, USE_YN
+			, STAT_CD
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		) 
+		VALUES 
+		(
+			#ZIP_NO#
+			, #SIDO_NM#
+			, #SKK_NM#
+			, #EMDONG_NM#
+			, #CP_DV#
+			, #FCHRG_ORGNZ#
+			, NULL
+			, NULL
+			, #PICKUP_BRAN_CD#
+			, NULL
+			, #PICKUP_EMP_NO#
+			, #DLV_BRAN_CD#
+			, NULL
+			, #DLV_EMP_NO#
+			, NULL
+			, NULL
+			, NULL
+			, NULL 
+			, NULL
+			, NULL
+			, NULL
+			, NULL
+			, NULL
+			, NULL
+			, 'Y'
+			, 'U'
+			, #gv_userId#
+			, NOW()
+			, #gv_userId#
+			, NOW()
+		)
+		ON
+			DUPLICATE KEY
+		UPDATE
+			PICKUP_BRAN_CD   = #PICKUP_BRAN_CD#
+			,PICKUP_EMP_NO   = #PICKUP_EMP_NO#
+			,DLV_BRAN_CD     = #DLV_BRAN_CD#
+			,DLV_EMP_NO      = #DLV_EMP_NO#
+			,STAT_CD         = 'U'
+			,MODI_EMP_ID     = #gv_userId#
+			,MODI_DTIME      = NOW()
+
+	</insert>
+	
+	
+	<insert id="mergeRoadPidvZnChg">
+		/** [sql-baimPidvZnMgmtService.xml][baimPidvZnMgmtService.mergeRoadPidvZnChg]
+		 *  [집배구역 구역변경 저장]
+		 *  [KimJinHwan 2020.02.06]
+		 **/
+		INSERT INTO TB_BAIM_ROAD_PIDV_ZN_C
+		(
+			ZIP_NO
+			,ZIP_NO_SERIAL
+			,CP_DV
+			,FCHRG_ORGNZ
+			,ZN_DV
+			,RGN_DV_CD
+			,PICKUP_BRAN_CD
+			,PICKUP_EXPCT_HOUR
+			,PICKUP_EMP_NO
+			,DLV_BRAN_CD
+			,DLV_EXPCT_HOUR
+			,DLV_EMP_NO
+			,FERRY_RATE
+			,AIR_RATE
+			,DLV_NEED_SUMDAY
+			,ILNRGN_DV
+			,DAY_PICKUP_YN
+			,DAY_RCPT_DLINE_HOUR
+			,PIDV_FAIL_YMD_FR
+			,PIDV_FAIL_YMD_TO
+			,SORT_CD
+			,HDAY_GRP_CD
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#ZIP_NO#
+			,#ZIP_NO_SERIAL#
+			,#CP_DV#
+			,#FCHRG_ORGNZ#
+			,NULL
+			,NULL
+			,#PICKUP_BRAN_CD#
+			,NULL
+			,#PICKUP_EMP_NO#
+			,#DLV_BRAN_CD#
+			,NULL
+			,#DLV_EMP_NO#
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		ON
+			DUPLICATE KEY
+		UPDATE
+			PICKUP_BRAN_CD   = #PICKUP_BRAN_CD#
+			,PICKUP_EMP_NO   = #PICKUP_EMP_NO#
+			,DLV_BRAN_CD     = #DLV_BRAN_CD#
+			,DLV_EMP_NO      = #DLV_EMP_NO#
+			,MODI_EMP_ID     = #gv_userId#
+			,MODI_DTIME      = NOW()
+	</insert>
+	
+	
+	<!-- 집배구역 구역 리스트 조회 (지번_등록) -->
+	<sql id="sql_selectPiDvZnList_regi">
+		/*등록*/
+		(SELECT
+			'' AS CHK,
+			'01' AS ZIP_ADDR_DV,	/* 지번(01)인지 도로명(02)인지 구분하기 위함. */
+		    TBPZC.ZIP_NO,
+		    TBPZC.ZIP_NO_SERIAL,
+		    (SELECT DETAIL_ADDR FROM TB_BAIM_JIBUN_ZIP_NO_MST WHERE ZIP_NO=TBPZC.ZIP_NO AND SERIAL=TBPZC.ZIP_NO_SERIAL) AS  ADDR,
+		    TBPZC.CP_DV,
+		    TBPZC.FCHRG_ORGNZ,
+		    TBPZC.ZN_DV,
+		    TBPZC.RGN_DV_CD,
+		    TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM TBPZC.FERRY_RATE)) AS FERRY_RATE,
+		    TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM TBPZC.AIR_RATE)) AS AIR_RATE,
+		    TBPZC.DLV_NEED_SUMDAY,
+		    TBPZC.ILNRGN_DV,
+		    TBPZC.PICKUP_BRAN_CD,
+		    (SELECT BRAN_NM FROM TB_BAIM_BRAN_MGT_C WHERE BRAN_CD = TBPZC.PICKUP_BRAN_CD) AS PICKUP_BRAN_NM,
+		    TBPZC.PICKUP_EMP_NO,
+		    TBPZC.DLV_BRAN_CD,
+		    (SELECT BRAN_NM FROM TB_BAIM_BRAN_MGT_C WHERE BRAN_CD = TBPZC.DLV_BRAN_CD) AS DLV_BRAN_NM,
+		    TBPZC.DLV_EMP_NO,
+		    TBPZC.SORT_CD
+		FROM
+			TB_BAIM_PIDV_ZN_C TBPZC
+		WHERE
+		    TBPZC.USE_YN = 'Y'
+		<isNotEmpty property="CP_DV">
+		    AND TBPZC.CP_DV = #CP_DV#
+		</isNotEmpty>
+		<isNotEmpty property="FCHRG_ORGNZ">
+		    AND TBPZC.FCHRG_ORGNZ = #FCHRG_ORGNZ#
+		</isNotEmpty>
+		<isNotEmpty property="ZIP_NO_FR">
+			AND TBPZC.ZIP_NO <![CDATA[>=]]> #ZIP_NO_FR#
+		</isNotEmpty>
+		<isNotEmpty property="ZIP_NO_TO">
+			AND TBPZC.ZIP_NO <![CDATA[<=]]> #ZIP_NO_TO#
+		</isNotEmpty>
+		<isNotEmpty property="BRAN_CD">
+			AND (
+					TBPZC.PICKUP_BRAN_CD = #BRAN_CD#
+		    	OR	TBPZC.DLV_BRAN_CD = #BRAN_CD#
+			)
+		</isNotEmpty>
+		ORDER BY ZIP_NO, ZIP_NO_SERIAL
+		)
+	</sql>
+	
+	<!-- 집배구역 구역 리스트 조회 (지번_미등록) -->
+	<sql id="sql_selectPiDvZnList_unregi">
+		/* 미등록 */
+		(SELECT
+		    '' AS CHK,
+		    '01' AS ZIP_ADDR_DV,	/* 지번(01)인지 도로명(02)인지 구분하기 위함. */
+		    TBJZNM.ZIP_NO,
+		    TBJZNM.SERIAL AS ZIP_NO_SERIAL,
+		    TBJZNM.DETAIL_ADDR AS ADDR,
+		    '' AS CP_DV,
+		    '' AS FCHRG_ORGNZ,
+		    '' AS ZN_DV,
+		    '' AS RGN_DV_CD,
+		    0 AS FERRY_RATE,
+		    0 AS AIR_RATE,
+		    '' AS DLV_NEED_SUMDAY,
+		    '' AS ILNRGN_DV,
+		    '' AS PICKUP_BRAN_CD,
+		    '' AS PICKUP_BRAN_NM,
+		    '' AS PICKUP_EMP_NO,
+		    '' AS DLV_BRAN_CD,
+		    '' AS DLV_BRAN_NM,
+		    '' AS DLV_EMP_NO,
+		    '' AS SORT_CD
+		FROM
+		    TB_BAIM_JIBUN_ZIP_NO_MST TBJZNM
+		WHERE
+		    NOT EXISTS ( SELECT * FROM TB_BAIM_PIDV_ZN_C TBPZC WHERE TBJZNM.ZIP_NO=TBPZC.ZIP_NO AND TBJZNM.SERIAL=TBPZC.ZIP_NO_SERIAL)
+		<isNotEmpty property="ZIP_NO_FR">
+			AND TBJZNM.ZIP_NO <![CDATA[>=]]> #ZIP_NO_FR#
+		</isNotEmpty>
+		<isNotEmpty property="ZIP_NO_TO">
+			AND TBJZNM.ZIP_NO <![CDATA[<=]]> #ZIP_NO_TO#
+		</isNotEmpty>
+		ORDER BY ZIP_NO, ZIP_NO_SERIAL
+		)
+	</sql>
+	
+	<select id="getPiDvZnMstList" resultClass="java.util.HashMap">
+		/** [sql-baimPidvZnMgmtService.xml][baimPidvZnMgmtService.getPiDvZnMstList]
+		 *  [집배구역 구역 리스트 조회 (지번)]
+		 *  [KimJinHwan 2020.02.11]
+		 **/
+		SELECT '0' AS CHK
+  			 , ZIP_NO
+			 , SIDO_NM
+			 , IFNULL(SKK_NM,'') AS SKK_NM
+			 , EMDONG_NM 
+			 , CP_DV
+			 , FCHRG_ORGNZ
+			 , ZN_DV
+			 , RGN_DV_CD
+			 , TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM FERRY_RATE)) AS FERRY_RATE
+			 , TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM AIR_RATE)) AS AIR_RATE
+			 , DLV_NEED_SUMDAY
+			 , ILNRGN_DV
+			 , PICKUP_BRAN_CD
+			 , FN_GET_BRAN_NM(PICKUP_BRAN_CD) AS PICKUP_BRAN_NM
+			 , PICKUP_EMP_NO
+			 , FN_GET_EMP_NM(PICKUP_EMP_NO) AS PICKUP_EMP_NM
+			 , DLV_BRAN_CD
+			 , FN_GET_BRAN_NM(DLV_BRAN_CD) AS DLV_BRAN_NM
+			 , DLV_EMP_NO
+			 , FN_GET_EMP_NM(DLV_EMP_NO) AS DLV_EMP_NM
+			 , SORT_CD
+		  FROM TB_BAIM_PIDV_ZN_MST
+		 WHERE ZIP_NO = ZIP_NO
+		   AND SIDO_NM = (CASE WHEN IFNULL(#SI_DO#,'') = '' THEN SIDO_NM ELSE #SI_DO# END)
+		   AND SKK_NM = (CASE WHEN IFNULL(#SKK#,'') = '' THEN SKK_NM ELSE #SKK# END)
+		   AND EMDONG_NM = (CASE WHEN IFNULL(#EMDONG#,'') = '' THEN EMDONG_NM ELSE #EMDONG# END)
+		<isNotEmpty property="BRAN_CD">
+		   AND (PICKUP_BRAN_CD = #BRAN_CD# OR DLV_BRAN_CD = #BRAN_CD#)
+		<isNotEmpty property="EMP_CD">
+		   AND (PICKUP_EMP_NO = #EMP_CD# OR DLV_EMP_NO = #EMP_CD#)
+		</isNotEmpty>
+		</isNotEmpty>
+		 ORDER BY SIDO_NM, SKK_NM, EMDONG_NM, ZIP_NO		
+
+		
+	</select>	
+	
+	<select id="getPiDvZnMgmtList" resultClass="java.util.HashMap">
+		/** [sql-baimPidvZnMgmtService.xml][baimPidvZnMgmtService.getPiDvZnMgmtList]
+		 *  [집배구역 구역 리스트 조회 (지번)]
+		 *  [KimJinHwan 2020.02.11]
+		 **/
+		
+		<!-- 등록 된 건 조회  -->
+		<isEqual property="DV" compareValue="01">
+			<include refid="sql_selectPiDvZnList_regi"/>
+		</isEqual>
+		
+		<!-- 미등록 된 건 조회 -->
+		<isEqual property="DV" compareValue="02">
+			<include refid="sql_selectPiDvZnList_unregi"/>
+		</isEqual>
+		
+		<!-- 전체인경우 union all -->
+		<isEmpty property="DV">
+			<include refid="sql_selectPiDvZnList_unregi"/>
+			UNION ALL
+			<include refid="sql_selectPiDvZnList_regi"/>
+			ORDER BY ZIP_NO, ZIP_NO_SERIAL
+		</isEmpty>
+		
+	</select>
+	
+	
+	
+	<!-- 집배구역 구역 리스트 조회 (도로명_등록) -->
+	<sql id="sql_selectRoadPiDvZnList_regi">
+		/*등록*/
+		(SELECT
+			'' AS CHK,
+			'02' AS ZIP_ADDR_DV, 																				/* 지번(01)인지 도로명(02)인지 구분하기 위함. */
+		    TBRPZC.ZIP_NO,
+		    TBRPZC.ZIP_NO_SERIAL,
+		    (SELECT CONCAT(MAX(RGN_NM_1), ' ', MAX(RGN_NM_2), ' ', MAX(RGN_NM_3)) FROM TB_BAIM_ROADNM_ZIP_NO_MST WHERE ZIP_NO=TBRPZC.ZIP_NO GROUP BY RGN_NM_1, RGN_NM_2, RGN_NM_3 LIMIT 1) AS  ADDR,
+		    TBRPZC.CP_DV,
+		    TBRPZC.FCHRG_ORGNZ,
+		    TBRPZC.ZN_DV,
+		    TBRPZC.RGN_DV_CD,
+		    TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM TBRPZC.FERRY_RATE)) AS FERRY_RATE,
+		    TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM TBRPZC.AIR_RATE)) AS AIR_RATE,
+		    TBRPZC.DLV_NEED_SUMDAY,
+		    TBRPZC.ILNRGN_DV,
+		    TBRPZC.PICKUP_BRAN_CD,
+		    (SELECT BRAN_NM FROM TB_BAIM_BRAN_MGT_C WHERE BRAN_CD = TBRPZC.PICKUP_BRAN_CD) AS PICKUP_BRAN_NM,
+		    TBRPZC.PICKUP_EMP_NO,
+		    TBRPZC.DLV_BRAN_CD,
+		    (SELECT BRAN_NM FROM TB_BAIM_BRAN_MGT_C WHERE BRAN_CD = TBRPZC.DLV_BRAN_CD) AS DLV_BRAN_NM,
+		    TBRPZC.DLV_EMP_NO,
+		    TBRPZC.SORT_CD
+		FROM
+			TB_BAIM_ROAD_PIDV_ZN_C TBRPZC
+		WHERE
+		    TBRPZC.USE_YN = 'Y'
+		<isNotEmpty property="CP_DV">
+		    AND TBRPZC.CP_DV = #CP_DV#
+		</isNotEmpty>
+		<isNotEmpty property="FCHRG_ORGNZ">
+		    AND TBRPZC.FCHRG_ORGNZ = #FCHRG_ORGNZ#
+		</isNotEmpty>
+		<isNotEmpty property="ZIP_NO_FR">
+			AND TBRPZC.ZIP_NO <![CDATA[>=]]> #ZIP_NO_FR#
+		</isNotEmpty>
+		<isNotEmpty property="ZIP_NO_TO">
+			AND TBRPZC.ZIP_NO <![CDATA[<=]]> #ZIP_NO_TO#
+		</isNotEmpty>
+		<isNotEmpty property="BRAN_CD">
+			AND (
+					TBRPZC.PICKUP_BRAN_CD = #BRAN_CD#
+		    	OR	TBRPZC.DLV_BRAN_CD = #BRAN_CD#
+			)
+		</isNotEmpty>
+		ORDER BY ZIP_NO, ZIP_NO_SERIAL
+		)
+	</sql>
+	
+	<!-- 집배구역 구역 리스트 조회 (도로명_미등록) -->
+	<sql id="sql_selectRoadPiDvZnList_unregi">
+		/*미등록*/
+		(
+		SELECT
+			'' AS CHK,
+			    '02' AS ZIP_ADDR_DV,
+			    Z.ZIP_NO,
+			    Z.ZIP_NO_SERIAL,
+			    Z.ADDR,
+			    '' AS CP_DV,
+			    '' AS FCHRG_ORGNZ,
+			    '' AS ZN_DV,
+			    '' AS RGN_DV_CD,
+			    0 AS FERRY_RATE,
+			    0 AS AIR_RATE,
+			    '' AS DLV_NEED_SUMDAY,
+			    '' AS ILNRGN_DV,
+			    '' AS PICKUP_BRAN_CD,
+			    '' AS PICKUP_BRAN_NM,
+			    '' AS PICKUP_EMP_NO,
+			    '' AS DLV_BRAN_CD,
+			    '' AS DLV_BRAN_NM,
+			    '' AS DLV_EMP_NO,
+			    '' AS SORT_CD
+		FROM
+		(
+			SELECT
+			    MAX(TBRZNM.ZIP_NO) AS ZIP_NO,
+			    MAX(TBRZNM.SERIAL) AS ZIP_NO_SERIAL,
+			    CONCAT(MAX(RGN_NM_1), ' ', MAX(RGN_NM_2), ' ', MAX(RGN_NM_3)) AS ADDR
+			FROM
+			    TB_BAIM_ROADNM_ZIP_NO_MST TBRZNM
+			WHERE
+			    1=1
+			<isNotEmpty property="ZIP_NO_FR">
+				AND TBRZNM.ZIP_NO <![CDATA[>=]]> #ZIP_NO_FR#
+			</isNotEmpty>
+			<isNotEmpty property="ZIP_NO_TO">
+				AND TBRZNM.ZIP_NO <![CDATA[<=]]> #ZIP_NO_TO#
+			</isNotEmpty>
+			GROUP BY RGN_NM_1, RGN_NM_2, RGN_NM_3
+		)Z
+		WHERE
+			NOT EXISTS ( SELECT * FROM TB_BAIM_ROAD_PIDV_ZN_C TBRPZC WHERE Z.ZIP_NO=TBRPZC.ZIP_NO AND Z.ZIP_NO_SERIAL=TBRPZC.ZIP_NO_SERIAL)
+		ORDER BY ZIP_NO, ZIP_NO_SERIAL
+		)
+	</sql>
+	
+	
+	<select id="getRoadPiDvZnMgmtList" resultClass="java.util.HashMap">
+		/** [sql-baimPidvZnMgmtService.xml][baimPidvZnMgmtService.getRoadPiDvZnMgmtList]
+		 *  [집배구역 구역 리스트 조회 (도로명)]
+		 *  [KimJinHwan 2020.02.11]
+		 **/
+		 
+		 <!-- 등록 된 건 조회  -->
+		<isEqual property="DV" compareValue="01">
+			<include refid="sql_selectRoadPiDvZnList_regi"/>
+		</isEqual>
+		
+		<!-- 미등록 된 건 조회 -->
+		<isEqual property="DV" compareValue="02">
+			<include refid="sql_selectRoadPiDvZnList_unregi"/>
+		</isEqual>
+		
+		<!-- 전체인경우 union all -->
+		<isEmpty property="DV">
+			<include refid="sql_selectRoadPiDvZnList_unregi"/>
+			UNION ALL
+			<include refid="sql_selectRoadPiDvZnList_regi"/>
+			ORDER BY ZIP_NO, ZIP_NO_SERIAL
+		</isEmpty>
+				
+	</select>
+	
+	<select id="getRoadPiDvZnMgmtList_20200213" resultClass="java.util.HashMap">
+		/** [sql-baimPidvZnMgmtService.xml][baimPidvZnMgmtService.getRoadPiDvZnMgmtList]
+		 *  [집배구역 구역 리스트 조회 (도로명)]
+		 *  [KimJinHwan 2020.02.11]
+		 **/
+		SELECT
+			'' AS CHK,
+			'02' AS ZIP_ADDR_DV, 																				/* 지번(01)인지 도로명(02)인지 구분하기 위함. */
+		    A.ZIP_NO,
+		    TBRPZC.ZIP_NO_SERIAL,
+		    A.BLDG_SUB_BUN,
+		    ( 
+		        CASE WHEN A.BLDG_SUB_BUN = 0 OR LENGTH(A.BLDG_SUB_BUN)=0 OR IFNULL(A.BLDG_SUB_BUN,'')='' THEN
+		            /* 건물부번이 없는경우 */
+		            CONCAT(A.SIDO_NM, ' ', A.SKK_NM, ' ', A.ROADNM, ' ', A.BLDG_MAIN_BUN)
+		        ELSE
+		            /* 건물부번이 존재하는경우 */
+		            CONCAT(A.SIDO_NM, ' ', A.SKK_NM, ' ', A.ROADNM, ' ', A.BLDG_MAIN_BUN, '-', A.BLDG_SUB_BUN)
+		        END
+		    ) AS  ADDR,
+		    A.EMDONG_NM,
+		    TBRPZC.CP_DV,
+		    TBRPZC.FCHRG_ORGNZ,
+		    TBRPZC.ZN_DV,
+		    TBRPZC.RGN_DV_CD,
+		    TBRPZC.FERRY_RATE,
+		    TBRPZC.AIR_RATE,
+		    TBRPZC.DLV_NEED_SUMDAY,
+		    TBRPZC.ILNRGN_DV,
+		    TBRPZC.PICKUP_BRAN_CD,
+		    (SELECT BRAN_NM FROM TB_BAIM_BRAN_MGT_C WHERE BRAN_CD = TBRPZC.PICKUP_BRAN_CD) AS PICKUP_BRAN_NM,
+		    TBRPZC.PICKUP_EMP_NO,
+		    TBRPZC.DLV_BRAN_CD,
+		    (SELECT BRAN_NM FROM TB_BAIM_BRAN_MGT_C WHERE BRAN_CD = TBRPZC.DLV_BRAN_CD) AS DLV_BRAN_NM,
+		    TBRPZC.DLV_EMP_NO,
+		    TBRPZC.SORT_CD
+		FROM
+		(
+		    SELECT 
+		        TARA.BASIC_ZN_NO AS ZIP_NO,     		/* 기초구역번호(우편번호)*/
+		        TARC.SIDO_NM,							/* 시도명 */
+		        TARC.SKK_NM,							/* 시군구명*/
+		        TARC.ROADNM,							/* 도로명*/
+		        TARA.BLDG_MAIN_BUN,						/* 건물본번*/
+		        TARA.BLDG_SUB_BUN,						/* 건물부번*/
+		        TARC.EMDONG_NM							/* 읍면동명*/
+		    FROM 
+		        TB_API_ROADNM_ADDR TARA,
+		        TB_API_ROADNM_CD TARC
+		    WHERE
+		        TARA.ROADNM_CD = TARC.ROADNM_CD
+		    <isNotEmpty property="SKK">
+		    	AND TARC.SKK_NM LIKE CONCAT('%',#SKK#,'%')
+		    </isNotEmpty>
+		    <isNotEmpty property="EMDONG">
+		    	AND TARC.EMDONG_NM LIKE CONCAT('%',#EMDONG#,'%')
+		    </isNotEmpty>        
+		    AND IFNULL(TARC.EMDONG_CD,'') <![CDATA[<>]]> ''
+		) A, TB_BAIM_ROAD_PIDV_ZN_C TBRPZC
+		WHERE
+		    A.ZIP_NO = TBRPZC.ZIP_NO
+		AND TBRPZC.USE_YN = 'Y'
+		<isNotEmpty property="CP_DV">
+		    AND TBRPZC.CP_DV = #CP_DV#
+		</isNotEmpty>
+		<isNotEmpty property="FCHRG_ORGNZ">
+		    AND TBRPZC.FCHRG_ORGNZ = #FCHRG_ORGNZ#
+		</isNotEmpty>
+		<isNotEmpty property="ZIP_NO_FR">
+			AND A.ZIP_NO <![CDATA[>=]]> #ZIP_NO_FR#
+		</isNotEmpty>
+		<isNotEmpty property="ZIP_NO_TO">
+			AND A.ZIP_NO <![CDATA[<=]]> #ZIP_NO_TO#
+		</isNotEmpty>
+		<isNotEmpty property="BRAN_CD">
+			AND (
+					TBRPZC.PICKUP_BRAN_CD = #BRAN_CD#
+		    	OR	TBRPZC.DLV_BRAN_CD = #BRAN_CD#
+			)
+		</isNotEmpty>		
+	</select>
+	
+	
+	<select id="getSubBranInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimPidvZnMgmtService.xml][baimPidvZnMgmtService.getSubBranInfoList]
+		 *  [점소번호로 점소와 해당점소가 관리하는 하위점소 조회]
+		 *  [KimJinHwan 2020.02.12]
+		 **/
+		SELECT
+		    Z.BRAN_CD,
+		    Z.BRAN_NM,
+		    '01' AS PIDV_DV,    /*집배(01), 집화(11), 배달(91)*/
+		    X.EMP_NO,
+		    (SELECT EMP_NM FROM TB_BAIM_EMP_MGT_C WHERE EMP_NO = X.EMP_NO) AS EMP_NM
+		FROM
+		    (SELECT B.BRAN_CD,
+	                MIN(B.EMP_NO) AS EMP_NO
+		       FROM TB_BAIM_BRAN_MGT_C A,
+		              (SELECT BRAN_CD, EMP_DUTY_DV, MIN(EMP_NO) AS EMP_NO
+		                 FROM TB_BAIM_EMP_MGT_C
+		                WHERE USE_YN='Y'
+		                  <!-- AND EMP_DUTY_DV IN ('02', '06') -->
+		                GROUP BY BRAN_CD, EMP_DUTY_DV) B
+		      WHERE B.BRAN_CD = A.BRAN_CD
+		        AND A.BRAN_DV IN ('16', '22') /*지점, 대리점*/ 
+	          	<isNotEmpty property="MGMT_UP_BRAN_CD">
+				AND (
+						A.BRAN_CD = #MGMT_UP_BRAN_CD#
+						OR A.MGMT_UP_BRAN_CD = #MGMT_UP_BRAN_CD#
+					)
+			  	</isNotEmpty>
+		        AND A.USE_YN = 'Y'
+		        GROUP BY B.BRAN_CD) X,
+		     TB_BAIM_BRAN_MGT_C Z
+		 WHERE X.BRAN_CD = Z.BRAN_CD
+		
+	</select>
+</sqlMap>

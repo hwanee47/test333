@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimCustMgmtService">
+	
+	<select id="getNextCustId" resultClass="string">
+		/** [sql-baimCustMgmtService.xml][baimCustMgmtService.getNextCustId]
+		 *  [고객코드 조회 max+1]
+		 *  [KimJinHwan 2020.07.14]
+		 **/
+		SELECT CONCAT('B',LPAD(IFNULL(MAX(SUBSTR(TBECC.CUST_ID,2))+1,1),7,'0')) AS CUST_ID FROM TB_BAIM_ENTER_CUST_C TBECC WHERE TBECC.CUST_ID LIKE 'B%'
+	</select>
+	
+	<select id="getCustList" resultClass="java.util.HashMap">
+		/** [sql-baimCustMgmtService.xml][baimCustMgmtService.getCustList]
+		 *  [고객리스트 조회]
+		 *  [KimJinHwan 2020.07.14]
+		 **/
+		SELECT
+			'' AS CHK
+			,TBECC.CUST_ID
+			,TBECC.CUST_NM
+			,TBECC.ENTRP_REG_NO
+			,TBECC.CP_DV
+			,TBECC.ZIP_NO
+			,CONCAT(TBECC.ADDR, ' ', FC_AES_DECRYPT(TBECC.DETAIL_ADDR)) AS FULL_ADDR
+			,TBECC.ADDR
+			,FC_AES_DECRYPT(TBECC.DETAIL_ADDR) AS DETAIL_ADDR
+			,CONCAT(TBECC.TEL_NO_1, '-', TBECC.TEL_NO_2, '-',FC_AES_DECRYPT(TBECC.TEL_NO_3)) AS TEL_NO
+			,TBECC.TEL_NO_1
+			,TBECC.TEL_NO_2
+			,FC_AES_DECRYPT(TBECC.TEL_NO_3) AS TEL_NO_3
+			,CONCAT(TBECC.FAX_NO_1, '-', TBECC.FAX_NO_2, '-',FC_AES_DECRYPT(TBECC.FAX_NO_3)) AS FAX_NO
+			,TBECC.FAX_NO_1
+			,TBECC.FAX_NO_2
+			,FC_AES_DECRYPT(TBECC.FAX_NO_3) AS FAX_NO_3
+			,TBECC.CAUTION
+			,TBECC.USE_YN
+			,TBECC.DEL_YN
+			,'' AS ROAD_YN
+		FROM
+			TB_BAIM_ENTER_CUST_C TBECC
+		WHERE
+			IFNULL(TBECC.DEL_YN,'N') <![CDATA[<>]]> 'Y'
+		<isNotEmpty property="CUST_ID">
+		AND TBECC.CUST_ID = #CUST_ID#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_NM">
+		AND TBECC.CUST_NM LIKE CONCAT('%', #CUST_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="CP_DV">
+		AND TBECC.CP_DV = #CP_DV#
+		</isNotEmpty>
+	</select>
+	
+	
+	<insert id="insertCust_1">
+		/** [sql-baimCustMgmtService.xml][baimCustMgmtService.insertCust_1]
+		 *  [고객사 추가]
+		 *  [KimJinHwan 2020.07.15]
+		 **/
+		INSERT INTO TB_BAIM_ENTER_CUST_C
+		(
+			CUST_ID
+			,CUST_NM
+			,ENTRP_REG_NO
+			,CP_DV
+			,ZIP_NO
+			,ADDR
+			,DETAIL_ADDR
+			,TEL_NO_1
+			,TEL_NO_2
+			,TEL_NO_3
+			,FAX_NO_1
+			,FAX_NO_2
+			,FAX_NO_3
+			,CAUTION
+			,USE_YN
+			,DEL_YN
+			,REG_EMP_ID
+		 	,REG_DTIME
+		 	,MODI_EMP_ID
+		 	,MODI_DTIME
+		)
+		VALUES
+		(
+			#CUST_ID#
+			,#CUST_NM#
+			,#ENTRP_REG_NO#
+			,#CP_DV#
+			,#ZIP_NO#
+			,#ADDR#
+			,FC_AES_ENCRYPT(#DETAIL_ADDR#)
+			,#TEL_NO_1#
+			,#TEL_NO_2#
+			,FC_AES_ENCRYPT(#TEL_NO_3#)
+			,#FAX_NO_1#
+			,#FAX_NO_2#
+			,FC_AES_ENCRYPT(#FAX_NO_3#)
+			,#CAUTION#
+			,'Y'
+			,'N'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		
+	</insert>
+	
+	<insert id="insertCust_2">
+		/** [sql-baimCustMgmtService.xml][baimCustMgmtService.insertCust_2]
+		 *  [고객사 추가]
+		 *  [KimJinHwan 2020.07.15]
+		 **/
+		INSERT INTO TB_WMS_CUST_MGMT_C 
+		(
+			 SHIPPER_ID
+			,SITE_CD
+			,CUST_CD
+			,CUST_REPRE_NM
+			,ENTRP_REG_NO
+			,CP_DV
+			,BUSINESTAB_ZIP_NO
+			,BUSINESTAB_ADDR
+			,BUSINESTAB_DETAIL_ADDR
+			,BUSINESTAB_TEL_NO_1
+			,BUSINESTAB_TEL_NO_2
+			,BUSINESTAB_TEL_NO_3
+			,BUSINESTAB_FAX_NO_1
+			,BUSINESTAB_FAX_NO_2
+			,BUSINESTAB_FAX_NO_3
+			,REMARK
+			,USE_YN
+			,DEL_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		) VALUES (
+			 #CUST_ID#
+			,'GWDS'
+			,#CUST_ID#
+			,#CUST_NM#
+			,#ENTRP_REG_NO#
+			,#CP_DV#
+			,#ZIP_NO#
+			,#ADDR#
+			,FC_AES_ENCRYPT(#DETAIL_ADDR#)
+			,#TEL_NO_1#
+			,#TEL_NO_2#
+			,FC_AES_ENCRYPT(#TEL_NO_3#)
+			,#FAX_NO_1#
+			,#FAX_NO_2#
+			,FC_AES_ENCRYPT(#FAX_NO_3#)
+			,#CAUTION#
+			,'Y'
+			,'N'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		
+	</insert>
+	
+	
+	<update id="updateCust_1">
+		/** [sql-baimCustMgmtService.xml][baimCustMgmtService.updateCust_1]
+		 *  [고객사 수정]
+		 *  [KimJinHwan 2020.07.15]
+		 **/
+		UPDATE TB_BAIM_ENTER_CUST_C
+		SET
+			CUST_NM = #CUST_NM#
+			,ENTRP_REG_NO = #ENTRP_REG_NO#
+			,CP_DV = #CP_DV#
+			,ZIP_NO = #ZIP_NO#
+			,ADDR = #ADDR#
+			,DETAIL_ADDR = FC_AES_ENCRYPT(#DETAIL_ADDR#)
+			,TEL_NO_1 = #TEL_NO_1#
+			,TEL_NO_2 = #TEL_NO_2#
+			,TEL_NO_3 = FC_AES_ENCRYPT(#TEL_NO_3#)
+			,FAX_NO_1 = #FAX_NO_1#
+			,FAX_NO_2 = #FAX_NO_2#
+			,FAX_NO_3 = FC_AES_ENCRYPT(#FAX_NO_3#)
+			,CAUTION = #CAUTION#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			CUST_ID = #CUST_ID#
+	</update>
+	
+	<update id="updateCust_2">
+		/** [sql-baimCustMgmtService.xml][baimCustMgmtService.updateCust_2]
+		 *  [고객사 수정]
+		 *  [KimJinHwan 2020.07.15]
+		 **/
+		UPDATE TB_WMS_CUST_MGMT_C
+		SET
+			CUST_REPRE_NM = #CUST_NM#
+			,ENTRP_REG_NO = #ENTRP_REG_NO#
+			,CP_DV = #CP_DV#
+			,BUSINESTAB_ZIP_NO = #ZIP_NO#
+			,BUSINESTAB_ADDR = #ADDR#
+			,BUSINESTAB_DETAIL_ADDR = FC_AES_ENCRYPT(#DETAIL_ADDR#)
+			,BUSINESTAB_TEL_NO_1 = #TEL_NO_1#
+			,BUSINESTAB_TEL_NO_2 = #TEL_NO_2#
+			,BUSINESTAB_TEL_NO_3 = FC_AES_ENCRYPT(#TEL_NO_3#)
+			,BUSINESTAB_FAX_NO_1 = #FAX_NO_1#
+			,BUSINESTAB_FAX_NO_2 = #FAX_NO_2#
+			,BUSINESTAB_FAX_NO_3 = FC_AES_ENCRYPT(#FAX_NO_3#)
+			,REMARK = #CAUTION#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			CUST_CD = #CUST_ID#
+	</update>
+	
+	<update id="updateCustDelYn_1">
+		/** [sql-baimCustMgmtService.xml][baimCustMgmtService.updateCustDelYn_1]
+		 *  [고객사 삭제]
+		 *  [KimJinHwan 2020.07.15]
+		 **/
+		UPDATE TB_BAIM_ENTER_CUST_C
+		SET
+			DEL_YN = #DEL_YN# 
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			CUST_ID = #CUST_ID#
+	</update>
+	
+	<update id="updateCustDelYn_2">
+		/** [sql-baimCustMgmtService.xml][baimCustMgmtService.updateCustDelYn_2]
+		 *  [고객사 삭제]
+		 *  [KimJinHwan 2020.07.15]
+		 **/
+		UPDATE TB_WMS_CUST_MGMT_C
+		SET
+			DEL_YN = #DEL_YN#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			CUST_CD = #CUST_ID#
+	</update>
+	
+	
+	
+	<insert id="mergeCustInfo">
+		/** [sql-baimCustMgmtService.xml][baimEntrpCustMgmtService.mergeCustInfo]
+		 *  [고객 정보 저장]
+		 *  [KimJinHwan 2020.07.15]
+		 **/
+		INSERT INTO TB_BAIM_CUST_LIST_C
+		(
+			CUST_ID
+			,CUST_NM
+			,CUST_DV
+			,ZIP_NO
+			,ADDR_1
+			,ADDR_2
+			,ADDR_3
+			,ADDR_4
+			,ADDR_5
+			,DETAIL_ADDR
+			,TEL_NO_1
+			,TEL_NO_2
+			,TEL_NO_3
+			,REG_BRAN_CD
+			,ZN_DV
+			,DEL_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#CUST_ID#			/*고객ID*/
+			,#CUST_NM#			/*고객명*/
+			,'02'				/*고객구분 (기초코드:SM012)*/
+			,#ZIP_NO#			/*우편번호*/
+			,#ADDR#				/*주소1*/
+			,''					/*주소2*/
+			,''					/*주소3*/
+			,''					/*주소4*/
+			,''					/*주소5*/
+			,FC_AES_ENCRYPT(#DETAIL_ADDR#)		/*상세주소*/
+			,#TEL_NO_1#			/*전화번호1*/
+			,#TEL_NO_2#			/*전화번호2*/
+			,FC_AES_ENCRYPT(#TEL_NO_3#)			/*전화번호3*/
+			,#REG_BRAN_CD#		/*등록점소코드*/
+			,#ZN_DV#			/*권역구분*/
+			,'N'				/*삭제여부*/
+			,#gv_userId#		
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		ON DUPLICATE KEY
+		UPDATE
+			CUST_NM			= #CUST_NM# 
+			,ZIP_NO			= #ZIP_NO#
+			,ADDR_1			= #ADDR#
+			,DETAIL_ADDR	= FC_AES_ENCRYPT(#DETAIL_ADDR#)
+			,TEL_NO_1		= #TEL_NO_1#
+			,TEL_NO_2		= #TEL_NO_2#
+			,TEL_NO_3		= FC_AES_ENCRYPT(#TEL_NO_3#)
+			,MODI_EMP_ID    = #gv_userId#
+			,MODI_DTIME     = NOW()
+	</insert>
+	
+	
+	<insert id="mergeSendCustInfo">
+		/** [sql-baimCustMgmtService.xml][baimCustMgmtService.mergeSendCustInfo]
+		 *  [발송고객 정보 저장]
+		 *  [KimJinHwan 2020.07.15]
+		 **/
+		INSERT INTO TB_BAIM_SEND_CUST_C
+		(
+			CUST_ID
+			,CUST_MGMT_DLCM_CD
+			,SEND_CUST_NO
+			,CAL_CP_DV
+			,FEE_DV
+			,PICKUP_BRAN_CD
+			,PICKUPPLC_ZIP_NO
+			,PICKUPPLC_ADDR
+			,PICKUPPLC_DETAIL_ADDR
+			,DLV_BRAN_CD
+			,DLV_ZIP_NO
+			,DLV_ADDR
+			,DLV_DETAIL_ADDR
+			,FCHRG_DV
+			,INCHG_NM
+			,INCHG_CELL_NO_1
+			,INCHG_CELL_NO_2
+			,INCHG_CELL_NO_3
+			,INCHG_EMAIL
+			,DAY_PICKUP_YN
+			,SEL_TRANSF
+			,USE_YN
+			,CAL_CP_DV_PREPAY
+			,CAL_CP_DV_REGPAY
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#CUST_ID#		/*고객번호*/
+			,#CUST_ID#		/*고객관리거래처코드*/
+			,#CUST_ID#		/*발송고객번호*/
+			,'1'			/*정산처구분*/
+			,'01'			/*수수료구분*/
+			
+			/*집하점소코드*/
+			<isEqual property="ROAD_YN" compareValue="N">
+			,(SELECT MAX(PICKUP_BRAN_CD) FROM TB_BAIM_PIDV_ZN_C WHERE ZIP_NO = #ZIP_NO#)
+			</isEqual>
+			<isEqual property="ROAD_YN" compareValue="Y">
+			,(SELECT MAX(PICKUP_BRAN_CD) FROM TB_BAIM_ROAD_PIDV_ZN_C WHERE ZIP_NO = #ZIP_NO#)
+			</isEqual>
+			
+			,#ZIP_NO#		/*집하지우편번호*/
+			,#ADDR#			/*집하지주소*/
+			,FC_AES_ENCRYPT(#DETAIL_ADDR#)	/*집하지상세주소*/
+				
+			/*배송점소코드*/
+			<isEqual property="ROAD_YN" compareValue="N">
+			,(SELECT MAX(DLV_BRAN_CD) FROM TB_BAIM_PIDV_ZN_C WHERE ZIP_NO = #ZIP_NO#)
+			</isEqual>
+			<isEqual property="ROAD_YN" compareValue="Y">
+			,(SELECT MAX(DLV_BRAN_CD) FROM TB_BAIM_ROAD_PIDV_ZN_C WHERE ZIP_NO = #ZIP_NO#)
+			</isEqual>
+			
+			,#ZIP_NO#		/*배송지우편번호*/
+			,#ADDR#			/*배송지주소*/
+			,FC_AES_ENCRYPT(#DETAIL_ADDR#)	/*배송지상세주소*/
+			,'01'			/*전담구분*/
+			,''				/*담당자명*/
+			,''				/*담당자휴대폰번호1*/
+			,''				/*담당자휴대폰번호2*/
+			,''				/*담당자휴대폰번호3*/
+			,''				/*담당자이메일*/
+			,'N'			/*당일집하여부*/
+			,''				/*매출이관*/
+			,'Y'			/*사용여부*/
+			,''				/*정산처구분_선불*/
+			,''				/*정산처구분_착불*/
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		ON DUPLICATE KEY
+		UPDATE
+			/*집하점소코드*/
+			<isEqual property="ROAD_YN" compareValue="N">
+			PICKUP_BRAN_CD = (SELECT MAX(PICKUP_BRAN_CD) FROM TB_BAIM_PIDV_ZN_C WHERE ZIP_NO = #ZIP_NO#)
+			</isEqual>
+			<isEqual property="ROAD_YN" compareValue="Y">
+			PICKUP_BRAN_CD = (SELECT MAX(PICKUP_BRAN_CD) FROM TB_BAIM_ROAD_PIDV_ZN_C WHERE ZIP_NO = #ZIP_NO#)
+			</isEqual>
+			,PICKUPPLC_ZIP_NO = #ZIP_NO#
+			,PICKUPPLC_ADDR = #ADDR#
+			,PICKUPPLC_DETAIL_ADDR = FC_AES_ENCRYPT(#DETAIL_ADDR#)
+			/*배송점소코드*/
+			<isEqual property="ROAD_YN" compareValue="N">
+			,DLV_BRAN_CD = (SELECT MAX(DLV_BRAN_CD) FROM TB_BAIM_PIDV_ZN_C WHERE ZIP_NO = #ZIP_NO#)
+			</isEqual>
+			<isEqual property="ROAD_YN" compareValue="Y">
+			,DLV_BRAN_CD = (SELECT MAX(DLV_BRAN_CD) FROM TB_BAIM_ROAD_PIDV_ZN_C WHERE ZIP_NO = #ZIP_NO#)
+			</isEqual>
+			,DLV_ZIP_NO = #ZIP_NO#
+			,DLV_ADDR = #ADDR#
+			,DLV_DETAIL_ADDR = FC_AES_ENCRYPT(#DETAIL_ADDR#)
+			,MODI_EMP_ID     = #gv_userId#
+			,MODI_DTIME      = NOW()
+	</insert>
+	
+</sqlMap>

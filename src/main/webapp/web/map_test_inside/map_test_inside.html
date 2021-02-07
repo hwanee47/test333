@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	
+	<link rel="stylesheet" type="text/css" href="common.css" />
+
+	<!-- Google Map 관련 라이센스 및 JS 파일 -->
+	<script src="https://maps.googleapis.com/maps/api/js?client=gme-cjkoreaexpress&amp&region=KR" async="" defer="defer"></script>
+	<script type="text/javascript" src="../../js/jquery.js"></script>
+	<script type="text/javascript" src="../../js/googleMap/control_main.js"></script>
+	<script type="text/javascript" src="../../js/googleMap/proj4js-combined.js"></script>
+	<script type="text/javascript" src="../../js/gmap.js"></script>
+	<link rel="stylesheet" href="weather/css/weather-icons.css">
+    <link rel="stylesheet" href="weather/css/weather-icons-wind.css">
+
+</head>
+
+<body>
+
+<div class="wrapper">
+	<!-- 상단 영역 -->
+	<div class="top_search_bx">
+		<dl>
+			<dt>날짜</dt>
+			<dd>
+				<input type="text" value="2018-08-31" class="inp_ty01" />
+				<a href="#" class="btn_cal"><img src="btn_cal.png" alt="달력" /></a>
+			</dd>
+			<dt>실행거점</dt>
+			<dd>
+				<select class="sel_ty01">
+					<option></option>
+				</select>
+			</dd>
+			<dt>담당자</dt>
+			<dd>
+				<input type="text" value="" class="inp_ty01" />
+			</dd>
+			<dt>차량번호</dt>
+			<dd>
+				<input type="text" value="" class="inp_ty01" />
+			</dd>
+			<dt>운전원(연락처)</dt>
+			<dd>
+				<input type="text" value="" class="inp_ty01" />
+			</dd>
+			<dt>고객명</dt>
+			<dd>
+				<input type="text" value="" class="inp_ty01" />
+			</dd>
+		</dl>
+	</div>
+	<!-- //상단 영역 -->
+
+	<!-- 좌측 지도 영역 -->
+	<div class="map_box_l">
+		<!-- 지도 -->
+		<div id="map" class="map_box_l" style="height:824px;"></div>
+		<!-- //지도 -->
+
+		<div class="map_layer01">
+			<div class="board_wrap">
+				<table cellspacing="0" cellpadding="0" class="board_common" summary="테이블로 지역의 항목으로 구성되어 있습니다.">
+					<caption></caption>
+					<colgroup>
+					<col width="50px" />
+					<col width="*" />
+					</colgroup>
+					<tbody>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td class="tx_l">영차 (0000)</td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td class="tx_l">공차 (00)</td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td class="tx_l">지연 (4)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- 하단 정보 -->
+		<div class="map_in_wrap">
+			<!-- 버튼 -->
+			<p class="map_btn"><a href="#" class=""></a></p>
+			<!-- //버튼 -->
+			<div class="inner_bx">
+				<!-- 좌측 영역 -->
+				<div class="bx_l">
+					<div class="t_info"><p>홍길동(대원로지스)<br/>010-8787-2323</p></div><!-- 말풍선 -->
+					<p class="im_bx"><img src="img_truck.png" alt="" /></p>
+					<p class="s_tx">대전 98바 3456<br/>카고 / 10톤</p>
+				</div>
+				<!-- //좌측 영역 -->
+				<!-- 우측 영역 -->
+				<div class="bx_r">
+					<div class="cont_t">
+						<ul>
+							<li><p>신우산업(고객명)</p></li>
+							<li><p>공산품목</p></li>
+							<li><p>10 TON</p></li>
+							<li class="last"><p>위수탁</p></li>
+						</ul>
+					</div>
+					<div class="cont_m">
+						<span class="tx">대전광역시 대덕구 00동</span>
+						<span class="arr"><img src="img_arrow.png" alt=""/></span>
+						<span class="tx">경상북도 진주시 00동</span>
+						<a href="#" class="btn_view_r"><span>운행경로보기</span></a>
+					</div>
+					<div class="cont_b">
+						<ul>
+							<li class="on">
+								<p class="in_line" style="width:100%;"></p>
+								<p class="tx_bx">주문<br/>08:20</p>
+								<<p class="round_bx"></p>
+							</li>
+							<li class="on">
+								<p class="in_line" style="width:100%;"></p>
+								<p class="tx_bx">배차<br/>08:30</p>
+								<p class="round_bx"></p>
+							</li>
+							<li class="on">
+								<p class="in_line" style="width:50%;"></p>
+								<p class="tx_bx">상차지 도착<br/>09:10</p>
+								<p class="round_bx"></p>
+							</li>
+							<li>
+								<p class="in_line"></p>
+								<p class="tx_bx">상차지 출발<br/></p>
+								<p class="round_bx"></p>
+							</li>
+							<li>
+								<p class="in_line"></p>
+								<p class="tx_bx">하차지 도착<br/></p>
+								<p class="round_bx"></p>
+							</li>
+							<li class="last">
+								<p class="in_line"></p>
+								<p class="tx_bx">운송완료<br/></p>
+								<p class="round_bx"></p>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<!-- //우측 영역 -->
+			</div>
+		</div>
+		<!-- //하단 정보 -->
+	</div>
+	<!-- //좌측 지도 영역 -->
+
+	<!-- 우측 정보 영역 -->
+	<div class="info_box_r">
+		<div class="in_bx_r01">
+			<!-- 테이블 영역 -->
+			<div class="board_wrap">
+				<table cellspacing="0" cellpadding="0" class="board_common" summary="차량정보 테이블로 차량정보, 하차지, 고객명의 항목으로 구성되어 있습니다.">
+					<caption>차량정보</caption>
+					<colgroup>
+					<col width="50px" />
+					<col width="50px" />
+					<col width="*" />
+					<col width="200px" />
+					<col width="150px" />
+					<col width="150px" />
+					</colgroup>
+					<tbody>
+						<tr>
+							<th colspan="4">차량정보</th>
+							<th>하차지</th>
+							<th>고객명</th>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_red">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_red">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td class="dot_yellow">●</td>
+							<td></td>
+							<td>대전98바3456</td>
+							<td>카고/25</td>
+							<td>서울시청</td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- //테이블 영역 -->
+		</div>
+	</div>
+	<!-- //우측 정보 영역 -->
+</div>
+
+<script>
+$(document).ready(function(){
+	$(".map_btn a").click(function(){
+		if(!$(this).data("click")){
+			$(".map_in_wrap").animate({ bottom: '0' }, 400);
+			$(this).addClass('open');
+			$(".t_info").delay(200).fadeIn(200);
+			$(this).data("click", true);
+		}else{
+			$(".map_in_wrap").animate({ bottom: '-200px' }, 400);
+			$(this).removeClass('open');
+			$(".t_info").delay(0).fadeOut(100);
+			$(this).data("click", false);
+		}
+	});
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+﻿{
+	"name": "ExcelComp",
+	"version": "17.0.0.801",
+	"description": "nexacro platform 17 Unified Framework Library",
+	"license": "",
+	"scripts": [
+		"ExcelComp/ExportObjectEx.js",
+		"ExcelComp/ImportObjectEx.js"
+	],
+	"objInfo": [
+		"ExcelComp/metainfo/ExcelExportObjectEx.info",
+		"ExcelComp/metainfo/ExportItemEx.info",
+		"ExcelComp/metainfo/ExcelExportErrorEventInfoEx.info",
+		"ExcelComp/metainfo/ExcelExportEventInfoEx.info",
+		"ExcelComp/metainfo/ExcelExportProgressEventInfoEx.info",
+		"ExcelComp/metainfo/ExcelImportObjectEx.info",
+		"ExcelComp/metainfo/ExcelImportEventInfoEx.info",
+		"ExcelComp/metainfo/ExcelImportErrorEventInfoEx.info"
+	],
+	"designscripts": [
+	]
+}

@@ -1,0 +1,2466 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="commonService">
+
+	<!-- 메뉴 정보 조회 -->
+    <select id="selectMenuList" resultClass="java.util.HashMap">
+    /*[sql-commonService.xml][commonService.selectMenuList][메뉴 정보 조회][2020.02.25][kjh] */
+		SELECT 
+				DISTINCT
+				A.MENU_CD
+		        <!--KJH , NVL(DECODE(#gv_lang#, 'en', A.MENU_NM_EN, 'zh', A.MENU_NM_ZH, A.MENU_NM), A.MENU_NM) AS MENU_NM -->
+		        , IFNULL(
+		        	(CASE WHEN #gv_lang#='en' THEN A.MENU_NM_EN
+		        		WHEN #gv_lang#='zh' THEN A.MENU_NM_ZH
+		        		ELSE A.MENU_NM
+		        	 END), A.MENU_NM) AS MENU_NM
+		        , A.MENU_TYPE
+		        , A.MSTR_MENU_CD
+		        , A.MENU_URL
+		        , A.MENU_SYS
+		        , A.MENU_DESC
+		        , A.SORT_MAIN
+         		, A.SORT_SUB
+		        , A.MENU_IMG_CLASS
+		FROM TMDM_KFR_MENU A
+			, TMDM_KFR_AUTH_DETAIL B
+		WHERE A.MENU_CD = B.MENU_CD
+   		<!-- AND B.REG_SYS = A.MENU_SYS --> 
+   		AND B.AUTH_CD IN (SELECT AUTH_CD FROM TB_WMS_USER_PER_GRP_AUTH_C WHERE USER_ID=#USER_ID#)
+		AND A.USE_YN = 'Y'
+		AND A.DEL_YN = 'N'
+		<!-- AND A.MENU_SYS = #MENU_SYS# -->
+		ORDER BY A.SORT_MAIN, A.SORT_SUB      
+    </select>
+    
+    <!-- 북마크 정보 조회 -->
+	<select id="selectBookmarkList" resultClass="java.util.HashMap">
+    /*[sql-commonService.xml][commonService.selectBookmarkList][북마크 정보 조회][2020.07.03][kjh] */
+    	SELECT
+    		TBUMBC.USER_ID
+    		,TBUMBC.MENU_CD
+    		, IFNULL(
+		        	(CASE WHEN #gv_lang#='en' THEN TKM.MENU_NM_EN
+		        		WHEN #gv_lang#='zh' THEN TKM.MENU_NM_ZH
+		        		ELSE TKM.MENU_NM
+		        	 END), TKM.MENU_NM) AS MENU_NM
+    		,TBUMBC.SORT_NO
+    	FROM
+    		TB_BAIM_USER_MENU_BOOKMARK_C TBUMBC
+    		,TMDM_KFR_MENU TKM
+    	WHERE
+    		TBUMBC.MENU_CD = TKM.MENU_CD
+    	AND TBUMBC.USER_ID = #USER_ID#
+    	AND IFNULL(TKM.USE_YN,'') = 'Y'
+    	AND IFNULL(TKM.DEL_YN,'') = 'N'
+    	ORDER BY SORT_NO
+    </select>
+    
+    <!-- 메뉴 버튼 권한 정보 조회 -->
+    <select id="selectMenuBtnAuthList" resultClass="java.util.HashMap">
+    /*[sql-commonService.xml][commonService.selectMenuBtnAuthList][메뉴 버튼 권한 정보 조회][2020.07.21][kjh] */
+		SELECT 
+			TKADB.MENU_CD
+			,TKADB.SEL_YN
+			,TKADB.ADD_YN
+			,TKADB.SAV_YN
+			,TKADB.DEL_YN
+			,TKADB.PRT_YN
+			,TKADB.XLS_YN
+		FROM 
+			TMDM_KFR_AUTH_DETAIL_BTN TKADB
+		WHERE 
+			TKADB.AUTH_CD IN (SELECT AUTH_CD FROM TB_WMS_USER_PER_GRP_AUTH_C WHERE USER_ID=#USER_ID#)
+		GROUP BY TKADB.MENU_CD
+    </select>
+    
+    <!-- 품목정보 조회 -->
+    <select id="selectListItemData" resultClass="java.util.HashMap">
+    	/*[sql-commonService.xml][commonService.selectListItemData][품목정보를 조회한다][SSM] */
+		SELECT A.SHPR_ID
+			 , A.ITEM_CD
+			 , '대표품목'  AS ITEM_CCD_NM 
+			 , A.ITEM_NM
+			 , A.GOOD_CNTRL_CD
+             , B.CD_NM 	AS GOOD_CNTRL_NM
+			 , A.ITEM_CCD
+		FROM TMDM_IT_ITEM_MSTR_IF A, TMDM_KFR_MC_CODE B 					
+		WHERE A.DEL_YN = 'N'
+       		AND A.SHPR_ID = '10069897'
+			AND B.CD_TCD (+) = 'CM094'
+            AND B.CD (+) = A.GOOD_CNTRL_CD 
+            AND B.DEL_YN (+) = 'N'   			
+	   <dynamic>
+			<isNotEmpty prepend="AND" property="ITEM_NM">
+			( A.ITEM_NM LIKE '%'||#ITEM_NM#||'%' OR  A.ITEM_CD LIKE '%'||#ITEM_NM#||'%' )
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="ITEM_CCD">
+			 A.ITEM_CCD = #ITEM_CCD# 
+			</isNotEmpty>
+	  </dynamic>	   
+    </select>
+    
+    <!-- 사용자별 그리드 개인화 정보 조회.-->
+    <select id="getUserGridInfo" resultClass="java.util.HashMap">
+    /*[sql-commonService.xml][commonService.getUserGridInfo][사용자별 그리드 개인화 정보 조회.][SeungMin] */
+		SELECT USER_ID
+		        , MENU_ID
+		        , GRID_ID
+		        , GRID_FORMAT
+		FROM TPSN_GRID_INFO    
+		WHERE USER_ID = #gv_userId#
+    </select>
+    
+    <!-- 사용자별 그리드 개인화 정보 확인.-->
+    <select id="getUserGridConfrim" resultClass="java.util.HashMap">
+    /*[sql-commonService.xml][commonService.getUserGridConfrim][사용자별 그리드 개인화 정보 확인.][SeungMin] */
+		SELECT USER_ID
+		        , MENU_ID
+		        , GRID_ID
+		        , GRID_FORMAT
+		FROM TPSN_GRID_INFO    
+		WHERE USER_ID = #gv_userId#
+		AND MENU_ID = #MENU_ID#
+    	AND GRID_ID = #GRID_ID#
+    </select>
+    
+    <!-- 사용자별 그리드 개인화 정보 삭제.-->
+    <delete id="deleteUserGridInfo">
+    /*[sql-commonService.xml][commonService.deleteUserGridInfo][사용자별 그리드 개인화 정보 삭제.][SeungMin] */
+    	DELETE FROM TPSN_GRID_INFO
+    	WHERE USER_ID = #gv_userId#
+    	AND MENU_ID = #MENU_ID#
+    	AND GRID_ID = #GRID_ID#
+    </delete>
+    
+	
+	<!-- 사용자별 그리드 개인화 정보 저장.-->
+    <insert id="insertUserGridInfo">
+    /*[sql-commonService.xml][commonService.insertUserGridInfo][사용자별 그리드 개인화 정보 저장.][SeungMin] */
+	   INSERT INTO TPSN_GRID_INFO (
+					USER_ID
+				    , MENU_ID
+				    , GRID_ID
+				    , SITE_CD
+				    , GRID_FORMAT
+				    , REG_ID
+				    , REG_DT
+				    , REG_IP
+				    , MOD_ID
+				    , MOD_DT
+				    , MOD_IP
+				) 
+		VALUES (
+					#gv_userId#
+				    , #MENU_ID#
+				    , #GRID_ID#
+				    , #gv_siteCd#
+				    , empty_clob()
+				    , #gv_userId#
+				    , TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+				    , #gv_ipAddr#
+				    , #gv_userId#
+				    , TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+				    , #gv_ipAddr#
+		    )
+    </insert> 
+    
+    <!-- 사용자별 그리드 개인화 정보 저장.-->
+    <update id="updateUserGridInfo">
+    /*[sql-commonService.xml][commonService.updateUserGridInfo][사용자별 그리드 개인화 정보 저장.][SeungMin] */
+	   UPDATE TPSN_GRID_INFO
+		  SET GRID_FORMAT = #GRID_FORMAT#
+		  		, MOD_ID = #gv_userId#
+		  		, MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+  	   WHERE USER_ID = #gv_userId#
+  	   AND MENU_ID = #MENU_ID#
+   	   AND GRID_ID = #GRID_ID#
+    </update>
+    
+    <!-- SSO로그인 체크 - 통합-->
+    <select id="getSsoLoginCheck_KFRUSER" resultClass="Integer">
+    	/* [sql-commonService.xml][commonService.getSsoLoginCheck_KFRUSER][SSO로그인 체크 - 통합][SeungMin] */
+	    SELECT COUNT(*) AS LOGIN_CHK_CNT  
+       	FROM TADM_KFR_USER
+        WHERE EMAIL1 = AESENCRYPT(TRIM(#DECRYPT_CJWORLD_ID#))
+        AND DEL_YN = 'N'
+        AND STATUS = '1'
+        AND JOIN_TYPE = 'T00'
+	</select>
+
+
+	<select id="getAreaCodeSido" resultClass="java.util.HashMap">
+		/** [sql-commonService.xml][commonService.getAreaCodeSido]
+		 *  1. 시, 도 조회.
+		 *		- ictRtmSimulationService.getAreaCodeSido를 공통쿼리로 복사함
+		 *  [Jang. Jaehyuk 2018.11.01] 
+		 **/
+	    SELECT DISTINCT
+               SI_CODE AS CD
+             , SI_NAME AS CD_NM
+          FROM TTMM_GIS_AREA_CODE 
+         ORDER BY SI_NAME
+	</select>
+	
+
+	<select id="getAreaCodeSigugun" resultClass="java.util.HashMap">
+		/** [sql-commonService.xml][commonService.getAreaCodeSigugun]
+		 *  1. 시, 구, 군 조회
+		 *		- ictRtmSimulationService.getAreaCodeSigugun를 공통쿼리로 복사함
+		 *  [Jang. Jaehyuk 2018.11.01] 
+		 **/
+	    SELECT DISTINCT
+               GU_CODE    AS CD
+             , MAPPING_GU AS CD_NM     
+          FROM TTMM_GIS_AREA_CODE   
+         WHERE SI_CODE = (SELECT CASE WHEN #SIDO_CODE# = 36 THEN '-1' ELSE #SIDO_CODE# END FROM DUAL)
+         ORDER BY MAPPING_GU
+	</select>
+	
+	
+	<select id="getDrvInfoByLspId" resultClass="java.util.HashMap">
+		/** [sql-commonService.xml][commonService.getDrvInfoByLspId]
+		 *  운전자 정보 조회
+		 *  [Jang. Jaehyuk 2018.11.01] 
+		 **/
+		SELECT
+			   C.DRV_NM
+		      ,C.VHCL_NO
+		      ,C.VHCL_KND_CD
+		      ,C.VHCL_TON_CD
+		      ,FN_MDM_GET_MC_CODE_NM('CM038', C.VHCL_KND_CD) AS VHCL_KND_NM
+      		  ,FN_MDM_GET_MC_CODE_NM('CM039', C.VHCL_TON_CD) || '톤' AS VHCL_TON_NM
+		  FROM (SELECT A.DRV_NM
+				      ,A.VHCL_NO
+				      ,A.VHCL_KND_CD
+				      ,A.TON_CD AS VHCL_TON_CD
+				  FROM TMDM_KFR_CT_EQP A
+				      ,TMDM_KFR_BP_LSP B
+				 WHERE A.LSP_ID = B.LSP_ID
+				   AND A.LSP_ID = #LSP_ID#
+				   AND B.LSP_ID = #LSP_ID#
+				   AND B.JOIN_TYPE = 'T05'
+				   AND B.USE_YN = 'Y'
+				   AND B.DEL_YN = 'N'
+				   AND ROWNUM = 1) C
+	</select>	
+	
+	<select id="getHelloTalkTargetUserP" resultClass="java.util.HashMap">
+		/** [sql-commonService.xml][commonService.getHelloTalkTargetUserP]
+		 *  파트너 헬로우 talk 대상 조회.
+		 *  [Seungmin 2018.11.01] 
+		 **/
+		SELECT ID
+        		, FN_MDM_GET_BP_CORP_NM(E_CORP_ID) || '/' || NAME || '/' || ID AS USER_INFO
+        FROM TADM_KFR_USER
+        WHERE JOIN_TYPE = 'T00'
+        AND AUTH_CD = 'A0000002'
+        AND DEL_YN = 'N'
+        AND E_CORP_ID = #CORP_ID# 
+	</select>
+	
+	<select id="getHelloTalkTargetUser" resultClass="java.util.HashMap">
+		/** [sql-commonService.xml][commonService.getHelloTalkTargetUser]
+		 *  고객사 헬로우 talk 대상 조회.
+		 *  [Seungmin 2018.11.01] 
+		 **/
+		SELECT ID,
+		       FN_MDM_GET_BP_CORP_NM (E_CORP_ID) || '/' || NAME || '/' || ID
+		          AS USER_INFO
+		 FROM TADM_KFR_USER
+		 WHERE     JOIN_TYPE = 'T00'
+		       AND AUTH_CD = 'A0000002'
+		       AND DEL_YN = 'N'
+		       AND E_CORP_ID = #CORP_ID#
+		UNION
+		SELECT A.USER_ID AS ID
+		        , FN_MDM_GET_BP_CORP_NM (C.E_CORP_ID) || '/' || C.NAME || '/' || A.USER_ID AS USER_INFO
+		FROM TPSN_SHPR_INFO A
+		    , TMDM_KFR_BP_SHPR B
+		    , TADM_KFR_USER C
+		WHERE A.SHPR_ID = B.SHPR_ID     
+		AND B.USE_YN = 'Y'
+		AND B.DEL_YN = 'N'  
+		AND A.SHPR_ID = #gv_shprId#
+		AND A.SITE_CD = #gv_siteCd#
+		AND C.JOIN_TYPE = 'T00'
+		AND C.DEL_YN = 'N'
+		AND C.ID = A.USER_ID    
+	</select>
+	
+	<!-- 회원 작업 로그 정보 저장.-->
+    <insert id="insertUserProgLog">
+    /*[sql-commonService.xml][commonService.insertUserProgLog][회원 작업 로그 정보 저장.][SeungMin] */
+	   INSERT INTO TADM_KFR_USER_PROG_LOG (
+					SEQ_NO
+					, USER_ID
+					, MENU_ID
+					, MENU_URL
+					, MENU_DESC
+					, REG_IP_NO
+					, REG_SYS
+					, REG_YEAR
+					, REG_MONTH
+					, REG_DAY
+					, REG_ID
+					, REG_DT
+				) 
+		VALUES (
+					SEQ_TADM_KFR_USER_PROG_LOG.NEXTVAL
+					, #gv_userId#
+					, #progCd#
+					, NVL(#gv_progUrl#, #progUrl#)
+					, #progNm#
+					, #ipAddr#
+					, #regSys#
+					, TO_CHAR(SYSDATE, 'YYYY')
+					, TO_CHAR(SYSDATE, 'MM')
+					, TO_CHAR(SYSDATE, 'DD')
+					, #gv_userId#
+					, TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		    )
+    </insert> 
+    
+    <!-- OS 32bit 체크-->
+    <select id="getOScheckYn" resultClass="Integer">
+    	/* [sql-commonService.xml][commonService.getOScheckYn][OS 32bit 체크][SeungMin] */
+	    SELECT COUNT(*) AS CHECK_CNT
+		FROM TMDM_KFR_MC_CODE
+		WHERE CD_TCD = 'CHECK_32'
+		AND DEL_YN = 'N'
+		AND CD = #userId#
+	</select>
+	
+	<!-- 사용자 초기 화면 조회-->
+    <select id="selectCustMenuInfo" resultClass="java.util.HashMap">
+    	/* [sql-commonService.xml][commonService.selectCustMenuInfo][사용자 초기 화면 조회][SeungMin] */
+	    SELECT REF_1 AS MENU_ID FROM TMDM_KFR_MC_CODE
+		 WHERE CD_TCD = 'CUST_SCRN'
+		 AND DEL_YN = 'N' 
+		 AND CD = #gv_userId#
+	</select>
+	
+	<!-- 파일 업로드시 관련테이블 SELECT -->
+	<select id="getFileInfo" resultClass="java.util.HashMap">
+		/* [sql-commonService.xml][commonService.getFileInfo][파일 업로드시 관련테이블 SELECT][SeungMin] */
+		SELECT 
+				   WRK_NO 
+				 , WRK_NO as REF_KEY
+				 , FILE_SEQ	
+				 , TB_NAME					
+				 , SOURCE_FILE_NM			
+				 , UPLOADED_DIR_PATH		
+				 , UPLOADED_FILE_NM		
+				 , FILE_SIZE
+				 , FILE_GB
+				 , NVL(NEW_SAVE_YN, 'N') AS NEW_SAVE_YN
+		  FROM TMDM_KFR_COMM_FILE
+		  WHERE WRK_NO = #WRK_NO#
+		  <isNotEmpty prepend="AND" property="TB_NAME">
+				TB_NAME = #TB_NAME#
+			</isNotEmpty>		
+		    AND DEL_YN = 'N'
+		ORDER BY WRK_NO, TO_NUMBER(FILE_SEQ)	
+	</select>
+	
+	<!-- 다국어 정보 조회. -->
+	<select id="getLocaleMessage" resultClass="java.util.HashMap">
+		/* [sql-commonService.xml][commonService.getLocaleMessage][다국어 정보 조회.][SeungMin] */
+		SELECT *
+		FROM TMDM_LOCALE_MSG
+		WHERE DEL_YN = 'N'
+		AND LANG_CD = NVL(#gv_lang#, 'kr')
+		<isNotEmpty prepend="AND" property="MSG_TCD">
+			MSG_TCD = #MSG_TCD#
+		</isNotEmpty>
+	</select>
+	
+	<!-- 다국어 정보 조회. -->
+	<procedure id="getGeocoding">
+   		{call PR_NEW_ADDR_XY(/*[commonService.sqlx][getGeocoding][주소 ==> 좌표 변환][HJ LEE][2015.07.14]*/
+         	#ZIP_CODE#
+	        ,#ADDR#
+	        ,#O_PROC_CLSS,jdbcType=VARCHAR,mode=OUT# 
+	        ,#O_ZP,jdbcType=VARCHAR,mode=OUT#
+	        ,#O_OLD_ADDR1,jdbcType=VARCHAR,mode=OUT#
+	        ,#O_OLD_ADDR2,jdbcType=VARCHAR,mode=OUT#
+	        ,#O_NEW_ADDR1,jdbcType=VARCHAR,mode=OUT#
+	        ,#O_NEW_ADDR2,jdbcType=VARCHAR,mode=OUT#
+	        ,#O_X_AXIS,jdbcType=VARCHAR,mode=OUT#
+	        ,#O_Y_AXIS,jdbcType=VARCHAR,mode=OUT#
+	        ,#O_LONGITUDE,jdbcType=VARCHAR,mode=OUT#
+	        ,#O_LATITUDE,jdbcType=VARCHAR,mode=OUT#)
+	    }
+     </procedure>
+     
+     <select id="selectDashboardMain01" resultClass="java.util.HashMap">
+         /** [sql-commonService.xml][commonService.selectDashboardMain01]
+		  *  총주문건수
+		  *  [yun 2019.02.28] 
+		  **/
+	     SELECT 
+	          <isEqual property="gv_lang" compareValue="ko">
+	            TOT_ORDER_CNT    || ' 건'                                             AS TOT_CNT
+	          , '총 주문건수 : ' || TOT_ORDER_CNT                                     AS TOT_ORDER_CNT
+	          , '미배차(' || NON_MNF_CNT || ') 배차완료('||MNF_CNT||')'               AS MNF_CNT1
+	          , '주문의뢰('||ORDER_REQUEST_CNT||') 주문접수('||ORDER_CONFIRM_CNT||')' AS ORDER_CNT
+	          , '배차진행('||MNF_PROGRESS_CNT ||') 배차완료('||MNF_CONFIRM_CNT  ||')' AS MNF_CNT2
+	          </isEqual>  
+	          <isEqual property="gv_lang" compareValue="en">
+	            TOT_ORDER_CNT    || ' case'                                                                    AS TOT_CNT
+	          , 'Total Orders : ' || TOT_ORDER_CNT                                                             AS TOT_ORDER_CNT
+	          , 'Unallocated(' || NON_MNF_CNT || ') Difference completed('||MNF_CNT||')'                       AS MNF_CNT1
+	          , 'Order request('||ORDER_REQUEST_CNT||') Order reception('||ORDER_CONFIRM_CNT||')'              AS ORDER_CNT
+	          , 'Deviation progression('||MNF_PROGRESS_CNT ||') Difference completed('||MNF_CONFIRM_CNT  ||')' AS MNF_CNT2
+	          </isEqual>
+	          <isEqual property="gv_lang" compareValue="zh">
+	            TOT_ORDER_CNT    || ' 健'                                         AS TOT_CNT
+	          , '總訂貨數 : ' || TOT_ORDER_CNT                                      AS TOT_ORDER_CNT
+	          , '尾差(' || NON_MNF_CNT || ') 配差完成('||MNF_CNT||')'                AS MNF_CNT1
+	          , '委託訂貨('||ORDER_REQUEST_CNT||') 接受訂貨('||ORDER_CONFIRM_CNT||')' AS ORDER_CNT
+	          , '排查進行('||MNF_PROGRESS_CNT ||') 配差完成('||MNF_CONFIRM_CNT  ||')' AS MNF_CNT2
+	          </isEqual>  
+	       FROM (SELECT COUNT(*)               AS TOT_ORDER_CNT
+	                  , SUM(NON_MNF_CNT)       AS NON_MNF_CNT
+	                  , SUM(MNF_CNT)           AS MNF_CNT
+	                  , SUM(ORDER_REQUEST_CNT) AS ORDER_REQUEST_CNT
+	                  , SUM(ORDER_CONFIRM_CNT) AS ORDER_CONFIRM_CNT
+	                  , SUM(MNF_PROGRESS_CNT)  AS MNF_PROGRESS_CNT
+	                  , SUM(MNF_CONFIRM_CNT)   AS MNF_CONFIRM_CNT
+	               FROM (SELECT TOL.TOL_NO
+	                          , CASE WHEN TOL.MNF_NO IS     NULL                                                 THEN 1 ELSE 0 END AS NON_MNF_CNT
+	                          , CASE WHEN TOL.MNF_NO IS NOT NULL                                                 THEN 1 ELSE 0 END AS MNF_CNT
+	                          <![CDATA[
+	                          , CASE WHEN (TOL.ATTR_09 IS     NULL OR TOL.ATTR_09 = 'N') AND TOL.TOL_SCD < '050' THEN 1 ELSE 0 END AS ORDER_REQUEST_CNT
+	                          , CASE WHEN TOL.ATTR_09 = 'Y'                              AND TOL.TOL_SCD < '050' THEN 1 ELSE 0 END AS ORDER_CONFIRM_CNT
+	                          , CASE WHEN TOL.TOL_SCD >= '050'                           AND TOL.TOL_SCD < '090' THEN 1 ELSE 0 END AS MNF_PROGRESS_CNT
+	                          , CASE WHEN TOL.TOL_SCD >= '090'                                                   THEN 1 ELSE 0 END AS MNF_CONFIRM_CNT
+	                          ]]>
+	                       FROM TTMS_OD_TOLEG_HD TOL
+	                      WHERE TOL.DEL_YN        = 'N'
+	                        AND TOL.TOL_SCD      != '666'
+	                        AND TOL.DEP_REQ_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDD')
+	                        AND TOL.EXE_CORP_CD  IN (SELECT E_CORP_ID
+	                                                   FROM TADM_KFR_USER
+	                                                  WHERE ID      = #gv_userId#
+	                                                    AND DEL_YN  = 'N')))
+     </select>
+     
+     <select id="selectDashboardMain02" resultClass="java.util.HashMap">
+         /** [sql-commonService.xml][commonService.selectDashboardMain02]
+		  *  총주문건수
+		  *  [yun 2019.02.28] 
+		  **/
+         SELECT 
+              <isEqual property="gv_lang" compareValue="ko">
+	            PARTNER_CNT        || ' 건'                AS PARTNER_CNT
+              , '총 주문건수 : '   || TOT_CNT              AS TOT_ORDER_CNT
+	          , '파트너 할당률 : ' || PARTNER_RATIO || '%' AS PARTNER_RATIO
+	          , '일 마감률 : '     || FINISH_RATIO  || '%' AS FINISH_RATIO
+	          </isEqual>  
+	          <isEqual property="gv_lang" compareValue="en">
+	            PARTNER_CNT             || ' case'              AS PARTNER_CNT
+              , 'Total Orders : '       || TOT_CNT              AS TOT_ORDER_CNT
+	          , 'Partner Quota : '      || PARTNER_RATIO || '%' AS PARTNER_RATIO
+	          , 'Daily closing rate : ' || FINISH_RATIO  || '%' AS FINISH_RATIO
+	          </isEqual>
+	          <isEqual property="gv_lang" compareValue="zh">
+	             PARTNER_CNT  || ' 健'                 AS PARTNER_CNT
+              , '總訂貨數 : '    || TOT_CNT              AS TOT_ORDER_CNT
+	          , '合夥人分攤率 : ' || PARTNER_RATIO || '%' AS PARTNER_RATIO
+	          , '截止日期 : '    || FINISH_RATIO  || '%' AS FINISH_RATIO
+	          </isEqual>
+           FROM (SELECT COUNT(*)                                                 AS TOT_CNT
+                      , SUM(PARTNER_CNT)                                         AS PARTNER_CNT
+                      , SUM(FINISH_CNT)                                          AS FINISH_CNT
+                      , ROUND((SUM(PARTNER_CNT) / NULLIF(COUNT(*), 0)) * 100, 2) AS PARTNER_RATIO
+                      , ROUND((SUM(FINISH_CNT ) / NULLIF(COUNT(*), 0)) * 100, 2) AS FINISH_RATIO
+                   FROM (SELECT TOL.TOL_NO
+                              , CASE WHEN (SELECT TOL_NO
+                                             FROM TTMS_ASSIGN_INFO
+                                            WHERE DEL_YN = 'N'
+                                              AND SEQ_NO = (SELECT MAX(SEQ_NO)
+                                                              FROM TTMS_ASSIGN_INFO
+                                                             WHERE DEL_YN = 'N'
+                                                               AND SO_NO  = TOL.SO_NO
+                                                               AND TOL_NO = TOL.TOL_NO)
+                                              AND SO_NO  = TOL.SO_NO
+                                              AND TOL_NO = TOL.TOL_NO)           IS NOT NULL THEN 1 ELSE 0 END AS PARTNER_CNT 
+                              , CASE TOL.TOL_SCD WHEN '300'                                  THEN 1 ELSE 0 END AS FINISH_CNT
+                           FROM TTMS_OD_TOLEG_HD TOL
+                          WHERE TOL.DEL_YN        = 'N'
+                            AND TOL.TOL_SCD      != '666'
+                            AND TOL.DEP_REQ_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDD')
+                            AND TOL.EXE_CORP_CD  IN (SELECT E_CORP_ID
+                                                       FROM TADM_KFR_USER
+                                                      WHERE ID      = #gv_userId#
+                                                        AND DEL_YN  = 'N')))
+     </select>
+     
+     <select id="selectDashboardMain03" resultClass="java.util.HashMap">
+         /** [sql-commonService.xml][commonService.selectDashboardMain03]
+		  *  총주문건수
+		  *  [yun 2019.02.28] 
+		  **/
+         WITH RTM AS (SELECT MST.LEGACY_SO_ID AS SO_NO
+                          , MST.ORG_AMT      AS LEGACY_AMT
+                          , MST.JOIN_AMT     AS RTM_AMT
+                       FROM TRTB_SO_MST      MST
+                          , TRTB_ASSGIN_INFO RTM
+                      WHERE MST.RTB_SO_ID     = (SELECT MAX(RTB_SO_ID)
+                                                   FROM TRTB_SO_MST
+                                                  WHERE LEGACY_SO_ID = MST.LEGACY_SO_ID)
+                        AND MST.LEGACY_SO_ID  = RTM.LEGACY_TOL_NO
+                        AND MST.RTB_SO_ID     = RTM.RTB_SO_ID
+                        AND RTM.LEGACY_SCD_CD = '05'
+                        AND RTM.DEL_YN        = 'N'
+                        AND MST.DEP_REQ_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDD'))
+         SELECT 
+             <isEqual property="gv_lang" compareValue="ko">
+	            SHPR_CNT||' 개'||CHR(13)||CHR(10)||'고객사'||CHR(13)||CHR(10)||TOT_CNT ||' 건'                                                                               AS SHPR_TOT_CNT                                      
+              , '총 주문건수 : ' || TOT_CNT                                                                                                                                  AS TOT_CNT
+              , '매출 : '        || NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(AR_AMT))       , '([0-9]{3})','\1,')), '^,',''), 0)                            AS AR_AMT
+              , '매입 : '        || NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(AP_AMT))       , '([0-9]{3})','\1,')), '^,',''), 0)                            AS AP_AMT
+              , '직접이익 : '    || NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(REDUCTION_AMT)), '([0-9]{3})','\1,')), '^,',''), 0)|| '('||NVL(RATIO, 0)||'%)' AS REDUCTION
+	          </isEqual>  
+	          <isEqual property="gv_lang" compareValue="en">
+	            SHPR_CNT||' Unit'||CHR(13)||CHR(10)||'Client company'||CHR(13)||CHR(10)||TOT_CNT ||' case'                                                                    AS SHPR_TOT_CNT                                      
+              , 'Total Orders : ' || TOT_CNT                                                                                                                                  AS TOT_CNT
+              , 'Sales : '        || NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(AR_AMT))       , '([0-9]{3})','\1,')), '^,',''), 0)                            AS AR_AMT
+              , 'Purchase : '     || NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(AP_AMT))       , '([0-9]{3})','\1,')), '^,',''), 0)                            AS AP_AMT
+              , 'Direct profit : '|| NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(REDUCTION_AMT)), '([0-9]{3})','\1,')), '^,',''), 0)|| '('||NVL(RATIO, 0)||'%)' AS REDUCTION
+	          </isEqual>
+	          <isEqual property="gv_lang" compareValue="zh">
+	            SHPR_CNT||' 健'||CHR(13)||CHR(10)||'客戶公司'||CHR(13)||CHR(10)||TOT_CNT ||' 健'                                                                          AS SHPR_TOT_CNT                                      
+              , '總訂貨數 : ' || TOT_CNT                                                                                                                                  AS TOT_CNT
+              , '銷售 : '    || NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(AR_AMT))       , '([0-9]{3})','\1,')), '^,',''), 0)                            AS AR_AMT
+              , '買進 : '    || NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(AP_AMT))       , '([0-9]{3})','\1,')), '^,',''), 0)                            AS AP_AMT
+              , '直接利益 : ' || NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(REDUCTION_AMT)), '([0-9]{3})','\1,')), '^,',''), 0)|| '('||NVL(RATIO, 0)||'%)' AS REDUCTION
+	          </isEqual>
+           FROM (SELECT COUNT(*)  AS SHPR_CNT
+                      , SUM(TOT_CNT) AS TOT_CNT
+                      , ROUND(SUM(NVL(AR_AMT       , 0)) / 1000000, 2)                                                          AS AR_AMT
+                      , ROUND(SUM(NVL(AP_AMT       , 0)) / 1000000, 2)                                                          AS AP_AMT
+                      , ROUND(SUM(NVL(LEGACY_AMT   , 0)) / 1000000, 2)                                                          AS LEGACY_AMT
+                      , ROUND(SUM(NVL(RTM_AMT      , 0)) / 1000000, 2)                                                          AS RTM_AMT
+                      , ROUND(SUM(NVL(REDUCTION_AMT, 0)) / 1000000, 2)                                                          AS REDUCTION_AMT
+                      , ROUND((SUM(NVL(LEGACY_AMT  , 0)) - SUM(NVL(RTM_AMT, 0))) / NULLIF(SUM(NVL(LEGACY_AMT, 0)), 0) * 100, 2) AS RATIO
+                   FROM (SELECT TOL.SHPR_ID
+                              , COUNT(*)                                               AS TOT_CNT
+                              , SUM(NVL(MNF.TOT_AMT   , 0))                            AS AR_AMT
+                              , SUM(NVL(MNF.AP_AMT    , 0))                            AS AP_AMT
+                              , SUM(NVL(RTM.LEGACY_AMT, 0))                            AS LEGACY_AMT
+                              , SUM(NVL(RTM.RTM_AMT   , 0))                            AS RTM_AMT
+                              , SUM(NVL(RTM.LEGACY_AMT, 0)) - SUM(NVL(RTM.RTM_AMT, 0)) AS REDUCTION_AMT
+                           FROM TTMS_OD_TOLEG_HD TOL
+                              , TTMS_PL_MFEST    MNF
+                              , RTM              RTM
+                          WHERE TOL.DEL_YN        = 'N'
+                            AND TOL.TOL_SCD      != '666'
+                            AND TOL.DEP_REQ_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDD')
+                            AND TOL.MNF_NO        = MNF.MNF_NO(+)
+                            AND TOL.SO_NO         = RTM.SO_NO(+)
+                            AND TOL.EXE_CORP_CD  IN (SELECT E_CORP_ID
+                                                       FROM TADM_KFR_USER
+                                                      WHERE ID      = #gv_userId#
+                                                        AND DEL_YN  = 'N')
+                          GROUP BY TOL.SHPR_ID))
+     </select>
+     
+     <select id="selectTransportationCostStatus" resultClass="java.util.HashMap">
+         /** [sql-commonService.xml][commonService.selectTransportationCostStatus]
+		  *  운송비 현황
+		  *  [yun 2019.02.22] 
+		  **/
+         SELECT NVL(MAX(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(DAY_AR_AMT))      , '([0-9]{3})','\1,')), '^,',''))                     , 0)             AS DAY_AR_AMT
+              , NVL(MAX(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(DAY_EXE_AR_AMT))  , '([0-9]{3})','\1,')), '^,',''))                     , 0)             AS DAY_EXE_AR_AMT
+              , NVL(MAX(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(TOT_DAY_AR_AMT))  , '([0-9]{3})','\1,')), '^,',''))                     , 0)             AS TOT_DAY_AR_AMT
+              , NVL(MAX(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(MONTH_AR_AMT))    , '([0-9]{3})','\1,')), '^,',''))                     , 0)             AS MONTH_AR_AMT
+              , NVL(MAX(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(MONTH_EXE_AR_AMT)), '([0-9]{3})','\1,')), '^,',''))                     , 0)             AS MONTH_EXE_AR_AMT
+              , NVL(MAX(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(TOT_MONTH_AR_AMT)), '([0-9]{3})','\1,')), '^,',''))                     , 0)             AS TOT_MONTH_AR_AMT
+              , NVL(MAX((NVL(REPLACE(ROUND(((TOT_DAY_AR_AMT - YESTERDAY_AMT) / NULLIF(YESTERDAY_AMT, 0)) * 100, 1), '-', ''), '0') || '%'))           , 0)             AS RATIO
+              <![CDATA[
+              , CASE WHEN NVL(MAX(TOT_DAY_AR_AMT), 0)  = NVL(MAX(YESTERDAY_AMT), 0) OR (NVL(MAX(YESTERDAY_AMT), 0) = 0 AND NVL(MAX(YESTERDAY_AMT), 0) = 0) THEN '-' 
+                     WHEN NVL(MAX(TOT_DAY_AR_AMT), 0) >= NVL(MAX(YESTERDAY_AMT), 0)                                                                        THEN DECODE(#gv_lang#, 'ko', '증가', 'en', 'Increase' , 'zh', '增加')
+                                                                                                                                                           ELSE DECODE(#gv_lang#, 'ko', '감소', 'en', 'Reduction', 'zh', '減少') 
+                 END                                                                                                                                                   AS RATIO_NM
+              ]]>
+           FROM (SELECT SUM(DAY_AR_AMT)                           AS DAY_AR_AMT
+                      , SUM(DAY_EXE_AR_AMT)                       AS DAY_EXE_AR_AMT
+                      , SUM(DAY_AR_AMT) + SUM(DAY_EXE_AR_AMT)     AS TOT_DAY_AR_AMT 
+                      , SUM(DAY_CNT)                              AS DAY_CNT
+                      , SUM(MONTH_AR_AMT)                         AS MONTH_AR_AMT
+                      , SUM(MONTH_EXE_AR_AMT)                     AS MONTH_EXE_AR_AMT
+                      , SUM(MONTH_AR_AMT) + SUM(MONTH_EXE_AR_AMT) AS TOT_MONTH_AR_AMT
+                      , MAX((SELECT NVL(SUM(NVL(B.TOT_AMT, 0)), 0) + NVL(SUM(NVL(C.MANUAL_AMT, C.AMT)), 0) + NVL(SUM(NVL(D.MANUAL_EXT_AMT, D.EXT_AMT)), 0)
+                               FROM TTMS_OD_TOLEG_HD      A
+                                  , TTMS_PL_MFEST         B
+                                  , TBIO_EXT_ARAP_INFO    C
+                                  , TBIO_ORDER_MULTI_DROP D
+                              WHERE A.MNF_NO        = B.MNF_NO
+                                AND A.TOL_NO        = C.TOL_NO(+)
+                                AND A.TOL_NO        = D.TOL_NO(+)
+                                AND A.DEP_REQ_DATE = TO_CHAR(SYSDATE-1, 'YYYYMMDD')
+                                AND A.DEL_YN       = 'N'
+                                AND A.TOL_SCD     != '666'
+                                AND A.EXE_CORP_CD  IN (SELECT E_CORP_ID
+                                                         FROM TADM_KFR_USER
+                                                        WHERE ID      = #gv_userId#
+                                                          AND DEL_YN  = 'N'))) AS YESTERDAY_AMT
+                   FROM (SELECT CASE WHEN A.DEP_REQ_DATE = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN NVL(SUM(NVL(B.TOT_AMT, 0)), 0)                                                        ELSE 0 END   AS DAY_AR_AMT
+                              , CASE WHEN A.DEP_REQ_DATE = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN NVL(SUM(NVL(C.MANUAL_AMT, C.AMT)), 0) + NVL(SUM(NVL(D.MANUAL_EXT_AMT, D.EXT_AMT)), 0) ELSE 0 END   AS DAY_EXE_AR_AMT
+                              , CASE WHEN A.DEP_REQ_DATE = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN COUNT(*)                                                                              ELSE 0 END   AS DAY_CNT
+                              , NVL(SUM(NVL(B.TOT_AMT, 0)), 0)                                                                                                                                  AS MONTH_AR_AMT
+                              , NVL(SUM(NVL(C.MANUAL_AMT, C.AMT)), 0) + NVL(SUM(NVL(D.MANUAL_EXT_AMT, D.EXT_AMT)), 0)                                                                           AS MONTH_EXE_AR_AMT
+                           FROM TTMS_OD_TOLEG_HD A
+                              , TTMS_PL_MFEST B
+                              , TBIO_EXT_ARAP_INFO C
+                              , TBIO_ORDER_MULTI_DROP D
+                          WHERE A.MNF_NO        = B.MNF_NO(+)
+                            AND A.TOL_NO        = C.TOL_NO(+)
+                            AND A.TOL_NO        = D.TOL_NO(+)
+                            AND A.DEP_REQ_DATE  LIKE TO_CHAR(SYSDATE, 'YYYYMM') || '%'
+                            AND C.ARAP_TP_CD(+) = 'AR'
+                            AND A.DEL_YN        = 'N'
+                            AND B.DEL_YN(+)     = 'N'
+                            AND C.DEL_YN(+)     = 'N'
+                            AND D.DEL_YN(+)     = 'N'
+                            AND A.TOL_SCD      != '666'
+                            AND A.EXE_CORP_CD  IN (SELECT E_CORP_ID
+                                                     FROM TADM_KFR_USER
+                                                    WHERE ID      = #gv_userId#
+                                                      AND DEL_YN  = 'N')
+                          GROUP BY A.DEP_REQ_DATE))
+     </select>
+     
+     <select id="selectOrderStatus" resultClass="java.util.HashMap">
+         /** [sql-commonService.xml][commonService.selectOrderStatus]
+		  *  총 주문상태 현황
+		  *  [yun 2019.02.22] 
+		  **/
+         SELECT COUNT(*)                                      AS TOT_CNT
+              , NVL(SUM(ORDER_NOT_CONFIRMED_CNT)         , 0) AS ORDER_NOT_CONFIRMED_CNT
+              , NVL(SUM(CAR_ALLOCATING_CNT)              , 0) AS CAR_ALLOCATING_CNT
+              , NVL(SUM(COMPLETED_OF_CAR_ALLOCATIONS_CNT), 0) AS COMPLETED_OF_CAR_ALLOCATIONS_CNT
+              , NVL(SUM(TRANSPORT_CNT)                   , 0) AS TRANSPORT_CNT
+              , NVL(SUM(TRANSPORTATION_COMPLETED_CNT)    , 0) AS TRANSPORTATION_COMPLETED_CNT
+              <![CDATA[
+           FROM (SELECT CASE WHEN (TOL.ATTR_09 IS NULL  OR TOL.ATTR_09 = 'N') AND TOL.TOL_SCD < '050'  THEN 1 ELSE 0 END AS ORDER_NOT_CONFIRMED_CNT
+                      , CASE WHEN TOL.ATTR_09 = 'Y' AND TOL.TOL_SCD < '090'                                                    THEN 1
+                             WHEN (TOL.ATTR_09 IS NULL OR TOL.ATTR_09 = 'N') AND (TOL.TOL_SCD > '010' AND TOL.TOL_SCD < '090') THEN 1
+                                                                                                                               ELSE 0
+                                                                                                                     END AS CAR_ALLOCATING_CNT
+                      , CASE WHEN TOL.TOL_SCD  = '090'                                                 THEN 1 ELSE 0 END AS COMPLETED_OF_CAR_ALLOCATIONS_CNT
+                      , CASE WHEN TOL.TOL_SCD >  '090' AND TOL.TOL_SCD < '200'                         THEN 1 ELSE 0 END AS TRANSPORT_CNT
+                      , CASE WHEN TOL.TOL_SCD >= '200'                                                 THEN 1 ELSE 0 END AS TRANSPORTATION_COMPLETED_CNT
+              ]]>
+                   FROM TTMS_OD_TOLEG_HD TOL
+                  WHERE TOL.DEP_REQ_DATE = TO_CHAR(SYSDATE, 'YYYYMMDD')
+                    AND TOL.DEL_YN       = 'N'
+                    AND TOL.TOL_SCD     != '666'
+                    AND TOL.EXE_CORP_CD IN (SELECT E_CORP_ID
+                                              FROM TADM_KFR_USER
+                                             WHERE ID      = #gv_userId#
+                                               AND DEL_YN  = 'N'))
+     </select>
+     
+     <select id="selectOrderList" resultClass="java.util.HashMap">
+         /** [sql-commonService.xml][commonService.selectOrderLiet]
+		  *  주문 리스트
+		  *  [yun 2019.02.22] 
+		  **/
+         SELECT TOL.DEP_NODE_NM
+              , TOL.ARR_NODE_NM
+              , TOL.TOL_SCD
+              , FN_MDM_GET_MC_CODE_NM('TOL_SCD', TOL.TOL_SCD)                           AS TOL_SCD_NM 
+              , TO_CHAR(TO_DATE(TOL.ARR_REQ_DATE), 'YYYY.MM.DD')                        AS ARR_REQ_DATE
+              , SUBSTR(TOL.ARR_REQ_TIME, 1, 2) || ':' || SUBSTR(TOL.ARR_REQ_TIME, 3, 2) AS ARR_REQ_TIME
+              , TOL.ATTR_09
+              , TOL.REG_DT
+           FROM TTMS_OD_TOLEG_HD TOL
+          WHERE TOL.DEP_REQ_DATE = TO_CHAR (SYSDATE, 'YYYYMMDD')
+            AND TOL.DEL_YN       = 'N'
+            AND TOL.TOL_SCD     != '666'
+            <isEqual property="TOL_SCD" compareValue="2">
+            AND (TOL.ATTR_09 IS NULL OR TOL.ATTR_09 = 'N') 
+            <![CDATA[
+            AND TOL.TOL_SCD < '050'
+            ]]>
+            </isEqual>
+            <isEqual property="TOL_SCD" compareValue="3">
+            AND (TOL.ATTR_09 = 'Y' OR (TOL.ATTR_09 IS NULL OR TOL.ATTR_09 = 'N')) 
+            <![CDATA[
+            AND TOL.TOL_SCD > '010'
+            AND TOL.TOL_SCD < '090'
+            ]]>
+            </isEqual>
+            <isEqual property="TOL_SCD" compareValue="4">
+            AND TOL.TOL_SCD  = '090'
+            </isEqual>
+            <isEqual property="TOL_SCD" compareValue="5">
+            <![CDATA[
+            AND TOL.TOL_SCD >  '090' 
+            AND TOL.TOL_SCD <  '200'
+            ]]>
+            </isEqual>
+            <isEqual property="TOL_SCD" compareValue="6">
+            <![CDATA[
+            AND TOL.TOL_SCD  >= '200'
+            ]]>
+            </isEqual>
+            AND TOL.EXE_CORP_CD    IN (SELECT E_CORP_ID
+                                         FROM TADM_KFR_USER
+                                        WHERE ID      = #gv_userId#
+                                          AND DEL_YN  = 'N')
+          ORDER BY REG_DT DESC
+     </select>
+     
+     <select id="selectKpiList01" resultClass="java.util.HashMap">
+		/** [sql-commonService.xml][commonService.selectKpiList01]
+		 *  미수채권 집계
+		 *  [yun 2019.02.21] 
+		 **/
+		SELECT A.AR_GB
+             , A.AR_GB_NM
+             , A.AR_GB_SUB_NM
+             , MAX(T3.WD_DATE)             AS WD_DATE
+             , NVL(SUM(T3.AR_AMT)     , 0) AS AR_AMT
+             , NVL(SUM(T3.RECEIVE_AMT), 0) AS RECEIVE_AMT
+             , NVL(SUM(T3.RET_AMT)    , 0) AS RET_AMT
+             , NVL(SUM(T3.AR_CNT)     , 0) AS AR_CNT
+          FROM (SELECT 1 AS AR_GB
+                     , DECODE(#gv_lang#, 'ko', '경과채권', 'en', 'Transitional bond', 'zh', '過期債券') AS AR_GB_NM
+                     , DECODE(#gv_lang#, 'ko', '경과채권', 'en', 'Transitional bond', 'zh', '過期債券') AS AR_GB_SUB_NM
+                  FROM DUAL
+                 UNION ALL
+                SELECT 2 AS AR_GB
+                     , DECODE(#gv_lang#, 'ko', '불량채권', 'en', 'Bad bond'         , 'zh', '不良債券') AS AR_GB_NM
+                     , DECODE(#gv_lang#, 'ko', '단기불량', 'en', 'Short-term defect', 'zh', '短期不良') AS AR_GB_SUB_NM
+                  FROM DUAL
+                 UNION ALL
+                SELECT 3 AS AR_GB
+                     , DECODE(#gv_lang#, 'ko', '불량채권', 'en', 'Bad bond'        , 'zh', '不良債券') AS AR_GB_NM
+                     , DECODE(#gv_lang#, 'ko', '장기불량', 'en', 'Long-term defect', 'zh', '長期不良') AS AR_GB_SUB_NM
+                  FROM DUAL) A
+             , (SELECT /*font 칼라 조정 : 만약 마감일이 현재 이후면 black, 경과일수가 30일 이내시 blue, 30일 초과시 90일까지 orange, 90일 초과 red*/
+                       <![CDATA[
+                       (CASE WHEN NVL(T1.ZFBDT, T2.EXPIRY_DATE) IS NULL                                                                     THEN DECODE(#gv_lang#, 'ko', '정상채권', 'en', 'normal bond'      , 'zh', '正常債券')
+                             WHEN TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD')+30, 'YYYYMMDD') < TO_CHAR(SYSDATE, 'YYYYMMDD') THEN DECODE(#gv_lang#, 'ko', '불량채권', 'en', 'Bad bond'         , 'zh', '不良債券')          /* 단기불량 */
+                             WHEN TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD')   , 'YYYYMMDD') < TO_CHAR(SYSDATE, 'YYYYMMDD') THEN DECODE(#gv_lang#, 'ko', '경과채권', 'en', 'Transitional bond', 'zh', '過期債券')          /* 경과     */
+                                                                                                                                            ELSE DECODE(#gv_lang#, 'ko', '정상채권', 'en', 'normal bond'      , 'zh', '正常債券')
+                        END)                                   AS AR_GB_NM
+                     , (CASE WHEN NVL(T1.ZFBDT, T2.EXPIRY_DATE) IS NULL                                                                      THEN 0
+                             WHEN TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD')+90, 'YYYYMMDD')  < TO_CHAR(SYSDATE, 'YYYYMMDD') THEN 3                  /* 장기불량 */
+                             WHEN TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD')+30, 'YYYYMMDD')  < TO_CHAR(SYSDATE, 'YYYYMMDD') THEN 2                  /* 단기불량 */
+                             WHEN TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD')   , 'YYYYMMDD')  < TO_CHAR(SYSDATE, 'YYYYMMDD') THEN 1                  /* 경과     */
+                                                                                                                                             ELSE 0
+                         END)                                   AS AR_GB
+                     , (CASE WHEN NVL(T1.ZFBDT, T2.EXPIRY_DATE) IS NULL                                                                     THEN DECODE(#gv_lang#, 'ko', '정상채권'    , 'en', 'normal bond'        , 'zh', '正常債券')
+                             WHEN TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD')+90, 'YYYYMMDD') < TO_CHAR(SYSDATE, 'YYYYMMDD') THEN DECODE(#gv_lang#, 'ko', '장기불량채권', 'en', 'Long-term bad debt' , 'zh', '長期不良債券')     /* 장기불량 */
+                             WHEN TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD')+30, 'YYYYMMDD') < TO_CHAR(SYSDATE, 'YYYYMMDD') THEN DECODE(#gv_lang#, 'ko', '단기불량채권', 'en', 'Short-term bad debt', 'zh', '短期不良債券')     /* 단기불량 */
+                             WHEN TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD')   , 'YYYYMMDD') < TO_CHAR(SYSDATE, 'YYYYMMDD') THEN DECODE(#gv_lang#, 'ko', '경과채권'    , 'en', 'Transitional bond'  , 'zh', '過期債券')        /* 경과     */
+                                                                                                                                            ELSE DECODE(#gv_lang#, 'ko', '정상채권'    , 'en', 'normal bond'        , 'zh', '正常債券')
+                         END)                                   AS AR_GB_SUB_NM
+                       ]]>
+                     , NVL(T1.LOCAL_AMT,0)                      AS AR_AMT
+                     , NVL(T1.LOCAL_AMT,0) - NVL(T2.RET_AMT,0)  AS RECEIVE_AMT
+                     , NVL(T2.RET_AMT, 0)                       AS RET_AMT                                                                                          /* 잔액     */
+                     , 1                                        AS AR_CNT
+                     , T2.WD_DATE
+                  FROM TBCC_IF_FI_DOC_HEADER T1
+                     , TBCC_AR_RECEIPT_MGN   T2
+                 WHERE T1.E_BELNR         = T2.BELNR               
+                   AND T1.GJAHR           = T2.GJAHR  
+                   AND T1.AR_AP_TYPE      =  'AR'
+                   AND T2.WD_DATE         = (SELECT MAX(WD_DATE) MAX_WD_DATE FROM TBCC_AR_RECEIPT_MGN)
+                   AND NVL(T2.RET_AMT, 0) <![CDATA[ > ]]> 0
+                   AND TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD'), 'YYYYMMDD') <![CDATA[ < ]]> TO_CHAR(SYSDATE, 'YYYYMMDD')
+                   <isNotEqual property="AUTH_CD" compareValue="A0000001">
+                   AND T1.DEMAND_TEAM_CD IN (SELECT CORP_ID 
+                                               FROM TADM_KFR_USER_AUTH_DTL 
+                                              WHERE CORP_GB = '02' 
+                                                AND ID      = #gv_userId# 
+                                                AND USE_YN  = 'Y' 
+                                                AND DEL_YN  = 'N')
+                   </isNotEqual>
+                   ) T3
+         WHERE A.AR_GB = T3.AR_GB(+)
+         GROUP BY A.AR_GB, A.AR_GB_NM, A.AR_GB_SUB_NM
+	</select>
+	
+	<select  id="selectKpiList02" resultClass="java.util.HashMap">
+	    /** [sql-commonService.xml][commonService.selectKpiList02]
+		 *  미수채권 내역
+		 *  [yun 2019.02.21] 
+		 **/
+		SELECT T3.*
+          FROM (SELECT NVL(SUM(T1.LOCAL_AMT),0)                          AS AR_AMT
+                     , NVL(SUM(T1.LOCAL_AMT),0) - NVL(SUM(T2.RET_AMT),0) AS RECEIVE_AMT
+                     , NVL(SUM(T2.RET_AMT), 0)                           AS RET_AMT 
+                     , T1.CUS_VED                                        AS MDM_SHPR_ID
+                     , (SELECT FN_KCC_GET_SHPR_NM(SHPR_ID)  
+                          FROM TMDM_KFR_BP_SHPR       
+                         WHERE DEL_YN = 'N'                            
+                           AND MDM_SHPR_ID = T1.CUS_VED 
+                           AND ROWNUM = 1)                               AS SHPR_LOCAL_NM /*고객명*/  
+                     , (SELECT SHPR_ID  
+                          FROM TMDM_KFR_BP_SHPR       
+                         WHERE DEL_YN = 'N'                             
+                           AND MDM_SHPR_ID = T1.CUS_VED 
+                           AND ROWNUM = 1)                               AS SHPR_ID 
+                    , MAX(T1.XBLNR)                                      AS XBLNR
+                    , MAX(T2.WD_DATE)                                    AS WD_DATE
+                    , 'N'                                                AS OPEN_CHK
+                    , COUNT(1)                                           AS AR_CNT
+                 FROM TBCC_IF_FI_DOC_HEADER T1
+                    , TBCC_AR_RECEIPT_MGN   T2
+                WHERE T1.E_BELNR         = T2.BELNR               
+                  AND T1.GJAHR           = T2.GJAHR  
+                  AND T1.AR_AP_TYPE      =  'AR'
+                  AND T2.WD_DATE         = (SELECT MAX(WD_DATE) FROM TBCC_AR_RECEIPT_MGN )
+                  AND NVL(T2.RET_AMT, 0) <![CDATA[ > ]]> 0
+                  AND TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD'), 'YYYYMMDD') <![CDATA[ < ]]> TO_CHAR(SYSDATE, 'YYYYMMDD')
+                  <isNotEqual property="AUTH_CD" compareValue="A0000001">
+                  AND T1.DEMAND_TEAM_CD IN (SELECT CORP_ID 
+                                              FROM TADM_KFR_USER_AUTH_DTL 
+                                             WHERE CORP_GB = '02' 
+                                               AND ID      = #gv_userId# 
+                                               AND USE_YN  = 'Y' 
+                                               AND DEL_YN  = 'N')
+                  </isNotEqual>
+                GROUP BY T1.CUS_VED) T3
+         ORDER BY SHPR_LOCAL_NM
+	</select>
+	
+	<select  id="selectKpiList03" resultClass="java.util.HashMap">
+	    /** [sql-commonService.xml][commonService.selectKpiList03]
+		 *  미수채권 전표별 상세 내역
+		 *  [yun 2019.02.21] 
+		 **/
+		SELECT T1.BUDAT
+             , ''                                                                                                     AS SO_ID
+             , T1.XBLNR
+             , T1.CUS_VED                                                                                             AS MDM_SHPR_ID
+             ,(SELECT FN_KCC_GET_SHPR_NM(SHPR_ID)  
+                 FROM TMDM_KFR_BP_SHPR       
+                WHERE DEL_YN      = 'N'                            
+                  AND MDM_SHPR_ID = T1.CUS_VED 
+                  AND ROWNUM      = 1)                                                                                AS SHPR_LOCAL_NM               /* 고객명        */   
+             , T1.DEMAND_TEAM_CD
+             , FN_MDM_GET_COST_NM(T1.DEMAND_TEAM_CD)                                                                  AS DEMAND_TEAM_NM
+             , NVL(T1.LOCAL_AMT,0)                                                                                    AS AR_AMT
+             , NVL(T1.LOCAL_AMT,0) - NVL(T2.RET_AMT,0)                                                                AS RECEIVE_AMT
+             , NVL(T2.RET_AMT, 0)                                                                                     AS RET_AMT 
+             , FN_GET_PAYMENT_NM('D', NVL(T1.GIVE_COND, T2.PAY_CLS))                                                  AS PAY_CLS_NM                  /* 수금조건 NAME */
+             , NVL(T1.ZFBDT, T2.EXPIRY_DATE)                                                                          AS ZFBDT
+             , T1.E_BELNR
+             /*font 칼라 조정 : 만약 마감일이 현재 이후면 black, 경과일수가 30일 이내시 blue, 30일 초과시 90일까지 orange, 90일 초과 red*/
+             <![CDATA[
+             , (CASE WHEN NVL(T1.ZFBDT, T2.EXPIRY_DATE) IS NULL                                                                     THEN ''
+                     WHEN TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD')+90, 'YYYYMMDD') < TO_CHAR(SYSDATE, 'YYYYMMDD') THEN 'fc_red'    /* 장기불량      */
+                     WHEN TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD')+30, 'YYYYMMDD') < TO_CHAR(SYSDATE, 'YYYYMMDD') THEN 'fc_blue'   /* 단기불량      */
+                     WHEN TO_CHAR(TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD')   , 'YYYYMMDD') < TO_CHAR(SYSDATE, 'YYYYMMDD') THEN 'fc_green'  /* 경과          */
+                                                                                                                                    ELSE ''
+                END)                                                                                                  AS FONT_COLOR
+             ]]>
+             , TO_DATE(TO_CHAR(SYSDATE, 'YYYYMMDD'), 'YYYYMMDD') - TO_DATE(NVL(T1.ZFBDT, T2.EXPIRY_DATE), 'YYYYMMDD') AS DAY_CNT
+         FROM TBCC_IF_FI_DOC_HEADER T1
+            , TBCC_AR_RECEIPT_MGN  T2
+        WHERE T1.E_BELNR    = T2.BELNR               
+          AND T1.GJAHR      = T2.GJAHR  
+          AND T1.AR_AP_TYPE = 'AR' 
+          AND NVL(T2.RET_AMT, 0) <![CDATA[ > ]]> 0
+          AND T1.CUS_VED    = #MDM_SHPR_ID#
+          AND T2.WD_DATE    = #WD_DATE# 
+	</select>
+	
+	<select  id="selectDashboardDiv02_01" resultClass="java.util.HashMap">
+	    /** [sql-commonService.xml][commonService.selectDashboardDiv02_01]
+		 *  운송비 현황
+		 *  [yun 2019.02.25] 
+		 **/
+		SELECT NVL(MAX(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(THAT_MONTH_AR_AMT)) , '([0-9]{3})','\1,')), '^,','')), 0)                             AS THAT_MONTH_AR_AMT
+             , NVL(MAX(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(THAT_MONTH_AP_AMT)) , '([0-9]{3})','\1,')), '^,','')), 0)                             AS THAT_MONTH_AP_AMT
+             , NVL(MAX(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(THAT_MONTH_CAR_AMT)), '([0-9]{3})','\1,')), '^,','')), 0)                             AS THAT_MONTH_CAR_AMT
+             , NVL(MAX(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(LAST_MONTH_AR_AMT)) , '([0-9]{3})','\1,')), '^,','')), 0)                             AS LAST_MONTH_AR_AMT
+             , NVL(MAX(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(LAST_MONTH_AP_AMT)) , '([0-9]{3})','\1,')), '^,','')), 0)                             AS LAST_MONTH_AP_AMT
+             , NVL(MAX(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(LAST_MONTH_CAR_AMT)), '([0-9]{3})','\1,')), '^,','')), 0)                             AS LAST_MONTH_CAR_AMT
+             , NVL((NVL(REPLACE(ROUND(((SUM(THAT_MONTH_AR_AMT)-SUM(LAST_MONTH_AR_AMT)) / NULLIF(SUM(LAST_MONTH_AR_AMT), 0)) * 100, 2), '-', ''), '0') || '%'), 0)  AS RATIO
+             <![CDATA[
+             , CASE WHEN SUM(THAT_MONTH_AR_AMT) = SUM(LAST_MONTH_AR_AMT) OR (SUM(THAT_MONTH_AR_AMT) = 0 AND SUM(LAST_MONTH_AR_AMT) = 0) THEN '-'
+                    WHEN SUM(THAT_MONTH_AR_AMT) > SUM(LAST_MONTH_AR_AMT)                                                                THEN DECODE(#gv_lang#, 'ko', '증가', 'en', 'Increase' , 'zh', '增加')
+                                                                                                                                        ELSE DECODE(#gv_lang#, 'ko', '감소', 'en', 'Reduction', 'zh', '減少')
+                END                                                                                                                                                AS RATIO_NM
+             ]]>
+          FROM (SELECT SUM(CASE SUBSTR(TOL.DEP_REQ_DATE, 1, 6) WHEN TO_CHAR(SYSDATE                , 'YYYYMM') THEN NVL(SUM(MNF.TOT_AMT), 0)                            ELSE 0  END) AS THAT_MONTH_AR_AMT
+                     , SUM(CASE SUBSTR(TOL.DEP_REQ_DATE, 1, 6) WHEN TO_CHAR(SYSDATE                , 'YYYYMM') THEN NVL(SUM(MNF.AP_AMT ), 0)                            ELSE 0  END) AS THAT_MONTH_AP_AMT
+                     , SUM(CASE SUBSTR(TOL.DEP_REQ_DATE, 1, 6) WHEN TO_CHAR(SYSDATE                , 'YYYYMM') THEN NVL(SUM(MNF.TOT_AMT), 0) - NVL(SUM(MNF.AP_AMT ), 0) ELSE 0  END) AS THAT_MONTH_CAR_AMT
+                     , SUM(CASE SUBSTR(TOL.DEP_REQ_DATE, 1, 6) WHEN TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYYMM') THEN NVL(SUM(MNF.TOT_AMT), 0)                            ELSE 0  END) AS LAST_MONTH_AR_AMT
+                     , SUM(CASE SUBSTR(TOL.DEP_REQ_DATE, 1, 6) WHEN TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYYMM') THEN NVL(SUM(MNF.AP_AMT ), 0)                            ELSE 0  END) AS LAST_MONTH_AP_AMT
+                     , SUM(CASE SUBSTR(TOL.DEP_REQ_DATE, 1, 6) WHEN TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYYMM') THEN NVL(SUM(MNF.TOT_AMT), 0) - NVL(SUM(MNF.AP_AMT ), 0) ELSE 0  END) AS LAST_MONTH_CAR_AMT
+                  FROM TTMS_OD_TOLEG_HD TOL
+                     , TTMS_PL_MFEST    MNF
+                 WHERE TOL.DEL_YN          = 'N'
+                   AND MNF.DEL_YN          = 'N'
+                   AND TOL.TOL_SCD        != '666'
+                   AND TOL.DEP_REQ_DATE BETWEEN TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYYMM')||'01' AND TO_CHAR(SYSDATE, 'YYYYMM')||'31'
+                   AND SUBSTR(TOL.DEP_REQ_DATE, 1, 6) BETWEEN TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYYMM') AND TO_CHAR(SYSDATE, 'YYYYMM')
+                   AND TOL.MNF_NO          = MNF.MNF_NO
+                   AND TOL.EXE_CORP_CD    IN (SELECT E_CORP_ID
+                                                FROM TADM_KFR_USER
+                                               WHERE ID      = #gv_userId#
+                                                 AND DEL_YN  = 'N')
+                 GROUP BY SUBSTR(TOL.DEP_REQ_DATE, 1, 6))
+	</select>
+	
+	<select  id="selectDashboardDiv02_02" resultClass="java.util.HashMap">
+	    /** [sql-commonService.xml][commonService.selectDashboardDiv02_02]
+		 *  운송비 현황
+		 *  [yun 2019.02.25] 
+		 **/
+		SELECT NVL(SUM(TOT_CNT)    , 0)                                       AS TOT_CNT
+             , NVL(SUM(RTM_CNT)    , 0)                                       AS RTM_CNT
+             , NVL(SUM(DAY_END_CNT), 0)                                       AS DAY_END_CNT
+             , NVL(SUM(AR_AMT)     , 0)                                       AS AR_AMT
+             , NVL(SUM(AP_AMT)     , 0)                                       AS AP_AMT
+             , NVL(SUM(CHA_AMT)    , 0)                                       AS CHA_AMT
+             , NVL(ROUND(SUM(RTM_CNT)/NULLIF(SUM(TOT_CNT), 0)*100, 2), 0)     AS RTM_RATIO
+             , NVL(ROUND(SUM(DAY_END_CNT)/NULLIF(SUM(TOT_CNT), 0)*100, 2), 0) AS DAY_END_RATIO
+             , NVL(ROUND(SUM(CHA_AMT)/NULLIF(SUM(AR_AMT), 0)*100, 2), 0)      AS AMT_RATIO
+          FROM (SELECT SHPR_ID
+                     , SHPR_NM
+                     , COUNT(*)                   AS TOT_CNT
+                     , SUM(UN_RTM) + SUM(RTM)     AS RTM_CNT
+                     , SUM(END_YN)                AS DAY_END_CNT
+                     , SUM(AR_AMT)                AS AR_AMT
+                     , SUM(AP_AMT)                AS AP_AMT
+                     , SUM(AR_AMT) - SUM(AP_AMT)  AS CHA_AMT
+                  FROM (SELECT TOL.SHPR_ID
+                             , FN_KCC_GET_SHPR_NM(TOL.SHPR_ID) AS SHPR_NM
+                             , CASE WHEN TOL.TOL_SCD      = '300'    THEN 1 ELSE 0 END AS END_YN
+                             , NVL(MNF.TOT_AMT, 0)                               AS AR_AMT
+                             , NVL(MNF.AP_AMT , 0)                               AS AP_AMT
+                             , CASE WHEN (SELECT MST.LEGACY_SO_ID
+                                            FROM TRTB_IF_SO_MST   MST
+                                               , TRTB_ASSGIN_INFO RTM
+                                           WHERE MST.SEQ_NO        = (SELECT MAX(SEQ_NO)
+                                                                        FROM TRTB_IF_SO_MST
+                                                                       WHERE LEGACY_SO_ID = MST.LEGACY_SO_ID)
+                                             AND MST.LEGACY_SO_ID  = RTM.LEGACY_TOL_NO
+                                             AND MST.SEQ_NO        = RTM.RTB_SO_ID
+                                             AND RTM.LEGACY_SCD_CD = '05'
+                                             AND RTM.DEL_YN        = 'N'
+                                             AND MST.LEGACY_SO_ID  = TOL.SO_NO) IS NOT NULL THEN 1 ELSE 0 END AS RTM
+                             , CASE WHEN (SELECT TOL_NO
+                                            FROM TTMS_ASSIGN_INFO
+                                           WHERE DEL_YN = 'N'
+                                             AND SEQ_NO = (SELECT MAX(SEQ_NO)
+                                                             FROM TTMS_ASSIGN_INFO
+                                                            WHERE DEL_YN = 'N'
+                                                              AND SO_NO  = TOL.SO_NO
+                                                              AND TOL_NO = TOL.TOL_NO)
+                                             AND SO_NO  = TOL.SO_NO
+                                             AND TOL_NO = TOL.TOL_NO)           IS NOT NULL THEN 1 ELSE 0 END AS UN_RTM
+                          FROM TTMS_OD_TOLEG_HD TOL
+                             , TTMS_PL_MFEST    MNF
+                         WHERE TOL.DEL_YN          = 'N'
+                           AND MNF.DEL_YN(+)       = 'N' 
+                           AND TOL.TOL_SCD        != '666'
+                           AND TOL.DEP_REQ_DATE    = TO_CHAR(SYSDATE, 'YYYYMMDD')
+                           AND TOL.MNF_NO          = MNF.MNF_NO(+)
+                           AND TOL.EXE_CORP_CD    IN (SELECT E_CORP_ID
+                                                        FROM TADM_KFR_USER
+                                                       WHERE ID      = #gv_userId#
+                                                         AND DEL_YN  = 'N')
+                     )
+                 GROUP BY SHPR_ID, SHPR_NM)
+	</select>
+	
+	<select  id="selectDashboardDiv02_03" resultClass="java.util.HashMap">
+	    /** [sql-commonService.xml][commonService.selectDashboardDiv02_03]
+		 *  운송비 현황
+		 *  [yun 2019.02.25] 
+		 **/
+		SELECT SHPR_ID
+             , SHPR_NM
+             , COUNT(*)                                                                 AS TOT_CNT
+             , NVL(SUM(UN_RTM) + SUM(RTM)                                          , 0) AS RTM_CNT
+             , NVL(SUM(END_YN)                                                     , 0) AS DAY_END_CNT
+             , NVL(SUM(AR_AMT)                                                     , 0) AS AR_AMT
+             , NVL(SUM(AP_AMT)                                                     , 0) AS AP_AMT
+             , NVL(SUM(AR_AMT) - SUM(AP_AMT)                                       , 0) AS CHA_AMT
+             , NVL(ROUND(SUM(END_YN)/NULLIF(COUNT(*), 0)*100, 2)                   , 0) AS DAY_END_RATIO
+             , NVL(ROUND((SUM(UN_RTM) + SUM(RTM))/NULLIF(COUNT(*), 0)*100, 2)      , 0) AS RTM_RATIO
+             , NVL(ROUND(((SUM(AR_AMT)-SUM(AP_AMT))/NULLIF(SUM(AR_AMT), 0))*100, 2), 0) AS AMT_RATIO
+          FROM (SELECT TOL.SHPR_ID
+                     , FN_KCC_GET_SHPR_NM(TOL.SHPR_ID) AS SHPR_NM
+                     , CASE WHEN TOL.TOL_SCD      = '300'    THEN 1 ELSE 0 END AS END_YN
+                     , NVL(MNF.TOT_AMT, 0)                               AS AR_AMT
+                     , NVL(MNF.AP_AMT , 0)                               AS AP_AMT
+                     , CASE WHEN (SELECT MST.LEGACY_SO_ID
+                                    FROM TRTB_IF_SO_MST   MST
+                                       , TRTB_ASSGIN_INFO RTM
+                                   WHERE MST.SEQ_NO        = (SELECT MAX(SEQ_NO)
+                                                                FROM TRTB_IF_SO_MST
+                                                               WHERE LEGACY_SO_ID = MST.LEGACY_SO_ID)
+                                     AND MST.LEGACY_SO_ID  = RTM.LEGACY_TOL_NO
+                                     AND MST.SEQ_NO        = RTM.RTB_SO_ID
+                                     AND RTM.LEGACY_SCD_CD = '05'
+                                     AND RTM.DEL_YN        = 'N'
+                                     AND MST.LEGACY_SO_ID  = TOL.SO_NO) IS NOT NULL THEN 1 ELSE 0 END AS RTM
+                     , CASE WHEN (SELECT TOL_NO
+                                    FROM TTMS_ASSIGN_INFO
+                                   WHERE DEL_YN = 'N'
+                                     AND SEQ_NO = (SELECT MAX(SEQ_NO)
+                                                     FROM TTMS_ASSIGN_INFO
+                                                    WHERE DEL_YN = 'N'
+                                                      AND SO_NO  = TOL.SO_NO
+                                                      AND TOL_NO = TOL.TOL_NO)
+                                     AND SO_NO  = TOL.SO_NO
+                                     AND TOL_NO = TOL.TOL_NO)           IS NOT NULL THEN 1 ELSE 0 END AS UN_RTM
+                  FROM TTMS_OD_TOLEG_HD TOL
+                     , TTMS_PL_MFEST    MNF
+                 WHERE TOL.DEL_YN          = 'N'
+                   AND MNF.DEL_YN(+)       = 'N' 
+                   AND TOL.TOL_SCD        != '666'
+                   AND TOL.DEP_REQ_DATE    = TO_CHAR(SYSDATE, 'YYYYMMDD')
+                   AND TOL.MNF_NO          = MNF.MNF_NO(+)
+                   AND TOL.EXE_CORP_CD    IN (SELECT E_CORP_ID
+                                                FROM TADM_KFR_USER
+                                               WHERE ID      = #gv_userId#
+                                                 AND DEL_YN  = 'N')
+             )
+         GROUP BY SHPR_ID, SHPR_NM
+	</select>
+	
+	<select  id="selectDashboardDiv03_01" resultClass="java.util.HashMap">
+	    /** [sql-commonService.xml][commonService.selectDashboardDiv03_01]
+		 *  배차건수
+		 *  [yun 2019.02.26] 
+		 **/
+        WITH RTM AS (SELECT MST.LEGACY_SO_ID AS SO_NO
+                       FROM TRTB_IF_SO_MST   MST
+                          , TRTB_ASSGIN_INFO RTM
+                      WHERE MST.SEQ_NO        = (SELECT MAX(SEQ_NO)
+                                                   FROM TRTB_IF_SO_MST
+                                                  WHERE LEGACY_SO_ID = MST.LEGACY_SO_ID)
+                        AND MST.LEGACY_SO_ID  = RTM.LEGACY_TOL_NO
+                        AND MST.SEQ_NO        = RTM.RTB_SO_ID
+                        AND RTM.LEGACY_SCD_CD = '05'
+                        AND RTM.DEL_YN        = 'N'
+                        AND MST.DEP_REQ_DATE LIKE TO_CHAR(SYSDATE, 'YYYYMM')),
+       TRANSPORT AS (SELECT TOL_NO
+                       FROM TTMS_ASSIGN_INFO A
+                      WHERE DEL_YN = 'N'
+                        AND SEQ_NO = (SELECT MAX(SEQ_NO)
+                                        FROM TTMS_ASSIGN_INFO B
+                                       WHERE DEL_YN = 'N'
+                                         AND B.SO_NO  = A.SO_NO
+                                         AND B.TOL_NO = A.TOL_NO))             
+        SELECT SUM(WE_DAY_CNT)    AS WE_DAY_CNT
+             , SUM(RTM_DAY_CNT)   AS RTM_DAY_CNT
+             , SUM(TS_DAY_CNT)    AS TS_DAY_CNT
+             , SUM(WE_MONTH_CNT)  AS WE_MONTH_CNT
+             , SUM(RTM_MONTH_CNT) AS RTM_MONTH_CNT
+             , SUM(TS_MONTH_CNT)  AS TS_MONTH_CNT
+             , NVL(REPLACE(ROUND(((SUM(WE_DAY_CNT)+SUM(RTM_DAY_CNT)+SUM(TS_DAY_CNT)) / NULLIF((SUM(WE_DAY_BEFORE_CNT)+SUM(RTM_DAY_BEFORE_CNT)+SUM(TS_DAY_BEFORE_CNT)), 0)) * 100, 2), '-', ''), '0') || '%' AS RATIO
+             <![CDATA[
+             , CASE WHEN (SUM(WE_DAY_BEFORE_CNT)+SUM(RTM_DAY_BEFORE_CNT)+SUM(TS_DAY_BEFORE_CNT)) = (SUM(WE_DAY_CNT)+SUM(RTM_DAY_CNT)+SUM(TS_DAY_CNT)) 
+                      OR ((SUM(WE_DAY_BEFORE_CNT)+SUM(RTM_DAY_BEFORE_CNT)+SUM(TS_DAY_BEFORE_CNT)) = 0 AND (SUM(WE_DAY_CNT)+SUM(RTM_DAY_CNT)+SUM(TS_DAY_CNT)) = 0) THEN '-'
+                    WHEN (SUM(WE_DAY_BEFORE_CNT)+SUM(RTM_DAY_BEFORE_CNT)+SUM(TS_DAY_BEFORE_CNT)) < (SUM(WE_DAY_CNT)+SUM(RTM_DAY_CNT)+SUM(TS_DAY_CNT))             THEN DECODE(#gv_lang#, 'ko', '증가', 'en', 'Increase' , 'zh', '增加')
+                                                                                                                                                                  ELSE DECODE(#gv_lang#, 'ko', '감소', 'en', 'Reduction', 'zh', '減少')
+                END                                                                                                                                                AS RATIO_NM
+             ]]>
+          FROM (SELECT CASE DEP_REQ_DATE WHEN TO_CHAR(SYSDATE, 'YYYYMMDD')   THEN SUM(WE_CNT)  ELSE 0 END AS WE_DAY_CNT
+                     , CASE DEP_REQ_DATE WHEN TO_CHAR(SYSDATE, 'YYYYMMDD')   THEN SUM(RTM_CNT) ELSE 0 END AS RTM_DAY_CNT
+                     , CASE DEP_REQ_DATE WHEN TO_CHAR(SYSDATE, 'YYYYMMDD')   THEN SUM(TS_CNT)  ELSE 0 END AS TS_DAY_CNT
+                     , CASE DEP_REQ_DATE WHEN TO_CHAR(SYSDATE-1, 'YYYYMMDD') THEN SUM(WE_CNT)  ELSE 0 END AS WE_DAY_BEFORE_CNT
+                     , CASE DEP_REQ_DATE WHEN TO_CHAR(SYSDATE-1, 'YYYYMMDD') THEN SUM(RTM_CNT) ELSE 0 END AS RTM_DAY_BEFORE_CNT
+                     , CASE DEP_REQ_DATE WHEN TO_CHAR(SYSDATE-1, 'YYYYMMDD') THEN SUM(TS_CNT)  ELSE 0 END AS TS_DAY_BEFORE_CNT
+                     , SUM(WE_CNT)                                                                        AS WE_MONTH_CNT
+                     , SUM(RTM_CNT)                                                                       AS RTM_MONTH_CNT
+                     , SUM(TS_CNT)                                                                        AS TS_MONTH_CNT
+                  FROM (SELECT TOL.DEP_REQ_DATE
+                             , CASE WHEN TOL.ATTR_11 = '2'     THEN 1 ELSE 0 END AS WE_CNT
+                             , CASE WHEN RTM.SO_NO IS NOT NULL THEN 1 ELSE 0 END AS RTM_CNT
+                             , CASE WHEN TS.TOL_NO IS NOT NULL THEN 1 ELSE 0 END AS TS_CNT
+                          FROM TTMS_OD_TOLEG_HD TOL
+                             , TTMS_PL_MFEST    MNF
+                             , RTM              RTM
+                             , TRANSPORT        TS
+                         WHERE TOL.DEL_YN          = 'N'
+                           AND MNF.DEL_YN          = 'N' 
+                           AND TOL.TOL_SCD        != '666'
+                           AND TOL.DEP_REQ_DATE LIKE TO_CHAR(SYSDATE, 'YYYYMM') ||'%'
+                           AND TOL.MNF_NO          = MNF.MNF_NO
+                           AND TOL.SO_NO           = RTM.SO_NO(+)
+                           AND TOL.TOL_NO          = TS.TOL_NO(+)
+                           AND TOL.EXE_CORP_CD    IN (SELECT E_CORP_ID
+                                                        FROM TADM_KFR_USER
+                                                       WHERE ID      = #gv_userId#
+                                                         AND DEL_YN  = 'N')
+                     )
+                 GROUP BY DEP_REQ_DATE)
+	</select>
+	
+	<select  id="selectDashboardDiv03_02" resultClass="java.util.HashMap">
+	    /** [sql-commonService.xml][commonService.selectDashboardDiv03_02]
+		 *  배차건수
+		 *  [yun 2019.02.26] 
+		 **/
+        WITH RTM AS (SELECT MST.LEGACY_SO_ID AS SO_NO
+                          , MST.ORG_AMT      AS LEGACY_AMT
+                          , MST.JOIN_AMT     AS RTM_AMT
+                       FROM TRTB_SO_MST      MST
+                          , TRTB_ASSGIN_INFO RTM
+                      WHERE MST.RTB_SO_ID     = (SELECT MAX(RTB_SO_ID)
+                                                   FROM TRTB_SO_MST
+                                                  WHERE LEGACY_SO_ID = MST.LEGACY_SO_ID)
+                        AND MST.LEGACY_SO_ID  = RTM.LEGACY_TOL_NO
+                        AND MST.RTB_SO_ID     = RTM.RTB_SO_ID
+                        AND RTM.LEGACY_SCD_CD = '05'
+                        AND RTM.DEL_YN        = 'N'
+                        AND MST.DEP_REQ_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDD'))
+        SELECT NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(TOT_CNT))       , '([0-9]{3})','\1,')), '^,',''), 0) AS TOT_CNT
+             , NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(AR_AMT))        , '([0-9]{3})','\1,')), '^,',''), 0) AS AR_AMT
+             , NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(LEGACY_AMT))    , '([0-9]{3})','\1,')), '^,',''), 0) AS LEGACY_AMT
+             , NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(RTM_AMT))       , '([0-9]{3})','\1,')), '^,',''), 0) AS RTM_AMT
+             , NVL(REGEXP_REPLACE(REVERSE(REGEXP_REPLACE(REVERSE(TO_CHAR(REDUCTION_AMT)) , '([0-9]{3})','\1,')), '^,',''), 0) AS REDUCTION_AMT
+             , NVL(RATIO, 0) || '%'                                                                                           AS RATIO 
+          FROM (SELECT COUNT(*)                                                                                    AS TOT_CNT
+                     , SUM(MNF.TOT_AMT)                                                                            AS AR_AMT
+                     , SUM(RTM.LEGACY_AMT)                                                                         AS LEGACY_AMT
+                     , SUM(RTM.RTM_AMT)                                                                            AS RTM_AMT
+                     , SUM(RTM.LEGACY_AMT) - SUM(RTM.RTM_AMT)                                                      AS REDUCTION_AMT
+                     , ROUND(((SUM(RTM.LEGACY_AMT) - SUM(RTM.RTM_AMT)) / NULLIF(SUM(RTM.LEGACY_AMT), 0)) * 100, 2) AS RATIO 
+                  FROM TTMS_OD_TOLEG_HD TOL
+                     , TTMS_PL_MFEST    MNF
+                     , RTM              RTM
+                 WHERE TOL.DEL_YN          = 'N'
+                   AND MNF.DEL_YN          = 'N' 
+                   AND TOL.TOL_SCD        != '666'
+                   AND TOL.DEP_REQ_DATE    = TO_CHAR(SYSDATE, 'YYYYMMDD')
+                   AND TOL.MNF_NO          = MNF.MNF_NO
+                   AND TOL.SO_NO           = RTM.SO_NO(+)
+                   AND TOL.EXE_CORP_CD    IN (SELECT E_CORP_ID
+                                                FROM TADM_KFR_USER
+                                               WHERE ID      = #gv_userId#
+                                                 AND DEL_YN  = 'N')
+               )
+	</select>
+	
+	<select  id="selectDashboardDiv03_03" resultClass="java.util.HashMap">
+	    /** [sql-commonService.xml][commonService.selectDashboardDiv03_02]
+		 *  배차건수
+		 *  [yun 2019.02.26] 
+		 **/
+        WITH RTM AS (SELECT MST.LEGACY_SO_ID           AS SO_NO
+                                  , MST.ORG_AMT                AS LEGACY_AMT
+                                  , NVL(MST.JOIN_AMT, MST.AMT) AS RTM_AMT
+                               FROM TRTB_SO_MST      MST
+                                  , TRTB_ASSGIN_INFO RTM
+                              WHERE MST.RTB_SO_ID     = (SELECT MAX(RTB_SO_ID)
+                                                           FROM TRTB_SO_MST
+                                                          WHERE LEGACY_SO_ID = MST.LEGACY_SO_ID)
+                                AND MST.LEGACY_SO_ID  = RTM.LEGACY_TOL_NO
+                                AND MST.RTB_SO_ID     = RTM.RTB_SO_ID
+                                AND RTM.LEGACY_SCD_CD = '05'
+                                AND RTM.DEL_YN        = 'N'
+                                AND MST.DEP_REQ_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDD'))
+         SELECT SHPR_ID
+              , SHPR_NM
+              , COUNT(*)                AS TOT_CNT
+              , SUM(WE_CNT)             AS WE_CNT
+              , SUM(CAR_CNT)            AS CAR_CNT
+              , SUM(RTM_CNT)            AS RTM_CNT
+              , SUM(UN_RTM_CNT)         AS UN_RTM_CNT
+              , NVL(SUM(AR_AMT), 0)     AS AR_AMT
+              , NVL(SUM(LEGACY_AMT), 0) AS LEGACY_AMT
+              , NVL(SUM(RTM_AMT), 0)    AS RTM_AMT
+              , NVL(SUM(LEGACY_AMT), 0) - NVL(SUM(RTM_AMT), 0) AS CHA_AMT
+              , NVL(ROUND((SUM(LEGACY_AMT) - SUM(RTM_AMT)) / NULLIF(SUM(LEGACY_AMT), 0)*100, 2), 0) AS RATIO 
+           FROM (SELECT TOL.SHPR_ID
+                      , FN_KCC_GET_SHPR_NM(TOL.SHPR_ID)                                                              AS SHPR_NM
+                      , CASE TOL.ATTR_11 WHEN '2'                                                  THEN 1 ELSE 0 END AS WE_CNT
+                      , CASE TOL.ATTR_11 WHEN '8'                                                  THEN 1 ELSE 0 END AS CAR_CNT
+                      , CASE WHEN RTM.SO_NO IS NOT NULL                                            THEN 1 ELSE 0 END AS RTM_CNT
+                      , CASE WHEN RTM.SO_NO IS NULL AND (TOL.ATTR_11 = '9' OR TOL.ATTR_11 IS NULL) THEN 1 ELSE 0 END AS UN_RTM_CNT
+                      , MNF.TOT_AMT                                                                                  AS AR_AMT
+                      , RTM.LEGACY_AMT
+                      , RTM.RTM_AMT
+                   FROM TTMS_OD_TOLEG_HD TOL
+                      , TTMS_PL_MFEST    MNF
+                      , RTM              RTM
+                  WHERE TOL.DEL_YN          = 'N'
+                    AND MNF.DEL_YN          = 'N' 
+                    AND TOL.TOL_SCD        != '666'
+                    AND TOL.DEP_REQ_DATE    = TO_CHAR(SYSDATE, 'YYYYMMDD')
+                    AND TOL.MNF_NO          = MNF.MNF_NO
+                    AND TOL.SO_NO           = RTM.SO_NO(+)
+                    AND TOL.EXE_CORP_CD IN (SELECT E_CORP_ID
+                                              FROM TADM_KFR_USER
+                                             WHERE ID      = #gv_userId#
+                                               AND DEL_YN  = 'N')
+                )
+          GROUP BY SHPR_ID, SHPR_NM
+	</select>
+
+	<!-- 주문정보상세테이블 히스토리 변경시 호출 -->
+	<insert id="insertTolegHdHistMix">
+    	INSERT INTO TTMS_OD_TOLEG_HD_HIST(
+               SEQ
+             , SO_NO
+             , TOL_NO
+             , SITE_CD
+             , SHPR_ID
+             , EO_ID
+             , TOL_NO_SUB
+             , TRNS_NO
+             , SO_SCD
+             , EO_SCD
+             , CNTRT_NO
+             , CNTRT_YN
+             , REMK
+             , CARGO_DISPLAY_YN
+             , CARGO_DIRECT_REQ_YN
+             , EXE_CORP_CD
+             , CNTR_CORP_ID
+             , TOL_CNT
+             , LSP_ID
+             , TOL_SCD
+             , SHMPT_NO
+             , DEP_ATTN_ID
+             , DEP_ATTN_TEL_NO
+             , DEP_NODE_ID
+             , DEP_NODE_NM
+             , DEP_SIDO_CD
+             , DEP_ZIP
+             , DEP_ADDR1
+             , DEP_ADDR2
+             , DEP_COORD_WGS84_X
+             , DEP_COORD_WGS84_Y
+             , DEP_REQ_DATE
+             , DEP_REQ_TIME
+             , DEP_ARR_DATE
+             , DEP_ARR_TIME
+             , DEP_PGI_DATE
+             , DEP_PGI_TIME
+             , DEP_WORK_CD
+             , ARR_ATTN_ID
+             , ARR_ATTN_TEL_NO
+             , ARR_NODE_ID
+             , ARR_NODE_NM
+             , ARR_SIDO_CD
+             , ARR_ZIP
+             , ARR_ADDR1
+             , ARR_ADDR2
+             , ARR_COORD_WGS84_X
+             , ARR_COORD_WGS84_Y
+             , ARR_REQ_DATE
+             , ARR_REQ_TIME
+             , ARR_DLVRY_DATE
+             , ARR_DLVRY_TIME
+             , ARR_WORK_CD
+             , ITEM_SHPR_ID
+             , ITEM_CD
+             , CTGRY_CD
+             , ITEM_UNIT_CD
+             , ITEM_NM
+             , ITEM_CCD
+             , QTY
+             , WT
+             , VOL
+             , AP_CNTRT_NO
+             , EST_DISTANCE
+             , TOT_QTY
+             , TOT_WT
+             , TOT_VOL
+             , REQ_QTY
+             , REQ_VHCL_KND_CD
+             , REQ_VHCL_TON_CD
+             , REQ_VHCL_NO
+             , REQ_CNTRL_NO
+             , AP_RATE_AMT
+             , AP_RATE_CLS_CD
+             , AP_AMT
+             , AP_RATE_NO
+             , AP_RATE_HST_NO
+             , AP_SHMPT_SEQ_NO
+             , AP_LCC_CD
+             , EXE_CORP_ID
+             , VSL_NM
+             , QTY_UNIT_CD
+             , WT_UNIT_CD
+             , VOL_UNIT_CD
+             , RATE_AMT
+             , RATE_CLS_CD
+             , AMT
+             , RATE_NO
+             , RATE_HST_NO
+             , AR_SHMPT_SEQ_NO
+             , AR_LCC_CD
+             , OPEN_STEP_CD
+             , TRANS_JOIN_CD
+             , PERCENT_AMT
+             , TOL_YN
+             , MIX_NO
+             , MNF_NO
+             , DEL_YN
+             , EXE_AUTH_SCD
+             , IS_UNIFIED
+             , TRIP_SEQ
+             , TRIPPED_TOL_NO
+             , AR_COMPARE_SCD
+             , AP_COMPARE_SCD
+             , AR_CONF_SCD
+             , AP_CONF_SCD
+             , ATTR_01
+             , ATTR_02
+             , ATTR_03
+             , ATTR_04
+             , ATTR_05
+             , ATTR_06
+             , ATTR_07
+             , ATTR_08
+             , ATTR_09
+             , ATTR_10
+             , ATTR_11
+             , ATTR_12
+             , ATTR_13
+             , ATTR_14
+             , ATTR_15
+             , ATTR_16
+             , ATTR_17
+             , ATTR_18
+             , ATTR_19
+             , ATTR_20
+             , REG_ID
+             , REG_DT
+             , REG_IP
+             , MOD_ID
+             , MOD_DT
+             , MOD_IP
+             , DEP_CUST_SEQ_NO
+             , ARR_CUST_SEQ_NO
+             , OPEN_SYS_CD
+             , OPEN_SYS_SCD)
+        SELECT SEQ_MNF_HIST.NEXTVAL
+             , SO_NO
+             , TOL_NO
+             , SITE_CD
+             , SHPR_ID
+             , EO_ID
+             , TOL_NO_SUB
+             , TRNS_NO
+             , SO_SCD
+             , EO_SCD
+             , CNTRT_NO
+             , CNTRT_YN
+             , REMK
+             , CARGO_DISPLAY_YN
+             , CARGO_DIRECT_REQ_YN
+             , EXE_CORP_CD
+             , CNTR_CORP_ID
+             , TOL_CNT
+             , LSP_ID
+             , TOL_SCD
+             , SHMPT_NO
+             , DEP_ATTN_ID
+             , DEP_ATTN_TEL_NO
+             , DEP_NODE_ID
+             , DEP_NODE_NM
+             , DEP_SIDO_CD
+             , DEP_ZIP
+             , DEP_ADDR1
+             , DEP_ADDR2
+             , DEP_COORD_WGS84_X
+             , DEP_COORD_WGS84_Y
+             , DEP_REQ_DATE
+             , DEP_REQ_TIME
+             , DEP_ARR_DATE
+             , DEP_ARR_TIME
+             , DEP_PGI_DATE
+             , DEP_PGI_TIME
+             , DEP_WORK_CD
+             , ARR_ATTN_ID
+             , ARR_ATTN_TEL_NO
+             , ARR_NODE_ID
+             , ARR_NODE_NM
+             , ARR_SIDO_CD
+             , ARR_ZIP
+             , ARR_ADDR1
+             , ARR_ADDR2
+             , ARR_COORD_WGS84_X
+             , ARR_COORD_WGS84_Y
+             , ARR_REQ_DATE
+             , ARR_REQ_TIME
+             , ARR_DLVRY_DATE
+             , ARR_DLVRY_TIME
+             , ARR_WORK_CD
+             , ITEM_SHPR_ID
+             , ITEM_CD
+             , CTGRY_CD
+             , ITEM_UNIT_CD
+             , ITEM_NM
+             , ITEM_CCD
+             , QTY
+             , WT
+             , VOL
+             , AP_CNTRT_NO
+             , EST_DISTANCE
+             , TOT_QTY
+             , TOT_WT
+             , TOT_VOL
+             , REQ_QTY
+             , REQ_VHCL_KND_CD
+             , REQ_VHCL_TON_CD
+             , REQ_VHCL_NO
+             , REQ_CNTRL_NO
+             , AP_RATE_AMT
+             , AP_RATE_CLS_CD
+             , AP_AMT
+             , AP_RATE_NO
+             , AP_RATE_HST_NO
+             , AP_SHMPT_SEQ_NO
+             , AP_LCC_CD
+             , EXE_CORP_ID
+             , VSL_NM
+             , QTY_UNIT_CD
+             , WT_UNIT_CD
+             , VOL_UNIT_CD
+             , RATE_AMT
+             , RATE_CLS_CD
+             , AMT
+             , RATE_NO
+             , RATE_HST_NO
+             , AR_SHMPT_SEQ_NO
+             , AR_LCC_CD
+             , OPEN_STEP_CD
+             , TRANS_JOIN_CD
+             , PERCENT_AMT
+             , TOL_YN
+             , MIX_NO
+             , MNF_NO
+             , DEL_YN
+             , EXE_AUTH_SCD
+             , IS_UNIFIED
+             , TRIP_SEQ
+             , TRIPPED_TOL_NO
+             , AR_COMPARE_SCD
+             , AP_COMPARE_SCD
+             , AR_CONF_SCD
+             , AP_CONF_SCD
+             , ATTR_01
+             , ATTR_02
+             , ATTR_03
+             , ATTR_04
+             , ATTR_05
+             , ATTR_06
+             , ATTR_07
+             , ATTR_08
+             , ATTR_09
+             , ATTR_10
+             , ATTR_11
+             , ATTR_12
+             , ATTR_13
+             , ATTR_14
+             , ATTR_15
+             , ATTR_16
+             , ATTR_17
+             , ATTR_18
+             , ATTR_19
+             , ATTR_20
+             , REG_ID
+             , REG_DT
+             , REG_IP
+             , MOD_ID
+             , MOD_DT
+             , MOD_IP
+             , DEP_CUST_SEQ_NO
+             , ARR_CUST_SEQ_NO
+             , OPEN_SYS_CD
+             , OPEN_SYS_SCD
+          FROM TTMS_OD_TOLEG_HD
+         WHERE 1=1
+           AND MIX_NO  = #MIX_NO#
+	</insert>
+	
+	<!-- 주문정보상세테이블 히스토리 변경시 호출 -->
+	<insert id="insertTolegHdHist">
+    	INSERT INTO TTMS_OD_TOLEG_HD_HIST(
+               SEQ
+             , SO_NO
+             , TOL_NO
+             , SITE_CD
+             , SHPR_ID
+             , EO_ID
+             , TOL_NO_SUB
+             , TRNS_NO
+             , SO_SCD
+             , EO_SCD
+             , CNTRT_NO
+             , CNTRT_YN
+             , REMK
+             , CARGO_DISPLAY_YN
+             , CARGO_DIRECT_REQ_YN
+             , EXE_CORP_CD
+             , CNTR_CORP_ID
+             , TOL_CNT
+             , LSP_ID
+             , TOL_SCD
+             , SHMPT_NO
+             , DEP_ATTN_ID
+             , DEP_ATTN_TEL_NO
+             , DEP_NODE_ID
+             , DEP_NODE_NM
+             , DEP_SIDO_CD
+             , DEP_ZIP
+             , DEP_ADDR1
+             , DEP_ADDR2
+             , DEP_COORD_WGS84_X
+             , DEP_COORD_WGS84_Y
+             , DEP_REQ_DATE
+             , DEP_REQ_TIME
+             , DEP_ARR_DATE
+             , DEP_ARR_TIME
+             , DEP_PGI_DATE
+             , DEP_PGI_TIME
+             , DEP_WORK_CD
+             , ARR_ATTN_ID
+             , ARR_ATTN_TEL_NO
+             , ARR_NODE_ID
+             , ARR_NODE_NM
+             , ARR_SIDO_CD
+             , ARR_ZIP
+             , ARR_ADDR1
+             , ARR_ADDR2
+             , ARR_COORD_WGS84_X
+             , ARR_COORD_WGS84_Y
+             , ARR_REQ_DATE
+             , ARR_REQ_TIME
+             , ARR_DLVRY_DATE
+             , ARR_DLVRY_TIME
+             , ARR_WORK_CD
+             , ITEM_SHPR_ID
+             , ITEM_CD
+             , CTGRY_CD
+             , ITEM_UNIT_CD
+             , ITEM_NM
+             , ITEM_CCD
+             , QTY
+             , WT
+             , VOL
+             , AP_CNTRT_NO
+             , EST_DISTANCE
+             , TOT_QTY
+             , TOT_WT
+             , TOT_VOL
+             , REQ_QTY
+             , REQ_VHCL_KND_CD
+             , REQ_VHCL_TON_CD
+             , REQ_VHCL_NO
+             , REQ_CNTRL_NO
+             , AP_RATE_AMT
+             , AP_RATE_CLS_CD
+             , AP_AMT
+             , AP_RATE_NO
+             , AP_RATE_HST_NO
+             , AP_SHMPT_SEQ_NO
+             , AP_LCC_CD
+             , EXE_CORP_ID
+             , VSL_NM
+             , QTY_UNIT_CD
+             , WT_UNIT_CD
+             , VOL_UNIT_CD
+             , RATE_AMT
+             , RATE_CLS_CD
+             , AMT
+             , RATE_NO
+             , RATE_HST_NO
+             , AR_SHMPT_SEQ_NO
+             , AR_LCC_CD
+             , OPEN_STEP_CD
+             , TRANS_JOIN_CD
+             , PERCENT_AMT
+             , TOL_YN
+             , MIX_NO
+             , MNF_NO
+             , DEL_YN
+             , EXE_AUTH_SCD
+             , IS_UNIFIED
+             , TRIP_SEQ
+             , TRIPPED_TOL_NO
+             , AR_COMPARE_SCD
+             , AP_COMPARE_SCD
+             , AR_CONF_SCD
+             , AP_CONF_SCD
+             , ATTR_01
+             , ATTR_02
+             , ATTR_03
+             , ATTR_04
+             , ATTR_05
+             , ATTR_06
+             , ATTR_07
+             , ATTR_08
+             , ATTR_09
+             , ATTR_10
+             , ATTR_11
+             , ATTR_12
+             , ATTR_13
+             , ATTR_14
+             , ATTR_15
+             , ATTR_16
+             , ATTR_17
+             , ATTR_18
+             , ATTR_19
+             , ATTR_20
+             , REG_ID
+             , REG_DT
+             , REG_IP
+             , MOD_ID
+             , MOD_DT
+             , MOD_IP
+             , DEP_CUST_SEQ_NO
+             , ARR_CUST_SEQ_NO
+             , OPEN_SYS_CD
+             , OPEN_SYS_SCD)
+        SELECT SEQ_MNF_HIST.NEXTVAL
+             , SO_NO
+             , TOL_NO
+             , SITE_CD
+             , SHPR_ID
+             , EO_ID
+             , TOL_NO_SUB
+             , TRNS_NO
+             , SO_SCD
+             , EO_SCD
+             , CNTRT_NO
+             , CNTRT_YN
+             , REMK
+             , CARGO_DISPLAY_YN
+             , CARGO_DIRECT_REQ_YN
+             , EXE_CORP_CD
+             , CNTR_CORP_ID
+             , TOL_CNT
+             , LSP_ID
+             , TOL_SCD
+             , SHMPT_NO
+             , DEP_ATTN_ID
+             , DEP_ATTN_TEL_NO
+             , DEP_NODE_ID
+             , DEP_NODE_NM
+             , DEP_SIDO_CD
+             , DEP_ZIP
+             , DEP_ADDR1
+             , DEP_ADDR2
+             , DEP_COORD_WGS84_X
+             , DEP_COORD_WGS84_Y
+             , DEP_REQ_DATE
+             , DEP_REQ_TIME
+             , DEP_ARR_DATE
+             , DEP_ARR_TIME
+             , DEP_PGI_DATE
+             , DEP_PGI_TIME
+             , DEP_WORK_CD
+             , ARR_ATTN_ID
+             , ARR_ATTN_TEL_NO
+             , ARR_NODE_ID
+             , ARR_NODE_NM
+             , ARR_SIDO_CD
+             , ARR_ZIP
+             , ARR_ADDR1
+             , ARR_ADDR2
+             , ARR_COORD_WGS84_X
+             , ARR_COORD_WGS84_Y
+             , ARR_REQ_DATE
+             , ARR_REQ_TIME
+             , ARR_DLVRY_DATE
+             , ARR_DLVRY_TIME
+             , ARR_WORK_CD
+             , ITEM_SHPR_ID
+             , ITEM_CD
+             , CTGRY_CD
+             , ITEM_UNIT_CD
+             , ITEM_NM
+             , ITEM_CCD
+             , QTY
+             , WT
+             , VOL
+             , AP_CNTRT_NO
+             , EST_DISTANCE
+             , TOT_QTY
+             , TOT_WT
+             , TOT_VOL
+             , REQ_QTY
+             , REQ_VHCL_KND_CD
+             , REQ_VHCL_TON_CD
+             , REQ_VHCL_NO
+             , REQ_CNTRL_NO
+             , AP_RATE_AMT
+             , AP_RATE_CLS_CD
+             , AP_AMT
+             , AP_RATE_NO
+             , AP_RATE_HST_NO
+             , AP_SHMPT_SEQ_NO
+             , AP_LCC_CD
+             , EXE_CORP_ID
+             , VSL_NM
+             , QTY_UNIT_CD
+             , WT_UNIT_CD
+             , VOL_UNIT_CD
+             , RATE_AMT
+             , RATE_CLS_CD
+             , AMT
+             , RATE_NO
+             , RATE_HST_NO
+             , AR_SHMPT_SEQ_NO
+             , AR_LCC_CD
+             , OPEN_STEP_CD
+             , TRANS_JOIN_CD
+             , PERCENT_AMT
+             , TOL_YN
+             , MIX_NO
+             , MNF_NO
+             , DEL_YN
+             , EXE_AUTH_SCD
+             , IS_UNIFIED
+             , TRIP_SEQ
+             , TRIPPED_TOL_NO
+             , AR_COMPARE_SCD
+             , AP_COMPARE_SCD
+             , AR_CONF_SCD
+             , AP_CONF_SCD
+             , ATTR_01
+             , ATTR_02
+             , ATTR_03
+             , ATTR_04
+             , ATTR_05
+             , ATTR_06
+             , ATTR_07
+             , ATTR_08
+             , ATTR_09
+             , ATTR_10
+             , ATTR_11
+             , ATTR_12
+             , ATTR_13
+             , ATTR_14
+             , ATTR_15
+             , ATTR_16
+             , ATTR_17
+             , ATTR_18
+             , ATTR_19
+             , ATTR_20
+             , REG_ID
+             , REG_DT
+             , REG_IP
+             , MOD_ID
+             , MOD_DT
+             , MOD_IP
+             , DEP_CUST_SEQ_NO
+             , ARR_CUST_SEQ_NO
+             , OPEN_SYS_CD
+             , OPEN_SYS_SCD
+          FROM TTMS_OD_TOLEG_HD
+         WHERE 1=1
+           AND SO_NO  = #SO_NO#
+           AND TOL_NO = #TOL_NO#
+	</insert>
+	
+	<!-- 주문정보상세테이블 히스토리 ExcelUplopad시 호출 -->
+	<insert id="insertTolegHdHistExcel">
+    	INSERT INTO TTMS_OD_TOLEG_HD_HIST(
+               SEQ
+             , SO_NO
+             , TOL_NO
+             , SITE_CD
+             , SHPR_ID
+             , EO_ID
+             , TOL_NO_SUB
+             , TRNS_NO
+             , SO_SCD
+             , EO_SCD
+             , CNTRT_NO
+             , CNTRT_YN
+             , REMK
+             , CARGO_DISPLAY_YN
+             , CARGO_DIRECT_REQ_YN
+             , EXE_CORP_CD
+             , CNTR_CORP_ID
+             , TOL_CNT
+             , LSP_ID
+             , TOL_SCD
+             , SHMPT_NO
+             , DEP_ATTN_ID
+             , DEP_ATTN_TEL_NO
+             , DEP_NODE_ID
+             , DEP_NODE_NM
+             , DEP_SIDO_CD
+             , DEP_ZIP
+             , DEP_ADDR1
+             , DEP_ADDR2
+             , DEP_COORD_WGS84_X
+             , DEP_COORD_WGS84_Y
+             , DEP_REQ_DATE
+             , DEP_REQ_TIME
+             , DEP_ARR_DATE
+             , DEP_ARR_TIME
+             , DEP_PGI_DATE
+             , DEP_PGI_TIME
+             , DEP_WORK_CD
+             , ARR_ATTN_ID
+             , ARR_ATTN_TEL_NO
+             , ARR_NODE_ID
+             , ARR_NODE_NM
+             , ARR_SIDO_CD
+             , ARR_ZIP
+             , ARR_ADDR1
+             , ARR_ADDR2
+             , ARR_COORD_WGS84_X
+             , ARR_COORD_WGS84_Y
+             , ARR_REQ_DATE
+             , ARR_REQ_TIME
+             , ARR_DLVRY_DATE
+             , ARR_DLVRY_TIME
+             , ARR_WORK_CD
+             , ITEM_SHPR_ID
+             , ITEM_CD
+             , CTGRY_CD
+             , ITEM_UNIT_CD
+             , ITEM_NM
+             , ITEM_CCD
+             , QTY
+             , WT
+             , VOL
+             , AP_CNTRT_NO
+             , EST_DISTANCE
+             , TOT_QTY
+             , TOT_WT
+             , TOT_VOL
+             , REQ_QTY
+             , REQ_VHCL_KND_CD
+             , REQ_VHCL_TON_CD
+             , REQ_VHCL_NO
+             , REQ_CNTRL_NO
+             , AP_RATE_AMT
+             , AP_RATE_CLS_CD
+             , AP_AMT
+             , AP_RATE_NO
+             , AP_RATE_HST_NO
+             , AP_SHMPT_SEQ_NO
+             , AP_LCC_CD
+             , EXE_CORP_ID
+             , VSL_NM
+             , QTY_UNIT_CD
+             , WT_UNIT_CD
+             , VOL_UNIT_CD
+             , RATE_AMT
+             , RATE_CLS_CD
+             , AMT
+             , RATE_NO
+             , RATE_HST_NO
+             , AR_SHMPT_SEQ_NO
+             , AR_LCC_CD
+             , OPEN_STEP_CD
+             , TRANS_JOIN_CD
+             , PERCENT_AMT
+             , TOL_YN
+             , MIX_NO
+             , MNF_NO
+             , DEL_YN
+             , EXE_AUTH_SCD
+             , IS_UNIFIED
+             , TRIP_SEQ
+             , TRIPPED_TOL_NO
+             , AR_COMPARE_SCD
+             , AP_COMPARE_SCD
+             , AR_CONF_SCD
+             , AP_CONF_SCD
+             , ATTR_02
+             , ATTR_03
+             , ATTR_04
+             , ATTR_05
+             , ATTR_06
+             , ATTR_07
+             , ATTR_08
+             , ATTR_09
+             , ATTR_10
+             , ATTR_11
+             , ATTR_12
+             , ATTR_13
+             , ATTR_14
+             , ATTR_15
+             , ATTR_16
+             , ATTR_17
+             , ATTR_18
+             , ATTR_19
+             , ATTR_20
+             , REG_ID
+             , REG_DT
+             , REG_IP
+             , MOD_ID
+             , MOD_DT
+             , MOD_IP
+             , DEP_CUST_SEQ_NO
+             , ARR_CUST_SEQ_NO
+             , OPEN_SYS_CD
+             , OPEN_SYS_SCD)
+        SELECT SEQ_MNF_HIST.NEXTVAL
+             , SO_NO
+             , TOL_NO
+             , SITE_CD
+             , SHPR_ID
+             , EO_ID
+             , TOL_NO_SUB
+             , TRNS_NO
+             , SO_SCD
+             , EO_SCD
+             , CNTRT_NO
+             , CNTRT_YN
+             , REMK
+             , CARGO_DISPLAY_YN
+             , CARGO_DIRECT_REQ_YN
+             , EXE_CORP_CD
+             , CNTR_CORP_ID
+             , TOL_CNT
+             , LSP_ID
+             , TOL_SCD
+             , SHMPT_NO
+             , DEP_ATTN_ID
+             , DEP_ATTN_TEL_NO
+             , DEP_NODE_ID
+             , DEP_NODE_NM
+             , DEP_SIDO_CD
+             , DEP_ZIP
+             , DEP_ADDR1
+             , DEP_ADDR2
+             , DEP_COORD_WGS84_X
+             , DEP_COORD_WGS84_Y
+             , DEP_REQ_DATE
+             , DEP_REQ_TIME
+             , DEP_ARR_DATE
+             , DEP_ARR_TIME
+             , DEP_PGI_DATE
+             , DEP_PGI_TIME
+             , DEP_WORK_CD
+             , ARR_ATTN_ID
+             , ARR_ATTN_TEL_NO
+             , ARR_NODE_ID
+             , ARR_NODE_NM
+             , ARR_SIDO_CD
+             , ARR_ZIP
+             , ARR_ADDR1
+             , ARR_ADDR2
+             , ARR_COORD_WGS84_X
+             , ARR_COORD_WGS84_Y
+             , ARR_REQ_DATE
+             , ARR_REQ_TIME
+             , ARR_DLVRY_DATE
+             , ARR_DLVRY_TIME
+             , ARR_WORK_CD
+             , ITEM_SHPR_ID
+             , ITEM_CD
+             , CTGRY_CD
+             , ITEM_UNIT_CD
+             , ITEM_NM
+             , ITEM_CCD
+             , QTY
+             , WT
+             , VOL
+             , AP_CNTRT_NO
+             , EST_DISTANCE
+             , TOT_QTY
+             , TOT_WT
+             , TOT_VOL
+             , REQ_QTY
+             , REQ_VHCL_KND_CD
+             , REQ_VHCL_TON_CD
+             , REQ_VHCL_NO
+             , REQ_CNTRL_NO
+             , AP_RATE_AMT
+             , AP_RATE_CLS_CD
+             , AP_AMT
+             , AP_RATE_NO
+             , AP_RATE_HST_NO
+             , AP_SHMPT_SEQ_NO
+             , AP_LCC_CD
+             , EXE_CORP_ID
+             , VSL_NM
+             , QTY_UNIT_CD
+             , WT_UNIT_CD
+             , VOL_UNIT_CD
+             , RATE_AMT
+             , RATE_CLS_CD
+             , AMT
+             , RATE_NO
+             , RATE_HST_NO
+             , AR_SHMPT_SEQ_NO
+             , AR_LCC_CD
+             , OPEN_STEP_CD
+             , TRANS_JOIN_CD
+             , PERCENT_AMT
+             , TOL_YN
+             , MIX_NO
+             , MNF_NO
+             , DEL_YN
+             , EXE_AUTH_SCD
+             , IS_UNIFIED
+             , TRIP_SEQ
+             , TRIPPED_TOL_NO
+             , AR_COMPARE_SCD
+             , AP_COMPARE_SCD
+             , AR_CONF_SCD
+             , AP_CONF_SCD
+             , ATTR_02
+             , ATTR_03
+             , ATTR_04
+             , ATTR_05
+             , ATTR_06
+             , ATTR_07
+             , ATTR_08
+             , ATTR_09
+             , ATTR_10
+             , ATTR_11
+             , ATTR_12
+             , ATTR_13
+             , ATTR_14
+             , ATTR_15
+             , ATTR_16
+             , ATTR_17
+             , ATTR_18
+             , ATTR_19
+             , ATTR_20
+             , REG_ID
+             , REG_DT
+             , REG_IP
+             , MOD_ID
+             , MOD_DT
+             , MOD_IP
+             , DEP_CUST_SEQ_NO
+             , ARR_CUST_SEQ_NO
+             , OPEN_SYS_CD
+             , OPEN_SYS_SCD
+          FROM TTMS_OD_TOLEG_HD
+         WHERE SO_NO  LIKE 'FS' || TO_CHAR(SYSDATE, 'YYMMDD') || '%'
+           AND TOL_NO LIKE 'TO' || TO_CHAR(SYSDATE, 'YYMMDD') || '%'
+           AND ATTR_01 = #gv_userId#
+	</insert>
+	
+	<!-- 배차테이블 히스토리 변경시 호출 -->
+	<insert id = "insertMfestHist">
+	    INSERT INTO TTMS_PL_MFEST_HIST(
+	               SEQ
+	             , MNF_NO
+                 , SITE_CD
+                 , TRNS_NO
+                 , SHPR_ID
+                 , DSPH_CORP_CD
+                 , CNTR_CORP_ID
+                 , LSP_CORP_ID
+                 , LSP_ID
+                 , MNF_SCD
+                 , CNTRL_NO
+                 , VHCL_NO
+                 , DRIVER_CD
+                 , DRIVER_NM
+                 , MOBILE_NO
+                 , DRIVER_HP_NO
+                 , DEP_NODE_ID
+                 , DEP_NODE_NM
+                 , DEP_ADDR1
+                 , DEP_ADDR2
+                 , DEP_PGI_DATE
+                 , DEP_PGI_TIME
+                 , ARR_NODE_ID
+                 , ARR_NODE_NM
+                 , ARR_ADDR1
+                 , ARR_ADDR2
+                 , ARR_DLVRY_DATE
+                 , ARR_DLVRY_TIME
+                 , TOT_QTY
+                 , TOT_WT
+                 , TOT_VOL
+                 , APLY_QTY
+                 , APLY_WT
+                 , APLY_VOL
+                 , QTY_UNIT_CD
+                 , WT_UNIT_CD
+                 , VOL_UNIT_CD
+                 , PALLET_CD
+                 , TOT_AMT
+                 , AP_AMT
+                 , MANUAL_TOT_AMT
+                 , MANUAL_AP_AMT
+                 , COST_ALOC_AMT
+                 , VHCL_KND_CD
+                 , VHCL_TON_CD
+                 , EQP_OPER_CLS
+                 , EQP_OPER_DETL
+                 , LSP_BIZREG_NO
+                 , WDW_CNT
+                 , WRK_RPT_SEQ
+                 , CNTR_CD
+                 , CNTR_SIZE_CD
+                 , CNTR_TCD
+                 , BL_NO
+                 , RMK
+                 , AR_CONF_SCD
+                 , AP_CONF_SCD
+                 , TMS_RESULT_DATE
+                 , FPIS_IF_DATE
+                 , FPIS_IF_TIME
+                 , EXE_AUTH_SCD
+                 , EXE_CORP_CD
+                 , BACKHAUL
+                 , ATTR01
+                 , ATTR02
+                 , ATTR03
+                 , ATTR04
+                 , ATTR05
+                 , DEL_YN
+                 , REG_ID
+                 , REG_DT
+                 , MOD_ID
+                 , MOD_DT
+                 , REG_IP
+                 , MOD_IP)
+            SELECT SEQ_MNF_HIST.NEXTVAL
+                 , MNF_NO
+                 , SITE_CD
+                 , TRNS_NO
+                 , SHPR_ID
+                 , DSPH_CORP_CD
+                 , CNTR_CORP_ID
+                 , LSP_CORP_ID
+                 , LSP_ID
+                 , MNF_SCD
+                 , CNTRL_NO
+                 , VHCL_NO
+                 , DRIVER_CD
+                 , DRIVER_NM
+                 , MOBILE_NO
+                 , DRIVER_HP_NO
+                 , DEP_NODE_ID
+                 , DEP_NODE_NM
+                 , DEP_ADDR1
+                 , DEP_ADDR2
+                 , DEP_PGI_DATE
+                 , DEP_PGI_TIME
+                 , ARR_NODE_ID
+                 , ARR_NODE_NM
+                 , ARR_ADDR1
+                 , ARR_ADDR2
+                 , ARR_DLVRY_DATE
+                 , ARR_DLVRY_TIME
+                 , TOT_QTY
+                 , TOT_WT
+                 , TOT_VOL
+                 , APLY_QTY
+                 , APLY_WT
+                 , APLY_VOL
+                 , QTY_UNIT_CD
+                 , WT_UNIT_CD
+                 , VOL_UNIT_CD
+                 , PALLET_CD
+                 , TOT_AMT
+                 , AP_AMT
+                 , MANUAL_TOT_AMT
+                 , MANUAL_AP_AMT
+                 , COST_ALOC_AMT
+                 , VHCL_KND_CD
+                 , VHCL_TON_CD
+                 , EQP_OPER_CLS
+                 , EQP_OPER_DETL
+                 , LSP_BIZREG_NO
+                 , WDW_CNT
+                 , WRK_RPT_SEQ
+                 , CNTR_CD
+                 , CNTR_SIZE_CD
+                 , CNTR_TCD
+                 , BL_NO
+                 , RMK
+                 , AR_CONF_SCD
+                 , AP_CONF_SCD
+                 , TMS_RESULT_DATE
+                 , FPIS_IF_DATE
+                 , FPIS_IF_TIME
+                 , EXE_AUTH_SCD
+                 , EXE_CORP_CD
+                 , BACKHAUL
+                 , ATTR01
+                 , ATTR02
+                 , ATTR03
+                 , ATTR04
+                 , ATTR05
+                 , DEL_YN
+                 , REG_ID
+                 , REG_DT
+                 , MOD_ID
+                 , MOD_DT
+                 , REG_IP
+                 , MOD_IP
+              FROM TTMS_PL_MFEST
+             WHERE MNF_NO = #MNF_NO#     
+	</insert>
+	
+	<!-- 배차테이블 히스토리 ExcelUpload시 호출 -->
+	<insert id = "insertMfestHistExcel">
+	    INSERT INTO TTMS_PL_MFEST_HIST(
+	               SEQ
+	             , MNF_NO
+                 , SITE_CD
+                 , TRNS_NO
+                 , SHPR_ID
+                 , DSPH_CORP_CD
+                 , CNTR_CORP_ID
+                 , LSP_CORP_ID
+                 , LSP_ID
+                 , MNF_SCD
+                 , CNTRL_NO
+                 , VHCL_NO
+                 , DRIVER_CD
+                 , DRIVER_NM
+                 , MOBILE_NO
+                 , DRIVER_HP_NO
+                 , DEP_NODE_ID
+                 , DEP_NODE_NM
+                 , DEP_ADDR1
+                 , DEP_ADDR2
+                 , DEP_PGI_DATE
+                 , DEP_PGI_TIME
+                 , ARR_NODE_ID
+                 , ARR_NODE_NM
+                 , ARR_ADDR1
+                 , ARR_ADDR2
+                 , ARR_DLVRY_DATE
+                 , ARR_DLVRY_TIME
+                 , TOT_QTY
+                 , TOT_WT
+                 , TOT_VOL
+                 , APLY_QTY
+                 , APLY_WT
+                 , APLY_VOL
+                 , QTY_UNIT_CD
+                 , WT_UNIT_CD
+                 , VOL_UNIT_CD
+                 , PALLET_CD
+                 , TOT_AMT
+                 , AP_AMT
+                 , MANUAL_TOT_AMT
+                 , MANUAL_AP_AMT
+                 , COST_ALOC_AMT
+                 , VHCL_KND_CD
+                 , VHCL_TON_CD
+                 , EQP_OPER_CLS
+                 , EQP_OPER_DETL
+                 , LSP_BIZREG_NO
+                 , WDW_CNT
+                 , WRK_RPT_SEQ
+                 , CNTR_CD
+                 , CNTR_SIZE_CD
+                 , CNTR_TCD
+                 , BL_NO
+                 , RMK
+                 , AR_CONF_SCD
+                 , AP_CONF_SCD
+                 , TMS_RESULT_DATE
+                 , FPIS_IF_DATE
+                 , FPIS_IF_TIME
+                 , EXE_AUTH_SCD
+                 , EXE_CORP_CD
+                 , BACKHAUL
+                 , ATTR01
+                 , ATTR02
+                 , ATTR03
+                 , ATTR04
+                 , ATTR05
+                 , DEL_YN
+                 , REG_ID
+                 , REG_DT
+                 , MOD_ID
+                 , MOD_DT
+                 , REG_IP
+                 , MOD_IP)
+            SELECT SEQ_MNF_HIST.NEXTVAL
+                 , MNF_NO
+                 , SITE_CD
+                 , TRNS_NO
+                 , SHPR_ID
+                 , DSPH_CORP_CD
+                 , CNTR_CORP_ID
+                 , LSP_CORP_ID
+                 , LSP_ID
+                 , MNF_SCD
+                 , CNTRL_NO
+                 , VHCL_NO
+                 , DRIVER_CD
+                 , DRIVER_NM
+                 , MOBILE_NO
+                 , DRIVER_HP_NO
+                 , DEP_NODE_ID
+                 , DEP_NODE_NM
+                 , DEP_ADDR1
+                 , DEP_ADDR2
+                 , DEP_PGI_DATE
+                 , DEP_PGI_TIME
+                 , ARR_NODE_ID
+                 , ARR_NODE_NM
+                 , ARR_ADDR1
+                 , ARR_ADDR2
+                 , ARR_DLVRY_DATE
+                 , ARR_DLVRY_TIME
+                 , TOT_QTY
+                 , TOT_WT
+                 , TOT_VOL
+                 , APLY_QTY
+                 , APLY_WT
+                 , APLY_VOL
+                 , QTY_UNIT_CD
+                 , WT_UNIT_CD
+                 , VOL_UNIT_CD
+                 , PALLET_CD
+                 , TOT_AMT
+                 , AP_AMT
+                 , MANUAL_TOT_AMT
+                 , MANUAL_AP_AMT
+                 , COST_ALOC_AMT
+                 , VHCL_KND_CD
+                 , VHCL_TON_CD
+                 , EQP_OPER_CLS
+                 , EQP_OPER_DETL
+                 , LSP_BIZREG_NO
+                 , WDW_CNT
+                 , WRK_RPT_SEQ
+                 , CNTR_CD
+                 , CNTR_SIZE_CD
+                 , CNTR_TCD
+                 , BL_NO
+                 , RMK
+                 , AR_CONF_SCD
+                 , AP_CONF_SCD
+                 , TMS_RESULT_DATE
+                 , FPIS_IF_DATE
+                 , FPIS_IF_TIME
+                 , EXE_AUTH_SCD
+                 , EXE_CORP_CD
+                 , BACKHAUL
+                 , ATTR01
+                 , ATTR02
+                 , ATTR03
+                 , ATTR04
+                 , ATTR05
+                 , DEL_YN
+                 , REG_ID
+                 , REG_DT
+                 , MOD_ID
+                 , MOD_DT
+                 , REG_IP
+                 , MOD_IP
+              FROM TTMS_PL_MFEST
+             WHERE MNF_NO IN (SELECT MNF_NO
+                                FROM TTMS_OD_TOLEG_HD
+                               WHERE SO_NO  LIKE 'FS' || TO_CHAR(SYSDATE, 'YYMMDD') || '%'
+                                 AND TOL_NO LIKE 'TO' || TO_CHAR(SYSDATE, 'YYMMDD') || '%'
+                                 AND ATTR_01 = #gv_userId#)     
+	</insert>
+	
+	<!-- SSO로그인 체크 - 타 시스템-->
+    <select id="getSysSsoLoginCheck" resultClass="String">
+    	/* [sql-commonService.xml][commonService.getSysSsoLoginCheck][SSO로그인 체크 - 타 시스템][SeungMin] */
+    	SELECT AESENCRYPT(ID) AS USER_ID
+		FROM TADM_KFR_USER
+		WHERE DEL_YN = 'N'
+		AND STATUS = '1'
+		AND JOIN_TYPE = 'T02'
+		AND ID = #SSO_ID#
+	</select>
+	
+	<!-- SSO로그인 초기 메뉴 정보 - 타 시스템-->
+    <select id="getSysMenuCheck" resultClass="String">
+    	/* [sql-commonService.xml][commonService.getSysMenuCheck][SSO로그인 초기 메뉴 정보 - 타 시스템][SeungMin] */
+    	SELECT AESENCRYPT(MENU_CD) AS MENU_ID
+		FROM TMDM_KFR_MENU
+		WHERE DEL_YN = 'N'
+		AND USE_YN = 'Y'
+		AND MENU_CD = #MENU_ID#
+	</select>
+	
+	<!-- SSO로그인 정보 조회 - 타 시스템-->
+    <select id="getSysSsoLoginInfo" resultClass="java.util.HashMap">
+    	/* [sql-commonService.xml][commonService.getSysSsoLoginInfo][SSO로그인 정보 조회 - 타 시스템][SeungMin] */
+    	SELECT ID
+    			, PW
+		FROM TADM_KFR_USER
+		WHERE DEL_YN = 'N'
+		AND STATUS = '1'
+		AND JOIN_TYPE = 'T02'
+		AND ID = AESDECRYPT(#SSO_ID#)
+	</select>
+	
+	
+	<select id="getWarehAuthList" resultClass="java.util.HashMap">
+		/* [sql-commonService.xml][commonService.getWarehAuthList][사용자 창고권한 조회][kjh] */
+		SELECT
+		    A.WAREH_CD
+		    ,CONCAT(A.WAREH_CD, '(', A.WAREH_NM, ')') AS WAREH_NM
+		FROM
+		    TB_WMS_WAREH_MGMT_MST_C A
+		WHERE
+		    A.USE_YN = 'Y'
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			<!-- 시스템관리자 인경우 모든창고리스트 조회 -->
+			AND EXISTS ( SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C B WHERE A.WAREH_CD = B.WAREH_CD AND B.USER_ID = #USER_ID#)
+			</isNotEqual>
+		</isNotEqual>
+	</select>
+	
+	
+	<select id="selectWaybillNo" resultClass="String">
+		/** [sql-commonService.xml][commonService.insertDlvyRsrv]
+		 *  [운송장번호 채번]
+		 *  [KimJinHwan 2020.06.11]
+		 **/
+		SELECT LPAD(IFNULL(MAX(WAYBILL_NO)+1,1),12,0) FROM TB_IFST_RSRV_C
+	</select>
+	
+	
+	<insert id="insertBookmark">
+		/** [sql-commonService.xml][commonService.insertBookmark]
+		 *  [북마크 추가]
+		 *  [KimJinHwan 2020.07.03]
+		 **/
+		 INSERT INTO TB_BAIM_USER_MENU_BOOKMARK_C
+		 (
+		 	USER_ID
+			,MENU_CD
+			,SORT_NO
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		 )
+		 VALUES
+		 (
+		 	#gv_userId#
+			,#MENU_CD#
+			,(SELECT IFNULL(MAX(SORT_NO),0)+1 FROM TB_BAIM_USER_MENU_BOOKMARK_C A WHERE A.USER_ID=#gv_userId#)
+		 	,#gv_userId#
+		 	,NOW()
+		 	,#gv_userId#
+		 	,NOW()
+		 )
+	</insert>
+	
+	
+	<delete id="deleteBookmark">
+		/** [sql-commonService.xml][commonService.deleteBookmark]
+		 *  [북마크 삭제]
+		 *  [KimJinHwan 2020.07.03]
+		 **/
+		 DELETE FROM TB_BAIM_USER_MENU_BOOKMARK_C
+		 WHERE
+		 	USER_ID = #gv_userId#
+		 AND MENU_CD = #MENU_CD#
+	</delete>
+</sqlMap>

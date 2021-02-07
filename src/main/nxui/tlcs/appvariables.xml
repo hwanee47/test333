@@ -1,0 +1,405 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<AppVariables version="2.0">
+  <Datasets>
+    <Dataset id="gdsUserInfo">
+      <ColumnInfo>
+        <Column id="userId" type="STRING" size="256"/>
+        <Column id="UserNm" type="STRING" size="256"/>
+      </ColumnInfo>
+      <Rows>
+        <Row>
+          <Col id="userId">admin</Col>
+          <Col id="UserNm">admin</Col>
+        </Row>
+      </Rows>
+    </Dataset>
+    <Dataset id="gdsMenu">
+      <ColumnInfo>
+        <Column id="MENU_CD" type="STRING" size="256"/>
+        <Column id="MENU_NM" type="STRING" size="256"/>
+        <Column id="MENU_TYPE" type="STRING" size="256"/>
+        <Column id="MSTR_MENU_CD" type="STRING" size="256"/>
+        <Column id="MENU_URL" type="STRING" size="256"/>
+        <Column id="SORT_MAIN" type="STRING" size="256"/>
+        <Column id="SORT_SUB" type="STRING" size="256"/>
+        <Column id="MENU_SYS" type="STRING" size="256"/>
+        <Column id="MENU_IMG_CLASS" type="STRING" size="256"/>
+      </ColumnInfo>
+    </Dataset>
+    <Dataset id="gdsOpenMenu">
+      <ColumnInfo>
+        <Column id="WIN_ID" type="STRING" size="32"/>
+        <Column id="MENU_CD" type="STRING" size="32"/>
+        <Column id="TITLE" type="STRING" size="32"/>
+        <Column id="MENU_URL" type="STRING" size="256"/>
+        <Column id="MSTR_MENU_CD" type="STRING" size="256"/>
+      </ColumnInfo>
+    </Dataset>
+    <Dataset id="gdsOpenPopMenu">
+      <ColumnInfo>
+        <Column id="WIN_ID" type="STRING" size="32"/>
+        <Column id="MENU_CD" type="STRING" size="32"/>
+        <Column id="TITLE" type="STRING" size="32"/>
+        <Column id="MENU_URL" type="STRING" size="256"/>
+        <Column id="MSTR_MENU_CD" type="STRING" size="256"/>
+      </ColumnInfo>
+    </Dataset>
+    <Dataset id="gdsMessage" useclientlayout="true">
+      <ColumnInfo>
+        <Column id="MSG_TCD" type="STRING" size="256"/>
+        <Column id="MSG_CD" type="STRING" size="256"/>
+        <Column id="LANG_CD" type="STRING" size="256"/>
+        <Column id="MSG_TYPE" type="STRING" size="2"/>
+        <Column id="MSG" type="STRING" size="256"/>
+        <Column id="MSG_DESC" type="STRING" size="256"/>
+        <Column id="DEL_YN" type="STRING" size="256"/>
+      </ColumnInfo>
+    </Dataset>
+    <Dataset id="gdsMyMenu">
+      <ColumnInfo>
+        <Column id="MENU_CD" type="STRING" size="256"/>
+        <Column id="MENU_NM" type="STRING" size="256"/>
+      </ColumnInfo>
+      <Rows>
+        <Row>
+          <Col id="MENU_CD">RSRV0004</Col>
+          <Col id="MENU_NM">주문관리</Col>
+        </Row>
+        <Row>
+          <Col id="MENU_CD">STCK0002</Col>
+          <Col id="MENU_NM">재고조회</Col>
+        </Row>
+      </Rows>
+    </Dataset>
+    <Dataset id="gdsLocaleText">
+      <ColumnInfo>
+        <Column id="MSG_TCD" type="STRING" size="256"/>
+        <Column id="MSG_CD" type="STRING" size="256"/>
+        <Column id="LANG_CD" type="STRING" size="256"/>
+        <Column id="MSG_TYPE" type="STRING" size="2"/>
+        <Column id="MSG" type="STRING" size="256"/>
+        <Column id="MSG_DESC" type="STRING" size="256"/>
+        <Column id="DEL_YN" type="STRING" size="256"/>
+      </ColumnInfo>
+    </Dataset>
+    <Dataset id="gdsUserGridInfo" useclientlayout="true">
+      <ColumnInfo>
+        <Column id="USER_ID" type="STRING" size="256"/>
+        <Column id="MENU_ID" type="STRING" size="256"/>
+        <Column id="GRID_ID" type="STRING" size="256"/>
+        <Column id="GRID_FORMAT" type="STRING" size="256"/>
+      </ColumnInfo>
+    </Dataset>
+    <Dataset id="gdsWarehAuthList" useclientlayout="true">
+      <ColumnInfo>
+        <Column id="WAREH_CD" type="STRING" size="256"/>
+        <Column id="WAREH_NM" type="STRING" size="256"/>
+      </ColumnInfo>
+    </Dataset>
+    <Dataset id="gdsMgmtColumn_i">
+      <ColumnInfo>
+        <Column id="CHK" type="STRING" size="256"/>
+        <Column id="COL_ID" type="STRING" size="256"/>
+        <Column id="COL_NM" type="STRING" size="256"/>
+        <Column id="COL_WIDTH" type="STRING" size="256"/>
+        <Column id="REQUIRED" type="STRING" size="256"/>
+      </ColumnInfo>
+      <Rows>
+        <Row>
+          <Col id="COL_NM">품목코드</Col>
+          <Col id="COL_WIDTH">150</Col>
+          <Col id="COL_ID">GDS_CD</Col>
+          <Col id="REQUIRED">Y</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">입고일자(YYYYMMDD)</Col>
+          <Col id="COL_WIDTH">200</Col>
+          <Col id="COL_ID">WAREI_EXPCT_YMD</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">입고유형( I1 : 일반, I2 : 반품 )</Col>
+          <Col id="COL_ID">WAREI_TYPE</Col>
+          <Col id="COL_WIDTH">220</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">입고예정수량</Col>
+          <Col id="COL_ID">EXPCT_QTY</Col>
+          <Col id="COL_WIDTH">120</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">존코드</Col>
+          <Col id="COL_ID">ZN_CD</Col>
+          <Col id="COL_WIDTH">150</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">로케이션코드</Col>
+          <Col id="COL_ID">LOC_CD</Col>
+          <Col id="COL_WIDTH">150</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">랙코드</Col>
+          <Col id="COL_ID">RACK_CD</Col>
+          <Col id="COL_WIDTH">150</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">유통기한</Col>
+          <Col id="COL_ID">EXPR_DATE</Col>
+          <Col id="COL_WIDTH">200</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">생산일자</Col>
+          <Col id="COL_ID">PROD_YMD</Col>
+          <Col id="COL_WIDTH">200</Col>
+        </Row>
+      </Rows>
+    </Dataset>
+    <Dataset id="gdsMgmtColumn_o">
+      <ColumnInfo>
+        <Column id="CHK" type="STRING" size="256"/>
+        <Column id="COL_ID" type="STRING" size="256"/>
+        <Column id="COL_NM" type="STRING" size="256"/>
+        <Column id="COL_WIDTH" type="STRING" size="256"/>
+        <Column id="REQUIRED" type="STRING" size="256"/>
+      </ColumnInfo>
+      <Rows>
+        <Row>
+          <Col id="COL_NM">접수일자</Col>
+          <Col id="COL_WIDTH">100</Col>
+          <Col id="COL_ID">SLIP_YMD</Col>
+          <Col id="REQUIRED">Y</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">고객사용번호(고객사 주문번호)</Col>
+          <Col id="COL_WIDTH">250</Col>
+          <Col id="COL_ID">SHP_MALL_SLIP_NO</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">품목코드</Col>
+          <Col id="COL_ID">GDS_CD</Col>
+          <Col id="COL_WIDTH">100</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">주문수량</Col>
+          <Col id="COL_ID">ORD_QTY</Col>
+          <Col id="COL_WIDTH">80</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">송화인명</Col>
+          <Col id="COL_ID">FR_NM</Col>
+          <Col id="COL_WIDTH">100</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">송화인우편번호</Col>
+          <Col id="COL_ID">FR_ZIP_NO</Col>
+          <Col id="COL_WIDTH">120</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">송화인주소</Col>
+          <Col id="COL_ID">FR_BASIC_ADDR</Col>
+          <Col id="COL_WIDTH">150</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">송화인상세주소</Col>
+          <Col id="COL_ID">FR_DETAIL_ADDR</Col>
+          <Col id="COL_WIDTH">230</Col>
+        </Row>
+        <Row>
+          <Col id="COL_NM">송화인전화번호</Col>
+          <Col id="COL_ID">FR_TEL_NO</Col>
+          <Col id="COL_WIDTH">120</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">FR_CELL_NO</Col>
+          <Col id="COL_NM">송화인휴대폰번호</Col>
+          <Col id="COL_WIDTH">140</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">TO_NM</Col>
+          <Col id="COL_NM">수화인명</Col>
+          <Col id="COL_WIDTH">100</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">TO_ZIP_NO</Col>
+          <Col id="COL_NM">수화인우편번호</Col>
+          <Col id="COL_WIDTH">120</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">TO_BASIC_ADDR</Col>
+          <Col id="COL_NM">수화인주소</Col>
+          <Col id="COL_WIDTH">150</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">TO_DETAIL_ADDR</Col>
+          <Col id="COL_NM">수화인상세주소</Col>
+          <Col id="COL_WIDTH">230</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">TO_TEL_NO</Col>
+          <Col id="COL_NM">수화인전화번호</Col>
+          <Col id="COL_WIDTH">120</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">TO_CELL_NO</Col>
+          <Col id="COL_NM">수화인휴대폰번호</Col>
+          <Col id="COL_WIDTH">140</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">ORDRR_NM</Col>
+          <Col id="COL_NM">주문자명</Col>
+          <Col id="COL_WIDTH">100</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">ORDRR_ZIP_NO</Col>
+          <Col id="COL_NM">주문자우편번호</Col>
+          <Col id="COL_WIDTH">120</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">ORDRR_ADDR</Col>
+          <Col id="COL_NM">주문자주소</Col>
+          <Col id="COL_WIDTH">150</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">ORDRR_DETAIL_ADDR</Col>
+          <Col id="COL_NM">주문자상세주소</Col>
+          <Col id="COL_WIDTH">230</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">ORDRR_TEL_NO</Col>
+          <Col id="COL_NM">주문자전화번호</Col>
+          <Col id="COL_WIDTH">120</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">ORDRR_CELL_NO</Col>
+          <Col id="COL_NM">주문자휴대폰번호</Col>
+          <Col id="COL_WIDTH">140</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">WAYBILL_NO</Col>
+          <Col id="COL_NM">운송장번호</Col>
+          <Col id="COL_WIDTH">100</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">MPCK_KEY</Col>
+          <Col id="COL_NM">합포장번호</Col>
+          <Col id="COL_WIDTH">100</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">MPCK_SEQ</Col>
+          <Col id="COL_NM">합포장SEQ</Col>
+          <Col id="COL_WIDTH">80</Col>
+        </Row>
+        <Row>
+          <Col id="COL_ID">CUST_REQ_MSG</Col>
+          <Col id="COL_NM">고객요청메세지</Col>
+          <Col id="COL_WIDTH">250</Col>
+        </Row>
+      </Rows>
+    </Dataset>
+    <Dataset id="gdsAddrSearch">
+      <ColumnInfo>
+        <Column id="ZIP_NO" type="STRING" size="256"/>
+        <Column id="ADDR" type="STRING" size="256"/>
+        <Column id="DETAIL_ADDR" type="STRING" size="256"/>
+        <Column id="ZIP_ADDR_DV" type="STRING" size="256"/>
+      </ColumnInfo>
+      <Rows>
+        <Row/>
+      </Rows>
+    </Dataset>
+    <Dataset id="gdsMenuBtnAuth">
+      <ColumnInfo>
+        <Column id="MENU_CD" type="STRING" size="256"/>
+        <Column id="SEL_YN" type="STRING" size="256"/>
+        <Column id="ADD_YN" type="STRING" size="256"/>
+        <Column id="SAV_YN" type="STRING" size="256"/>
+        <Column id="DEL_YN" type="STRING" size="256"/>
+        <Column id="PRT_YN" type="STRING" size="256"/>
+        <Column id="XLS_YN" type="STRING" size="256"/>
+      </ColumnInfo>
+      <Rows>
+        <Row>
+          <Col id="MENU_CD">BAIM0005</Col>
+          <Col id="SEL_YN">1</Col>
+          <Col id="ADD_YN">0</Col>
+          <Col id="SAV_YN">1</Col>
+          <Col id="DEL_YN">0</Col>
+          <Col id="PRT_YN">0</Col>
+          <Col id="XLS_YN">0</Col>
+        </Row>
+      </Rows>
+    </Dataset>
+    <Dataset id="gdsSido">
+      <ColumnInfo>
+        <Column id="SIDO_NM" type="STRING" size="256"/>
+      </ColumnInfo>
+    </Dataset>
+    <Dataset id="gdsSkk">
+      <ColumnInfo>
+        <Column id="SIDO_NM" type="STRING" size="256"/>
+        <Column id="SKK_NM" type="STRING" size="256"/>
+      </ColumnInfo>
+    </Dataset>
+  </Datasets>
+  <Variables>
+    <Variable id="gv_lang" initval="ko"/>
+    <Variable id="gv_userId" initval="admin"/>
+    <Variable id="gv_adminYn"/>
+    <Variable id="gv_userNm" initval="홍길동"/>
+    <Variable id="gv_authCd"/>
+    <Variable id="gv_compCd" initval="1000"/>
+    <Variable id="gv_deptCd"/>
+    <Variable id="gv_deptNm" initval="TLCS"/>
+    <Variable id="gv_empNo"/>
+    <Variable id="JSESSIONID"/>
+    <Variable id="gv_ipAddr"/>
+    <Variable id="gv_pushServer" initval=""/>
+    <Variable id="gv_pushUser" initval=""/>
+    <Variable id="gv_pushPassword" initval=""/>
+    <Variable id="gv_siteCd" initval="TLCS"/>
+    <Variable id="gv_sysGb" initval="B"/>
+    <Variable id="gv_arCostcId" initval="0000110004"/>
+    <Variable id="gv_arCostcNm"/>
+    <Variable id="gv_apCostcId" initval="0000110004"/>
+    <Variable id="gv_apCostcNm"/>
+    <Variable id="gv_exeCorpId" initval="00000074"/>
+    <Variable id="gv_exeCorpNm"/>
+    <Variable id="gv_rtnCode"/>
+    <Variable id="gv_rtnMessage"/>
+    <Variable id="gv_lspId"/>
+    <Variable id="gv_lspNm"/>
+    <Variable id="gv_shprId"/>
+    <Variable id="gv_shprNm"/>
+    <Variable id="gv_telNo"/>
+    <Variable id="gv_mobNo"/>
+    <Variable id="gv_emailAddr"/>
+    <Variable id="gv_joinType"/>
+    <Variable id="gv_masterYn"/>
+    <Variable id="gv_seqNo"/>
+    <Variable id="gv_loginId"/>
+    <Variable id="gv_cjworld_id"/>
+    <Variable id="gv_agentGb"/>
+    <Variable id="gv_tenantTelNo"/>
+    <Variable id="gv_agentPW"/>
+    <Variable id="gv_agentID"/>
+    <Variable id="gv_svcUrl_WKR" initval="http://localhost:8080/TLCS/"/>
+    <Variable id="gv_svcUrl_DEV" initval="http://localhost:8080/TLCS/"/>
+    <Variable id="gv_svcUrl_QA" initval=""/>
+    <Variable id="gv_svcUrl_PRD" initval=""/>
+    <Variable id="gvRunMode"/>
+    <Variable id="gv_bizType"/>
+    <Variable id="gv_bizTypeNm"/>
+    <Variable id="gv_sysSsoId"/>
+    <Variable id="gv_sysMenuId"/>
+    <Variable id="gv_warehCd"/>
+    <Variable id="gv_dutyDv"/>
+    <Variable id="gv_centerYn"/>
+    <Variable id="gv_mgmtUpBranCd"/>
+    <Variable id="gv_oprUpBranCd"/>
+    <Variable id="gv_userSessionId"/>
+    <Variable id="gv_sessionInvalidByForceYn" initval="N"/>
+    <Variable id="gv_blngDv" initval="02"/>
+    <Variable id="gv_custId"/>
+    <Variable id="gv_userType" initval="SUPER"/>
+    <Variable id="gv_sysDv" initval="TLCS"/>
+  </Variables>
+</AppVariables>

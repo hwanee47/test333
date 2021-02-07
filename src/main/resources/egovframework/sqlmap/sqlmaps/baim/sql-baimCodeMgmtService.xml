@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimCodeMgmtService">
+	
+	<select id="getBaimCodeList" resultClass="java.util.HashMap">
+		/** [sql-baimCodeMgmtService.xml][baimCodeMgmtService.getBaimCodeList]
+		 *  [기초코드 대분류조회]
+		 *  [JinSeonJu 2020.02.27]
+		 **/
+		 SELECT A.CD_TCD
+			, A.CD_TYP_NM
+			, IF(A.DEL_YN = 'N','사용','미사용') AS DEL_YN_NM
+			, A.DEL_YN
+			, A.ENG_CD_TYP_NM
+			,REGEXP_REPLACE(A.CD_TCD, '[0-9]', '') AS CUSTOM_SORT1
+        	,REGEXP_REPLACE(A.CD_TCD, '[a-z]', '') AS CUSTOM_SORT2
+		FROM TMDM_MC_CODE_H A
+		WHERE 1=1
+		<isNotEmpty property="CD_TCD">
+		AND A.CD_TCD LIKE CONCAT(#CD_TCD#,'%')
+		</isNotEmpty>
+		<isNotEmpty property="CD_TYP_NM">
+		AND A.CD_TYP_NM LIKE CONCAT('%',#CD_TYP_NM#,'%')
+		</isNotEmpty>
+		<isNotEmpty property="DEL_YN">
+		AND A.DEL_YN = #DEL_YN#
+		</isNotEmpty>
+		ORDER BY A.DEL_YN ASC, CUSTOM_SORT1, CAST(CUSTOM_SORT2 as UNSIGNED), A.CD_TYP_NM
+	 </select>
+	 
+	 <select id="getBaimCodeDetailList" resultClass="java.util.HashMap">
+	 /** [sql-baimCodeMgmtService.xml][baimCodeMgmtService.getBaimCodeDetailList]
+		 *  [기초코드 소분류조회]
+		 *  [JinSeonJu 2020.02.27]
+		 **/
+		SELECT 
+			A.CD_TCD
+			, A.CD
+			, A.CD_NM
+			, A.CD_DESC
+			, B.CD_ORDB
+			, A.DEL_YN
+			, IF(A.DEL_YN = 'N','사용','미사용') AS DEL_YN_NM
+		FROM TMDM_MC_CODE_B A
+			,TMDM_MC_CODE_M B
+		WHERE A.CD_TCD = B.CD_TCD
+		AND A.CD = B.CD
+		AND A.CD_TCD IN(#CD_TCD#)
+		ORDER BY B.CD_ORDB 
+	 </select>
+	 
+	 <select id="getBaimCodeCuplChk" resultClass="java.lang.Integer">
+	 	SELECT COUNT(*) FROM TMDM_MC_CODE_H
+		WHERE CD_TCD = #CD_TCD#
+	 </select>
+	 
+	 <insert id="insertCodeList">
+	 /** [sql-baimCodeMgmtService.xml][baimCodeMgmtService.insertCodeList]
+		 *  [기초코드 TMDM_MC_CODE_H INSERT]
+		 *  [JinSeonJu 2020.02.27]
+		 **/
+	 INSERT INTO TMDM_MC_CODE_H 
+		 (CD_TCD
+		 , SITE_CD
+		 , CD_TYP_NM
+		 , ENG_CD_TYP_NM
+		 , OWN_SYS_CD
+		 , MPG_CD_TCD
+		 , DEL_YN
+		 , REG_ID
+		 , REG_DT
+		 , MOD_ID
+		 , MOD_DT) 
+	 VALUES 
+		 (#CD_TCD#
+		 , 'GWDS'
+		 , #CD_TYP_NM#
+		 , #ENG_CD_TYP_NM#
+		 , 'GWDS'
+		 , ''
+		 , #DEL_YN#
+		 , #gv_userId#
+		 , REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+		 , #gv_userId#
+		 , REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':',''))
+	 </insert>
+	 
+	 <update id="updateCodeList">
+ 	 /** [sql-baimCodeMgmtService.xml][baimCodeMgmtService.updateCodeList]
+		 *  [기초코드 TMDM_MC_CODE_H UPDATE]
+		 *  [JinSeonJu 2020.02.27]
+		 **/
+	 UPDATE TMDM_MC_CODE_H 
+		SET CD_TYP_NM = #CD_TYP_NM#
+		, ENG_CD_TYP_NM = #ENG_CD_TYP_NM#
+		, DEL_YN = #DEL_YN#
+		, MOD_ID = #gv_userId#
+		, MOD_DT = REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+		WHERE CD_TCD = #CD_TCD#
+	 </update>
+	 
+   	 <insert id="insertCodeDetailList_M">
+ 	 /** [sql-baimCodeMgmtService.xml][baimCodeMgmtService.insertCodeDetailList_M]
+		 *  [기초코드 TMDM_MC_CODE_M INSERT]
+		 *  [JinSeonJu 2020.02.27]
+		 **/
+	 INSERT INTO TMDM_MC_CODE_M 
+		(CD_TCD
+		, CD
+		, SITE_CD
+		, CD_ORDB
+		, COMN_CD_YN
+		, DISP_KCT
+		, DISP_KCS
+		, DISP_KBL
+		, DISP_KIL
+		, DISP_ETC
+		, REF_1
+		, REF_2
+		, REF_3
+		, REF_4
+		, REF_5
+		, MPG_CD
+		, DEL_YN
+		, REF_6
+		, REG_ID
+		, REG_DT
+		, MOD_ID
+		, MOD_DT)
+	VALUES(
+		#CD_TCD#
+		, #CD#
+		, 'GWDS'
+		, #CD_ORDB#
+		, 'Y'
+		, 0
+		, 0
+		, 0
+		, 0
+		, 0
+		, ''
+		, ''
+		, ''
+		, ''
+		, ''
+		, ''
+		, #DEL_YN#
+		, ''
+		, #gv_userId#
+		, REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+		, #gv_userId#
+		, REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':',''))
+	 </insert>
+	 
+ 	 <update id="updateCodeDetailList_M">
+ 	 /** [sql-baimCodeMgmtService.xml][baimCodeMgmtService.updateCodeDetailList_M]
+		 *  [기초코드 TMDM_MC_CODE_M UPDATE]
+		 *  [JinSeonJu 2020.02.27]
+		 **/ 	 
+	 UPDATE TMDM_MC_CODE_M 
+		SET CD_ORDB = #CD_ORDB#
+		
+		, MOD_ID = #gv_userId#
+		, MOD_DT = REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+		WHERE CD_TCD = #CD_TCD#
+		AND CD = #CD#
+	 </update>
+	 
+ 	 <insert id="insertCodeDetailList">
+ 	 /** [sql-baimCodeMgmtService.xml][baimCodeMgmtService.insertCodeDetailList]
+		 *  [기초코드 TMDM_MC_CODE_B INSERT]
+		 *  [JinSeonJu 2020.02.27]
+		 **/ 	
+	 INSERT INTO TMDM_MC_CODE_B
+		( CD_TCD
+		, CD
+		, LANG_CD
+		, SITE_CD
+		, CD_NM
+		, CD_DESC
+		, DEL_YN
+		, REG_ID
+		, REG_DT
+		, MOD_ID
+		, MOD_DT)
+		VALUES
+		( #CD_TCD#
+		, #CD#
+		, 'KO'
+		, 'GWDS'
+		, #CD_NM#
+		, #CD_DESC#
+		, #DEL_YN#
+		, #gv_userId#
+		, REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+		, #gv_userId#
+		, REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':',''))
+	 </insert>
+	 
+	 <update id="updateCodeDetailList">
+	 /** [sql-baimCodeMgmtService.xml][baimCodeMgmtService.updateCodeDetailList]
+		 *  [기초코드 TMDM_MC_CODE_B UPDATE]
+		 *  [JinSeonJu 2020.02.27]
+		 **/ 
+	 UPDATE TMDM_MC_CODE_B
+		SET  CD_NM = #CD_NM#
+		, CD_DESC = #CD_DESC#
+		, MOD_ID = #gv_userId#
+		, MOD_DT = REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+		WHERE CD_TCD = #CD_TCD# 
+		AND CD = #CD#
+	 </update>
+</sqlMap>

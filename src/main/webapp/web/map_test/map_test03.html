@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	
+	<link rel="stylesheet" type="text/css" href="common.css" />
+
+	<!-- Google Map 관련 라이센스 및 JS 파일 -->
+	<script src="https://maps.googleapis.com/maps/api/js?client=gme-cjkoreaexpress&amp&region=KR" async="" defer="defer"></script>
+	<script type="text/javascript" src="../../js/jquery.js"></script>
+	<script type="text/javascript" src="../../js/googleMap/control_main.js"></script>
+	<script type="text/javascript" src="../../js/googleMap/proj4js-combined.js"></script>
+	<script type="text/javascript" src="../../js/gmap.js"></script>
+
+</head>
+
+<body>
+
+<div class="wrapper">
+	<!-- 좌측 지도 영역 -->
+	<div id="map" class="map_box_l"></div>
+	<!-- //좌측 지도 영역 -->
+
+	<!-- 우측 정보 영역 -->
+	<div class="info_box_r">
+		<!-- 테이블 영역 -->
+		<div class="board_wrap">
+			<table cellspacing="0" cellpadding="0" class="board_common" summary="운행중인 위수탁 차량 테이블로 수도권, 강원권, 충청권, 영남권, 호남권의 항목으로 구성되어 있습니다.">
+				<caption>운행중인 위수탁 차량</caption>
+				<colgroup>
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				</colgroup>
+				<thead>
+				<tr>
+					<th style="color:#fff; background:#0153a5;">수도권</th>
+					<th>강원권</th>
+					<th>충청권</th>
+					<th>영남권</th>
+					<th>호남권</th>
+				</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="height:34px; font-weight:bold; color:#0153a5; line-height:35px; border-bottom:2px solid #0153a5;">140</td>
+						<td>90</td>
+						<td>220</td>
+						<td>240</td>
+						<td>190</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="board_wrap" style="margin-bottom:22px;">
+			<table cellspacing="0" cellpadding="0" class="board_common02" summary="수도권 테이블로 지역의 항목으로 구성되어 있습니다.">
+				<caption>수도권</caption>
+				<colgroup>
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				</colgroup>
+				<tbody>
+					<tr>
+						<th>서울</th>
+						<th>인천</th>
+						<th>고양시</th>
+						<th>과천시</th>
+						<th>광명시</th>
+					</tr>
+					<tr>
+						<th>광주시</th>
+						<th>구리시</th>
+						<th>군포시</th>
+						<th>김포시</th>
+						<th>남양주시</th>
+					</tr>
+					<tr>
+						<th>동두천시</th>
+						<th>부천시</th>
+						<th>성남시</th>
+						<th>수원시</th>
+						<th>시흥시</th>
+					</tr>
+					<tr>
+						<th>안산시</th>
+						<th>안성시</th>
+						<th>안양시</th>
+						<th>양주시</th>
+						<th>여주시</th>
+					</tr>
+					<tr>
+						<th>오산시</th>
+						<th>용인시</th>
+						<th>의왕시</th>
+						<th>의정부시</th>
+						<th>이천시</th>
+					</tr>
+					<tr>
+						<th>파주시</th>
+						<th>평택시</th>
+						<th>포천시</th>
+						<th style="color:#fff; background:#0153a5;">하남시</th>
+						<th>화성시</th>
+					</tr>
+					<tr>
+						<th>가평군</th>
+						<th>양평군</th>
+						<th>연천군</th>
+						<th></th>
+						<th></th>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="board_wrap">
+			<table cellspacing="0" cellpadding="0" class="board_common03" summary="하남시 테이블로 지역의 항목으로 구성되어 있습니다." style="margin-bottom:10px;">
+				<caption>하남시</caption>
+				<colgroup>
+				<col width="196" />
+				<col width="129" />
+				<col width="213" />
+				<col width="91" />
+				<col width="*" />
+				</colgroup>
+				<thead>
+					<tr>
+						<th>차량번호</th>
+						<th>상차지</th>
+						<th>하차지</th>
+						<th>차종/톤급</th>
+						<th>남은시간</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><div class="display"><div><input class="header dark L" id="display01_01" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display01_02" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display01_03" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display01_04" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display01_05" /></div></div></td>
+					</tr>
+					<tr>
+						<td><div class="display"><div><input class="header dark L" id="display02_01" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display02_02" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display02_03" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display02_04" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display02_05" /></div></div></td>
+					</tr>
+					<tr>
+						<td><div class="display"><div><input class="header dark L" id="display03_01" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display03_02" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display03_03" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display03_04" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display03_05" /></div></div></td>
+					</tr>
+					<tr>
+						<td><div class="display"><div><input class="header dark L" id="display04_01" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display04_02" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display04_03" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display04_04" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display04_05" /></div></div></td>
+					</tr>
+					<tr>
+						<td><div class="display"><div><input class="header dark L" id="display05_01" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display05_02" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display05_03" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display05_04" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display05_05" /></div></div></td>
+					</tr>
+				</tbody>
+			</table>
+
+			<table cellspacing="0" cellpadding="0" class="board_common03" summary="하남시 테이블로 지역의 항목으로 구성되어 있습니다.">
+				<caption>하남시</caption>
+				<colgroup>
+				<col width="196" />
+				<col width="129" />
+				<col width="213" />
+				<col width="91" />
+				<col width="*" />
+				</colgroup>
+				<thead>
+					<tr>
+						<th>고객명</th>
+						<th>상차지</th>
+						<th>하차지</th>
+						<th>차종/톤급</th>
+						<th>남은시간</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><div class="display"><div><input class="header dark L" id="display11_01" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display11_02" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display11_03" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display11_04" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display11_05" /></div></div></td>
+					</tr>
+					<tr>
+						<td><div class="display"><div><input class="header dark L" id="display12_01" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display12_02" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display12_03" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display12_04" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display12_05" /></div></div></td>
+					</tr>
+					<tr>
+						<td><div class="display"><div><input class="header dark L" id="display13_01" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display13_02" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display13_03" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display13_04" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display13_05" /></div></div></td>
+					</tr>
+					<tr>
+						<td><div class="display"><div><input class="header dark L" id="display14_01" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display14_02" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display14_03" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display14_04" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display14_05" /></div></div></td>
+					</tr>
+					<tr>
+						<td><div class="display"><div><input class="header dark L" id="display15_01" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display15_02" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display15_03" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display15_04" /></div></div></td>
+						<td><div class="display"><div><input class="header dark L" id="display15_05" /></div></div></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<!-- //테이블 영역 -->
+
+		<!-- 그래프 영역 -->
+		<div>
+		</div>
+		<!-- //그래프 영역 -->
+	</div>
+	<!-- //우측 정보 영역 -->
+</div>
+
+
+<link href="flapper.css" type="text/css" rel="stylesheet" />
+<script src="jquery.min.js"></script>
+<script src="transform/dist/jquery.transform-0.9.3.min.js"></script>
+<script src="jshashtable.js"></script>
+<script src="numberformatter/jquery.numberformatter-1.2.3.min.js"></script>
+<script src="jquery.flapper.js"></script>
+
+<script language="javascript">
+$(document).ready(function() {
+    var 
+    $display01_01 = $('#display01_01');
+    $display01_02 = $('#display01_02');
+    $display01_03 = $('#display01_03');
+    $display01_04 = $('#display01_04');
+    $display01_05 = $('#display01_05');
+
+    $display02_01 = $('#display02_01');
+    $display02_02 = $('#display02_02');
+    $display02_03 = $('#display02_03');
+    $display02_04 = $('#display02_04');
+    $display02_05 = $('#display02_05');
+
+    $display03_01 = $('#display03_01');
+    $display03_02 = $('#display03_02');
+    $display03_03 = $('#display03_03');
+    $display03_04 = $('#display03_04');
+    $display03_05 = $('#display03_05');
+
+    $display04_01 = $('#display04_01');
+    $display04_02 = $('#display04_02');
+    $display04_03 = $('#display04_03');
+    $display04_04 = $('#display04_04');
+    $display04_05 = $('#display04_05');
+
+    $display05_01 = $('#display05_01');
+    $display05_02 = $('#display05_02');
+    $display05_03 = $('#display05_03');
+    $display05_04 = $('#display05_04');
+    $display05_05 = $('#display05_05');
+
+    $display01_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display01_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display01_03.flapper({
+        width: 10,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display01_04.flapper({
+        width: 4,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display01_05.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+
+    $display02_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display02_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display02_03.flapper({
+        width: 10,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display02_04.flapper({
+        width: 4,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display02_05.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+
+    $display03_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display03_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display03_03.flapper({
+        width: 10,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display03_04.flapper({
+        width: 4,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display03_05.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+
+    $display04_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display04_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display04_03.flapper({
+        width: 10,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display04_04.flapper({
+        width: 4,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display04_05.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+
+    $display05_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display05_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display05_03.flapper({
+        width: 10,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display05_04.flapper({
+        width: 4,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display05_05.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+
+
+    setTimeout(function(){
+        $display01_01.val('경기88버5678').change();
+        $display01_02.val('경기 평택 ').change();
+        $display01_03.val('미사동 0000').change();
+        $display01_04.val('카고25').change();
+        $display01_05.val('1:00').change();
+
+        $display02_01.val('경기34버2345').change();
+        $display02_02.val('부산 중구').change();
+        $display02_03.val('미사본동 000').change();
+        $display02_04.val('카고25').change();
+        $display02_05.val('30').change();
+
+        $display03_01.val('경기34버2345').change();
+        $display03_02.val('부산 중구').change();
+        $display03_03.val('미사본동 000').change();
+        $display03_04.val('카고25').change();
+        $display03_05.val('30').change();
+
+        $display04_01.val('경기34버2345').change();
+        $display04_02.val('부산 중구').change();
+        $display04_03.val('미사본동 000').change();
+        $display04_04.val('카고25').change();
+        $display04_05.val('30').change();
+
+        $display05_01.val('경기34버2345').change();
+        $display05_02.val('부산 중구').change();
+        $display05_03.val('미사본동 000').change();
+        $display05_04.val('카고25').change();
+        $display05_05.val('30').change();
+    }, 0);
+
+    /*setTimeout(function(){
+        $display08.val('운송지연').change();
+    }, 3000);*/
+});
+
+$(document).ready(function() {
+    var 
+    $display11_01 = $('#display11_01');
+    $display11_02 = $('#display11_02');
+    $display11_03 = $('#display11_03');
+    $display11_04 = $('#display11_04');
+    $display11_05 = $('#display11_05');
+
+    $display12_01 = $('#display12_01');
+    $display12_02 = $('#display12_02');
+    $display12_03 = $('#display12_03');
+    $display12_04 = $('#display12_04');
+    $display12_05 = $('#display12_05');
+
+    $display13_01 = $('#display13_01');
+    $display13_02 = $('#display13_02');
+    $display13_03 = $('#display13_03');
+    $display13_04 = $('#display13_04');
+    $display13_05 = $('#display13_05');
+
+    $display14_01 = $('#display14_01');
+    $display14_02 = $('#display14_02');
+    $display14_03 = $('#display14_03');
+    $display14_04 = $('#display14_04');
+    $display14_05 = $('#display14_05');
+
+    $display15_01 = $('#display15_01');
+    $display15_02 = $('#display15_02');
+    $display15_03 = $('#display15_03');
+    $display15_04 = $('#display15_04');
+    $display15_05 = $('#display15_05');
+
+    $display11_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display11_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display11_03.flapper({
+        width: 10,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display11_04.flapper({
+        width: 4,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display11_05.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+
+    $display12_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display12_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display12_03.flapper({
+        width: 10,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display12_04.flapper({
+        width: 4,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display12_05.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+
+    $display13_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display13_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display13_03.flapper({
+        width: 10,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display13_04.flapper({
+        width: 4,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display13_05.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+
+    $display14_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display14_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display14_03.flapper({
+        width: 10,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display14_04.flapper({
+        width: 4,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display14_05.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+
+    $display15_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display15_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display15_03.flapper({
+        width: 10,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display15_04.flapper({
+        width: 4,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display15_05.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+
+
+    setTimeout(function(){
+        $display11_01.val('홍길동').change();
+        $display11_02.val('경기 평택 ').change();
+        $display11_03.val('미사동 0000').change();
+        $display11_04.val('카고25').change();
+        $display11_05.val('1:00').change();
+
+        $display12_01.val('홍길동 홍길동').change();
+        $display12_02.val('부산 중구').change();
+        $display12_03.val('미사본동 000').change();
+        $display12_04.val('카고25').change();
+        $display12_05.val('30').change();
+
+        $display13_01.val('홍길동').change();
+        $display13_02.val('부산 중구').change();
+        $display13_03.val('미사본동 000').change();
+        $display13_04.val('카고25').change();
+        $display13_05.val('30').change();
+
+        $display14_01.val('홍길동 홍').change();
+        $display14_02.val('부산 중구').change();
+        $display14_03.val('미사본동 000').change();
+        $display14_04.val('카고25').change();
+        $display14_05.val('30').change();
+
+        $display15_01.val('홍길동').change();
+        $display15_02.val('부산 중구').change();
+        $display15_03.val('미사본동 000').change();
+        $display15_04.val('카고25').change();
+        $display15_05.val('30').change();
+    }, 0);
+
+    /*setTimeout(function(){
+        $display08.val('운송지연').change();
+    }, 3000);*/
+});
+</script>
+<style type="text/css">
+.flapper.header.red.L .digit div {color:red;}
+</style>
+
+</body>
+</html>

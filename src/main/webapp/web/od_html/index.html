@@ -1,0 +1,988 @@
+<html lang="ko">
+<head>
+<meta name="viewport" content="width=900px">
+    <style type="text/css">.gm-style .gm-style-iw{font-weight:300;font-size:13px;overflow:hidden}.gm-style .gm-iw{color:#2c2c2c}.gm-style .gm-iw b{font-weight:400}.gm-style .gm-iw a:link,.gm-style .gm-iw a:visited{color:#4272db;text-decoration:none}.gm-style .gm-iw a:hover{color:#4272db;text-decoration:underline}.gm-style .gm-iw .gm-title{font-weight:400;margin-bottom:1px}.gm-style .gm-iw .gm-basicinfo{line-height:18px;padding-bottom:12px}.gm-style .gm-iw .gm-website{padding-top:6px}.gm-style .gm-iw .gm-photos{padding-bottom:8px;-ms-user-select:none;-moz-user-select:none;-webkit-user-select:none}.gm-style .gm-iw .gm-sv,.gm-style .gm-iw .gm-ph{cursor:pointer;height:50px;width:100px;position:relative;overflow:hidden}.gm-style .gm-iw .gm-sv{padding-right:4px}.gm-style .gm-iw .gm-wsv{cursor:pointer;position:relative;overflow:hidden}.gm-style .gm-iw .gm-sv-label,.gm-style .gm-iw .gm-ph-label{cursor:pointer;position:absolute;bottom:6px;color:#fff;font-weight:400;text-shadow:rgba(0,0,0,0.7) 0 1px 4px;font-size:12px}.gm-style .gm-iw .gm-stars-b,.gm-style .gm-iw .gm-stars-f{height:13px;font-size:0}.gm-style .gm-iw .gm-stars-b{position:relative;background-position:0 0;width:65px;top:3px;margin:0 5px}.gm-style .gm-iw .gm-rev{line-height:20px;-ms-user-select:none;-moz-user-select:none;-webkit-user-select:none}.gm-style.gm-china .gm-iw .gm-rev{display:none}.gm-style .gm-iw .gm-numeric-rev{font-size:16px;color:#dd4b39;font-weight:400}.gm-style .gm-iw.gm-transit{margin-left:15px}.gm-style .gm-iw.gm-transit td{vertical-align:top}.gm-style .gm-iw.gm-transit .gm-time{white-space:nowrap;color:#676767;font-weight:bold}.gm-style .gm-iw.gm-transit img{width:15px;height:15px;margin:1px 5px 0 -20px;float:left}
+.gm-iw {text-align:left;}.gm-iw .gm-numeric-rev {float:left;}.gm-iw .gm-photos,.gm-iw .gm-rev {direction:ltr;}.gm-iw .gm-stars-f, .gm-iw .gm-stars-b {background:url("https://maps.gstatic.com/mapfiles/api-3/images/review_stars_hdpi.png") no-repeat;background-size: 65px 26px;float:left;}.gm-iw .gm-stars-f {background-position:left -13px;}.gm-iw .gm-sv-label,.gm-iw .gm-ph-label {left: 4px;}</style><style type="text/css">.gm-control-active img{box-sizing:content-box;pointer-events:none}.gm-control-active:hover img:nth-child(1),.gm-control-active:active img:nth-child(1),.gm-control-active:active img:nth-child(2){display:none}
+</style>
+<link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Google+Sans"><style type="text/css">.gm-ui-hover-effect{opacity:.7}.gm-ui-hover-effect:hover{opacity:1}
+</style><style type="text/css">.gm-style .gm-style-cc span,.gm-style .gm-style-cc a,.gm-style .gm-style-mtc div{font-size:10px;box-sizing:border-box}
+</style><style type="text/css">@media print {  .gm-style .gmnoprint, .gmnoprint {    display:none  }}@media screen {  .gm-style .gmnoscreen, .gmnoscreen {    display:none  }}</style><style type="text/css">.gm-style-pbc{transition:opacity ease-in-out;background-color:rgba(0,0,0,0.45);text-align:center}.gm-style-pbt{font-size:22px;color:white;font-family:Roboto,Arial,sans-serif;position:relative;margin:0;top:50%;-webkit-transform:translateY(-50%);-ms-transform:translateY(-50%);transform:translateY(-50%)}
+</style>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <link rel="stylesheet" type="text/css" href="http://www.hellotruck.co.kr/NKFR/web/jsp/visibility/css/vhcl_common.css">
+    <link rel="stylesheet" type="text/css" href="http://www.hellotruck.co.kr/NKFR/web/jsp/visibility/css/flapper.css">
+    <link rel="stylesheet" type="text/css" href="http://www.hellotruck.co.kr/NKFR/rMateChart/rMateChartH5/Assets/Css/rMateChartH5.css">
+
+    <!-- 날씨 -->
+    <link rel="stylesheet" href="http://www.hellotruck.co.kr/NKFR/web/jsp/visibility/css/weather/css/weather-icons.css">
+    <link rel="stylesheet" href="http://www.hellotruck.co.kr/NKFR/web/jsp/visibility/css/weather/css/weather-icons-wind.css">
+
+    <!-- JQuery -->
+
+    <!-- Google Map 관련 라이센스 및 JS 파일 -->
+
+    <!-- rMate Chart -->
+    <script type="text/javascript" src="http://www.hellotruck.co.kr/NKFR/rMateChart/LicenseKey/rMateChartH5License.js"></script>
+    <script type="text/javascript" src="http://www.hellotruck.co.kr/NKFR/rMateChart/rMateChartH5/JS/rMateChartH5.js"></script>
+    <!-- Visibility Script -->
+
+
+<style type="text/css">
+.rMateH5__Legend {
+    border : 0px;
+    background : #232323;
+}
+.gm-style {
+        font: 400 11px Roboto, Arial, sans-serif;
+        text-decoration: none;
+      }
+      .gm-style img { max-width: none; }</style>
+
+	  <style type="text/css">
+	  @-webkit-keyframes _gm3638 {
+0% { -webkit-transform: translate3d(0px,-500px,0); -webkit-animation-timing-function: ease-in; }
+50% { -webkit-transform: translate3d(0px,0px,0); -webkit-animation-timing-function: ease-out; }
+75% { -webkit-transform: translate3d(0px,-20px,0); -webkit-animation-timing-function: ease-in; }
+100% { -webkit-transform: translate3d(0px,0px,0); -webkit-animation-timing-function: ease-out; }
+}
+</style>
+
+  <link rel="stylesheet" type="text/css" href="./css/style.css">
+	<script type="text/javascript" src="./js/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="./js/jquery.easing.1.3.js"></script>
+	<script type="text/javascript" src="./js/layout.js"></script>
+</head>
+
+<body style="background:#2c2b2e;" cz-shortcut-listen="true">
+
+<div class="wrapper" style="padding:0 !important">
+    <!-- 좌측 지도 영역 -->
+    <div class="map_box_l">
+
+        <div class="map_layer">
+            <!--서울 원주-->
+            <div class="part01">
+                <span class="point seoul"></span>
+                <span class="point wonju"></span>
+                <div class="arrow up " style="display:none;"></div>
+                <div class="arrow down " style="display:none;"></div>
+            </div>
+            <div class="part02">
+                <span class="point seoul"></span>
+                <span class="point daejeon"></span>
+                <div class="arrow up " style="display:none;"></div>
+                <div class="arrow down " style="display:none;"></div>
+            </div>
+            <div class="part03">
+                <span class="point seoul"></span>
+                <span class="point gwangju"></span>
+                <div class="arrow up " style="display:none;"></div>
+                <div class="arrow down " style="display:none;"></div>
+            </div>
+            <div class="part04">
+                <span class="point seoul"></span>
+                <span class="point pusan"></span>
+                <div class="arrow up " style="display:none;"></div>
+                <div class="arrow down "  style="display:none;"></div>
+            </div>
+        </div>
+
+        <div class="map_layer01">
+            <ul class="mapLegend">
+                <li><input type="radio" id="rdo1" name="rdo" class="radiock" ><label for="rdo1" class="rdo_label">폐비닐</label></li>
+                <li><input type="radio" id="rdo2" name="rdo" class="radiock"><label for="rdo2" class="rdo_label legend2">마늘</label></li>
+                <li><input type="radio" id="rdo3" name="rdo" class="radiock" ><label for="rdo3" class="rdo_label legend3">시험지</label></li>
+                <li><input type="radio" id="rdo4" name="rdo" class="radiock"><label for="rdo4" class="rdo_label legend4">폐슬러지</label></li>
+            </ul>
+        </div>
+    </div>
+    <!-- //좌측 지도 영역 -->
+
+
+    <!-- 우측 정보 영역 -->
+    <div class="info_box_r" style="width:720px">
+
+        <div class="in_bx_r01">
+
+            <!-- <div class="selectArea">
+                <select>
+                    <option>수도권</option>
+                </select>
+                <select>
+                    <option>건설자재</option>
+                </select>
+                <select>
+                    <option>전체차량</option>
+                </select>
+            </div> -->
+            <div class="tab_customer" style="width:720px;">
+                <ul>
+                    <li><a href="#" id="AREA_1" class="select">수도권</a></li>
+                    <li><a href="#" id="AREA_5">영남권</a></li>
+                    <li><a href="#" id="AREA_2">강원권</a></li>
+                    <li><a href="#" id="AREA_3">충청권</a></li>
+                    <li class="last"><a href="#" id="AREA_4">호남권</a></li>
+                </ul>
+            </div>
+            <!-- 거점 상세 조회 영역 -->
+            <div id="" style="background: rgb(44, 43, 46); display: ;">
+
+                <div id="AREA_1_DATA" class="viewDisplay">
+                    <div id="" class="in_bx_r02" style="margin-bottom:10px;">
+                        <!-- 테이블 영역 -->
+                        <div class="board_wrap">
+                            <table cellspacing="0" cellpadding="0" class="board_common03">
+                                <colgroup>
+                                    <col width="*">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7%">
+                                    <col width="7%">
+                                    <col width="9%">
+                                    <col width="7%">
+                                    <col width="7%">
+                                    <col width="9%">
+                                    <col width="7%">
+                                    <col width="7%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col" rowspan="2">권역</th>
+                                        <th scope="col" colspan="2">품목수</th>
+                                        <th scope="col" colspan="2">총 중량</th>
+                                        <th scope="col" colspan="2">총 주문</th>
+                                        <th scope="col" colspan="3">차종 순위 1</th>
+                                        <th scope="col" colspan="3">차종 순위 2</th>
+                                    </tr>
+                                    <tr>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">차종</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">차종</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>영남권</td>
+                                        <td>16</td>
+                                        <td>32</td>
+                                        <td>1,280T</td>
+                                        <td>2,290T</td>
+                                        <td>352</td>
+                                        <td>543</td>
+                                        <td>카고 25톤</td>
+                                        <td>432</td>
+                                        <td>323</td>
+                                        <td>카고 10톤</td>
+                                        <td>234</td>
+                                        <td>623</td>
+                                    </tr>
+                                    <tr>
+                                        <td>강원권</td>
+                                        <td>14</td>
+                                        <td>7</td>
+                                        <td>2,980T</td>
+                                        <td>1,350T</td>
+                                        <td>123</td>
+                                        <td>242</td>
+                                        <td>카고 25톤</td>
+                                        <td>23</td>
+                                        <td>56</td>
+                                        <td>카고 10톤</td>
+                                        <td>65</td>
+                                        <td>34</td>
+                                    </tr>
+                                    <tr>
+                                        <td>충청권</td>
+                                        <td>23</td>
+                                        <td>9</td>
+                                        <td>1,980T</td>
+                                        <td>2,400T</td>
+                                        <td>145</td>
+                                        <td>32</td>
+                                        <td>카고 25톤</td>
+                                        <td>43</td>
+                                        <td>12</td>
+                                        <td>카고 10톤</td>
+                                        <td>51</td>
+                                        <td>43</td>
+                                    </tr>
+                                    <tr>
+                                        <td>호남권</td>
+                                        <td>23</td>
+                                        <td>9</td>
+                                        <td>1,980T</td>
+                                        <td>2,400T</td>
+                                        <td>145</td>
+                                        <td>32</td>
+                                        <td>카고 25톤</td>
+                                        <td>23</td>
+                                        <td>12</td>
+                                        <td>카고 10톤</td>
+                                        <td>5</td>
+                                        <td>32</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- //테이블 영역 -->
+                    </div>
+
+                    <div id="" class="in_bx_r02" style="margin-bottom:20px;">
+                        <!-- 테이블 영역 -->
+                        <div class="board_wrap">
+                            <table cellspacing="0" cellpadding="0" class="board_common03" summary="수도권 테이블로 지역의 항목으로 구성되어 있습니다.">
+                                <caption>수도권</caption>
+                                <colgroup>
+                                    <col width="*">
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="20%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">고객명</th>
+                                        <th scope="col">품목수</th>
+                                        <th scope="col">총 중량</th>
+                                        <th scope="col">주문수량</th>
+                                        <th scope="col">매출액</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="">
+                                    <tr>
+                                        <td style="text-align: left; padding-left: 20px;">구 서울점소)무림피앤피주식회사</td>
+                                        <td>2</td>
+                                        <td>3,431,756T</td>
+                                        <td>159</td>
+                                        <td>5,789,250,792</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left; padding-left: 20px;">주식회사포스코</td>
+                                        <td>5</td>
+                                        <td>82,959T</td>
+                                        <td>2,109</td>
+                                        <td>366,440,195</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left; padding-left: 20px;">구 전북점소)(주)벽산익산공장</td>
+                                        <td>2</td>
+                                        <td>7,893T</td>
+                                        <td>771</td>
+                                        <td>209,871,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left; padding-left: 20px;">(주)나렉스</td>
+                                        <td>2</td>
+                                        <td>8,956T</td>
+                                        <td>980</td>
+                                        <td>207,879,680</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- //테이블 영역 -->
+                    </div>
+                </div>
+
+                <div id="AREA_5_DATA" class="noneDisplay">
+                    <div id="" class="in_bx_r02" style="margin-bottom:10px;">
+                        <!-- 테이블 영역 -->
+                        <div class="board_wrap">
+                            <table cellspacing="0" cellpadding="0" class="board_common03">
+                                <colgroup>
+                                    <col width="*">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7%">
+                                    <col width="7%">
+                                    <col width="9%">
+                                    <col width="7%">
+                                    <col width="7%">
+                                    <col width="9%">
+                                    <col width="7%">
+                                    <col width="7%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col" rowspan="2">권역</th>
+                                        <th scope="col" colspan="2">품목수</th>
+                                        <th scope="col" colspan="2">총 중량</th>
+                                        <th scope="col" colspan="2">총 주문</th>
+                                        <th scope="col" colspan="3">차종 순위 1</th>
+                                        <th scope="col" colspan="3">차종 순위 2</th>
+                                    </tr>
+                                    <tr>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">차종</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">차종</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>수도권</td>
+                                        <td>16</td>
+                                        <td>32</td>
+                                        <td>1,280T</td>
+                                        <td>2,290T</td>
+                                        <td>352</td>
+                                        <td>543</td>
+                                        <td>카고 25톤</td>
+                                        <td>432</td>
+                                        <td>323</td>
+                                        <td>카고 10톤</td>
+                                        <td>234</td>
+                                        <td>623</td>
+                                    </tr>
+                                    <tr>
+                                        <td>강원권</td>
+                                        <td>14</td>
+                                        <td>7</td>
+                                        <td>2,980T</td>
+                                        <td>1,350T</td>
+                                        <td>123</td>
+                                        <td>242</td>
+                                        <td>카고 25톤</td>
+                                        <td>23</td>
+                                        <td>56</td>
+                                        <td>카고 10톤</td>
+                                        <td>65</td>
+                                        <td>34</td>
+                                    </tr>
+                                    <tr>
+                                        <td>충청권</td>
+                                        <td>23</td>
+                                        <td>9</td>
+                                        <td>1,980T</td>
+                                        <td>2,400T</td>
+                                        <td>145</td>
+                                        <td>32</td>
+                                        <td>카고 25톤</td>
+                                        <td>43</td>
+                                        <td>12</td>
+                                        <td>카고 10톤</td>
+                                        <td>51</td>
+                                        <td>43</td>
+                                    </tr>
+                                    <tr>
+                                        <td>호남권</td>
+                                        <td>23</td>
+                                        <td>9</td>
+                                        <td>1,980T</td>
+                                        <td>2,400T</td>
+                                        <td>145</td>
+                                        <td>32</td>
+                                        <td>카고 25톤</td>
+                                        <td>23</td>
+                                        <td>12</td>
+                                        <td>카고 10톤</td>
+                                        <td>5</td>
+                                        <td>32</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- //테이블 영역 -->
+                    </div>
+
+                    <div id="" class="in_bx_r02" style="margin-bottom:20px;">
+                        <!-- 테이블 영역 -->
+                        <div class="board_wrap">
+                            <table cellspacing="0" cellpadding="0" class="board_common03" summary="수도권 테이블로 지역의 항목으로 구성되어 있습니다.">
+                                <caption>수도권</caption>
+                                <colgroup>
+                                    <col width="*">
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="20%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">고객명</th>
+                                        <th scope="col">품목수</th>
+                                        <th scope="col">총 중량</th>
+                                        <th scope="col">주문수량</th>
+                                        <th scope="col">매출액</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="">
+                                    <tr>
+                                        <td style="text-align: left; padding-left: 20px;">현대제철(주)당진고철/수시</td>
+                                        <td>13</td>
+                                        <td>164,298T</td>
+                                        <td>314</td>
+                                        <td>182,810,195</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left; padding-left: 20px;">구 서울점소)홈플러스</td>
+                                        <td>1</td>
+                                        <td>14,163T</td>
+                                        <td>739</td>
+                                        <td>178,938,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left; padding-left: 20px;">(주)한익스프레스</td>
+                                        <td>3</td>
+                                        <td>40,341T</td>
+                                        <td>739</td>
+                                        <td>175,782,489</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left; padding-left: 20px;">삼화스틸</td>
+                                        <td>1</td>
+                                        <td>21,925T</td>
+                                        <td>877</td>
+                                        <td>175,400,000</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- //테이블 영역 -->
+                    </div>
+                </div>
+
+                <div id="AREA_2_DATA" class="noneDisplay">
+                    <div id="" class="in_bx_r02" style="margin-bottom:10px;">
+                        <!-- 테이블 영역 -->
+                        <div class="board_wrap">
+                            <table cellspacing="0" cellpadding="0" class="board_common03">
+                                <colgroup>
+                                    <col width="*">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col" rowspan="2">권역</th>
+                                        <th scope="col" colspan="2">품목수</th>
+                                        <th scope="col" colspan="2">총 중량</th>
+                                        <th scope="col" colspan="2">총 주문</th>
+                                        <th scope="col" colspan="2">카고 25톤</th>
+                                        <th scope="col" colspan="2">카고 20톤</th>
+                                        <th scope="col" colspan="2">카고 10톤</th>
+                                    </tr>
+                                    <tr>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>강원권</td>
+                                        <td>16</td>
+                                        <td>32</td>
+                                        <td>1,280</td>
+                                        <td>2,290</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>충청권</td>
+                                        <td>14</td>
+                                        <td>7</td>
+                                        <td>2,980</td>
+                                        <td>1,350</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>영남권</td>
+                                        <td>23</td>
+                                        <td>9</td>
+                                        <td>1,980</td>
+                                        <td>2,400</td>
+                                        <td>145</td>
+                                        <td></td>
+                                        <td>65%</td>
+                                        <td></td>
+                                        <td>12%</td>
+                                        <td></td>
+                                        <td>5%</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>호남권</td>
+                                        <td>23</td>
+                                        <td>9</td>
+                                        <td>1,980</td>
+                                        <td>2,400</td>
+                                        <td>145</td>
+                                        <td></td>
+                                        <td>65%</td>
+                                        <td></td>
+                                        <td>12%</td>
+                                        <td></td>
+                                        <td>5%</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- //테이블 영역 -->
+                    </div>
+
+                    <div id="" class="in_bx_r02" style="margin-bottom:20px;">
+                        <!-- 테이블 영역 -->
+                        <div class="board_wrap">
+                            <table cellspacing="0" cellpadding="0" class="board_common03" summary="수도권 테이블로 지역의 항목으로 구성되어 있습니다.">
+                                <caption>수도권</caption>
+                                <colgroup>
+                                    <col width="*">
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="20%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">고객명</th>
+                                        <th scope="col">품목수</th>
+                                        <th scope="col">총 중량</th>
+                                        <th scope="col">주문수량</th>
+                                        <th scope="col">매출액</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="">
+                                    <tr>
+                                        <td>위수탁</td>
+                                        <td>8</td>
+                                        <td>2,130T</td>
+                                        <td>18%</td>
+                                        <td>45</td>
+                                    </tr>
+                                    <tr>
+                                        <td>직접운영</td>
+                                        <td>8</td>
+                                        <td>2,130T</td>
+                                        <td>18%</td>
+                                        <td>45</td>
+                                    </tr>
+                                    <tr>
+                                        <td>운송가맹</td>
+                                        <td>8</td>
+                                        <td>2,130T</td>
+                                        <td>18%</td>
+                                        <td>45</td>
+                                    </tr>
+                                    <tr>
+                                        <td>위수탁</td>
+                                        <td>8</td>
+                                        <td>2,130T</td>
+                                        <td>18%</td>
+                                        <td>45</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- //테이블 영역 -->
+                    </div>
+                </div>
+
+                <div id="AREA_3_DATA" class="noneDisplay">
+                    <div id="" class="in_bx_r02" style="margin-bottom:10px;">
+                        <!-- 테이블 영역 -->
+                        <div class="board_wrap">
+                            <table cellspacing="0" cellpadding="0" class="board_common03">
+                                <colgroup>
+                                    <col width="*">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col" rowspan="2">권역</th>
+                                        <th scope="col" colspan="2">품목수</th>
+                                        <th scope="col" colspan="2">총 중량</th>
+                                        <th scope="col" colspan="2">총 주문</th>
+                                        <th scope="col" colspan="2">카고 25톤</th>
+                                        <th scope="col" colspan="2">카고 20톤</th>
+                                        <th scope="col" colspan="2">카고 10톤</th>
+                                    </tr>
+                                    <tr>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>강원권</td>
+                                        <td>16</td>
+                                        <td>32</td>
+                                        <td>1,280</td>
+                                        <td>2,290</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>충청권</td>
+                                        <td>14</td>
+                                        <td>7</td>
+                                        <td>2,980</td>
+                                        <td>1,350</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>영남권</td>
+                                        <td>23</td>
+                                        <td>9</td>
+                                        <td>1,980</td>
+                                        <td>2,400</td>
+                                        <td>145</td>
+                                        <td></td>
+                                        <td>65%</td>
+                                        <td></td>
+                                        <td>12%</td>
+                                        <td></td>
+                                        <td>5%</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>호남권</td>
+                                        <td>23</td>
+                                        <td>9</td>
+                                        <td>1,980</td>
+                                        <td>2,400</td>
+                                        <td>145</td>
+                                        <td></td>
+                                        <td>65%</td>
+                                        <td></td>
+                                        <td>12%</td>
+                                        <td></td>
+                                        <td>5%</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- //테이블 영역 -->
+                    </div>
+
+                    <div id="" class="in_bx_r02" style="margin-bottom:20px;">
+                        <!-- 테이블 영역 -->
+                        <div class="board_wrap">
+                            <table cellspacing="0" cellpadding="0" class="board_common03" summary="수도권 테이블로 지역의 항목으로 구성되어 있습니다.">
+                                <caption>수도권</caption>
+                                <colgroup>
+                                    <col width="*">
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="20%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">고객명</th>
+                                        <th scope="col">품목수</th>
+                                        <th scope="col">총 중량</th>
+                                        <th scope="col">주문수량</th>
+                                        <th scope="col">매출액</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="">
+                                    <tr>
+                                        <td>위수탁</td>
+                                        <td>8</td>
+                                        <td>2,130T</td>
+                                        <td>18%</td>
+                                        <td>45</td>
+                                    </tr>
+                                    <tr>
+                                        <td>직접운영</td>
+                                        <td>8</td>
+                                        <td>2,130T</td>
+                                        <td>18%</td>
+                                        <td>45</td>
+                                    </tr>
+                                    <tr>
+                                        <td>운송가맹</td>
+                                        <td>8</td>
+                                        <td>2,130T</td>
+                                        <td>18%</td>
+                                        <td>45</td>
+                                    </tr>
+                                    <tr>
+                                        <td>위수탁</td>
+                                        <td>8</td>
+                                        <td>2,130T</td>
+                                        <td>18%</td>
+                                        <td>45</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- //테이블 영역 -->
+                    </div>
+                </div>
+
+                <div id="AREA_4_DATA" class="noneDisplay">
+                    <div id="" class="in_bx_r02" style="margin-bottom:10px;">
+                        <!-- 테이블 영역 -->
+                        <div class="board_wrap">
+                            <table cellspacing="0" cellpadding="0" class="board_common03">
+                                <colgroup>
+                                    <col width="*">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                    <col width="7.5%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col" rowspan="2">권역</th>
+                                        <th scope="col" colspan="2">품목수</th>
+                                        <th scope="col" colspan="2">총 중량</th>
+                                        <th scope="col" colspan="2">총 주문</th>
+                                        <th scope="col" colspan="2">카고 25톤</th>
+                                        <th scope="col" colspan="2">카고 20톤</th>
+                                        <th scope="col" colspan="2">카고 10톤</th>
+                                    </tr>
+                                    <tr>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                        <th scope="col">상차</th>
+                                        <th scope="col">하차</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>강원권</td>
+                                        <td>16</td>
+                                        <td>32</td>
+                                        <td>1,280</td>
+                                        <td>2,290</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>충청권</td>
+                                        <td>14</td>
+                                        <td>7</td>
+                                        <td>2,980</td>
+                                        <td>1,350</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>영남권</td>
+                                        <td>23</td>
+                                        <td>9</td>
+                                        <td>1,980</td>
+                                        <td>2,400</td>
+                                        <td>145</td>
+                                        <td></td>
+                                        <td>65%</td>
+                                        <td></td>
+                                        <td>12%</td>
+                                        <td></td>
+                                        <td>5%</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>호남권</td>
+                                        <td>23</td>
+                                        <td>9</td>
+                                        <td>1,980</td>
+                                        <td>2,400</td>
+                                        <td>145</td>
+                                        <td></td>
+                                        <td>65%</td>
+                                        <td></td>
+                                        <td>12%</td>
+                                        <td></td>
+                                        <td>5%</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- //테이블 영역 -->
+                    </div>
+
+                    <div id="" class="in_bx_r02" style="margin-bottom:20px;">
+                        <!-- 테이블 영역 -->
+                        <div class="board_wrap">
+                            <table cellspacing="0" cellpadding="0" class="board_common03" summary="수도권 테이블로 지역의 항목으로 구성되어 있습니다.">
+                                <caption>수도권</caption>
+                                <colgroup>
+                                    <col width="*">
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="15%">
+                                    <col width="20%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">고객명</th>
+                                        <th scope="col">품목수</th>
+                                        <th scope="col">총 중량</th>
+                                        <th scope="col">주문수량</th>
+                                        <th scope="col">매출액</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="">
+                                    <tr>
+                                        <td>위수탁</td>
+                                        <td>8</td>
+                                        <td>2,130T</td>
+                                        <td>18%</td>
+                                        <td>45</td>
+                                    </tr>
+                                    <tr>
+                                        <td>직접운영</td>
+                                        <td>8</td>
+                                        <td>2,130T</td>
+                                        <td>18%</td>
+                                        <td>45</td>
+                                    </tr>
+                                    <tr>
+                                        <td>운송가맹</td>
+                                        <td>8</td>
+                                        <td>2,130T</td>
+                                        <td>18%</td>
+                                        <td>45</td>
+                                    </tr>
+                                    <tr>
+                                        <td>위수탁</td>
+                                        <td>8</td>
+                                        <td>2,130T</td>
+                                        <td>18%</td>
+                                        <td>45</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- //테이블 영역 -->
+                    </div>
+                </div>
+
+                <div class="in_bx_r02">
+                    <!-- 테이블 영역 -->
+                    <div class="board_wrap_rmate" id="chartHolder" />
+                    <!-- 테이블 영역 -->
+                </div>
+            </div>
+            <!-- 거점 상세 조회 영역 -->
+
+    </div>
+    <!-- //우측 정보 영역 -->
+</div>
+
+
+</div></body></html>

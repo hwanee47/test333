@@ -1,0 +1,90 @@
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+
+.container {
+	position: relative;
+	margin: 0;
+	width: 600px;
+	height: 700px;
+	border: 1px solid #ddd;
+}
+
+#svg {
+	border: 1px solid #ddd;
+}
+
+#map path {
+  fill: #8C8C8C;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+#map path:hover {
+  stroke: white;
+  fill-opacity: .7;
+}
+
+#data circle:hover {
+	cursor: pointer;
+}
+
+#data circle.B {
+  fill: #ffff00;
+  opacity: .6;
+  stroke: white;
+}
+
+#data circle.D {
+  fill: #ff0000;
+  opacity: .6;
+  stroke: white;
+}
+
+#data circle.A {
+  fill: #0000ff;
+  opacity: .6;
+  stroke: white;
+}
+
+/* Style for Custom Tooltip */
+div.tooltip {   
+ 	position: absolute;           
+	text-align: center;           
+	height: 22px;                 
+	padding: 3px;             
+	background: white;   
+	border: 0px;      
+	border-radius: 8px;           
+	pointer-events: none;  
+}
+
+/* Legend Position Style */
+.legend_loc {
+	position:absolute;
+	left:480px;
+	top:620px;
+	padding: 8px;
+	background: #c0c0c0;   
+	border: 0px;      
+	border-radius: 8px;
+	opacity: .8;
+}
+
+.legend_vol {
+	position:absolute;
+	left:480px;
+	top:365px;
+	padding: 8px;
+	background: #c0c0c0;   
+	border: 0px;      
+	border-radius: 8px;
+	opacity: .8;
+}
+
+.legend_vol circle {
+	fill: none;
+	stroke: #eee;
+}

@@ -1,0 +1,15 @@
+﻿{
+	"name": "rMateChartH5",
+	"version": "17.0.0.101",
+	"description": "nexacro platform 17 Unified Framework Library",
+	"license": "",
+	"scripts": [
+		"rMateChartH5/JS/editablegrid-2.0.1.js", 
+		//"rMateChartH5/JS/excanvas.js", 
+		"rMateChartH5/JS/rMateIntegrationH5.js", 
+		"LicenseKey/rMateChartH5License.js", 
+	],
+	"designscripts": [],
+	"objInfo": []
+}
+//@ sourceURL=rMateChartH5.json

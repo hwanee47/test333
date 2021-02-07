@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mobileService">
+
+	<select id="chkUserPw" resultClass="java.lang.Integer">
+		SELECT COUNT(*) 
+		FROM TB_BAIM_EMP_MGT_C A
+		JOIN TADM_KFR_USER B ON A.EMP_NO = B.ID
+		WHERE A.EMP_NO = #EMPID# AND B.PW = FC_AES_ENCRYPT(#PW#)
+	</select>
+
+	<select id="chkUserPw_20200820" resultClass="java.lang.Integer">
+		SELECT COUNT(*) FROM TADM_USER WHERE LOGIN_ID = #EMPID# AND LOGIN_PW = SHA2(#PW#,256)
+	</select>
+
+	<select id="getUserInfo" resultClass="java.util.HashMap">
+	/** [sql-mobileService.xml][mobileService.getUserInfo]
+		 *  [로그인]
+		 **/
+		 
+		SELECT
+			A.EMP_NO AS USER_ID
+			,A.EMP_NO AS EMP_ID
+			,A.EMP_NM AS USER_NM
+			,A.EMP_NM_ENG AS USER_ENG_NM
+			,A.EMP_NO AS LOGIN_ID
+			,CONCAT(A.CP_TEL_NO_1, '-', A.CP_TEL_NO_2, '-', FC_AES_DECRYPT(A.CP_TEL_NO_3)) AS TEL_NO
+			,'' AS FAX_NO
+			,CONCAT(A.CELL_NO_1 , '-', A.CELL_NO_2, '-', FC_AES_DECRYPT(A.CELL_NO_3)) AS HP_NO
+			,'' AS EMAIL
+			, B.BRAN_CD		/** 점소코드 */
+			, B.BRAN_NM		/** 점소명 */
+			, B.BRAN_ADDR || B.BRAN_DETAIL_ADDR AS 'BRAN_ADDR'	/** 점소 주소 */
+			, B.BRAN_DV		/** 점소구분 */
+			, B.BRAN_ST		/** 점소상태 */
+		FROM
+			TB_BAIM_EMP_MGT_C A
+		JOIN TB_BAIM_BRAN_MGT_C B ON A.BRAN_CD = B.BRAN_CD
+		WHERE
+			IFNULL(A.DEL_YN,'N') = 'N'
+		AND EMP_NO = #EMPID#
+	</select>
+
+	<select id="getUserInfo_20200820" resultClass="java.util.HashMap">
+	/** [sql-mobileService.xml][mobileService.getUserInfo]
+		 *  [로그인]
+		 **/
+		 
+		 SELECT 
+		      A.USER_ID			/** 사원id */
+		      , A.SITE_CD		/** SITE_CD */
+		      , A.EMP_ID		/** 사원id */
+		      , A.USER_NM		/** 사원명 */
+		      , A.USER_ENG_NM	/** 사원명EN */
+		      , A.LOGIN_ID		/** 로그인id */
+		      , FC_AES_DECRYPT(A.TEL_NO) AS 'TEL_NO'	/** 전화번호 */
+		      , FC_AES_DECRYPT(A.FAX_NO) AS 'FAX_NO'	/** 팩스번호 */
+		      , FC_AES_DECRYPT(A.HP_NO) AS 'HP_NO'		/** 집전화 */
+		      , FC_AES_DECRYPT(A.EMAIL) AS 'EMAIL'		/** 이메일 */
+		      , A.REQ_DATETIME
+		      , A.CORP_ID
+		      , A.CUST_ID
+		      , A.COMP_ID
+		      , A.DEPT_NM
+	          , B.BRAN_CD		/** 점소코드 */
+	          , B.BRAN_NM		/** 점소명 */
+	          , B.BRAN_ADDR || B.BRAN_DETAIL_ADDR AS 'BRAN_ADDR'	/** 점소 주소 */
+	          , B.BRAN_DV		/** 점소구분 */
+	          , B.BRAN_ST		/** 점소상태 */
+		    FROM TADM_USER A
+          JOIN TB_BAIM_BRAN_MGT_C B ON A.BRANCH_CD = B.BRAN_CD
+		    WHERE  A.DEL_YN = 'N'
+		     AND LOGIN_ID = #EMPID#
+	</select>
+
+	<select id="getWorkOrdList" resultClass="java.util.HashMap">
+	/** [sql-mobileService.xml][mobileService.getWorkOrdList]
+		 *  [작업지시 조회]
+		 **/
+		SELECT A.WORK_YMD       									/** 스캔일자 */
+			, A.CRG_ST              								/** 화물상태코드 */
+			, A.WAYBILL_NO        									/** 운송장번호 */
+			, A.BRAN_CD           									/** 점소코드 */
+			, A.PIDV_EMP_NO       									/** 작업사원코드 */
+			, A.WORK_HOUR         									/** 작업시간 */
+			, A.EQUIP_DV_CD       									/** 작업장시구분코드 */
+			, A.PIDV_EXPCT_HOUR_CD      							/** 집배예정시간코드 */
+			, A.PIDV_EXPCT_START_HOUR								/** 집배예정시작시간 */
+			, A.PIDV_EXPCT_END_HOUR                                 /** 집배예정종료시간 */
+			, B.RCVR_NM
+			, B.SENDR_NM  											/** 송화인*/
+			, B.SENDR_TEL_NO_1  									/** 송화인전화1 */
+			, B.SENDR_TEL_NO_2  									/** 송화인전화2 */
+			, FC_AES_DECRYPT(B.SENDR_TEL_NO_3) AS SENDR_TEL_NO_3  	/** 송화인전화3 */
+      		, B.SENDR_CELL_NO_1										/** 송화인휴대폰번호1 */
+      		, B.SENDR_CELL_NO_2										/** 송화인휴대폰번호2 */
+      		, FC_AES_DECRYPT(B.SENDR_CELL_NO_3) AS SENDR_CELL_NO_3  /** 송화인휴대폰번호3 */
+			, B.RCVR_TEL_NO_1										/** 수하인전화1 */
+			, B.RCVR_TEL_NO_2										/** 수하인전화2 */
+			, FC_AES_DECRYPT(B.RCVR_TEL_NO_3) AS RCVR_TEL_NO_3		/** 수하인전화3 */
+      		, B.RCVR_CELL_NO_1										/** 수하인휴대폰번호1 */
+      		, B.RCVR_CELL_NO_2										/** 수하인휴대폰번호2 */
+      		, FC_AES_DECRYPT(B.RCVR_CELL_NO_3) AS RCVR_CELL_NO_3  	/** 수하인휴대폰번호3 */
+			, B.SENDR_ADDR
+			, FC_AES_DECRYPT(B.SENDR_DETAIL_ADDR) AS SENDR_DETAIL_ADDR
+			, B.RCVR_ADDR
+			, FC_AES_DECRYPT(B.RCVR_DETAIL_ADDR) AS RCVR_DETAIL_ADDR
+			, B.ITEM_NM												/** 품목명 */
+			, B.RSRV_NO     										/** 예약번호 */
+			, E.CD_NM       										/** 화물최종상태명 */
+			, B.LATD												/** 위도 */
+      		, B.LGTD												/** 경도 */
+      		, B.ITEM_DETAIL_NM                                      /** 품목상세명 */
+      		, B.ITEM_SORT_CD                                        /** 품목분류코드 */
+      		, B.QTY                                                 /** 수량 */
+      		, C.PICKUP_YMD                                          /** 집하일자 */
+      		, C.PICKUP_EXPCT_YMD                                    /** 집하예정일자 */
+      		, DATEDIFF(IFNULL(C.PICKUP_YMD, C.PICKUP_EXPCT_YMD),NOW()) AS DAYINTERVAL /** 배송소요일 */
+      		, C.FRT_SUM                                             /** 총운임 */
+			FROM
+			  TB_PIDV_DEPAT_SCAN_C A,
+			  TB_RCPT_LIST_C B, 
+			  TB_RCPT_LIST_DECIS_C C,
+			  TB_WAYBILL_REG_MST_C D,
+			  TMDM_MC_CODE_B E                                                                      		
+			  WHERE A.WAYBILL_NO = B.WAYBILL_NO
+			  AND B.RSRV_NO = C.RSRV_NO
+			  AND A.WAYBILL_NO = D.WAYBILL_NO
+			  AND A.CRG_ST = E.CD
+			  AND E.CD_TCD = 'ST019' 
+			  AND A.CRG_ST NOT IN ('01,91') /* 01:집화지시,91:배달완료 */
+			  AND A.WORK_YMD BETWEEN DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -15 DAY), '%Y%m%d') AND DATE_FORMAT(NOW(), '%Y%m%d')    /* 15전부터 오늘일자까지 조회 */                                                                                              			
+		  AND A.PIDV_EMP_NO = #EMPID# 
+		  and A.BRAN_CD = #BRANCD#
+	</select>
+
+
+	<select id="getCodeList" resultClass="java.util.HashMap">
+	/** [sql-mobileService.xml][mobileService.getCodeList]
+		 *  [공통코드리스트를 조회한다]
+		 **/
+		SELECT 
+			TMCB.CD_TCD		/** 코드유형을 구분하는 key value **/
+	        ,TMCB.CD		/** 코드값 **/
+	        ,TMCB.CD_NM		/** 코드명 **/
+	        ,TMCB.CD_DESC	/** 코드설명 **/
+	        ,TMCM.CD_ORDB	/** 각 코드간 출력순서를 정하는 필드 **/
+		FROM
+		    TMDM_MC_CODE_B TMCB		/** 공통코드상세 **/
+		    ,TMDM_MC_CODE_M TMCM	/** 공통코드상세 참조(출력순서필드 이용하기위해 조인)**/
+		WHERE
+		    TMCB.CD_TCD = TMCM.CD_TCD
+		AND TMCB.CD     = TMCM.CD
+		AND TMCB.CD_TCD IN('PD001','PD002','PD003','PD005', 'ST019')
+		AND TMCB.DEL_YN = 'N'
+		ORDER BY CD_TCD, CD_ORDB
+	</select>
+	
+	
+	<insert id="insertScanInfo">
+	/** [sql-mobileService.xml][mobileService.insertScanInfo]
+		 *  [모바일 스캔내역 전송]
+		 **/
+		 INSERT INTO TB_PIDV_SCAN_DEALT_LIST_C (
+		   SND_YMD
+		  ,WORK_DV
+		  ,WORK_SEQ
+		  ,BRAN_CD
+		  ,SND_HOUR
+		  ,CRG_ST
+		  ,CUD_DV_CD
+		  ,SCAN_YMD
+		  ,SCAN_HOUR
+		  ,WAYBILL_NO
+		  ,RTURN_YN
+		  ,RTURN_RSN_CD
+		  ,DELAY_KND
+		  ,DELAY_RSN_CD
+		  ,PIDV_EXPCT_HOUR_CD
+		  ,RSRV_NO
+		  ,EQUIP_NO
+		  ,ACPTR_NM
+		  ,ACPTR_REL
+		  ,EQUIP_DV_CD
+		  ,REG_BRAN_CD
+		  ,DETAIL_RSN
+		  ,EMP_NO
+		  ,SND_DV
+		  ,SND_CD
+		  ,DEALT_YN
+		  ,REG_EMP_ID
+		  ,REG_DTIME
+		  ,MODI_EMP_ID
+		  ,MODI_DTIME
+		)
+		VALUES(
+		  DATE_FORMAT(now(), '%Y%m%d')							/** 전송일자 */
+		  ,#WORK_DV#											/** 작업구분 */
+		  ,(SELECT IFNULL(MAX(WORK_SEQ)+1,1) FROM TB_PIDV_SCAN_DEALT_LIST_C A WHERE SND_YMD = DATE_FORMAT(now(), '%Y%m%d')) /** 전송구분 */
+		  ,#BRAN_CD#											/** 점소코드 */
+		  ,REPLACE(DATE_FORMAT(NOW(), '%H%i'),':','')			/** 전송시간 */
+		  ,#CRG_ST#												/** 화물상태코드 */
+		  ,'C' 													/** CUD구분 */
+		  ,#SCAN_YMD# 											/** 스캔일자 */
+		  ,#SCAN_HOUR#											/** 스캔시간 */
+		  ,#WAYBILL_NO#  										/** 운송장번호 */
+		  ,#RTURN_YN#                                             /** 반송여부 */     
+		  ,#RTURN_RSN_CD#                                         /** 반송사유코드 */     
+		  ,#DELAY_KND#                                            /** 지연종류사유 */     
+		  ,#DELAY_RSN_CD#                                         /** 지연사유코드 */     
+		  ,#PIDV_EXPCT_HOUR_CD#                                   /** 집배예정시간코드 */   
+		  ,#RSRV_NO#                                              /** 예약번호 */ 
+		  ,#EQUIP_NO#                                             /** 장비번호 */     
+		  ,#ACPTR_NM#                                             /** 인수자명 */     
+		  ,#ACPTR_REL#                                            /** 인수자관계 */     
+		  ,#EQUIP_DV_CD#                                          /** 인수자관계 */    
+		  ,#REG_BRAN_CD#                                          /** 등록점소코드 */                
+		  ,#DETAIL_RSN#                                           /** 상세사유 */     
+		  ,#EMP_NO#                                               /** 사원ID */     
+		  ,#SND_DV#                                               /** 전송자코드 */    
+		  ,#SND_CD#                                               /** 장비구분코드 */   
+		  ,#DEALT_YN#                                             /** 처리여부('N' -- 테스트장비는 'Y'.) */                
+		  ,#EMP_NO#                                           		/** 작업자ID  */    
+		  ,REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')       /** 작업일시 */    
+		  ,#EMP_NO#                                          /** 수정자ID */     
+		  ,REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')        /** 수정일시  */ 
+      	)
+	</insert>
+	
+	<select id="getCrgStInfo" resultClass="java.util.HashMap">
+	/** [sql-mobileService.xml][mobileService.getCrgStInfo]
+		 *  [화물추적정보 조회한다]
+		 **/
+	SELECT 
+	  A.GDS_ST_CD   	/* 화물상태 */
+	  , G.CD_NM  AS GDS_ST_NM   	/* 화물상태명 */
+	  , A.WORK_YMD  	/* 작업일자 */
+	  , A.WORK_HOUR 	/* 작업시간 */
+	  , A.BRAN_CD   	/* 점소코드 */
+	  , A.WAYBILL_NO  	/* 운송장번호  */
+	  , C.RCVR_NM   	/* 수화인명 */
+	  , CONCAT(C.RCVR_TEL_NO_1, C.RCVR_TEL_NO_2, FC_AES_DECRYPT(C.RCVR_TEL_NO_3)) AS RCVR_TEL_NO 			/* 수화인전화번호 */
+	  , CONCAT(C.RCVR_CELL_NO_1, C.RCVR_CELL_NO_2, FC_AES_DECRYPT(C.RCVR_CELL_NO_3)) AS RCVR_CELL_NO 		/* 수화인핸드폰번호 */
+	  , CONCAT(C.RCVR_ADDR , ' ' , FC_AES_DECRYPT(C.RCVR_DETAIL_ADDR)) AS RCVR_ADDR 						/* 수화인 주소 */
+	  , C.SENDR_NM 																							/* 송화인 */
+	  , CONCAT(C.SENDR_TEL_NO_1, C.SENDR_TEL_NO_2, FC_AES_DECRYPT(C.SENDR_TEL_NO_3)) AS SENDR_TEL_NO 		/* 송화인전화번호 */
+	  , CONCAT(C.SENDR_CELL_NO_1, C.SENDR_CELL_NO_2, FC_AES_DECRYPT(C.SENDR_CELL_NO_3)) AS SENDR_CELL_NO 	/* 송화인핸드폰번호 */
+	  , CONCAT(C.SENDR_ADDR , ' ' , FC_AES_DECRYPT(C.SENDR_DETAIL_ADDR)) AS SENDR_ADDR 						/* 송화인 주소 */
+	  , CONCAT(C.ITEM_NM, ' ' ,IFNULL(C.ITEM_DETAIL_NM,'')) AS ITEM_NM 										/* 품명 */
+	  , C.LATD
+	  , C.LGTD
+	  , C.QTY 				/* 수량 */
+	  , D.FRT_SUM 			/* 총운임 */
+	  , D.FRT_DV 			/* 운임구분 */
+	  , H.ACPTR_REL_NM		/* 인수자관계 */
+	  , E.CUST_NM AS CLIENT_NM			/* 주관고객명 */
+	FROM
+	(SELECT GDS_ST_CD, MAX(WORK_YMD) AS WORK_YMD, MAX(WORK_HOUR) AS WORK_HOUR, BRAN_CD,WAYBILL_NO 
+		FROM TB_PIDV_CRG_ST_C WHERE WAYBILL_NO = #WAYBILL_NO#) A 
+		LEFT OUTER JOIN   
+	 	(SELECT H_1.WAYBILL_NO, H_1.ACPTR_NM, MAX(H_1.SND_YMD) AS SND_YMD , MAX(H_1.WORK_SEQ)AS WORK_SEQ, H_2.CD_NM AS ACPTR_REL_NM
+  		FROM TB_PIDV_SCAN_DEALT_LIST_C H_1, TMDM_MC_CODE_B H_2
+		WHERE CRG_ST = '91' AND WAYBILL_NO =#WAYBILL_NO# AND H_1.ACPTR_REL = H_2.CD AND H_2.CD_TCD='PD003') H  
+		ON A.WAYBILL_NO = H.WAYBILL_NO
+	, TB_WAYBILL_REG_MST_C B
+	, TB_RCPT_LIST_C C
+	, TB_RCPT_LIST_DECIS_C D
+	, TB_BAIM_CUST_LIST_C E 
+	, TMDM_MC_CODE_B G
+	WHERE A.WAYBILL_NO = B.WAYBILL_NO
+	AND C.RSRV_NO = D.RSRV_NO
+	AND B.WAYBILL_NO = C.WAYBILL_NO
+	 AND C.CUST_ID = E.CUST_ID
+	 AND A.GDS_ST_CD = G.CD
+	 AND G.CD_TCD = 'ST019'
+	</select>
+</sqlMap>

@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimCommonService">
+	
+	<select id="checkIsJiBunZipNo" resultClass="int">
+		/** [sql-baimCommonService.xml][baimCommonService.checkIsJiBunZipNo]
+		 *  [우편번호마스터(지번)에 우편번호가 있는지 체크.]
+		 *  [KimJinHwan 2020.06.18]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_BAIM_JIBUN_ZIP_NO_MST TBJZNM
+		WHERE
+			TBJZNM.ZIP_NO = #ZIP_NO#
+	</select>
+	
+	
+	<select id="checkIsRoadZipNo" resultClass="int">
+		/** [sql-baimCommonService.xml][baimCommonService.checkIsRoadZipNo]
+		 *  [우편번호마스터(도로명)에 우편번호가 있는지 체크.]
+		 *  [KimJinHwan 2020.06.18]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_BAIM_ROADNM_ZIP_NO_MST TBRZNM
+		WHERE
+			TBRZNM.ZIP_NO = #ZIP_NO#
+	</select>
+	
+	
+	<select id="getCodeList" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getCodeList]
+		 *  [공통코드리스트를 조회한다]
+		 *  [KimJinHwan 2020.02.06]
+		 **/
+		SELECT 
+			TMCB.CD_TCD		/** 코드유형을 구분하는 key value **/
+	        ,TMCB.CD		/** 코드값 **/
+	        ,TMCB.CD_NM		/** 코드명 **/
+	        ,TMCB.CD_DESC	/** 코드설명 **/
+	        ,TMCM.CD_ORDB	/** 각 코드간 출력순서를 정하는 필드 **/
+		FROM
+		    TMDM_MC_CODE_B TMCB		/** 공통코드상세 **/
+		    ,TMDM_MC_CODE_M TMCM	/** 공통코드상세 참조(출력순서필드 이용하기위해 조인)**/
+		WHERE
+		    TMCB.CD_TCD = TMCM.CD_TCD
+		AND TMCB.CD     = TMCM.CD
+		AND TMCB.CD_TCD = #CD_TCD#
+		AND TMCB.DEL_YN = 'N'
+		ORDER BY CD_ORDB
+	</select>
+	
+	
+	<select id="getSidoList" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getSidoList]
+		 *  [시도 리스트를 조회한다.]
+		 *  [KimJinHwan 2020.08.19]
+		 **/
+		SELECT
+			
+			TAJA.SIDO_NM,
+			(
+			    CASE WHEN TAJA.SIDO_NM REGEXP '^서울' THEN 1				/*서울로 시작.*/
+			         WHEN TAJA.SIDO_NM REGEXP '광역시$$' THEN 2			/*광역시로 끝남. (특수문자 $는 $를 한번더 해주어야 에러안남.)*/
+			         WHEN TAJA.SIDO_NM REGEXP '^제주' THEN 99				/*제주로 시작.*/
+			    ELSE 
+			    	3													/*나머지*/
+			    END
+			) CUSTOM_ORDERBY
+		FROM
+		    TB_API_JIBUN_ADDR TAJA
+		GROUP BY TAJA.SIDO_NM
+		ORDER BY CUSTOM_ORDERBY,SIDO_NM
+	
+	</select>
+	
+	<select id="getSidoList_20200819" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getSidoList]
+		 *  [시도 리스트를 조회한다.]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+		SELECT
+			RGN_NM_1 AS CD, 
+		    RGN_NM_1 AS CD_NM,
+		    (
+		        CASE WHEN RGN_NM_1 REGEXP '^서울' THEN 1				/*서울로 시작.*/
+		             WHEN RGN_NM_1 REGEXP '광역시$$' THEN 2			/*광역시로 끝남. (특수문자 $는 $를 한번더 해주어야 에러안남.)*/
+		             WHEN RGN_NM_1 REGEXP '^제주' THEN 99				/*제주로 시작.*/
+		        ELSE 
+		        3													/*나머지*/
+		        END
+		    ) CUSTOM_ORDERBY
+		FROM
+		    TB_BAIM_JIBUN_ZIP_NO_MST
+		GROUP BY RGN_NM_1
+		ORDER BY CUSTOM_ORDERBY,CD_NM
+	
+	</select>
+	
+	<select id="getSkkList" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getSkkList]
+		 *  [시군구 리스트를 조회한다.]
+		 *  [KimJinHwan 2020.08.19]
+		 **/
+		SELECT 
+		    TAJA.SIDO_NM,
+		    TAJA.SKK_NM
+		FROM 
+		    TB_API_JIBUN_ADDR TAJA
+		GROUP BY TAJA.SIDO_NM, TAJA.SKK_NM
+		ORDER BY SKK_NM	
+	</select>
+	
+	<select id="getSkkListBySido" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getSkkListBySido]
+		 *  [시군구 리스트를 조회한다.]
+		 *  [jckim 2020.08.27]
+		 **/
+		SELECT 
+		    TAJA.SIDO_NM,
+		    TAJA.SKK_NM
+		FROM 
+		    TB_BAIM_PIDV_ZN_MST TAJA
+		WHERE 
+		    TAJA.SIDO_NM = (CASE WHEN IFNULL(#SI_DO#, '')='' THEN TAJA.SIDO_NM ELSE #SI_DO# END)
+		GROUP BY TAJA.SIDO_NM, TAJA.SKK_NM
+		ORDER BY SKK_NM, SKK_NM
+	</select>
+	
+	
+	<select id="getSkkList_20200819" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getSkkList]
+		 *  [시군구 리스트를 조회한다.]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+		SELECT 
+		    RGN_NM_2 AS CD,
+		    RGN_NM_2 AS CD_NM
+		FROM 
+		    TB_BAIM_JIBUN_ZIP_NO_MST
+		WHERE
+		    RGN_NM_1 LIKE CONCAT('%', #SIDO_NM#, '%')
+		GROUP BY RGN_NM_2
+		ORDER BY CD_NM
+
+	
+	</select>
+	
+	<select id="getEmdongList" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getEmdongList]
+		 *  [읍면동 리스트를 조회한다.]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+		SELECT
+		    RGN_NM_3 AS CD,
+		    RGN_NM_3 AS CD_NM
+		FROM
+		    TB_BAIM_JIBUN_ZIP_NO_MST
+		WHERE
+		    RGN_NM_1 LIKE CONCAT('%', #SIDO_NM#, '%')
+		AND RGN_NM_2 LIKE CONCAT('%', #SKK_NM#, '%')
+		AND RGN_NM_3 IS NOT NULL
+		GROUP BY CD_NM
+
+	
+	</select>
+	
+	<select id="getEmdongListBySkk" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getEmdongListBySkk]
+		 *  [읍면동 리스트를 조회한다.]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+		SELECT
+			TAJA.EMDONG_NM
+		FROM
+		    TB_BAIM_PIDV_ZN_MST TAJA
+    	WHERE 
+    		TAJA.SIDO_NM = (CASE WHEN IFNULL(#SI_DO#, '')='' THEN TAJA.SIDO_NM ELSE #SI_DO# END)
+      	AND TAJA.SKK_NM = (CASE WHEN IFNULL(#SKK#, '')='' THEN TAJA.SKK_NM ELSE #SKK# END)
+		GROUP BY TAJA.EMDONG_NM
+		ORDER BY EMDONG_NM
+	</select>
+
+
+	<select id="getZipJibunAddrInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getZipJibunAddrInfoList]
+		 *  [우편번호 주소를 조회한다.(지번)]
+		 *  [KimJinHwan 2020.02.12]
+		 **/
+		SELECT
+		    ZIP_NO
+		    ,DETAIL_ADDR AS ADDR
+		FROM
+		    TB_BAIM_JIBUN_ZIP_NO_MST A
+		WHERE
+			1=1
+		<isNotEmpty property="SIDO_NM">
+	    	AND A.RGN_NM_1 LIKE CONCAT('%',#SIDO_NM#,'%')
+	    </isNotEmpty>    
+		<isNotEmpty property="SKK_NM">
+	    	AND A.RGN_NM_2 LIKE CONCAT('%',#SKK_NM#,'%')
+	    </isNotEmpty>
+	    <isNotEmpty property="EMDONG_NM">
+	    	AND A.RGN_NM_3 LIKE CONCAT('%',#EMDONG_NM#,'%')
+	    </isNotEmpty> 
+	    <isNotEmpty property="DETAIL_ADDR">
+	    	AND A.DETAIL_ADDR LIKE CONCAT('%',#DETAIL_ADDR#,'%')
+	    </isNotEmpty>
+	    <isNotEmpty property="ZIP_NO">
+	    	AND A.ZIP_NO = #ZIP_NO#
+	    </isNotEmpty> 
+	    ORDER BY ZIP_NO, ADDR
+	</select>
+	
+	<select id="getZipRoadAddrInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getZipRoadAddrInfoList]
+		 *  [우편번호 주소를 조회한다.(도로명)]
+		 *  [KimJinHwan 2020.02.12]
+		 **/
+		SELECT 
+		    MAX(A.ZIP_NO) AS ZIP_NO,
+		    <!-- MAX(A.DETAIL_ADDR) AS ADDR -->
+		    CONCAT(MAX(A.RGN_NM_1),' ',MAX(A.RGN_NM_2),' ',MAX(A.RGN_NM_4)) AS ADDR
+		FROM 
+		    TB_BAIM_ROADNM_ZIP_NO_MST A
+		WHERE 
+		    1=1
+		<isNotEmpty property="SIDO_NM">
+	    	<!-- AND A.RGN_NM_1 LIKE CONCAT('%',#SIDO_NM#,'%') -->
+	    	AND A.RGN_NM_1 = #SIDO_NM#
+	    </isNotEmpty>    
+		<isNotEmpty property="SKK_NM">
+	    	<!-- AND A.RGN_NM_2 LIKE CONCAT('%',#SKK_NM#,'%') -->
+	    	AND A.RGN_NM_2 = #SKK_NM#
+	    </isNotEmpty>
+	    <isNotEmpty property="EMDONG_NM">
+	    	<!-- AND A.RGN_NM_3 LIKE CONCAT('%',#EMDONG_NM#,'%') -->
+	    	AND A.RGN_NM_3 = #EMDONG_NM#
+	    </isNotEmpty>
+	    <isNotEmpty property="DETAIL_ADDR">
+	    	AND A.DETAIL_ADDR LIKE CONCAT('%',#DETAIL_ADDR#,'%')
+	    </isNotEmpty>
+	    <isNotEmpty property="ZIP_NO">
+	    	AND A.ZIP_NO = #ZIP_NO#
+	    </isNotEmpty>  
+		GROUP BY A.RGN_CD_4
+		ORDER BY ZIP_NO, ADDR
+				
+	
+	</select>
+	
+	
+	<select id="getCustInfo" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getCustInfo]
+		 *  [고객의 정보를 조회한다.(WMS)]
+		 *  [KimJinHwan 2020.05.12]
+		 **/
+		SELECT 
+		    A.SHIPPER_ID AS CUST_ID
+		    ,A.CUST_REPRE_NM AS CUST_NM
+		    ,A.ENTRP_REG_NO
+		    ,CONCAT(A.BUSINESTAB_ADDR, ' ', FC_AES_DECRYPT(A.BUSINESTAB_DETAIL_ADDR)) AS ADDR
+		    ,CONCAT(A.BUSINESTAB_TEL_NO_1, '-', A.BUSINESTAB_TEL_NO_2, '-', FC_AES_DECRYPT(A.BUSINESTAB_TEL_NO_3)) AS TEL_NO
+		FROM
+		    TB_WMS_CUST_MGMT_C A
+		WHERE
+		    USE_YN = 'Y'
+		<!-- 사용자 고객권한 -->
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+				AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C B WHERE B.CUST_ID = A.SHIPPER_ID AND USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="CUST_CD">
+		AND A.SHIPPER_ID = #CUST_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_ID">
+		AND A.SHIPPER_ID = #CUST_ID#
+		</isNotEmpty>
+		<isNotEmpty property="SHIPPER_ID">
+		AND A.SHIPPER_ID = #SHIPPER_ID#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_NM">
+		AND A.CUST_REPRE_NM LIKE CONCAT('%', #CUST_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="SHIPPER_NM">
+		AND A.CUST_REPRE_NM LIKE CONCAT('%', #SHIPPER_NM#, '%')
+		</isNotEmpty>      
+			
+	</select>
+	
+	
+	
+	<select id="getItemInfo" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getItemInfo]
+		 *  [품목 정보를 조회한다.(WMS)]
+		 *  [KimJinHwan 2020.05.13]
+		 **/
+		SELECT
+		    A.ITEM_CD
+		    ,A.ITEM_NM
+		    ,A.VDT_FLAG
+		    ,A.VDT_PERIOD
+		    ,30 AS WAREI_LIMIT_DAY	<!-- 임시 테스트용(입고 제한일자) -->
+		    ,30 AS WAREO_LIMIT_DAY	<!-- 임시 테스트용(출고 제한일자) -->
+		FROM
+		    TB_WMS_ITEM_MGMT_C A
+		    ,TB_WMS_CUST_MGMT_C B
+		WHERE
+		    A.SHIPPER_ID = B.CUST_CD
+		AND A.USE_YN = 'Y'
+		<!-- 사용자 고객권한 -->
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+				AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C B WHERE B.CUST_ID = A.SHIPPER_ID AND USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="GDS_CD">
+		AND A.ITEM_CD = #GDS_CD#
+		</isNotEmpty>
+		<isNotEmpty property="GDS_NM">
+		AND A.ITEM_NM LIKE CONCAT('%', #GDS_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_CD">
+		AND A.ITEM_CD = #ITEM_CD#
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_NM">
+		AND A.ITEM_NM LIKE CONCAT('%', #ITEM_NM#, '%')
+		</isNotEmpty>
+			
+	</select>
+	
+	
+	<select id="getItemGrpInfo" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getItemGrpInfo]
+		 *  [품목 그룹 정보를 조회한다.(WMS)]
+		 *  [KimJinHwan 2020.05.29]
+		 **/
+		SELECT
+			'' AS CHK
+		    ,A.ITEM_GRP_CD
+		    ,A.DESCRIPT
+			,A.ZN_CD
+			,A.USE_YN
+		FROM
+		    TB_WMS_ITEM_GRP_C A
+		WHERE
+		    1=1
+		AND A.USE_YN = 'Y'
+		<isNotEmpty property="ITEM_GRP_CD">
+		AND A.ITEM_GRP_CD = #ITEM_GRP_CD#
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_GRP_DESC">
+		AND A.DESCRIPT LIKE CONCAT('%', #ITEM_GRP_DESC#, '%')
+		</isNotEmpty>
+			
+	</select>
+	
+	
+	<select id="getBranInfo" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getBranInfo]
+		 *  [점소 정보를 조회한다]
+		 *  [KimJinHwan 2020.07.14]
+		 **/
+	
+	</select>
+	
+	
+	<select id="getExcelFormList" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getExcelFormList]
+		 *  [엑셀 양식 리스트를 조회한다.]
+		 *  [KimJinHwan 2020.05.22]
+		 **/
+		SELECT
+			XLS_FRM_NM
+		FROM
+			TB_BAIM_USER_XLS_FRM_C
+		WHERE
+			CUST_ID = #CUST_ID# 
+		AND WAREIO_DV = #WAREIO_DV#
+		ORDER BY XLS_FRM_NM
+	</select>
+	
+	
+	<select id="getCustListPop" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getWmsCustListPop]
+		 *  [고객조회 (팝업)- 고객사구분없이 전체조회]
+		 *  [KimJinHwan 2020.07.16]
+		 **/
+		SELECT
+		  TBCLC.CUST_ID
+		  ,TBCLC.CUST_NM
+		  ,TBCLC.ZIP_NO
+		  ,CONCAT(TBCLC.ADDR_1, ' ', FC_AES_DECRYPT(TBCLC.DETAIL_ADDR)) AS ADDR
+		  ,CONCAT(TBCLC.TEL_NO_1, '-', TBCLC.TEL_NO_2, '-', FC_AES_DECRYPT(TBCLC.TEL_NO_3)) AS TEL_NO
+		  ,IFNULL(TBECC.CP_DV, 'CP03') AS CP_DV
+		  ,TBCLC.CUST_DV
+		  
+		FROM
+		    TB_BAIM_CUST_LIST_C  TBCLC
+		LEFT OUTER JOIN TB_BAIM_ENTER_CUST_C TBECC ON (TBCLC.CUST_ID = TBECC.CUST_ID)
+		WHERE
+			1=1
+		<!-- 사용자 고객권한 -->
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 고객만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+		  		AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C B WHERE B.CUST_ID = TBCLC.CUST_ID AND USER_ID = #gv_userId#)
+	  		</isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="CUST_ID">
+		AND TBCLC.CUST_ID = #CUST_ID#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_NM">
+		AND TBCLC.CUST_NM LIKE CONCAT('%', #CUST_NM#, '%')
+		</isNotEmpty>    
+		<isNotEmpty property="TEL_NO">
+		AND CONCAT(TBCLC.TEL_NO_1, '-', TBCLC.TEL_NO_2, '-', FC_AES_DECRYPT(TBCLC.TEL_NO_3)) = #TEL_NO#
+		</isNotEmpty>    
+		<isNotEmpty property="CP_DV">
+		AND IFNULL(TBECC.CP_DV, 'CP03') = #CP_DV#
+		</isNotEmpty>
+			
+	</select>
+	
+	<select id="getAddrInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getAddrInfoList]
+		 *  [우편번호 주소를 조회한다.(case1:도로명(읍면동)+본번+부번)]
+		 *  [jckim 2020.08.19]
+		 **/
+		 
+		/*도로명*/
+		SELECT B.BASIC_ZN_NO AS ZIP_NO
+ 			 , CONCAT(A.SIDO_NM, ' ', A.SKK_NM, ' ', (CASE A.EMDONG_DV WHEN 0 THEN CONCAT(A.EMDONG_NM,' ') ELSE '' END), A.ROADNM, ' ', B.BLDG_MAIN_BUN, (CASE B.BLDG_SUB_BUN WHEN 0 THEN '' ELSE CONCAT('-', B.BLDG_SUB_BUN) END), (CASE WHEN A.EMDONG_DV=0 AND C.APAHOUSE_YN=0 THEN '' ELSE CONCAT(' (', A.EMDONG_NM,CASE C.APAHOUSE_YN WHEN 0 THEN '' ELSE CONCAT(', ', C.SKK_BLDG_NM) END, ')') END)) AS ROAD_ADDR
+ 			 , CONCAT(D.SIDO_NM, ' ', D.SKK_NM, ' ',(CASE WHEN D.BJEMDONG_NM IS NULL OR D.BJEMDONG_NM='' THEN D.BJR_NM ELSE D.BJEMDONG_NM END), ' ', D.JIBUN_MAIN_BUN, (CASE D.JIBUN_SUB_BUN WHEN 0 THEN '' ELSE CONCAT('-',D.JIBUN_SUB_BUN) END), (CASE WHEN C.SKK_BLDG_NM IS NULL THEN '' ELSE CONCAT(' ', C.SKK_BLDG_NM) END)) AS JIBUN_ADDR
+ 			 , CONCAT(A.SIDO_NM, ' ', A.SKK_NM, ' ', (CASE A.EMDONG_DV WHEN 0 THEN CONCAT(A.EMDONG_NM,' ') ELSE '' END), A.ROADNM, ' ', B.BLDG_MAIN_BUN, (CASE B.BLDG_SUB_BUN WHEN 0 THEN '' ELSE CONCAT('-', B.BLDG_SUB_BUN) END)) AS ADDR
+ 			 , (CASE WHEN A.EMDONG_DV=0 AND C.APAHOUSE_YN=0 THEN '' ELSE CONCAT('(', A.EMDONG_NM,CASE C.APAHOUSE_YN WHEN 0 THEN '' ELSE CONCAT(', ', C.SKK_BLDG_NM) END, ')') END) AS ADD_INFO
+		  FROM TB_API_ROADNM_CD A
+			 , TB_API_ROADNM_ADDR B
+			 , TB_API_ADDR_ADD_INFO C
+			 , TB_API_JIBUN_ADDR D
+		 WHERE A.SIDO_NM = #SIDO_NM#
+		   AND A.SKK_NM = #SKK_NM#
+		   AND A.ROADNM = (CASE IFNULL(#ROAD_NM#, '') WHEN '' THEN A.ROADNM ELSE #ROAD_NM# END)
+		   AND A.ROADNM_CD = B.ROADNM_CD
+		   AND A.EMDONG_SERIAL = B.EMDONG_SERIAL
+		   <isNotEmpty property="MAIN_BUN">
+		   AND B.BLDG_MAIN_BUN = (CASE #MAIN_BUN# WHEN '' THEN B.BLDG_MAIN_BUN ELSE #MAIN_BUN# END)
+		   </isNotEmpty>
+		   <isNotEmpty property="SUB_BUN">
+		   AND B.BLDG_SUB_BUN = (CASE #SUB_BUN# WHEN '' THEN B.BLDG_SUB_BUN ELSE #SUB_BUN# END)
+		   </isNotEmpty>
+		   AND B.MGMT_NO = C.MGMT_NO
+		   AND B.MGMT_NO = D.MGMT_NO
+		   AND D.REPRE_YN = '1'
+		UNION
+		/*지번*/
+		SELECT B.BASIC_ZN_NO
+ 			 , CONCAT(A.SIDO_NM, ' ', A.SKK_NM, ' ', (CASE A.EMDONG_DV WHEN 0 THEN CONCAT(A.EMDONG_NM,' ') ELSE '' END), A.ROADNM, ' ', B.BLDG_MAIN_BUN, (CASE B.BLDG_SUB_BUN WHEN 0 THEN '' ELSE CONCAT('-', B.BLDG_SUB_BUN) END), (CASE WHEN A.EMDONG_DV=0 AND C.APAHOUSE_YN=0 THEN '' ELSE CONCAT(' (', A.EMDONG_NM,CASE C.APAHOUSE_YN WHEN 0 THEN '' ELSE CONCAT(', ', C.SKK_BLDG_NM) END, ')') END)) AS ROAD_ADDR
+ 			 , CONCAT(D.SIDO_NM, ' ', D.SKK_NM, ' ',(CASE WHEN D.BJEMDONG_NM IS NULL OR D.BJEMDONG_NM='' THEN D.BJR_NM ELSE D.BJEMDONG_NM END), ' ', D.JIBUN_MAIN_BUN, (CASE D.JIBUN_SUB_BUN WHEN 0 THEN '' ELSE CONCAT('-',D.JIBUN_SUB_BUN) END), (CASE WHEN C.SKK_BLDG_NM IS NULL THEN '' ELSE CONCAT(' ', C.SKK_BLDG_NM) END)) AS JIBUN_ADDR
+ 			 , CONCAT(A.SIDO_NM, ' ', A.SKK_NM, ' ', (CASE A.EMDONG_DV WHEN 0 THEN CONCAT(A.EMDONG_NM,' ') ELSE '' END), A.ROADNM, ' ', B.BLDG_MAIN_BUN, (CASE B.BLDG_SUB_BUN WHEN 0 THEN '' ELSE CONCAT('-', B.BLDG_SUB_BUN) END)) AS ADDR
+ 			 , (CASE WHEN A.EMDONG_DV=0 AND C.APAHOUSE_YN=0 THEN '' ELSE CONCAT('(', A.EMDONG_NM,CASE C.APAHOUSE_YN WHEN 0 THEN '' ELSE CONCAT(', ', C.SKK_BLDG_NM) END, ')') END) AS ADD_INFO
+		  FROM TB_API_JIBUN_ADDR D
+			 , TB_API_ROADNM_CD A
+			 , TB_API_ROADNM_ADDR B
+			 , TB_API_ADDR_ADD_INFO C
+		 WHERE D.SIDO_NM = #SIDO_NM#
+		   AND D.SKK_NM = #SKK_NM#
+		   AND D.BJEMDONG_NM = (CASE IFNULL(#ROAD_NM#, '') WHEN '' THEN D.BJEMDONG_NM ELSE #ROAD_NM# END)
+		   <isNotEmpty property="MAIN_BUN">
+		   AND D.JIBUN_MAIN_BUN = (CASE #MAIN_BUN# WHEN '' THEN D.JIBUN_MAIN_BUN ELSE #MAIN_BUN# END)
+		   </isNotEmpty>
+		   <isNotEmpty property="SUB_BUN">
+		   AND D.JIBUN_SUB_BUN = (CASE #SUB_BUN# WHEN '' THEN D.JIBUN_SUB_BUN ELSE #SUB_BUN# END)
+		   </isNotEmpty>
+		   AND D.MGMT_NO = B.MGMT_NO
+		   AND B.MGMT_NO = C.MGMT_NO
+		   AND A.ROADNM_CD = B.ROADNM_CD
+		   AND A.EMDONG_SERIAL = B.EMDONG_SERIAL
+		 ORDER BY ZIP_NO
+	</select>
+
+	<select id="getBldgInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimCommonService.xml][baimCommonService.getBldgInfoList]
+		 *  [우편번호 주소를 조회한다.(case1:도로명(읍면동)+본번+부번)]
+		 *  [jckim 2020.08.19]
+		 **/
+		/*건물명*/
+		SELECT B.BASIC_ZN_NO AS ZIP_NO
+ 			 , CONCAT(A.SIDO_NM, ' ', A.SKK_NM, ' ', (CASE A.EMDONG_DV WHEN 0 THEN CONCAT(A.EMDONG_NM,' ') ELSE '' END), A.ROADNM, ' ', B.BLDG_MAIN_BUN, (CASE B.BLDG_SUB_BUN WHEN 0 THEN '' ELSE CONCAT('-', B.BLDG_SUB_BUN) END), (CASE WHEN A.EMDONG_DV=0 AND C.APAHOUSE_YN=0 THEN '' ELSE CONCAT(' (', A.EMDONG_NM,CASE C.APAHOUSE_YN WHEN 0 THEN '' ELSE CONCAT(', ', C.SKK_BLDG_NM) END, ')') END)) AS ROAD_ADDR
+ 			 , CONCAT(D.SIDO_NM, ' ', D.SKK_NM, ' ',(CASE WHEN D.BJEMDONG_NM IS NULL OR D.BJEMDONG_NM='' THEN D.BJR_NM ELSE D.BJEMDONG_NM END), ' ', D.JIBUN_MAIN_BUN, (CASE D.JIBUN_SUB_BUN WHEN 0 THEN '' ELSE CONCAT('-',D.JIBUN_SUB_BUN) END), (CASE WHEN C.SKK_BLDG_NM IS NULL THEN '' ELSE CONCAT(' ', C.SKK_BLDG_NM) END)) AS JIBUN_ADDR
+ 			 , CONCAT(A.SIDO_NM, ' ', A.SKK_NM, ' ', (CASE A.EMDONG_DV WHEN 0 THEN CONCAT(A.EMDONG_NM,' ') ELSE '' END), A.ROADNM, ' ', B.BLDG_MAIN_BUN, (CASE B.BLDG_SUB_BUN WHEN 0 THEN '' ELSE CONCAT('-', B.BLDG_SUB_BUN) END)) AS ADDR
+ 			 , (CASE WHEN A.EMDONG_DV=0 AND C.APAHOUSE_YN=0 THEN '' ELSE CONCAT('(', A.EMDONG_NM,CASE C.APAHOUSE_YN WHEN 0 THEN '' ELSE CONCAT(', ', C.SKK_BLDG_NM) END, ')') END) AS ADD_INFO
+		  FROM TB_API_ROADNM_CD A
+			 , TB_API_ROADNM_ADDR B
+			 , TB_API_ADDR_ADD_INFO C
+			 , TB_API_JIBUN_ADDR D
+		 WHERE A.SIDO_NM = #SIDO_NM#
+		   AND A.SKK_NM = #SKK_NM#
+		   AND A.ROADNM_CD = B.ROADNM_CD
+		   AND A.EMDONG_SERIAL = B.EMDONG_SERIAL
+		   AND B.MGMT_NO = C.MGMT_NO
+		   AND C.SKK_BLDG_NM LIKE CONCAT('%', #ROAD_NM#, '%')
+		   AND B.MGMT_NO = D.MGMT_NO
+		 ORDER BY ZIP_NO
+	</select>
+
+</sqlMap>

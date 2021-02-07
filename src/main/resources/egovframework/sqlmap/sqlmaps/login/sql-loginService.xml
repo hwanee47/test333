@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="loginService">
+	
+	<select id="checkLoginPw" resultClass="int">
+		/*[sql-loginService.xml][loginService.checkLoginPw][비밀번호 체크][2020.03.03][kjh] */
+		SELECT
+			COUNT(*)
+		FROM
+			TADM_KFR_USER A
+        WHERE 
+        	A.DEL_YN = 'N'
+        AND A.ID = #LOGIN_ID#
+        AND FC_AES_DECRYPT(A.PW) = #LOGIN_PW#
+	</select>
+	
+	
+	<!-- 사용자 정보 조회 -->
+	<select id="selectUserInfo" resultClass="java.util.HashMap">
+		/*[sql-loginService.xml][loginService.selectUserInfo][사용자 정보 조회][2018.09.27][Seungmin] */
+		SELECT 
+                  A.ID AS USER_ID
+                 , A.NAME AS USER_NM
+                 , A.ID AS LOGIN_ID
+                 , (CASE WHEN TEL3 IS NULL THEN '' ELSE CONCAT(TEL1, '-', TEL2, '-', FC_AES_DECRYPT(TEL3)) END) AS TEL_NO
+                 , '' AS FAX_NO
+                 , (CASE WHEN MOBILE3 IS NULL THEN '' ELSE CONCAT(MOBILE1, '-', MOBILE2, '-', FC_AES_DECRYPT(MOBILE3)) END) AS HP_NO
+                 , (CASE WHEN EMAIL1 IS NULL THEN '' ELSE CONCAT(FC_AES_DECRYPT(EMAIL1), '@', EMAIL2) END) AS EMAIL
+                 , '' AS USER_TCD
+                 , A.SHPR_ID AS CUST_ID
+                 , A.PW AS LOGIN_PW     
+                 , 'Y' AS PASSCHK
+                 , DATE_FORMAT(NOW(), '%Y%m%d%H%i%s') LOGIN_DATETIME
+                 , 'N' AS FRSTUSEYN 
+                 , '' AS TZ_CD
+                 , '' AS TZ_NM 
+                 , '' AS DATE_FMT_CD 
+                 , '' AS DEC_FMT_CD 
+                 , '' AS ACPT_SCD 
+                 , '' AS REQ_DATETIME 
+                 , '' AS ACPT_DATETIME
+                 , '' AS ANCL_DATETIME 
+                 , '' AS EXPR_DATETIME 
+                 , '' AS USER_NM_FIRST 
+                 , '' AS USER_NM_LAST 
+                 , 'Y' AS VALID_YN
+                 , A.CORP_ID AS DEPT_ID
+                 , '' AS DEPT_NM
+                 , A.ID AS EMP_ID
+                 , '' AS BRANCH_CD
+                 , '' AS LOCAL_CURR
+                 , '' AS PNL_CURR
+                 , A.CORP_ID
+                 , A.AR_COSTC        
+                 , A.AP_COSTC  
+                 , A.E_CORP_ID AS BASE_CORP_ID     
+                 , A.JOIN_TYPE 
+                 , A.MASTER_YN
+                 , A.ADMIN_YN
+                 , A.CORP_MSTR_YN
+                 , A.SEQ_NO
+                 , A.AUTH_CD
+                 , A.AGENT_ID
+                 , IFNULL(A.AGENT_PW,'1') as AGENT_PW
+                 , 'KoreaASP' as TENANT_NAME
+                 , A.TENANT_TEL_NO
+                 , 'M' AS MENU_SYS
+                 , A.AGENT_GB
+                 , A.SITE_CD
+                 , A.BIZ_REG_NO
+                 , A.TEMPPW_MODIFY_YN
+                 , A.DUTY_DV
+                 , C.BRAN_CD
+                 , C.OPR_UP_BRAN_CD
+                 , C.MGMT_UP_BRAN_CD
+                 , IF(C.BRAN_CD = C.MGMT_UP_BRAN_CD, 'Y', 'N') AS CENTER_YN
+                 , A.BLNG_DV
+                 , A.USER_TYPE
+                 , A.SYS_DV
+            FROM TADM_KFR_USER A
+            LEFT OUTER JOIN TB_BAIM_EMP_MGT_C B ON (A.ID = B.EMP_NO)
+            LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C C ON (B.BRAN_CD = C.BRAN_CD)
+            WHERE 1=1 
+            AND A.DEL_YN = 'N'
+            <isNotEmpty property="LOGIN_ID">
+				AND A.ID = #LOGIN_ID#
+            </isNotEmpty>
+            
+            LIMIT 1
+	</select>
+	
+	<!-- 메세지 정보 조회 -->
+	<select id="getMessageInfo" resultClass="java.util.HashMap">
+		/*[sql-loginService.xml][loginService.getMessageInfo][메세지 정보 조회][2018.09.27][Seungmin] */
+		SELECT MSG_DESC
+		FROM TMDM_LOCALE_MSG
+		WHERE MSG_TCD = ''
+		AND MSG_CD = #MSG_ID#
+		AND LANG_CD = NVL(#GV_LANG#, 'KO')
+	</select>
+	
+	<!-- 사용자 PW 암호화 -->
+	<select id="getUserPwHash" resultClass="String">
+		/*[sql-loginService.xml][loginService.getUserPwHash][사용자 PW 암호화][2018.09.27][Seungmin] */
+		SELECT FN_GET_ENC_HASH(#PW#) AS PW FROM DUAL
+	</select>
+    
+</sqlMap>

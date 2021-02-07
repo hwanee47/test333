@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	
+	<link rel="stylesheet" type="text/css" href="common.css" />
+
+	<!-- Google Map 관련 라이센스 및 JS 파일 -->
+	<script src="https://maps.googleapis.com/maps/api/js?client=gme-cjkoreaexpress&amp&region=KR" async="" defer="defer"></script>
+	<script type="text/javascript" src="../../js/jquery.js"></script>
+	<script type="text/javascript" src="../../js/googleMap/control_main.js"></script>
+	<script type="text/javascript" src="../../js/googleMap/proj4js-combined.js"></script>
+	<script type="text/javascript" src="../../js/gmap.js"></script>
+	<link rel="stylesheet" href="weather/css/weather-icons.css">
+    <link rel="stylesheet" href="weather/css/weather-icons-wind.css">
+
+</head>
+
+<body style="background:#2c2b2e;">
+
+<div class="wrapper">
+	<!-- 좌측 지도 영역 -->
+    <div class="map_box_l">
+        <div id="map" style="height:941px;"></div>
+
+        <div class="map_layer01">
+            <div class="board_wrap">
+                <table cellspacing="0" cellpadding="0" class="board_common" summary="테이블로 지역의 항목으로 구성되어 있습니다.">
+                    <caption></caption>
+                    <colgroup>
+                    <col width="50px" />
+                    <col width="*" />
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th colspan="2">전국</th>
+                        </tr>
+                        <tr>
+                            <td class="dot_yellow">●</td>
+                            <td class="tx_l">공차 (00)</td>
+                        </tr>
+                        <tr>
+                            <td class="dot_yellow">●</td>
+                            <td class="tx_l">영차 (0000)</td>
+                        </tr>
+                        <tr>
+                            <td class="dot_yellow">●</td>
+                            <td class="tx_l">지연 (4)</td>
+                        </tr>
+                        <tr>
+                            <td class="dot_yellow">●</td>
+                            <td class="tx_l">완료 (349)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- //좌측 지도 영역 -->
+
+	<!-- 우측 정보 영역 -->
+	<div class="info_box_r">
+		<div class="top_info_box01">
+			<!-- 날씨 -->
+			<div class="wh_bx">
+				<i class="wi wi-day-cloudy-high"></i>
+				<p>전국 <span>12℃</span></p>
+			</div>
+			<!-- //날씨 -->
+			<p class="date">2018년 12월 23일</p>
+			<p class="time">AM 10:00:35</p>
+			<p class="tx_info01">
+				<span class="tx01">위수탁 가동율</span> 97%
+			</p>
+		</div>
+
+		<!-- tab-->
+		<div class="tab_customer">
+			<ul>
+				<li><a href="#"" class="on">영차</a></li>
+				<li><a href="#">공차</a></li>
+				<li class="last"><a href="#">완료</a></li>
+			</ul>
+		</div>
+		<!-- //tab-->
+		<div class="in_bx_r02" style="margin-bottom:20px;">
+			<!-- 테이블 영역 -->
+			<div class="board_wrap">
+				<table cellspacing="0" cellpadding="0" class="board_common03" summary="수도권 테이블로 지역의 항목으로 구성되어 있습니다.">
+					<caption>수도권</caption>
+					<colgroup>
+					<col width="40px" />
+					<col width="30px" />
+					<col width="*" />
+					<col width="216px" />
+					<col width="200px" />
+					</colgroup>
+					<thead>
+						<tr>
+							<th>No</th>
+							<th></th>
+							<th>차량번호</th>
+							<th>차량정보</th>
+							<th>공차예정시간</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>1</td>
+							<td class="dot_yellow">●</td>
+							<td><div class="display"><div><input class="header dark L" id="display01_01" /></div></div></td>
+							<td><div class="display"><div><input class="header dark L" id="display01_02" /></div></div><br/></td>
+							<td><div class="display"><div><input class="header dark L" id="display01_03" /></div></div></td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td class="dot_yellow">●</td>
+							<td><div class="display"><div><input class="header dark L" id="display02_01" /></div></div></td>
+							<td><div class="display"><div><input class="header dark L" id="display02_02" /></div></div><br/></td>
+							<td><div class="display"><div><input class="header dark L" id="display02_03" /></div></div></td>
+						</tr>
+						<tr>
+							<td>3</td>
+							<td class="dot_red">●</td>
+							<td><div class="display"><div><input class="header dark L" id="display03_01" /></div></div></td>
+							<td><div class="display"><div><input class="header dark L" id="display03_02" /></div></div><br/></td>
+							<td><div class="display"><div><input class="header dark L" id="display03_03" /></div></div></td>
+						</tr>
+						<tr>
+							<td>4</td>
+							<td class="dot_red">●</td>
+							<td><div class="display"><div><input class="header dark L" id="display04_01" /></div></div></td>
+							<td><div class="display"><div><input class="header dark L" id="display04_02" /></div></div><br/></td>
+							<td><div class="display"><div><input class="header dark L" id="display04_03" /></div></div></td>
+						</tr>
+						<tr>
+							<td>5</td>
+							<td class="dot_yellow">●</td>
+							<td><div class="display"><div><input class="header dark L" id="display05_01" /></div></div></td>
+							<td><div class="display"><div><input class="header dark L" id="display05_02" /></div></div><br/></td>
+							<td><div class="display"><div><input class="header dark L" id="display05_03" /></div></div></td>
+						</tr>
+						<tr>
+							<td>6</td>
+							<td class="dot_yellow">●</td>
+							<td><div class="display"><div><input class="header dark L" id="display06_01" /></div></div></td>
+							<td><div class="display"><div><input class="header dark L" id="display06_02" /></div></div><br/></td>
+							<td><div class="display"><div><input class="header dark L" id="display06_03" /></div></div></td>
+						</tr>
+						<tr>
+							<td>7</td>
+							<td class="dot_yellow">●</td>
+							<td><div class="display"><div><input class="header dark L" id="display07_01" /></div></div></td>
+							<td><div class="display"><div><input class="header dark L" id="display07_02" /></div></div><br/></td>
+							<td><div class="display"><div><input class="header dark L" id="display07_03" /></div></div></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- //테이블 영역 -->
+		</div>
+
+		<!-- tab-->
+		<div class="tab_customer">
+			<ul>
+				<li class="last"><a href="#"" class="on">하차지 분포</a></li>
+			</ul>
+		</div>
+		<!-- //tab-->
+		<div class="in_bx_r02" style="height:87px;">
+			<!-- 테이블 영역 -->
+			<div class="board_wrap">
+				<table cellspacing="0" cellpadding="0" class="board_common04" summary="수도권 테이블로 지역의 항목으로 구성되어 있습니다.">
+					<caption>수도권</caption>
+					<colgroup>
+					<col width="20%" />
+					<col width="20%" />
+					<col width="20%" />
+					<col width="20%" />
+					<col width="20%" />
+					</colgroup>
+					<thead>
+							<th>수도권</th>
+							<th>강원권</th>
+							<th>충청권</th>
+							<th>영남권</th>
+							<th>호남권</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>34 / 20%</td>
+							<td>34 / 20%</td>
+							<td>34 / 20%</td>
+							<td>34 / 20%</td>
+							<td>34 / 20%</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<!-- //우측 정보 영역 -->
+</div>
+
+<link href="flapper.css" type="text/css" rel="stylesheet" />
+<script src="jquery.min.js"></script>
+<script src="transform/dist/jquery.transform-0.9.3.min.js"></script>
+<script src="jshashtable.js"></script>
+<script src="numberformatter/jquery.numberformatter-1.2.3.min.js"></script>
+<script src="jquery.flapper.js"></script>
+
+<script language="javascript">
+$(document).ready(function() {
+    var 
+    $display01_01 = $('#display01_01');
+    $display01_02 = $('#display01_02');
+    $display01_03 = $('#display01_03');
+
+    $display02_01 = $('#display02_01');
+    $display02_02 = $('#display02_02');
+    $display02_03 = $('#display02_03');
+
+    $display03_01 = $('#display03_01');
+    $display03_02 = $('#display03_02');
+    $display03_03 = $('#display03_03');
+
+    $display04_01 = $('#display04_01');
+    $display04_02 = $('#display04_02');
+    $display04_03 = $('#display04_03');
+
+    $display05_01 = $('#display05_01');
+    $display05_02 = $('#display05_02');
+    $display05_03 = $('#display05_03');
+
+    $display06_01 = $('#display06_01');
+    $display06_02 = $('#display06_02');
+    $display06_03 = $('#display06_03');
+
+    $display07_01 = $('#display07_01');
+    $display07_02 = $('#display07_02');
+    $display07_03 = $('#display07_03');
+
+    $display01_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display01_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+    $display01_03.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+
+    setTimeout(function(){
+        $display01_01.val('대전98바3456').change();
+        $display01_02.val('카고/25').change();
+        $display01_03.val('12:35').change();
+    }, 0);
+
+    $display02_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display02_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+     $display02_03.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+
+    setTimeout(function(){
+        $display02_01.val('대전98바3456').change();
+        $display02_02.val('카고/25').change();
+        $display02_03.val('11:28').change();
+    }, 0);
+
+    $display03_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display03_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+     $display03_03.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+
+    setTimeout(function(){
+        $display03_01.val('대전98바3456').change();
+        $display03_02.val('카고/25').change();
+        $display03_03.val('11:28').change();
+    }, 0);
+
+    $display04_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display04_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+     $display04_03.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+
+    setTimeout(function(){
+        $display04_01.val('대전98바3456').change();
+        $display04_02.val('카고/25').change();
+        $display04_03.val('11:28').change();
+    }, 0);
+
+    $display05_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display05_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+     $display05_03.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+
+    setTimeout(function(){
+        $display05_01.val('대전98바3456').change();
+        $display05_02.val('카고/25').change();
+        $display05_03.val('11:28').change();
+    }, 0);
+
+    $display06_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display06_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+     $display06_03.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+
+    setTimeout(function(){
+        $display06_01.val('대전98바3456').change();
+        $display06_02.val('카고/25').change();
+        $display06_03.val('11:28').change();
+    }, 0);
+
+    $display07_01.flapper({
+        width: 9,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+    $display07_02.flapper({
+        width: 6,
+        chars_preset: 'alphanum',
+        align: 'right',
+    });
+     $display07_03.flapper({
+        width: 5,
+        chars_preset: 'alphanum',
+        align: 'left',
+    });
+
+    setTimeout(function(){
+        $display07_01.val('대전98바3456').change();
+        $display07_02.val('카고/25').change();
+        $display07_03.val('11:28').change();
+    }, 0);
+
+    /*setTimeout(function(){
+        $display08.val('운송지연').change();
+    }, 3000);*/
+
+});
+</script>
+<style type="text/css">
+.flapper.header.red.L .digit div {color:red;}
+</style>
+
+</body>
+</html>

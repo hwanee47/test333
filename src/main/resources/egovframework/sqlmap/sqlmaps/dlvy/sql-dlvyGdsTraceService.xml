@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dlvyGdsTraceService">
+	
+	<select id="checkWaybillReg" resultClass="int">
+		/** [sql-dlvyGdsTraceService.xml][dlvyGdsTraceService.checkWaybillReg]
+		 *  [운송장에 정보가 있는지 체크]
+		 *  [KimJinHwan 2020.02.24]
+		 **/
+		SELECT COUNT(*) AS CNT
+		  FROM TB_WAYBILL_REG_MST_C
+		 WHERE WAYBILL_NO = #WAYBILL_NO#
+	</select>
+	
+	
+	<select id="getBasicInfo1" resultClass="java.util.HashMap">
+		/** [sql-dlvyGdsTraceService.xml][dlvyGdsTraceService.getBasicInfo1]
+		 *  [상품추적 기본정보 조회(운송장에 정보가 있는 경우-> 운송장정보조회)]
+		 *  [KimJinHwan 2020.02.19]
+		 **/
+		SELECT
+			A.WAYBILL_NO,
+		    CONCAT(B.SENDR_TEL_NO_1, '-', B.SENDR_TEL_NO_2, '-', FC_AES_DECRYPT(B.SENDR_TEL_NO_3)) AS SENDR_TEL_NO,     	/*송하인 전화번호*/
+		    CONCAT(B.SENDR_CELL_NO_1, '-', B.SENDR_CELL_NO_2, '-', FC_AES_DECRYPT(B.SENDR_CELL_NO_3)) AS SENDR_CELL_NO,     /*송하인 휴대폰번호*/
+		    B.SENDR_NM,     /*송하인명*/
+		    B.SENDR_ZIP_NO, /*송하인 우편번호*/
+		    B.SENDR_ZIP_NO_SERIAL,  /*송하인 우편번호일련번호*/
+		    B.SENDR_ADDR,   /*송하인 주소*/
+		    FC_AES_DECRYPT(B.SENDR_DETAIL_ADDR) AS SENDR_DETAIL_ADDR,  /*송하인 상세주소*/
+		    CONCAT(B.SENDR_ADDR, ' ', FC_AES_DECRYPT(B.SENDR_DETAIL_ADDR)) AS SENDR_ADDR_TOT,    /*송하인 풀주소*/
+		    CONCAT(B.RCVR_TEL_NO_1, '-', B.RCVR_TEL_NO_2, '-', FC_AES_DECRYPT(B.RCVR_TEL_NO_3)) AS RCVR_TEL_NO, /*수하인 전화번호*/
+		    CONCAT(B.RCVR_CELL_NO_1, '-', B.RCVR_CELL_NO_2, '-', FC_AES_DECRYPT(B.RCVR_CELL_NO_3)) AS RCVR_CELL_NO, /*수하인 전화번호*/
+		    B.RCVR_NM,  /*수하인명*/
+		    B.RCVR_ZIP_NO,  /*수하인 우편번호*/
+		    B.RCVR_ZIP_NO_SERIAL,   /*수하인 우편번호일련번호*/
+		    B.RCVR_ADDR,    /*수하인 주소*/
+		    FC_AES_DECRYPT(B.RCVR_DETAIL_ADDR) AS RCVR_DETAIL_ADDR, /*수하인 상세주소*/
+		    CONCAT(B.RCVR_ADDR, ' ', FC_AES_DECRYPT(B.RCVR_DETAIL_ADDR)) AS RCVR_ADDR_TOT,    /*수하인 풀주소*/
+		    A.FRT_DV,   /*운임구분*/
+		    A.WH_FRT,   /*총운임*/
+		    A.ETC_FRT,  /*기타운임*/
+		    A.QTY,      /*수량*/
+		    A.ITEM_NM,  /*품목명*/
+		    A.BOX_DV,   /*박스구분*/
+		    A.CUST_ORD_NO,  /*고객주문번호*/
+		    A.CAL_CP_DV,    /*정산처구분*/
+		    A.BASIC_FRT,    /*기본운임*/
+		    A.ENTER_CUST_NO,    /*기업고객번호*/
+		    C.CUST_NM AS ENTER_CUST_NM,          /*기업고객명*/
+		    A.CUST_MGMT_DLCM_CD,    /*고객관리거래처*/
+		    A.SEND_CUST_NO, /*발송고객번호*/
+		    D.CUST_NM AS SEND_CUST_NM,  /*발송고객명*/
+		    A.PICKUP_BRAN_CD,   /*집하점소코드*/
+		    E.BRAN_NM AS PICKUP_BRAN_NM,    /*집하점소명*/
+		    A.PICKUP_YMD,   /*집하일자*/
+		    CONCAT(E.TEL_NO_1, '-', E.TEL_NO_2, '-', FC_AES_DECRYPT(E.TEL_NO_3)) AS PICKUP_TEL_NO, /*집하점소전화번호*/
+		    A.RSRV_DV,      /*예약구분*/
+		    A.DLV_METHOD,    /*배송(운송)방식*/
+		    A.REMARK
+		FROM
+		    TB_WAYBILL_REG_MST_C A
+		LEFT OUTER JOIN TB_RCPT_LIST_C B ON (A.WAYBILL_NO=B.WAYBILL_NO)
+		LEFT OUTER JOIN TB_BAIM_CUST_LIST_C C ON (A.ENTER_CUST_NO=C.CUST_ID)
+		LEFT OUTER JOIN TB_BAIM_CUST_LIST_C D ON (A.SEND_CUST_NO=D.CUST_ID)
+		LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C E ON (A.PICKUP_BRAN_CD=E.BRAN_CD)
+		WHERE
+			A.WAYBILL_NO = #WAYBILL_NO#
+	</select>
+	
+	<select id="getBasicInfo2" resultClass="java.util.HashMap">
+		/** [sql-dlvyGdsTraceService.xml][dlvyGdsTraceService.getBasicInfo2]
+		 *  [상품추적 기본정보 조회(운송장에 정보가 없는경우 -> 접수정보조회)]
+		 *  [KimJinHwan 2020.02.19]
+		 **/
+		SELECT
+		    A.WAYBILL_NO,
+		    CONCAT(A.SENDR_TEL_NO_1, '-', A.SENDR_TEL_NO_2, '-', FC_AES_DECRYPT(A.SENDR_TEL_NO_3)) AS SENDR_TEL_NO, /*송하인 전화번호*/
+		    CONCAT(A.SENDR_CELL_NO_1, '-', A.SENDR_CELL_NO_2, '-', FC_AES_DECRYPT(A.SENDR_CELL_NO_3)) AS SENDR_CELL_NO,     /*송하인 휴대폰번호*/
+		    A.SENDR_NM,     /*송하인명*/
+		    A.SENDR_ZIP_NO, /*송하인 우편번호*/
+		    A.SENDR_ZIP_NO_SERIAL,  /*송하인 우편번호일련번호*/
+		    A.SENDR_ADDR,   /*송하인 주소*/
+		    FC_AES_DECRYPT(A.SENDR_DETAIL_ADDR) AS SENDR_DETAIL_ADDR,  /*송하인 상세주소*/
+		    CONCAT(A.SENDR_ADDR, ' ', FC_AES_DECRYPT(A.SENDR_DETAIL_ADDR)) AS SENDR_ADDR_TOT,    /*송하인 풀주소*/
+		    CONCAT(A.RCVR_TEL_NO_1, '-', A.RCVR_TEL_NO_2, '-', FC_AES_DECRYPT(A.RCVR_TEL_NO_3)) AS RCVR_TEL_NO, /*수하인 전화번호*/
+		    CONCAT(A.RCVR_CELL_NO_1, '-', A.RCVR_CELL_NO_2, '-', FC_AES_DECRYPT(A.RCVR_CELL_NO_3)) AS RCVR_CELL_NO, /*수하인 전화번호*/
+		    A.RCVR_NM,  /*수하인명*/
+		    A.RCVR_ZIP_NO,  /*수하인 우편번호*/
+		    A.RCVR_ZIP_NO_SERIAL,   /*수하인 우편번호일련번호*/
+		    A.RCVR_ADDR,    /*수하인 주소*/
+		    FC_AES_DECRYPT(A.RCVR_DETAIL_ADDR) AS RCVR_DETAIL_ADDR, /*수하인 상세주소*/
+		    CONCAT(A.RCVR_ADDR, ' ', FC_AES_DECRYPT(A.RCVR_DETAIL_ADDR)) AS RCVR_ADDR_TOT,    /*수하인 풀주소*/
+		    B.FRT_DV,   /*운임구분*/
+		    B.FRT_SUM AS WH_FRT,   /*총운임*/
+		    (A.FERRY_RATE + A.INSTALL_FRT + A.HANDLE_FRT) AS ETC_FRT,  /*기타운임*/
+		    A.QTY,      /*수량*/
+		    A.ITEM_NM,  /*품목명*/
+		    A.BOX_TYPE_CD,   /*박스구분*/
+		    A.CUST_ORD_NO,  /*고객주문번호*/
+		    B.CAL_CP_DV,    /*정산처구분*/
+		    A.BASIC_FRT,    /*기본운임*/
+		    A.CUST_ID AS ENTER_CUST_NO,    /*기업고객번호*/
+		    C.CUST_NM AS ENTER_CUST_NM,     /*기업고객명*/
+		    A.SEND_CUST_NO, /*발송고객번호*/
+		    D.CUST_NM AS SEND_CUST_NM,  /*발송고객명*/
+		    B.PICKUP_BRAN_CD,   /*집하점소코드*/
+		    E.BRAN_NM AS PICKUP_BRAN_NM,    /*집하점소명*/
+		    B.PICKUP_YMD,   /*집하일자*/
+		    CONCAT(E.TEL_NO_1, '-', E.TEL_NO_2, '-', FC_AES_DECRYPT(E.TEL_NO_3)) AS PICKUP_TEL_NO, /*집하점소전화번호*/
+		    B.RSRV_DV_CD,   /*예약구분*/
+		    '' AS DLV_MEHTOD,   /*배송(운송방식)*/
+		    A.REMARK_1 AS REMARK   
+		FROM
+		    TB_RCPT_LIST_C A
+		    LEFT OUTER JOIN TB_BAIM_CUST_LIST_C C ON (A.CUST_ID=C.CUST_ID)
+		   LEFT OUTER JOIN TB_BAIM_CUST_LIST_C D ON (A.SEND_CUST_NO=D.CUST_ID)
+		    ,TB_RCPT_LIST_DECIS_C B
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C E ON (B.PICKUP_BRAN_CD=E.BRAN_CD)
+		WHERE
+		    A.WAYBILL_NO = B.WAYBILL_NO
+		AND A.WAYBILL_NO = #WAYBILL_NO#
+	</select>
+	
+	<select id="getPidvInfo" resultClass="java.util.HashMap">
+		/** [sql-dlvyGdsTraceService.xml][dlvyGdsTraceService.getPidvInfo]
+		 *  [상품추적 집배정보 조회]
+		 *  [KimJinHwan 2020.02.19]
+		 **/
+		SELECT
+		    Z.WAYBILL_NO,	/*운송장번호*/
+		    Z.PICKUP_BRAN_CD,	/*집하점소코드*/
+		    Y1.BRAN_NM AS PICKUP_BRAN_NM,	/*집하점소명*/
+		    CONCAT(Y1.TEL_NO_1, '-', Y1.TEL_NO_2, '-', FC_AES_DECRYPT(Y1.TEL_NO_3)) AS PICKUP_BRAN_TEL_NO,	/*집하점소전화*/
+		    Z.PICKUP_EMP_NO,	/*집하사원번호*/
+		    Y3.EMP_NM AS PICKUP_EMP_NM,	/*집하사원명*/
+		    CONCAT(Y3.CELL_NO_1, '-', Y3.CELL_NO_2, '-', FC_AES_DECRYPT(Y3.CELL_NO_3)) AS PICKUP_EMP_CELL_NO,	/*집하사원휴대폰*/
+		    Z.DLV_BRAN_CD,	/*배송점소코드*/
+		    Y2.BRAN_NM AS DLV_BRAN_NM,	/*배송점소명*/
+		    CONCAT(Y2.TEL_NO_1, '-', Y2.TEL_NO_2, '-', FC_AES_DECRYPT(Y2.TEL_NO_3)) AS DLV_BRAN_TELL_NO,	/*배송점소전화*/
+		    Z.DLV_EMP_NO,	/*배송사원번호*/
+		    Y4.EMP_NM AS DLV_EMP_NM,	/*배송사원명*/
+		    CONCAT(Y4.CELL_NO_1, '-', Y4.CELL_NO_2, '-', FC_AES_DECRYPT(Y4.CELL_NO_3)) AS DLV_EMP_CELL_NO,	/*배송사원휴대폰*/
+		    Z.PICKUP_YMD,	/*집하일자*/
+		    Z.DLV_EXPCT_YMD,	/*배송예정일자*/
+		    DATE_FORMAT(STR_TO_DATE(Z.DLV_EXPCT_HOUR, '%H%i%s'), '%H:%i:%s') AS DLV_EXPCT_HOUR,	/*배송예정시간*/
+		    Z.DLV_YMD	/*배송일자*/
+		FROM
+		(
+		    SELECT
+		        A.WAYBILL_NO,
+		        A.PICKUP_EXPCT_YMD AS PICKUP_YMD,
+		        A.DLV_EXPCT_YMD,
+		        A.DLV_EXPCT_HOUR,
+		        A.PICKUP_EXPCT_BRAN_CD AS PICKUP_BRAN_CD,
+		        A.PICKUP_EMP_NO,
+		        IFNULL(MAX(CASE WHEN B.GDS_ST_CD='91' THEN B.BRAN_CD END), A.DLV_EXPCT_BRAN_CD) AS DLV_BRAN_CD,
+		        IFNULL(MAX(CASE WHEN B.GDS_ST_CD='91' THEN B.EMP_NO END), A.DLV_EMP_NO) AS DLV_EMP_NO,
+		        MAX(CASE WHEN B.GDS_ST_CD='91' THEN B.WORK_YMD END) AS DLV_YMD
+		    FROM
+		        TB_RCPT_LIST_C A 
+		        LEFT OUTER JOIN TB_PIDV_CRG_ST_C B ON (A.WAYBILL_NO=B.WAYBILL_NO AND B.GDS_ST_CD IN ('91')) /*배달완료*/
+		    WHERE
+		        A.WAYBILL_NO = #WAYBILL_NO#
+		    GROUP BY A.WAYBILL_NO
+		  
+		) Z
+		LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C Y1 ON (Z.PICKUP_BRAN_CD=Y1.BRAN_CD)
+		LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C Y2 ON (Z.DLV_BRAN_CD=Y2.BRAN_CD)
+		LEFT OUTER JOIN TB_BAIM_EMP_MGT_C Y3 ON (Z.PICKUP_EMP_NO=Y3.EMP_NO)
+		LEFT OUTER JOIN TB_BAIM_EMP_MGT_C Y4 ON (Z.DLV_EMP_NO=Y4.EMP_NO)
+	</select>
+	
+	<select id="getScanInfoList" resultClass="java.util.HashMap">
+		/** [sql-dlvyGdsTraceService.xml][dlvyGdsTraceService.getScanInfoList]
+		 *  [상품추적 스캔내역 조회]
+		 *  [KimJinHwan 2020.02.19]
+		 **/
+		SELECT
+		    A.WAYBILL_NO,
+		    A.BRAN_CD,
+		    B.BRAN_NM,
+		    A.GDS_ST_CD,
+		    E.CD_NM AS GDS_ST_NM,
+		    A.WORK_YMD,
+		    DATE_FORMAT(STR_TO_DATE(A.WORK_HOUR, '%H%i%s'), '%H:%i:%s') AS WORK_HOUR,
+		    A.CNTER_BRAN_CD,
+		    C.BRAN_NM AS CNTER_BRAN_NM,
+		    A.EMP_NO,
+		    D.EMP_NM,
+		    (
+		        CASE WHEN A.GDS_ST_CD = '41' THEN A.TNR_NO
+		              WHEN A.GDS_ST_CD = '42' THEN A.TNR_NO
+		              WHEN A.GDS_ST_CD = '31' THEN A.TNR_NO
+		              WHEN A.GDS_ST_CD = '32' THEN A.TNR_NO
+		              ELSE A.MAILBAG_WAYBILL_NO
+		        END
+		    ) ETC,
+		   DATE_FORMAT(A.REG_DTIME, '%Y-%m-%d') REG_DT,
+		   DATE_FORMAT(A.REG_DTIME, '%H:%i:%s') REG_TIME
+		FROM
+		    TB_PIDV_CRG_ST_C A
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C B ON (A.BRAN_CD=B.BRAN_CD)
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C C ON (A.CNTER_BRAN_CD=C.BRAN_CD)
+		    LEFT OUTER JOIN TB_BAIM_EMP_MGT_C D ON (A.EMP_NO=D.EMP_NO)
+		    LEFT OUTER JOIN TMDM_MC_CODE_B E ON (E.CD_TCD='ST019' AND A.GDS_ST_CD = E.CD)
+		WHERE
+			A.WAYBILL_NO = #WAYBILL_NO#
+		ORDER BY WORK_YMD DESC, WORK_HOUR DESC, GDS_ST_CD DESC
+	</select>
+	
+	
+	<select id="getRlvtWaybillList" resultClass="java.util.HashMap">
+		/** [sql-dlvyGdsTraceService.xml][dlvyGdsTraceService.getRlvtWaybillList]
+		 *  [관련 송장 리스트 조회]
+		 *  [KimJinHwan 2020.02.24]
+		 **/
+		SELECT
+		    A.WAYBILL_NO
+		FROM
+		    TB_WAYBILL_REG_MST_C A
+		WHERE
+		    WAYBILL_NO = #WAYBILL_NO#
+		
+		UNION 
+		
+		SELECT
+		    WAYBILL_NO
+		FROM
+		    TB_RCPT_LIST_C
+		WHERE
+		    ORINVC_NO = #WAYBILL_NO#
+		AND IFNULL(WAYBILL_NO,'') <![CDATA[<>]]> ''    
+		    
+		UNION
+		
+		SELECT
+		    ORINVC_NO AS WAYBILL_NO
+		FROM
+		    TB_RCPT_LIST_C
+		WHERE
+		    WAYBILL_NO = #WAYBILL_NO#
+		AND IFNULL(ORINVC_NO,'') <![CDATA[<>]]> ''
+	
+	</select>
+	
+	
+	<select id="getWaybillLastStatus" resultClass="java.util.HashMap">
+		/** [sql-dlvyGdsTraceService.xml][dlvyGdsTraceService.getWaybillLastStatus]
+		 *  [운송장 최종상태 조회]
+		 *  [KimJinHwan 2020.02.24]
+		 **/
+		SELECT
+		    A.WAYBILL_NO,
+		    A.GDS_ST_CD,
+		    B.CD_NM AS GDS_ST_NM
+		FROM
+		    TB_PIDV_CRG_ST_C A
+		    LEFT OUTER JOIN TMDM_MC_CODE_B B ON (B.CD_TCD='ST019' AND A.GDS_ST_CD = B.CD)
+		WHERE
+		    WAYBILL_NO = #WAYBILL_NO#
+		ORDER BY A.GDS_ST_CD DESC, A.WORK_YMD DESC, A.WORK_HOUR DESC LIMIT 1
+	</select>
+</sqlMap>

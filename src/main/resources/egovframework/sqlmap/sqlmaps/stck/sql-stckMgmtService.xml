@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="stckMgmtService">
+	
+	
+	<select id="getStckList" resultClass="java.util.HashMap">
+		/** [sql-stckMgmtService.xml][stckMgmtService.getStckList]
+		 *  [재고리스트 조회]
+		 *  [KimJinHwan 2020.03.09]
+		 **/
+		SELECT
+		    '' AS CHK
+		    ,A.CENT_CD
+		    ,B.WAREH_NM AS CENT_NM
+		    ,A.CUST_CD
+		    ,C.CUST_REPRE_NM AS CUST_NM
+		    ,A.GDS_CD
+		    ,D.ITEM_NM AS GDS_NM
+		    ,A.STC_DV_LOT
+		    ,A.ZN_CD
+		    ,A.LOC_CD
+		    ,A.RACK_CD
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.STC_QTY,0))) AS STC_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.USBL_STC,0))) AS USBL_STC
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.WAREO_RSRV,0))) AS WAREO_RSRV
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.ALLOC_QTY,0))) AS ALLOC_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.PICKING_QTY,0))) AS PICKING_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.HOLDING_QTY,0))) AS HOLDING_QTY
+		    <!-- ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.CRECT_QTY,0))) AS CRECT_QTY -->
+		    ,'' AS CRECT_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.NO_USE_STC_QTY,0))) AS NO_USE_STC_QTY
+		    ,'' AS TO_CENT_CD
+		    ,'' AS TO_CENT_NM
+		    ,'' AS TO_ZN
+		    ,'' AS TO_LOC
+		    ,'' AS TO_RACK
+		    ,'' AS TO_MV_QTY
+		    ,'' AS TO_MV_QTY2
+		    ,'' AS INPUT_USBL_STC			/*화면조정수량 입력용*/
+			,'' AS INPUT_HOLDING_QTY		/*화면조정수량 입력용*/
+			,'' AS INPUT_NO_USE_STC_QTY		/*화면조정수량 입력용*/
+			,'' AS SERVICE_FLAG				/*수량조정서비스 구분(가용재고증가/감소인지 , 기존재고수량변경인지)*/
+		FROM
+		    TB_WMS_STC_C A
+		LEFT OUTER JOIN TB_WMS_WAREH_MGMT_MST_C B ON (A.CENT_CD = B.WAREH_CD)
+		LEFT OUTER JOIN TB_WMS_CUST_MGMT_C C ON (A.CUST_CD = C.SHIPPER_ID)
+		LEFT OUTER JOIN TB_WMS_ITEM_MGMT_C D ON (A.GDS_CD = D.ITEM_CD)
+		WHERE
+			1=1
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 고객만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			<!-- 사용자 창고권한 -->
+			AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = A.CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+			<!-- 사용자 고객권한 -->
+			AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = A.CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<!-- 수량항목이 모두 0 인경우 조회 x -->
+		<!-- AND (IFNULL(A.STC_QTY,0) + IFNULL(A.USBL_STC,0) + IFNULL(A.WAREO_RSRV,0) + IFNULL(A.ALLOC_QTY,0) + IFNULL(A.PICKING_QTY,0) + IFNULL(A.HOLDING_QTY,0) + IFNULL(A.CRECT_QTY,0)) > 0 -->
+		<isNotEmpty property="WAREH_CD">
+		AND A.CENT_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_CD">
+		AND A.CUST_CD = #CUST_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_NM">
+		AND C.CUST_REPRE_NM LIKE CONCAT('%', #CUST_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_CD">
+		AND A.GDS_CD = #ITEM_CD#
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_NM">
+		AND D.ITEM_NM LIKE CONCAT('%', #ITEM_NM#, '%')
+		</isNotEmpty>
+		ORDER BY CENT_CD, CUST_CD, GDS_CD, STC_DV_LOT
+	</select>
+	
+	
+	<select id="getStckInfo" resultClass="java.util.HashMap">
+		/** [sql-stckMgmtService.xml][stckMgmtService.getStckInfo]
+		 *  [재고정보 조회]
+		 *  [KimJinHwan 2020.03.09]
+		 **/
+		SELECT
+		    A.CENT_CD
+		    ,A.CUST_CD
+		    ,A.GDS_CD
+		    ,A.STC_DV_LOT
+		    ,A.ZN_CD
+		    ,A.LOC_CD
+		    ,A.RACK_CD
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.STC_QTY,0))) AS STC_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.USBL_STC,0))) AS USBL_STC
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.WAREO_RSRV,0))) AS WAREO_RSRV
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.ALLOC_QTY,0))) AS ALLOC_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.PICKING_QTY,0))) AS PICKING_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.HOLDING_QTY,0))) AS HOLDING_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.CRECT_QTY,0))) AS CRECT_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.NO_USE_STC_QTY,0))) AS NO_USE_STC_QTY
+		FROM
+		    TB_WMS_STC_C A
+		WHERE
+			A.CENT_CD = #CENT_CD#
+		AND A.CUST_CD = #CUST_CD#
+		AND A.GDS_CD = #GDS_CD#
+		AND A.STC_DV_LOT = #STC_DV_LOT#
+	</select>
+	
+	
+	<select id="getStckListGrpItem" resultClass="java.util.HashMap">
+		/** [sql-stckMgmtService.xml][stckMgmtService.getStckListGrpItem]
+		 *  [재고정보 조회(품목별)]
+		 *  [KimJinHwan 2020.03.11]
+		 **/
+		SELECT
+		    '' AS CHK
+		    ,A.CENT_CD
+		    ,B.WAREH_NM AS CENT_NM
+		    ,A.CUST_CD
+		    ,C.CUST_REPRE_NM AS CUST_NM
+		    ,A.GDS_CD
+		    ,D.ITEM_NM AS GDS_NM
+		    ,IFNULL(A.ZN_CD, '') AS ZN_CD
+		    ,IFNULL(A.LOC_CD, '') AS LOC_CD
+		    ,IFNULL(A.RACK_CD, '') AS RACK_CD
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.STC_QTY),0))) AS STC_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.USBL_STC),0))) AS USBL_STC
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.WAREO_RSRV),0))) AS WAREO_RSRV
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.ALLOC_QTY),0))) AS ALLOC_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.PICKING_QTY),0))) AS PICKING_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.HOLDING_QTY),0))) AS HOLDING_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.NO_USE_STC_QTY),0))) AS NO_USE_STC_QTY
+		    ,'' AS INPUT_CENT_CD
+		    ,'' AS INPUT_CENT_NM
+		    ,'' AS INPUT_USBL_STC
+		    ,'' AS INPUT_HOLDING_QTY
+		    ,'' AS INPUT_NO_USE_STC_QTY
+		FROM
+		    TB_WMS_STC_C A
+		LEFT OUTER JOIN TB_WMS_WAREH_MGMT_MST_C B ON (A.CENT_CD = B.WAREH_CD)
+		LEFT OUTER JOIN TB_WMS_CUST_MGMT_C C ON (A.CUST_CD = C.SHIPPER_ID)
+		LEFT OUTER JOIN TB_WMS_ITEM_MGMT_C D ON (A.GDS_CD = D.ITEM_CD)
+		WHERE
+			1=1
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 고객만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			<!-- 사용자 창고권한 -->
+			AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = A.CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+			<!-- 사용자 고객권한 -->
+			AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = A.CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<!-- 수량항목이 모두 0 인경우 조회 x -->
+		<!-- AND (IFNULL(A.STC_QTY,0) + IFNULL(A.USBL_STC,0) + IFNULL(A.WAREO_RSRV,0) + IFNULL(A.ALLOC_QTY,0) + IFNULL(A.PICKING_QTY,0) + IFNULL(A.HOLDING_QTY,0) + IFNULL(A.CRECT_QTY,0)) > 0 -->
+		<isNotEmpty property="WAREH_CD">
+		AND A.CENT_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CENT_CD">
+		AND A.CENT_CD = #CENT_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_CD">
+		AND A.CUST_CD = #CUST_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_NM">
+		AND C.CUST_REPRE_NM LIKE CONCAT('%', #CUST_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_CD">
+		AND A.GDS_CD = #ITEM_CD#
+		</isNotEmpty>
+		<isNotEmpty property="ITEM_NM">
+		AND D.ITEM_NM LIKE CONCAT('%', #ITEM_NM#, '%')
+		</isNotEmpty>
+		GROUP BY A.CENT_CD, A.CUST_CD, A.GDS_CD, A.ZN_CD, A.LOC_CD, A.RACK_CD
+	</select>
+	
+	
+	<select id="getStckInfoGrpItem" resultClass="java.util.HashMap">
+		/** [sql-stckMgmtService.xml][stckMgmtService.getStckInfoGrpItem]
+		 *  [재고정보 조회 (품목별)]
+		 *  [KimJinHwan 2020.03.09]
+		 **/
+		SELECT
+		    A.CENT_CD
+		    ,A.CUST_CD
+		    ,A.GDS_CD
+		    ,A.ZN_CD
+		    ,A.LOC_CD
+		    ,A.RACK_CD
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.STC_QTY),0))) AS STC_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.USBL_STC),0))) AS USBL_STC
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.WAREO_RSRV),0))) AS WAREO_RSRV
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.ALLOC_QTY),0))) AS ALLOC_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.PICKING_QTY),0))) AS PICKING_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.HOLDING_QTY),0))) AS HOLDING_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.CRECT_QTY),0))) AS CRECT_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(A.NO_USE_STC_QTY),0))) AS NO_USE_STC_QTY
+		FROM
+		    TB_WMS_STC_C A
+		WHERE
+			A.CENT_CD = #CENT_CD#
+		AND A.CUST_CD = #CUST_CD#
+		AND A.GDS_CD = #GDS_CD#
+		AND IFNULL(A.ZN_CD,'') = #ZN_CD#
+		AND IFNULL(A.LOC_CD,'') = #LOC_CD#
+		AND IFNULL(A.RACK_CD,'') = #RACK_CD#
+		GROUP BY A.CENT_CD, A.CUST_CD, A.GDS_CD, A.ZN_CD, A.LOC_CD, A.RACK_CD
+	</select>
+	
+	<select id="getStckInfoGrpLot" resultClass="java.util.HashMap">
+		/** [sql-stckMgmtService.xml][stckMgmtService.getStckInfoGrpLot]
+		 *  [재고정보 조회 (로트별)]
+		 *  [KimJinHwan 2020.03.11]
+		 **/
+		SELECT
+		    A.CENT_CD
+		    ,A.CUST_CD
+		    ,A.GDS_CD
+		    ,A.ZN_CD
+		    ,A.LOC_CD
+		    ,A.RACK_CD
+		    ,A.STC_DV_LOT
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.STC_QTY,0))) AS STC_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.USBL_STC,0))) AS USBL_STC
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.WAREO_RSRV,0))) AS WAREO_RSRV
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.ALLOC_QTY,0))) AS ALLOC_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.PICKING_QTY,0))) AS PICKING_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.HOLDING_QTY,0))) AS HOLDING_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.CRECT_QTY,0))) AS CRECT_QTY
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.NO_USE_STC_QTY,0))) AS NO_USE_STC_QTY
+		    ,A.EXPR_DATE
+		FROM
+		    TB_WMS_STC_C A
+		WHERE
+			A.CENT_CD = #CENT_CD#
+		AND A.CUST_CD = #CUST_CD#
+		AND A.GDS_CD = #GDS_CD#
+		AND IFNULL(A.ZN_CD,'') = #ZN_CD#
+		AND IFNULL(A.LOC_CD,'') = #LOC_CD#
+		AND IFNULL(A.RACK_CD,'') = #RACK_CD#
+		ORDER BY $CUSTOM_ORDER_COLUMN$ DESC
+	</select>
+	
+	
+	<select id="getStckHistory" resultClass="java.util.HashMap">
+		/** [sql-stckMgmtService.xml][stckMgmtService.getStckHistory]
+		 *  [입/출고조회]
+		 *  [KimJinHwan 2020.03.11]
+		 **/
+		SELECT
+		    '' AS CHK
+		    ,A.OCCR_YMD 
+		    ,A.CENT_CD
+		    ,B.WAREH_NM AS CENT_NM
+		    ,A.CUST_CD
+		    ,C.CUST_REPRE_NM AS CUST_NM
+		    ,A.GDS_CD
+		    ,D.ITEM_NM AS GDS_NM
+		    ,A.TRANSACTION_KEY
+		    ,A.TRANSACTION_TYPE
+		    ,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(A.TRANSACTION_QTY,0))) AS TRANSACTION_QTY
+		    ,A.FR_CENT_CD
+		    ,E.WAREH_NM AS FR_CENT_NM
+		    ,A.FR_ZN
+		    ,A.FR_LOC
+		    ,A.FR_RACK
+		    ,A.FR_STC_DV_LOT
+		    ,A.FR_STC_DV_ID
+		    ,A.FR_STC_GRD
+		    ,A.FR_STC_TYPE
+		    ,A.FR_MV_QTY
+		    ,A.TO_CENT_CD
+		    ,F.WAREH_NM AS TO_CENT_NM
+		    ,A.TO_ZN
+		    ,A.TO_LOC
+		    ,A.TO_RACK
+		    ,A.TO_STC_DV_LOT
+		    ,A.TO_STC_DV_ID
+		    ,A.TO_STC_GRD
+		    ,A.TO_STC_TYPE
+		    ,A.TO_MV_QTY
+		    ,A.REG_EMP_ID
+		    ,DATE_FORMAT(A.REG_DTIME, '%H:%i:%s') AS REG_DTIME
+		FROM 
+		    TB_WMS_STC_MV_MGMT_C A
+		    LEFT OUTER JOIN TB_WMS_WAREH_MGMT_MST_C B ON (A.CENT_CD=B.WAREH_CD)
+		    LEFT OUTER JOIN TB_WMS_CUST_MGMT_C C ON (A.CUST_CD=C.SHIPPER_ID)
+		    LEFT OUTER JOIN TB_WMS_ITEM_MGMT_C D ON (A.GDS_CD=D.ITEM_CD)
+		    LEFT OUTER JOIN TB_WMS_WAREH_MGMT_MST_C E ON (A.FR_CENT_CD=E.WAREH_CD)
+		    LEFT OUTER JOIN TB_WMS_WAREH_MGMT_MST_C F ON (A.TO_CENT_CD=F.WAREH_CD)
+		WHERE
+			1=1
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 고객만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			<!-- 사용자 창고권한 -->
+			AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = A.CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+			<!-- 사용자 고객권한 -->
+			AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = A.CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		
+		<isNotEmpty property="WAREH_CD">
+		AND A.CENT_CD = #WAREH_CD#
+		</isNotEmpty>    
+		<isNotEmpty property="CENT_CD">
+		AND A.CENT_CD = #CENT_CD#
+		</isNotEmpty>    
+		<isNotEmpty property="OCCR_YMD_FR">
+		AND A.OCCR_YMD <![CDATA[>=]]> #OCCR_YMD_FR#
+		</isNotEmpty>    
+		<isNotEmpty property="OCCR_YMD_TO">
+		AND A.OCCR_YMD <![CDATA[<=]]> #OCCR_YMD_TO#
+		</isNotEmpty>
+		<isNotEmpty property="TRANSACTION_TYPE">
+		AND A.TRANSACTION_TYPE = #TRANSACTION_TYPE#
+		</isNotEmpty>
+		ORDER BY A.OCCR_YMD , A.SERIAL 
+	</select>
+	
+	
+	<select id="getNewWareiExpctNo" resultClass="String">
+		/** [sql-stckMgmtService.xml][stckMgmtService.getNewWareiExpctNo]
+		 *  [신규입고번호생성]
+		 *  [KimJinHwan 2020.03.12]
+		 **/
+		SELECT 
+      			CONCAT ('I', DATE_FORMAT( NOW(), '%Y%m%d'), LPAD(IFNULL(MAX(SUBSTR(WAREI_EXPCT_NO,10))+1,1), 5, '0') ) AS WAREI_EXPCT_NO
+		FROM
+  				TB_WMS_WAREI_C A
+		WHERE
+		    CENT_CD = #TO_CENT_CD#
+		AND CUST_CD = #CUST_CD#
+		AND WAREI_EXPCT_YMD = DATE_FORMAT( NOW(), '%Y%m%d') 
+	</select>
+	
+	
+	
+	<update id="updateStckInfoChgQty">
+		/** [sql-stckMgmtService.xml][stckMgmtService.updateStckInfoChgQty]
+		 *  [재고정보 수정(수량 수정)]
+		 *  [KimJinHwan 2020.03.09]
+		 **/
+		UPDATE TB_WMS_STC_C
+		SET
+			STC_QTY = STC_QTY + #TOTAL_USBL_STC# + #TOTAL_HOLDING_QTY# + #TOTAL_NO_USE_STC_QTY# /*+ IFNULL(WAREO_RSRV,0) + IFNULL(ALLOC_QTY,0) + IFNULL(PICKING_QTY,0)*/
+			,USBL_STC = #USBL_STC#
+			,HOLDING_QTY = #HOLDING_QTY#
+			,NO_USE_STC_QTY = #NO_USE_STC_QTY#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			CENT_CD = #CENT_CD#
+		AND CUST_CD = #CUST_CD#
+		AND GDS_CD = #GDS_CD#
+		AND STC_DV_LOT = #STC_DV_LOT#
+	</update>
+	
+	
+	
+	<update id="updateStckInfoMoveWareh">
+		/** [sql-stckMgmtService.xml][stckMgmtService.updateStckInfoMoveWareh]
+		 *  [재고정보 수정(창고이동)]
+		 *  [KimJinHwan 2020.03.09]
+		 **/
+		UPDATE TB_WMS_STC_C
+		SET
+			STC_QTY = STC_QTY - #USBL_STC# - #HOLDING_QTY# - #NO_USE_STC_QTY#
+			,USBL_STC = USBL_STC - #USBL_STC#
+			,HOLDING_QTY = HOLDING_QTY - #HOLDING_QTY#
+			,NO_USE_STC_QTY = NO_USE_STC_QTY - #NO_USE_STC_QTY#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			CENT_CD = #CENT_CD#
+		AND CUST_CD = #CUST_CD#
+		AND GDS_CD = #GDS_CD#
+		AND STC_DV_LOT = #STC_DV_LOT#
+	</update>
+	
+	
+	
+	
+	<insert id="insertStckHistory">
+		/** [sql-stckMgmtService.xml][stckMgmtService.insertStckHistory]
+		 *  [재고히스토리 추가]
+		 *  [KimJinHwan 2020.03.09]
+		 **/
+		 INSERT INTO TB_WMS_STC_MV_MGMT_C
+		 (
+		 	SERIAL
+		 	, OCCR_YMD
+		 	, TRANSACTION_KEY
+		 	, CENT_CD
+		 	, TRANSACTION_TYPE
+		 	, CUST_CD
+		 	, GDS_CD
+		 	, FR_CENT_CD
+		 	, FR_ZN
+		 	, FR_LOC
+		 	, FR_RACK
+		 	, FR_STC_DV_LOT
+		 	, FR_STC_DV_ID
+		 	, FR_STC_GRD
+		 	, FR_STC_TYPE
+		 	, FR_MV_QTY
+		 	, TO_CENT_CD
+		 	, TO_ZN
+		 	, TO_LOC
+		 	, TO_RACK
+		 	, TO_STC_DV_LOT
+		 	, TO_STC_DV_ID
+		 	, TO_STC_GRD
+		 	, TO_STC_TYPE
+		 	, TO_MV_QTY
+		 	, TRANSACTION_QTY
+		 	, DOC_YMD
+		 	, ST
+		 	, USE_YN
+		 	, MEMO
+		 	, REG_EMP_ID
+		 	, REG_DTIME
+		 	, MODI_EMP_ID
+		 	, MODI_DTIME
+		 )
+		 VALUES
+		 (
+		 	(SELECT IFNULL(MAX(A.SERIAL),0)+1 FROM TB_WMS_STC_MV_MGMT_C A WHERE A.OCCR_YMD=DATE_FORMAT(NOW(), '%Y%m%d'))
+		 	,DATE_FORMAT(NOW(), '%Y%m%d')
+		 	,#TRANSACTION_KEY#
+		 	,#CENT_CD#
+		 	,#TRANSACTION_TYPE#
+		 	,#CUST_CD#
+		 	,#GDS_CD#
+		 	,#FR_CENT_CD#
+		 	,#FR_ZN#
+		 	,#FR_LOC#
+		 	,#FR_RACK#
+		 	,#FR_STC_DV_LOT#
+		 	,#FR_STC_DV_ID#
+		 	,#FR_STC_GRD#
+		 	,#FR_STC_TYPE#
+		 	,#FR_MV_QTY#
+		 	,#TO_CENT_CD#
+		 	,#TO_ZN#
+		 	,#TO_LOC#
+		 	,#TO_RACK#
+		 	,#TO_STC_DV_LOT#
+		 	,#TO_STC_DV_ID#
+		 	,#TO_STC_GRD#
+		 	,#TO_STC_TYPE#
+		 	,#TO_MV_QTY#
+		 	,#TRANSACTION_QTY#
+		 	,DATE_FORMAT(NOW(), '%Y%m%d')
+		 	,'1'
+		 	,'Y'
+		 	,#MEMO#
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		 )
+	</insert>
+	
+	<insert id="insertWarei">
+		/** [sql-stckMgmtService.xml][stckMgmtService.insertWarei]
+		 *  [이송입고 추가]
+		 *  [KimJinHwan 2020.03.12]
+		 **/
+		
+		INSERT INTO TB_WMS_WAREI_C
+		(
+			CENT_CD
+			, CUST_CD
+			, WAREI_EXPCT_YMD
+			, WAREI_EXPCT_NO
+			, LN_NO
+			, WAREI_TYPE
+			, GDS_CD
+			, EXPCT_QTY
+			, LOT_DV_VAL_1
+			, ST
+			, EXPR_DATE
+			, USE_YN
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		)
+		VALUES
+		(
+			#CENT_CD#
+			,#CUST_CD#
+			,DATE_FORMAT( NOW(), '%Y%m%d')
+			,#WARE_EXPCT_NO#
+			,#LN_NO#
+			,#WAREI_TYPE#
+			,#GDS_CD#
+			,#EXPCT_QTY#
+			,#LOT_DV_VAL_1#
+			,'1' /*예정:1 , 확정:2*/
+			,#EXPR_DATE#
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+	
+	</insert>
+	
+	<select id="getStckInquList" resultClass="java.util.HashMap">
+		/** [sql-stckMgmtService.xml][stckMgmtService.getStckInquList]
+		 *  [재고조회]
+		 *  [jsj 2020.03.12]
+		 **/
+		SELECT A.CENT_CD  				/* 창고코드 */
+		, B.WAREH_NM AS CENT_NM 		/* 창고명 */
+		, A.CUST_CD 					/* 고객코드 */
+		, C.CUST_REPRE_NM 				/* 고객사명 */
+		, A.GDS_CD 						/* 품목코드 */
+		, D.ITEM_NM AS GDS_NM 			/* 품목명 */
+		, A.STC_DV_LOT 					/* 로트번호 */
+		, A.LOC_CD 						/* 로케이션 */
+		, A.ZN_CD 						/* 존 */
+		, A.RACK_CD 					/* 랙 */
+		, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL((A.STC_QTY),0))) AS STC_QTY 					/* 총수량(재고수량) */
+		, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL((A.USBL_STC),0))) AS USBL_STC 				/* 가용수량 */
+		, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL((A.WAREO_RSRV),0))) AS WAREO_RSRV 			/* 출고수량 */
+		, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL((A.ALLOC_QTY),0))) AS ALLOC_QTY 				/* 할당수량 */
+		, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL((A.PICKING_QTY),0))) AS PICKING_QTY 			/* 피킹수량 */
+		, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL((A.HOLDING_QTY),0))) AS HOLDING_QTY 			/* 보류수량 */
+		, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL((A.CRECT_QTY),0))) AS CRECT_QTY 				/* 보정수량 */
+		, A.STC_DV_ID 					/* 재고구분ID */
+		, A.STC_GRD 					/* 재고등급(A,B,C) */
+		, A.STC_TYPE 					/* 재고유형 */
+		, A.UNIT 						/* 댠위 */
+		, A.ST							/* 상태 */
+		, A.EXPR_DATE 					/* 유통기한 */
+		, A.WAREI_YMD 					/* 입고일자 */
+		, A.NO_USE_STC_QTY				/* 불용재고수량 */
+		FROM TB_WMS_STC_C A       	/* 재고 */
+		, TB_WMS_WAREH_MGMT_MST_C B /* 창고정보 */
+		, TB_WMS_CUST_MGMT_C C 		/* 고객 */
+		, TB_WMS_ITEM_MGMT_C D 		/* 상품정보 */
+		WHERE A.CENT_CD = B.WAREH_CD
+		AND A.CUST_CD = C.CUST_CD
+		AND A.GDS_CD = D.ITEM_CD 
+		<isNotEmpty prepend="AND" property="WAREH_CD">
+			A.CENT_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="CUST_CD">
+			A.CUST_CD = #CUST_CD#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="GDS_CD">
+			A.GDS_CD = #GDS_CD#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="ZN_CD">
+			A.ZN_CD = #ZN_CD#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="RACK_CD">
+			A.RACK_CD = #RACK_CD#
+		</isNotEmpty>
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 고객만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			AND EXISTS(SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C E WHERE E.CUST_ID = A.CUST_CD  AND E.USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>	
+	</select>
+	
+	<select id="getItemInfoList"  resultClass="java.util.HashMap">
+	SELECT 
+		SHIPPER_ID
+		, ITEM_CD
+		, ITEM_NM
+		, DESCRIPT
+		, SUPPLIER_ID
+		, ITEM_GRP_CD
+		, ITEM_TCD
+		, MFER_ID
+		, REM
+		FROM TB_WMS_ITEM_MGMT_C
+		WHERE 1=1
+		<isNotEmpty prepend="AND" property="ITEM_CD"> 
+		ITEM_CD LIKE CONCAT('%', #ITEM_CD#, '%')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="ITEM_NM">
+		ITEM_NM LIKE CONCAT('%', #ITEM_NM#, '%')
+		</isNotEmpty>
+	</select>
+</sqlMap>

@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimCntrMgmtService">
+	
+	<select id="checkCntrStartYmd" resultClass="int">
+		/** [sql-baimCntrMgmtService.xml][baimCntrMgmtService.checkCntrStartYmd]
+		 *  [계약시작일  중복 체크]
+		 *  [KimJinHwan 2020.02.13]
+		 **/
+		SELECT COUNT(*) AS CNT
+		  FROM TB_BAIM_FIXED_DLCM_CNTR_C
+		 WHERE CUST_ID 			 = #CUST_ID#
+		   AND CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		   AND CNTR_START_YMD <![CDATA[<=]]> #CNTR_START_YMD#
+		   AND CNTR_END_YMD <![CDATA[>=]]> #CNTR_START_YMD#
+	</select>
+	
+	<select id="getCntrInfo" resultClass="java.util.HashMap">
+		/** [sql-baimCntrMgmtService.xml][baimCntrMgmtService.getCntrInfo]
+		 *  [계약 등록 정보 조회]
+		 *  [KimJinHwan 2020.02.19]
+		 **/
+		 SELECT
+		   A.CUST_ID,
+		   G.CUST_NM,
+		   A.CUST_MGMT_DLCM_CD,
+		   B.SEND_CUST_NO,					/*발송고객번호*/
+		   H.CUST_NM AS SEND_CUST_NM,		/*발송고객명*/
+		   A.CNTR_BRAN_CD,					/*계약점소코드*/
+		   E.BRAN_NM AS CNTR_BRAN_NM,		/*계약점소명*/
+		   A.SALE_MGMT_BRAN_CD,				/*개발점소코드*/
+		   C.BRAN_NM AS SALE_MGMT_BRAN_NM,	/*개발점소명*/
+		   A.CNTR_START_YMD,				
+		   A.CNTR_END_YMD,
+		   A.DMAND_STD_YMD,
+		   A.CNTR_EMP,						/*계약사원코드*/
+		   F.EMP_NM AS CNTR_EMP_NM,			/*계약사원명*/
+		   A.CNTR_FEE_RATE,
+		   A.MGMT_EMP,						/*개발사원코드*/
+		   D.EMP_NM AS MGMT_EMP_NM,			/*개발사원명*/
+		   A.MGMT_FEE_RAT,
+		   A.PICKUP_BRAN_CD,				/*집하점소코드*/
+		   I.BRAN_NM AS PICKUP_BRAN_NM,		/*집하점소명*/
+		   A.CM_DMAND_STD_CD,
+		   A.RTN_DMAND_STD_CD,
+		   A.CNTR_UPRICE_ADAP_STD
+		FROM
+		    TB_BAIM_FIXED_DLCM_CNTR_C A
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C C ON (A.SALE_MGMT_BRAN_CD=C.BRAN_CD)
+		    LEFT OUTER JOIN TB_BAIM_EMP_MGT_C D ON (A.MGMT_EMP=D.EMP_NO)
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C E ON (A.CNTR_BRAN_CD=E.BRAN_CD)
+		    LEFT OUTER JOIN TB_BAIM_EMP_MGT_C F ON (A.CNTR_EMP=F.EMP_NO)
+		    LEFT OUTER JOIN TB_BAIM_CUST_LIST_C G ON (A.CUST_ID=G.CUST_ID)
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C I ON(A.PICKUP_BRAN_CD=I.BRAN_CD),
+		    TB_BAIM_SEND_CUST_C B
+		    LEFT OUTER JOIN TB_BAIM_CUST_LIST_C H ON (B.SEND_CUST_NO=H.CUST_ID)
+		WHERE
+		    A.CUST_ID = B.CUST_ID
+		AND A.CUST_MGMT_DLCM_CD = B.CUST_MGMT_DLCM_CD
+		AND A.DEL_YN ='N'
+		AND A.CUST_ID = #CUST_ID#
+		AND A.CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		AND A.CNTR_START_YMD = #CNTR_START_YMD#
+		 
+	</select>
+	
+	<select id="getCntrInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimCntrMgmtService.xml][baimCntrMgmtService.getCntrInfoList]
+		 *  [계약 정보 리스트 조회]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+		SELECT
+		   A.CUST_ID,
+		   G.CUST_NM,
+		   A.CUST_MGMT_DLCM_CD,
+		   B.SEND_CUST_NO,					/*발송고객번호*/
+		   H.CUST_NM AS SEND_CUST_NM,		/*발송고객명*/
+		   A.CNTR_BRAN_CD,					/*계약점소코드*/
+		   E.BRAN_NM AS CNTR_BRAN_NM,		/*계약점소명*/
+		   A.SALE_MGMT_BRAN_CD,				/*개발점소코드*/
+		   C.BRAN_NM AS SALE_MGMT_BRAN_NM,	/*개발점소명*/
+		   A.CNTR_START_YMD,				
+		   A.CNTR_END_YMD,
+		   A.DMAND_STD_YMD,
+		   A.CNTR_EMP,						/*계약사원코드*/
+		   F.EMP_NM AS CNTR_EMP_NM,			/*계약사원명*/
+		   A.CNTR_FEE_RATE,
+		   A.MGMT_EMP,						/*개발사원코드*/
+		   D.EMP_NM AS MGMT_EMP_NM,			/*개발사원명*/
+		   A.MGMT_FEE_RAT,
+		   A.PICKUP_BRAN_CD,				/*집하점소코드*/
+		   I.BRAN_NM AS PICKUP_BRAN_NM,		/*집하점소명*/
+		   A.CM_DMAND_STD_CD,
+		   A.RTN_DMAND_STD_CD,
+		   A.CNTR_UPRICE_ADAP_STD
+		FROM
+		    TB_BAIM_FIXED_DLCM_CNTR_C A
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C C ON (A.SALE_MGMT_BRAN_CD=C.BRAN_CD)
+		    LEFT OUTER JOIN TB_BAIM_EMP_MGT_C D ON (A.MGMT_EMP=D.EMP_NO)
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C E ON (A.CNTR_BRAN_CD=E.BRAN_CD)
+		    LEFT OUTER JOIN TB_BAIM_EMP_MGT_C F ON (A.CNTR_EMP=F.EMP_NO)
+		    LEFT OUTER JOIN TB_BAIM_CUST_LIST_C G ON (A.CUST_ID=G.CUST_ID)
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C I ON(A.PICKUP_BRAN_CD=I.BRAN_CD),
+		    TB_BAIM_SEND_CUST_C B
+		    LEFT OUTER JOIN TB_BAIM_CUST_LIST_C H ON (B.SEND_CUST_NO=H.CUST_ID)
+		WHERE
+		    A.CUST_ID = B.CUST_ID
+		AND A.CUST_MGMT_DLCM_CD = B.CUST_MGMT_DLCM_CD
+		AND A.DEL_YN ='N'
+		AND A.CUST_ID = #CUST_ID#
+		AND A.CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		ORDER BY A.CNTR_START_YMD DESC
+	</select>
+	
+	<select id="getEntrpInfo" resultClass="java.util.HashMap">
+		/** [sql-baimCntrMgmtService.xml][baimCntrMgmtService.getEntrpInfo]
+		 *  [기업고객 정보 리스트 조회]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+	 	SELECT
+		    IFNULL(A.DEAL_START_YMD,'') AS DEAL_START_YMD,
+		    A.CUST_NM
+		FROM
+		    TB_BAIM_ENTER_CUST_C A
+		    , TB_BAIM_SEND_CUST_C B
+		WHERE
+		    A.CUST_ID = B.CUST_ID
+		AND B.SEND_CUST_NO = #SEND_CUST_NO#
+		    
+	</select>
+	
+	
+	<select id="getRenewalYmd" resultClass="java.util.HashMap">
+		/** [sql-baimCntrMgmtService.xml][baimCntrMgmtService.getRenewalYmd]
+		 *  [갱신 일자 조회]
+		 *  [KimJinHwan 2020.02.19]
+		 **/
+		SELECT
+		    CNTR_START_YMD,
+		    CNTR_END_YMD,
+		    DATE_FORMAT(DATE_ADD(CNTR_END_YMD, INTERVAL 1 DAY), '%Y%m%d') AS RENEWAL_CNTR_START_YMD,    /*갱신 계약시작일자*/
+		    DATE_FORMAT(DATE_ADD(CNTR_END_YMD, INTERVAL 365 DAY), '%Y%m%d') AS RENEWAL_CNTR_END_YMD     /*갱신 계약종료일자*/
+		FROM
+		    TB_BAIM_FIXED_DLCM_CNTR_C 
+		WHERE
+		    CUST_ID = #CUST_ID#
+		AND CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		AND CNTR_START_YMD = (
+		    SELECT
+		        MAX(CNTR_START_YMD)
+		    FROM
+		        TB_BAIM_FIXED_DLCM_CNTR_C
+		    WHERE
+		        CUST_ID = #CUST_ID#
+		    AND CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		)
+				
+	</select>
+	
+	
+	<select id="getItemPerCntrUpriceList" resultClass="java.util.HashMap">
+		/** [sql-baimCntrMgmtService.xml][baimCntrMgmtService.getItemPerCntrUpriceList]
+		 *  [계약단가 등록 정보 조회]
+		 *  [KimJinHwan 2020.02.19]
+		 **/
+		SELECT
+		    A.CUST_ID,
+		    A.CUST_MGMT_DLCM_CD,
+		    A.CNTR_START_YMD,
+		    A.DLV_GDS_CD,
+		    A.ZN_DV,
+		    A.SEND_DV,
+		    A.FRT_DV,
+		    A.CNTR_ITEM_CD,
+		    C.CNTR_ITEM_NM,
+		    A.BOX_TYPE_CD,
+		    A.FRT_CALC_DV,
+		    A.FCHRG_DV,
+		    A.BRAN_CD,
+		    B.BRAN_NM,
+		    A.UPRICE
+		FROM
+		    TB_BAIM_ITEM_PER_CNTR_UPRICE_C A
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C B ON (A.BRAN_CD=B.BRAN_CD)
+		    LEFT OUTER JOIN TB_BAIM_CNTR_ITEM_C C ON (A.CUST_ID=C.CUST_ID AND A.CUST_MGMT_DLCM_CD=C.CUST_MGMT_DLCM_CD AND A.CNTR_START_YMD=C.CNTR_START_YMD AND A.CNTR_ITEM_CD = C.CNTR_ITEM_CD)
+		WHERE
+		    A.CUST_ID = #CUST_ID#
+		AND A.CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		AND A.CNTR_START_YMD = #CNTR_START_YMD#
+		AND A.DEL_YN = 'N'
+		    
+	</select>
+	
+	
+	<insert id="insertCntrInfo">
+		/** [sql-baimCntrMgmtService.xml][baimCntrMgmtService.insertCustListInfo]
+		 *  [계약 상세정보 저장]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+		INSERT INTO TB_BAIM_FIXED_DLCM_CNTR_C
+		(
+			CUST_ID
+			,CUST_MGMT_DLCM_CD
+			,CNTR_START_YMD
+			,FRT_DV
+			,COD_YN
+			,PICKUP_BRAN_CD
+			,DMAND_STD_YMD
+			,CNTR_CNTR_YMD
+			,CNTR_END_YMD
+			,CNTR_BRAN_CD
+			,CNTR_EMP
+			,CNTR_FEE_RATE
+			,SALE_MGMT_BRAN_CD
+			,MGMT_EMP
+			,MGMT_FEE_RAT
+			,BILL_AGG_CD
+			,CM_DMAND_STD_CD
+			,RTN_DMAND_STD_CD
+			,CNTR_UPRICE_ADAP_STD
+			,DEL_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#CUST_ID#
+			,#CUST_MGMT_DLCM_CD#
+			,#CNTR_START_YMD#
+			,''
+			,''
+			,#PICKUP_BRAN_CD#
+			,#DMAND_STD_YMD#
+			,#CNTR_CNTR_YMD#
+			,#CNTR_END_YMD#
+			,#CNTR_BRAN_CD#
+			,#CNTR_EMP#
+			,(CASE WHEN TRIM(#CNTR_FEE_RATE#)='' THEN NULL ELSE #CNTR_FEE_RATE# END)
+			,#SALE_MGMT_BRAN_CD#
+			,#MGMT_EMP#
+			,(CASE WHEN TRIM(#MGMT_FEE_RAT#)='' THEN NULL ELSE #MGMT_FEE_RAT# END)
+			,''
+			,#CM_DMAND_STD_CD#
+			,#RTN_DMAND_STD_CD#
+			,#CNTR_UPRICE_ADAP_STD#
+			,'N'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+	</insert>
+	
+	<update id="updateCntrInfo">
+		/** [sql-baimCntrMgmtService.xml][baimCntrMgmtService.updateCntrInfo]
+		 *  [계약 상세정보 수정]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+		 UPDATE TB_BAIM_FIXED_DLCM_CNTR_C
+		 SET
+			DMAND_STD_YMD = #DMAND_STD_YMD#
+			,CNTR_END_YMD = #CNTR_END_YMD#
+			,CNTR_BRAN_CD = #CNTR_BRAN_CD#
+			,CNTR_EMP = #CNTR_EMP#
+			,CNTR_FEE_RATE = (CASE WHEN TRIM(#CNTR_FEE_RATE#)='' THEN NULL ELSE #CNTR_FEE_RATE# END)
+			,SALE_MGMT_BRAN_CD = #SALE_MGMT_BRAN_CD#
+			,MGMT_EMP = #MGMT_EMP#
+			,MGMT_FEE_RAT = (CASE WHEN TRIM(#MGMT_FEE_RAT#)='' THEN NULL ELSE #MGMT_FEE_RAT# END)
+			,CM_DMAND_STD_CD = #CM_DMAND_STD_CD#
+			,RTN_DMAND_STD_CD = #RTN_DMAND_STD_CD#
+			,CNTR_UPRICE_ADAP_STD = #CNTR_UPRICE_ADAP_STD#
+		 	,MODI_EMP_ID	= #gv_userId#
+			,MODI_DTIME = NOW()
+		 WHERE
+		 	 CUST_ID			= #CUST_ID#
+		 AND CUST_MGMT_DLCM_CD	= #CUST_MGMT_DLCM_CD#
+		 AND CNTR_START_YMD		= #CNTR_START_YMD#
+	</update>
+	
+	
+	
+	<insert id="insertCntrInfo2">
+		/** [sql-baimCntrMgmtService.xml][baimCntrMgmtService.insertCntrInfo2]
+		 *  [계약 상세정보 저장 (갱신용)]
+		 *  [KimJinHwan 2020.02.19]
+		 **/
+		INSERT INTO TB_BAIM_FIXED_DLCM_CNTR_C
+		(
+			CUST_ID
+			,CUST_MGMT_DLCM_CD
+			,CNTR_START_YMD
+			,FRT_DV
+			,COD_YN
+			,PICKUP_BRAN_CD
+			,DMAND_STD_YMD
+			,CNTR_CNTR_YMD
+			,CNTR_END_YMD
+			,CNTR_BRAN_CD
+			,CNTR_EMP
+			,CNTR_FEE_RATE
+			,SALE_MGMT_BRAN_CD
+			,MGMT_EMP
+			,MGMT_FEE_RAT
+			,BILL_AGG_CD
+			,CM_DMAND_STD_CD
+			,RTN_DMAND_STD_CD
+			,CNTR_UPRICE_ADAP_STD
+			,DEL_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		SELECT
+			CUST_ID
+			,CUST_MGMT_DLCM_CD
+			,#RENEWAL_CNTR_START_YMD#
+			,FRT_DV
+			,COD_YN
+			,PICKUP_BRAN_CD
+			,DMAND_STD_YMD
+			,CNTR_CNTR_YMD
+			,#RENEWAL_CNTR_END_YMD#
+			,CNTR_BRAN_CD
+			,CNTR_EMP
+			,CNTR_FEE_RATE
+			,SALE_MGMT_BRAN_CD
+			,MGMT_EMP
+			,MGMT_FEE_RAT
+			,BILL_AGG_CD
+			,CM_DMAND_STD_CD
+			,RTN_DMAND_STD_CD
+			,CNTR_UPRICE_ADAP_STD
+			,DEL_YN
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		FROM
+			TB_BAIM_FIXED_DLCM_CNTR_C
+		WHERE
+			CUST_ID = #CUST_ID#
+		AND CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		AND CNTR_START_YMD = #CNTR_START_YMD#
+		
+	</insert>
+	
+	
+	<insert id="insertItemPerCntrUprice">
+		/** [sql-baimCntrMgmtService.xml][baimCntrMgmtService.insertItemPerCntrUprice]
+		 *  [품목별 계약단가  추가 (갱신용)]
+		 *  [KimJinHwan 2020.02.19]
+		 **/
+		INSERT INTO TB_BAIM_ITEM_PER_CNTR_UPRICE_C
+		(
+			CUST_ID
+			,CUST_MGMT_DLCM_CD
+			,CNTR_START_YMD
+			,DLV_GDS_CD
+			,DATA_DV_CD
+			,ZN_DV
+			,SEND_DV
+			,FRT_DV
+			,CNTR_ITEM_CD
+			,BOX_TYPE_CD
+			,FRT_CALC_DV
+			,FRT_FR
+			,FRT_TO
+			,UPRICE_FXRAT
+			,FCHRG_DV
+			,BRAN_CD
+			,UPRICE
+			,AIR_RATE_UPRICE
+			,HANDLE_FRT
+			,INSTALL_CHRG
+			,DEL_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		SELECT
+			CUST_ID
+			,CUST_MGMT_DLCM_CD
+			,#RENEWAL_CNTR_START_YMD#
+			,DLV_GDS_CD
+			,DATA_DV_CD
+			,ZN_DV
+			,SEND_DV
+			,FRT_DV
+			,CNTR_ITEM_CD
+			,BOX_TYPE_CD
+			,FRT_CALC_DV
+			,FRT_FR
+			,FRT_TO
+			,UPRICE_FXRAT
+			,FCHRG_DV
+			,BRAN_CD
+			,UPRICE
+			,AIR_RATE_UPRICE
+			,HANDLE_FRT
+			,INSTALL_CHRG
+			,DEL_YN
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		FROM
+			TB_BAIM_ITEM_PER_CNTR_UPRICE_C
+		WHERE
+			CUST_ID = #CUST_ID#
+		AND CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		AND CNTR_START_YMD = #CNTR_START_YMD#
+	</insert>
+	
+	
+	<insert id="insertCntrItem">
+		/** [sql-baimCntrMgmtService.xml][baimCntrMgmtService.insertCntrItem]
+		 *  [계약품목  추가 (갱신용)]
+		 *  [KimJinHwan 2020.02.19]
+		 **/
+		INSERT INTO TB_BAIM_CNTR_ITEM_C
+		(
+			CUST_ID
+			,CUST_MGMT_DLCM_CD
+			,CNTR_START_YMD
+			,CNTR_ITEM_CD
+			,CNTR_ITEM_NM
+			,DEL_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		SELECT
+			CUST_ID
+			,CUST_MGMT_DLCM_CD
+			,#RENEWAL_CNTR_START_YMD#
+			,CNTR_ITEM_CD
+			,CNTR_ITEM_NM
+			,DEL_YN
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		FROM
+			TB_BAIM_CNTR_ITEM_C
+		WHERE
+			CUST_ID = #CUST_ID#
+		AND CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		AND CNTR_START_YMD = #CNTR_START_YMD#
+	</insert>
+</sqlMap>

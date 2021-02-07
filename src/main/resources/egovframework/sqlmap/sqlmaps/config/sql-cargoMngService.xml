@@ -1,0 +1,1366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="cargoMngService">
+	<select	id="getShprList" resultClass="java.util.HashMap">
+		/**	[sql-cargoMngService.xml][cargoMngService.getShprList]
+		 *	고객(화주) 목록 조회 (orderAlgService.getShprList 참고)
+		 *	[Jang. Jaehyuk 2018.09.17]
+		 **/
+		SELECT
+			 SHPR_ID
+			,SHPR_NM
+			,SHPR_LOCAL_NM
+			,SHPR_NM || '(' ||	SHPR_ID	|| ')' AS SHPR_NM_ID
+			,MDM_SHPR_ID
+			,ZUAWA
+		FROM TMDM_KFR_BP_SHPR
+		WHERE 1=1
+			AND	SITE_CD	= #gv_siteCd#
+			AND	USE_YN = 'Y'
+			AND	DEL_YN = 'N'
+		ORDER BY ZUAWA
+	</select>
+	
+	
+	<select	id="getOrderList" resultClass="java.util.HashMap">
+		/**	[sql-cargoMngService.xml][cargoMngService.getOrderList]
+		 *	정보센터 주문조회
+		 *	[Jang. Jaehyuk 2018.10.19]
+		 **/
+		WITH BASE AS (
+			SELECT
+				 A.*
+				,SO.SHPR_BIZ_NAME
+				,SO.SHPR_NAME
+				,SO.SHPR_NAME   AS SHPR_COM_NAME		
+				,SO.PAY_CD
+				,SO.ORDER_INS_SYS_CD
+			FROM
+				TTMS_OD_TOLEG_HD A
+				JOIN TBIO_SO_HD SO
+					ON SO.SO_NO=A.SO_NO AND SO.DEL_YN='N'
+			WHERE 1=1
+				AND A.DEL_YN = 'N'	
+			<isNotEmpty property="SHPR_ID">						
+				AND A.SHPR_ID = #SHPR_ID#
+			</isNotEmpty>
+			<isNotEmpty property="DEP_REQ_ST_DATE">
+				AND A.DEP_REQ_DATE <![CDATA[>=]]> #DEP_REQ_ST_DATE#	
+			</isNotEmpty>
+			<isNotEmpty property="DEP_REQ_ED_DATE">
+				AND A.DEP_REQ_DATE <![CDATA[<=]]> #DEP_REQ_ED_DATE#	
+			</isNotEmpty>
+			<isNotEmpty property="ITEM_NM">
+				AND A.ITEM_NM LIKE '%'||#ITEM_NM#||'%'
+			</isNotEmpty>
+			<isNotEmpty property="SO_NO">
+				AND A.SO_NO LIKE '%'||#SO_NO#||'%'
+			</isNotEmpty>
+			<isNotEmpty property="VHCL_NO">
+				AND A.REQ_VHCL_NO LIKE '%'||#VHCL_NO#||'%'
+			</isNotEmpty>
+			<isNotEmpty property="TOL_SCD">
+				AND A.TOL_SCD = #TOL_SCD#  
+			</isNotEmpty>
+			<isNotEmpty property="PAY_CD">
+				AND NVL(A.PAY_CD,'B01') = #PAY_CD#  
+			</isNotEmpty>
+			<isNotEmpty property="OPEN_STEP_CD">
+				AND A.OPEN_STEP_CD = #OPEN_STEP_CD#
+			</isNotEmpty>
+		)
+		, T3 AS (	
+			SELECT 
+				 A.SO_NO
+				,A.VHCL_NO
+				,A.CNTRL_NO
+				,A.LSP_ID
+				,A.AMT
+				,A.MNF_NO  
+				,A.DRIVER_NM
+				,A.MOBILE_NO
+				,A.SHMPT_NO 
+				,A.CNT
+				,A.DEP_WORK_CD     
+				,A.ARR_WORK_CD
+			FROM (
+				SELECT 
+					 A.SO_NO
+					,D.VHCL_NO
+					,D.CNTRL_NO
+					,D.LSP_ID
+					,A.AMT 
+					,D.MNF_NO 
+					,D.DRIVER_NM 
+					,D.MOBILE_NO
+					,A.SHMPT_NO 
+					,COUNT(*) OVER (PARTITION BY A.SO_NO) AS CNT
+					,ROW_NUMBER() OVER (PARTITION BY A.SO_NO ORDER BY D.VHCL_NO DESC,D.MNF_SCD DESC,D.MNF_NO ASC)  AS ROW_NUM
+					,A.DEP_WORK_CD     
+					,A.ARR_WORK_CD
+				FROM 
+					BASE A
+					JOIN TTMS_PL_MFEST D
+						ON A.TRNS_NO = D.TRNS_NO AND D.DEL_YN = 'N'	
+				WHERE 1=1
+					AND A.SHMPT_NO IS NOT NULL
+					AND A.TOL_SCD  >=  '070'									
+			) A
+			WHERE A.ROW_NUM =1     
+			
+			UNION ALL 
+			
+			SELECT
+				 A.SO_NO
+				 ,B.VHCL_NO
+				 ,E.CNTRL_NO
+				 ,E.LSP_ID
+				 ,A.AMT
+				 ,'' AS MNF_NO
+				 ,'' AS DRIVER_NM
+				 ,'' AS MOBILE_NO
+				 ,'' AS SHMPT_NO
+				 ,COUNT(*) OVER(
+					 PARTITION BY A.SO_NO
+				 ) AS CNT
+				,A.DEP_WORK_CD     
+				,A.ARR_WORK_CD
+			FROM
+				BASE A
+				JOIN TTMS_ORDER_DEAL_CALL B
+					ON A.SO_NO=B.SO_NO AND B.DEAL_SCD='D01' AND B.DEL_YN='N'
+				JOIN TMDM_KFR_CT_EQP E
+					ON B.VHCL_NO=E.VHCL_NO AND E.USE_YN='Y' AND E.DEL_YN='N'
+				JOIN TMDM_KFR_BP_LSP L
+					ON E.LSP_ID=L.LSP_ID AND L.JOIN_TYPE = 'T05'
+			WHERE 1=1
+				AND A.TOL_SCD != '010'   /** RTB 물량에 대해선 배차요청상태에 대해 요청 차량번호를 보여주지 않는다 **/
+				AND NOT (A.SHMPT_NO IS NOT NULL AND A.TOL_SCD >= '070')
+			
+			UNION ALL 
+			
+			SELECT
+				A.SO_NO
+				,B.VHCL_NO
+				,E.CNTRL_NO
+				,E.CONSIGN_COMP   AS LSP_ID
+				,A.AMT
+				,'' AS MNF_NO
+				,'' AS DRIVER_NM
+				,'' AS MOBILE_NO
+				,'' AS SHMPT_NO
+				,COUNT(*) OVER(
+				 PARTITION BY A.SO_NO
+				) AS CNT
+				,A.DEP_WORK_CD     
+				,A.ARR_WORK_CD 
+			FROM
+				BASE A
+				JOIN TTMS_ORDER_DEAL_CALL B
+					ON A.SO_NO = B.SO_NO AND B.DEAL_SCD = 'D01' AND B.DEL_YN = 'N'
+				JOIN TMDM_CT_EQP_IF E
+					ON B.VHCL_NO = E.EQP_NO AND E.DEL_YN = 'N'
+				JOIN TMDM_BP_LSP_IF L
+					ON L.LSP_ID = E.CONSIGN_COMP
+			WHERE 1=1
+				AND A.TOL_SCD != '010'   /** RTB 물량에 대해선 배차요청상태에 대해 요청 차량번호를 보여주지 않는다 **/
+				AND NOT (A.SHMPT_NO IS NOT NULL AND A.TOL_SCD >= '070')
+		)
+		SELECT
+			 TT.SO_NO
+			,TT.TOL_NO
+			,TT.SHPR_ID
+			,TT.SHPR_BIZ_NAME
+			,TT.SHPR_NAME
+			,TT.SHPR_NAME   AS SHPR_COM_NAME
+			,TT.EO_ID
+			,TT.TOL_SCD
+			,FN_MDM_GET_MC_CODE_NM('TOL_SCD',TT.TOL_SCD) AS TOL_SCD_NM
+			,TT.DEP_ADDR1
+			,AESDECRYPT(TRIM(TT.DEP_ADDR2))	AS DEP_ADDR2
+			,TT.DEP_NODE_ID
+			,TT.DEP_NODE_NM
+			,	CASE
+					WHEN TT.DEP_ADDR1 IS NULL THEN TT.DEP_NODE_NM
+					ELSE TT.DEP_ADDR1 || ' ' || AESDECRYPT(TRIM(TT.DEP_ADDR2) )
+				END AS DEP_ADDR
+			,TT.DEP_ZIP
+			,TT.DEP_ATTN_ID
+			,AESDECRYPT(TRIM(TT.DEP_ATTN_TEL_NO))	AS DEP_ATTN_TEL_NO
+			,TT.ARR_ADDR1
+			,AESDECRYPT(TRIM(TT.ARR_ADDR2))			AS ARR_ADDR2
+			,TT.ARR_NODE_ID
+			,TT.ARR_NODE_NM
+			,CASE
+				WHEN TT.ARR_ADDR1 IS NULL THEN TT.ARR_NODE_NM
+				ELSE TT.ARR_ADDR1
+					 || ' '
+					 || AESDECRYPT(TRIM(TT.ARR_ADDR2) )
+			END AS ARR_ADDR
+			,TT.ARR_ZIP
+			,TT.WT
+			,TT.REQ_VHCL_KND_CD
+			,FN_MDM_GET_MC_CODE_NM('CM038',TT.REQ_VHCL_KND_CD) AS REQ_VHCL_KND_NM
+			,TT.REQ_VHCL_TON_CD
+			,FN_MDM_GET_MC_CODE_NM('CM039',TT.REQ_VHCL_TON_CD) AS REQ_VHCL_TON_NM
+			,TT.PAY_CD
+			,FN_MDM_GET_MC_CODE_NM('PAY_TCD',TT.PAY_CD) AS PAY_NM
+			,TT.AMT
+			,TT.OPEN_STEP_CD
+			,FN_MDM_GET_MC_CODE_NM('IO002',TT.OPEN_STEP_CD) AS OPEN_STEP_NM
+			,TT.ITEM_CD
+			,TT.ITEM_NM
+			,TT.DEP_REQ_DATE_SUB
+			,TT.DEP_REQ_TIME_SUB
+			,TO_CHAR(TO_DATE(CONCAT(TT.DEP_REQ_DATE_SUB,TT.DEP_REQ_TIME_SUB),'YYYYMMDDHH24MISS'),'YY/MM/DD HH24:MI') AS DEP_REQ_DATE
+			,TT.ARR_REQ_DATE_SUB
+			,TT.ARR_REQ_TIME_SUB
+			,TO_CHAR(TO_DATE(CONCAT(TT.ARR_REQ_DATE_SUB,TT.ARR_REQ_TIME_SUB),'YYYYMMDDHH24MISS'),'YY/MM/DD HH24:MI') AS ARR_REQ_DATE
+			,TT.REG_DT
+			,TO_CHAR(TO_DATE(TT.REG_DT,'YYYYMMDDHH24MISS'),'YY/MM/DD HH24:MI') AS REG_DATE
+			,TT.VHCL_NO
+			,TT.CNTRL_NO
+			,TT.LSP_ID
+			,TT.VHCL_NO_DIS
+			,TT.MNF_NO
+			,TT.DRV_NM
+			,TT.DRV_MOBILE
+			,TT.SHMPT_NO
+			,TT.AM_CHK
+			,TT.ORDER_INS_SYS_CD
+			,TT.ASSIGN_VHCL_NO
+			,TT.ATM_SCD
+			,CASE
+				WHEN TT.ATM_SCD IS NOT NULL THEN FN_MDM_GET_MC_CODE_NM('AM_STATUS',TT.ATM_SCD)
+				ELSE ''
+			END AS ATM_SCD_NM
+			,CASE
+					WHEN TT.TOL_SCD IN ('010','012') AND DIFF <![CDATA[<]]>  6 THEN 'R'
+					WHEN TT.TOL_SCD IN ('010','012') AND ( DIFF <![CDATA[>=]]>   6 AND DIFF <![CDATA[<]]>  24 ) THEN 'Y'
+					WHEN TT.TOL_SCD IN ('010','012') AND  DIFF <![CDATA[>=]]>   24  THEN 'G'
+					ELSE '-'		              
+				END AS DEP_STATUS	     
+			,TT.OPEN_STEP_CD  
+			,FN_MDM_GET_MC_CODE_NM('IO002',TT.OPEN_STEP_CD) AS OPEN_STEP_NM	     
+			,FN_MDM_GET_MC_CODE_NM('ORDER_INS_SYS_CD',TT.ORDER_INS_SYS_CD) AS ORDER_INS_SYS_NM	     
+			,CASE WHEN TT.OPEN_STEP_CD = '80' THEN TT.ASSIGN_VHCL_NO
+				  ELSE '-'
+			 END REQ_VHCL_NO	     
+			,CASE WHEN TT.CONSULT_CNT_TEMP = 0 THEN ' ' 
+				  ELSE TO_CHAR(TT.CONSULT_CNT_TEMP)
+			 END AS CONSULT_CNT
+			,'0' AS CHK   
+				,TT.DEP_WORK_CD     
+				,TT.ARR_WORK_CD     
+				,TT.REQ_QTY     
+				,TT.REMK			   	         
+		FROM
+			( 
+			SELECT
+				 T1.SO_NO 
+				,T1.TOL_NO
+				,T1.SHPR_ID  
+				,T1.SHPR_BIZ_NAME  
+				,T1.SHPR_NAME         
+				,T1.EO_ID
+				,T1.TOL_SCD 
+				,T1.DEP_ADDR1 
+				,T1.DEP_ADDR2                     
+				,T1.DEP_NODE_ID 
+				,T1.DEP_NODE_NM 
+				,T1.DEP_ZIP   
+				,T1.DEP_ATTN_ID
+				,T1.DEP_ATTN_TEL_NO
+				,T1.ARR_ADDR1
+				,T1.ARR_ADDR2
+				,T1.ARR_NODE_ID 
+				,T1.ARR_NODE_NM 
+				,T1.ARR_ZIP  
+				,T1.WT 
+				,T1.WT_UNIT_CD 
+				,T1.REQ_VHCL_KND_CD 
+				,T1.REQ_VHCL_TON_CD 
+				,NVL(T1.PAY_CD,'B01') AS PAY_CD
+				,T1.RATE_CLS_CD
+				,T1.RATE_AMT
+				,NVL(T3.AMT,T1.AMT) AS AMT 
+				,T1.OPEN_STEP_CD
+				,T1.ITEM_CD
+				,T1.ITEM_NM
+				,T1.EXE_CORP_ID  AS CORP_ID
+				,T1.DEP_REQ_DATE AS DEP_REQ_DATE_SUB
+				,T1.DEP_REQ_TIME AS DEP_REQ_TIME_SUB
+				,T1.ARR_REQ_DATE AS ARR_REQ_DATE_SUB
+				,T1.ARR_REQ_TIME AS ARR_REQ_TIME_SUB
+				,T1.REG_DT
+				,T3.VHCL_NO      AS VHCL_NO
+				,T3.CNTRL_NO     AS CNTRL_NO
+				,T3.LSP_ID	   AS LSP_ID
+				,	CASE 
+						WHEN T3.CNT > 1 THEN T3.VHCL_NO || ' [분할'||(T3.CNT)||'건]'
+						ELSE T3.VHCL_NO
+					END	AS VHCL_NO_DIS
+				,T3.MNF_NO
+				,T3.DRIVER_NM AS DRV_NM
+				,	CASE 
+						WHEN T3.MOBILE_NO IS NOT NULL THEN AESDECRYPT(T3.MOBILE_NO)    
+						ELSE ''
+					END AS DRV_MOBILE
+				,T3.SHMPT_NO
+				,(TO_DATE(T1.DEP_REQ_DATE||T1.DEP_REQ_TIME,'YYYYMMDDHH24MISS') - SYSDATE)*24 AS DIFF
+				,	CASE
+						WHEN T7.ATM_SO_ID IS NOT NULL THEN 'AM_TRUE'
+						ELSE 'AM_FALSE'
+					END AS AM_CHK
+				,T1.ORDER_INS_SYS_CD
+				,T1.REQ_VHCL_NO AS ASSIGN_VHCL_NO
+				,	CASE
+						WHEN T1.TOL_SCD = '010' AND T7.RTB_YN = 'N' THEN T7.ATM_SCD
+						ELSE ''
+					END AS ATM_SCD
+				,( SELECT COUNT(*)
+					FROM TBCT_CONSULT_MNG 
+					WHERE ID = T1.SHPR_ID
+					AND SO_NO = T1.SO_NO
+					AND DEL_YN = 'N'
+				) AS CONSULT_CNT_TEMP
+				,T1.DEP_WORK_CD     
+				,T1.ARR_WORK_CD     
+				,T1.REQ_QTY     
+				,T1.REMK 
+			FROM 
+				BASE T1  
+				LEFT JOIN TATM_TG_SO_MST T7
+					ON T1.SO_NO=T7.ATM_SO_ID AND 'N'=T7.RTB_YN AND TO_CHAR(SYSDATE,'YYYYMMDD') <![CDATA[<=]]> T7.DEP_REQ_DATE
+				LEFT JOIN T3
+					ON T1.SO_NO=T3.SO_NO
+			WHERE 1=1   
+				AND T1.TOL_SCD != '001' 
+		) TT
+		ORDER BY TOL_SCD ASC, SO_NO DESC
+	</select>
+
+
+	<select	id="getActiveMatchingList" resultClass="java.util.HashMap">
+		/**	[sql-cargoMngService.xml][cargoMngService.getActiveMatchingList]
+		 *	A/M실행정보 조회
+		 *	[Jang. Jaehyuk 2018.10.24]
+		 **/
+		SELECT
+			 ATM_SO_ID	AS SO_NO
+			,RTB_YN
+			,ATM_RUN_CNT
+			,ATM_SO_ID || ',' || RTB_YN || ',' || ATM_RUN_CNT AS CD
+			,'[' || TO_CHAR(TO_DATE(ATM_ASSIGN_DTM,'YYYYMMDDHH24MISS'),'YYYY/MM/DD HH24:MI') || '] ' || ATM_RUN_CNT || '차수 - ' || CNT || '대 매칭' AS CD_NM
+		FROM
+			(
+			SELECT
+				 ATM_SO_ID
+				,RTB_YN
+				,ATM_RUN_CNT   AS ATM_RUN_CNT
+				,MIN(ATM_ASSIGN_DATE || ATM_ASSIGN_TIME) AS ATM_ASSIGN_DTM
+				,COUNT(ATM_RUN_CNT) CNT
+			FROM
+				TATM_ASSIGN_MST
+			WHERE ATM_SO_ID = #SO_NO# AND RTB_YN = 'N'
+			GROUP BY
+					ATM_SO_ID
+					,RTB_YN
+					,ATM_RUN_CNT
+			)
+		ORDER BY ATM_RUN_CNT DESC
+	</select>
+	
+	
+	<select	id="getActiveMatchingResult" resultClass="java.util.HashMap">
+		/**	[sql-cargoMngService.xml][cargoMngService.getActiveMatchingResult]
+		 *	A/M실행결과 조회
+		 *	[Jang. Jaehyuk 2018.10.24]
+		 **/
+		SELECT
+			   T.VHCL_NO
+			 , T.ATM_RATE
+			 , CASE WHEN T.ATM_RATE IS NULL THEN '-'
+					ELSE T.ATM_RATE||'%'
+			   END DIS_ATM_RATE
+			 , T.ATM_RNK     
+			 , T.VHCL_KND_CD
+			 , T.VHCL_KND_NM
+			 , T.VHCL_TON_CD
+			 , T.VHCL_TON_NM
+			 , T.DRIVER_NM
+			 , T.DRIVER_TEL1
+			 , T.DRIVER_TEL2
+			 , T.DRIVER_TEL3
+			 , T.DE_DRIVER_TEL3  
+			 , T.JOIN_DATE
+			 , T.JOIN_TIME      
+			 , CASE WHEN T.DRIVER_TEL1 IS NOT NULL AND T.DRIVER_TEL2 IS NOT NULL AND T.DE_DRIVER_TEL3 IS NOT NULL THEN T.DRIVER_TEL1||'-'||T.DRIVER_TEL2||'-'||T.DE_DRIVER_TEL3
+			   ELSE '' 
+			   END AS DRIVER_TEL
+			 , CASE WHEN T.DRIVER_TEL1 IS NOT NULL AND T.DRIVER_TEL2 IS NOT NULL AND T.DE_DRIVER_TEL3 IS NOT NULL THEN T.DRIVER_TEL1||'-'||T.DRIVER_TEL2||'-'||'****'
+			   ELSE '' 
+			   END AS DRIVER_TEL_DS
+			 , CASE WHEN T.JOIN_DATE IS NOT NULL AND T.JOIN_TIME IS NOT NULL THEN TO_CHAR(TO_DATE(JOIN_DATE||JOIN_TIME,'YYYYMMDDHH24MISS'),'YYYY/MM/DD HH24:MI') 
+			   ELSE '-'
+			   END AS DIS_JOIN_DTM
+			 , (SELECT COUNT(*) FROM TMDM_CT_EQP_CLAIM WHERE VHCL_NO = T.VHCL_NO AND DEL_YN = 'N' ) AS CLAIM_CNT
+			 , NVL(
+					(
+					  SELECT ROUND(AVG(GPA),1)
+					  FROM TTMS_DRIVER_TRNS_RESULT
+					  WHERE REG_DT BETWEEN TO_CHAR(SYSDATE - 90,'YYYYMMDDHH24MISS')  AND TO_CHAR(SYSDATE ,'YYYYMMDDHH24MISS') 
+					  AND DEL_YN = 'N'
+					  AND VHCL_NO = T.VHCL_NO
+					  AND GPA <![CDATA[>]]> 0
+					 )
+				   ,0) TRANS_GPA
+			 , NVL(T.TOL_SCD,'-') AS TOL_SCD
+		FROM
+			(
+				SELECT 
+					 A.VHCL_NO
+					,A.ATM_RATE
+					,A.ATM_RNK
+					,A.VHCL_KND_CD
+					,A.VHCL_KND_NM
+					,A.VHCL_TON_CD
+					,A.VHCL_TON_NM
+					,A.DRIVER_NM
+					,A.DRIVER_TEL1
+					,A.DRIVER_TEL2
+					,A.DRIVER_TEL3  
+					,AESDECRYPT(A.DRIVER_TEL3) AS DE_DRIVER_TEL3
+					,A.JOIN_DATE
+					,A.JOIN_TIME    
+					,B.TOL_SCD
+				FROM
+					TATM_ASSIGN_MST A
+					LEFT JOIN TTMS_OD_TOLEG_HD B
+						ON A.ATM_SO_ID = B.SO_NO
+				WHERE 1=1
+					AND A.ATM_SO_ID = #SO_NO#
+					AND A.RTB_YN = #RTB_YN#
+					AND A.ATM_RUN_CNT = #ATM_RUN_CNT#
+			) T
+		ORDER BY T.ATM_RNK ASC
+	</select>	
+	
+	
+	<select	id="getMnfNoByTolNo" resultClass="java.util.HashMap">
+		/**	[sql-cargoMngService.xml][cargoMngService.getMnfNoByTolNo]
+		 *	해당 화물의 배차번호 조회 (AS-IS centerKioSubService.getMnfNoByEoId 참고)
+		 *	[Jang. Jaehyuk 2018.09.17]
+		 **/
+		SELECT
+			 E.MNF_NO
+			,E.SHMPT_NO
+			,E.MNF_NO || ' (' || E.VHCL_NO || ' / ' || NVL(E.DRV_NM, '-') || '  ' || NVL(E.DRV_MOBILE, '-') || ')' AS CD_NM
+			,E.MNF_NO || '_' || E.SHMPT_NO AS CD
+		  FROM (SELECT CASE WHEN D.DRV_MOBILE1 IS NOT NULL AND D.DRV_MOBILE2 IS NOT NULL AND D.DRV_MOBILE3 IS NOT NULL
+				            THEN D.DRV_MOBILE1 || '-' || D.DRV_MOBILE2 || '-' || AESDECRYPT(D.DRV_MOBILE3)
+				            ELSE ''
+				        END AS DRV_MOBILE
+				      ,D.VHCL_NO
+				      ,D.DRV_NM
+				      ,D.MNF_NO
+				      ,D.SHMPT_NO
+				  FROM (SELECT B.VHCL_NO
+						      ,C.DRV_NM
+						      ,C.DRV_MOBILE1
+						      ,C.DRV_MOBILE2
+						      ,C.DRV_MOBILE3
+						      ,B.MNF_NO
+						      ,A.SHMPT_NO
+						  FROM TTMS_OD_TOLEG_HD A
+						      ,TTMS_PL_MFEST B
+						      ,TMDM_KFR_CT_EQP C
+						 WHERE 1=1
+							AND A.TOL_NO = #TOL_NO#
+						   AND A.TRNS_NO = B.TRNS_NO
+						   AND C.LSP_ID = B.LSP_ID
+						   AND C.VHCL_NO = B.VHCL_NO
+						   AND A.DEL_YN = 'N'
+						   AND B.DEL_YN = 'N'
+						   AND C.USE_YN = 'Y'
+						   AND C.DEL_YN = 'N'
+						   AND B.VHCL_NO IS NOT NULL) D) E
+	</select>		
+
+
+	<select	id="getTrkgInfo" resultClass="java.util.HashMap">
+		/**	[sql-cargoMngService.xml][cargoMngService.getTrkgInfo]
+		 *	해당 배차번호 트레킹 정보 조회 (AS-IS centerKioSubService.getTrkgInfo 참고)
+		 *	[Jang. Jaehyuk 2018.09.17]
+		 **/
+		SELECT
+			   E.TRKG_EVT_TCD_NM
+			  ,E.EVT_DT
+			  ,E.TRKG_ADDR
+			  ,CASE WHEN E.TRKG_EVT_TCD = '0120' THEN E.ARR_ADDR ELSE E.DEP_ADDR END AS DEP_ARR_ADDR
+			  ,CASE WHEN E.TRKG_EVT_TCD = '0120' 
+					THEN CASE WHEN E.RECE_CNT > 0 THEN 'Y' ELSE 'N' END
+					ELSE '' END AS RECE_YN
+		FROM
+			(
+				SELECT D.TRKG_EVT_TCD_NM
+					  ,MAX(D.EVT_DT) AS EVT_DT
+					  ,D.TRKG_ADDR
+					  ,D.RECE_CNT
+					  ,D.DEP_ADDR
+					  ,D.ARR_ADDR
+					  ,D.TRKG_EVT_TCD
+				  FROM (SELECT FN_MDM_GET_MC_CODE_NM('TRKG_EVT_TCD_N',  C.TRKG_EVT_TCD) AS TRKG_EVT_TCD_NM
+							  ,TO_CHAR(TO_DATE(C.EVT_DATE || C.EVT_TIME, 'YYYYMMDDHH24MISS'), 'YYYY/MM/DD HH24:MI:SS') AS EVT_DT
+							  ,TRIM(C.SIDO || ' '  || C.GUGUN || ' ' || C.DONG) AS TRKG_ADDR
+							  ,(SELECT COUNT(*)
+								  FROM TTMS_PL_SHIP_RECEIPT
+								 WHERE MNF_NO = C.MNF_NO
+								   AND SHMPT_NO = C.SHMPT_NO
+								   AND DEL_YN = 'N') AS RECE_CNT
+							  ,TRIM(C.DEP_ADDR1 || ' ' || AESDECRYPT(C.DEP_ADDR2)) AS DEP_ADDR
+							  ,TRIM(C.ARR_ADDR1 || ' ' || AESDECRYPT(C.ARR_ADDR2)) AS ARR_ADDR
+							  ,C.TRKG_EVT_TCD
+						  FROM (SELECT A.TRKG_EVT_TCD
+									  ,A.EVT_DATE
+									  ,A.EVT_TIME
+									  ,A.NODE_SIDO_NAME AS SIDO
+									  ,A.NODE_SGG_NAME AS GUGUN
+									  ,A.NODE_EMD_NAME AS DONG
+									  ,A.MNF_NO
+									  ,A.SHMPT_NO
+									  ,B.DEP_ADDR1
+									  ,B.DEP_ADDR2
+									  ,B.ARR_ADDR1
+									  ,B.ARR_ADDR2
+								  FROM TTMS_PL_TRKG A
+									  ,TTMS_PL_MFEST B
+								 WHERE 1=1
+									AND A.MNF_NO = #MNF_NO#
+								   AND A.SHMPT_NO = #SHMPT_NO#
+								   AND B.MNF_NO = #MNF_NO#
+								   AND A.MNF_NO = B.MNF_NO
+								   AND A.DEL_YN = 'N'
+								   AND B.DEL_YN = 'N'
+								ORDER BY A.SEQ_NO ASC) C) D
+				GROUP BY D.TRKG_EVT_TCD_NM, D.TRKG_ADDR, D.RECE_CNT, D.DEP_ADDR, D.ARR_ADDR, D.TRKG_EVT_TCD
+		) E
+	</select>
+	
+	
+	<procedure id="saveOrderData">
+		/**	[sql-cargoMngService.xml][cargoMngService.saveOrderData]
+		 *	주문등록 ==> !!! 삭제필요
+		 *	[Jang. Jaehyuk 2018.09.17]
+		 **/
+		{call SP_MIP_KIO_ORDER(
+			      #SO_ID#
+				, #EO_ID#
+				, #EO_SCD#
+				, #SHPR_ID#
+				, #TRANS_JOIN_CD#
+				, #DEP_NODE_ID#
+				, #DEP_NODE_NM#
+				, #DEP_REQ_DATE#
+				, #DEP_REQ_TIME#
+				, #DEP_ATTN_ID#
+				, #DEP_ATTN_TEL_NO1#
+				, #DEP_ATTN_TEL_NO2#
+				, #DEP_ATTN_TEL_NO3#
+				, #DEP_ADDR1#
+				, #DEP_ZIP#
+				, #DEP_ZIP_CD#
+				, #DEP_ZIP_TYPE#
+				, #DEP_LON#
+				, #DEP_LAT#
+				, #DEP_LCL_ADDR_STATES#
+				, #DEP_LCL_ADDR_CUNTY#
+				, #ARR_NODE_ID#
+				, #ARR_NODE_NM#
+				, #ARR_REQ_DATE#
+				, #ARR_REQ_TIME#
+				, #ARR_ATTN_ID#
+				, #ARR_ATTN_TEL_NO1#
+				, #ARR_ATTN_TEL_NO2#
+				, #ARR_ATTN_TEL_NO3#
+				, #ARR_ADDR1#
+				, #ARR_ZIP#
+				, #ARR_ZIP_CD#
+				, #ARR_ZIP_TYPE#
+				, #ARR_LON#
+				, #ARR_LAT#
+				, #ARR_LCL_ADDR_STATES#
+				, #ARR_LCL_ADDR_CUNTY#
+				, #ITEM_CD#
+				, #ITEM_NM#
+				, #WT#
+				, #REQ_QTY#
+				, #REMK#
+				, #CARGO_DIRECT_REQ_YN#
+				, #ORDER_TYPE_CD#
+				, #OPEN_STEP_CD#
+				, #RATE_CLS_CD#
+				, #RATE_AMT#
+				, #AMT#
+				, #REQ_VHCL_KND_CD#
+				, #REQ_VHCL_TON_CD#
+				, #REQ_VHCL_NO#
+				, #REQ_CNTRL_NO#
+				, #LSP_ID#
+				, #PAY_CD#
+				, #AR_COSTC_ID#
+				, #AP_COSTC_ID#
+				, #EXE_CORP_ID#
+				, #ORGN_ORD_NO#
+				, #ORDER_INS_SYS_CD#
+				, #LOGIN_ID#
+				, #EST_DISTANCE#
+				, #DEP_ADDR2#
+				, #ARR_ADDR2#
+				, #DEP_WORK_CD#
+				, #ARR_WORK_CD#
+				, #ATTR_20#
+	 			, #RET_CD,jdbcType=VARCHAR,mode=OUT#
+			    , #RET_MSG,jdbcType=VARCHAR,mode=OUT#
+		)}
+	</procedure>
+
+
+	<update id="deleteOrderData">
+		/**	[sql-cargoMngService.xml][cargoMngService.deleteOrderData]
+		 *	해당 주문 단계를 666으로 처리함. (정보센터 주문은 분할/합적되지 않는다고 가정함)
+		 *	[Jang. Jaehyuk 2018.10.31]
+		 **/		
+		UPDATE
+		    TTMS_OD_TOLEG_HD
+		SET TOL_SCD = '666'
+		  , MOD_ID = #gv_userId#
+		  , MOD_DT = TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS')
+		  , MOD_IP = #gv_ipAddr#
+		WHERE SO_NO = #TOL_NO#
+			AND TOL_SCD = '010'
+	</update>	
+	
+	
+    <procedure id="saveFreeVhcl">
+		/**	[sql-cargoMngService.xml][cargoMngService.saveFreeVhcl]
+		 *	공차등록 (ptlVhcService.saveFreeVhcl 참고했음)
+		 *	[Jang. Jaehyuk 2018.11.01]
+		 **/	    
+		{
+			call SP_MIP_SAVE_FREE_VHCL(
+				 #VHCL_NO#
+				,#SC_NOW#
+				,#SC_DATE#
+				,#SC_TIME#
+				,#VHCL_KND_CD#
+				,#VHCL_TON_CD#
+				,#DRIVER_NM#
+				,#SIDO_CODE#
+				,#SIDO_NM#
+				,#GUNGU_CODE#
+				,#GUNGU_NM#
+				,#gv_userId#
+				,#RET_CD,jdbcType=VARCHAR,mode=OUT#
+				,#CNT,jdbcType=VARCHAR,mode=OUT#
+				,#RET_MSG,jdbcType=VARCHAR,mode=OUT#
+			)
+		}
+    </procedure>
+    
+    
+    <update id="deleteScList">
+		/**	[sql-cargoMngService.xml][cargoMngService.deleteScList]
+		 *	공차등록 (ptlVhcService.deleteScList 참고했음)
+		 *	[Jang. Jaehyuk 2018.11.01]
+		 */
+    	UPDATE
+    	       TTMS_FREE_VHCL
+    	   SET DEL_YN = 'Y'
+    	 WHERE VHCL_NO = #VHCL_NO#
+    	   AND SC_START_DATE = #SC_START_DATE#
+    	   AND SC_START_DT = #SC_START_DT#
+    </update>
+    
+
+	<select	id="getVhclListForFree" resultClass="java.util.HashMap">
+		/**	[sql-cargoMngService.xml][cargoMngService.getVhclListForFree]
+		 *	공차 등록 대상 차량 조회
+		 *	[Jang. Jaehyuk 2018.11.02]
+		 **/
+		SELECT
+		       T.*
+		  FROM (SELECT D.VHCL_NO 
+				      ,D.DRV_NM
+				      ,FN_MDM_GET_MC_CODE_NM('CM038', D.VHCL_KND_CD) AS VHCL_KND_NM 
+				      ,FN_MDM_GET_MC_CODE_NM('CM039', D.TON_CD) AS VHCL_TON_NM 
+				      ,D.VHCL_KND_CD 
+				      ,D.TON_CD AS VHCL_TON_CD 
+				      ,CASE WHEN D.DRV_MOBILE1 IS NOT NULL AND D.DRV_MOBILE2 IS NOT NULL AND D.DRV_MOBILE3 IS NOT NULL 
+				            THEN D.DRV_MOBILE1 || '-' || D.DRV_MOBILE2 || '-' || AESDECRYPT(D.DRV_MOBILE3) 
+				            ELSE ''
+				        END AS DRV_MOBILE
+				      ,CASE WHEN D.JOIN_TYPE = 'T05' THEN '차주' ELSE '운송사' END AS JOIN_TYPE_NM
+				  FROM (SELECT C.*
+						  FROM (SELECT B.*
+							          ,ROW_NUMBER() OVER(PARTITION BY B.VHCL_NO ORDER BY B.JOIN_TYPE DESC, REG_DT DESC) AS ROW_NUM
+							      FROM (SELECT TA.*
+									      FROM (SELECT A.*
+									                  ,(SELECT JOIN_TYPE
+									                      FROM TMDM_KFR_BP_LSP
+									                     WHERE LSP_ID = A.LSP_ID
+									                       AND DEL_YN = 'N') AS JOIN_TYPE
+									      	      FROM (SELECT VHCL_NO
+													          ,DRV_NM
+															  ,VHCL_KND_CD
+															  ,TON_CD
+															  ,DRV_MOBILE1
+															  ,DRV_MOBILE2 
+															  ,DRV_MOBILE3
+															  ,REG_DT
+															  ,LSP_ID
+														  FROM TMDM_KFR_CT_EQP
+														 WHERE 1 = 1
+														   <isNotEmpty property="VHCL_NO">
+														   AND (VHCL_NO LIKE #VHCL_NO# || '%'
+															    OR VHCL_NO LIKE '%' || #VHCL_NO#)
+														   </isNotEmpty>
+														   <isNotEmpty property="DRV_NM">
+												           AND (DRV_NM LIKE #DRV_NM# || '%'
+												                OR DRV_NM LIKE '%' || #DRV_NM#)
+												           </isNotEmpty>
+														   <isNotEmpty property="VHCL_KND_CD">
+												           AND VHCL_KND_CD = #VHCL_KND_CD#
+												           </isNotEmpty>
+												           <isNotEmpty property="VHCL_TON_CD">
+												           AND TON_CD = #VHCL_TON_CD#
+												           </isNotEmpty>
+														   AND USE_YN = 'Y'
+														   AND DEL_YN = 'N') A) TA
+							             <isEqual property="JOIN_TYPE" compareValue="Y">
+											WHERE TA.JOIN_TYPE = 'T05'
+							             </isEqual>
+										 
+										 ) B) C
+				         WHERE C.ROW_NUM = 1) D
+				<isNotEqual property="JOIN_TYPE" compareValue="Y">
+				UNION ALL
+				SELECT GM.EQP_NO AS VHCL_NO
+				      ,GM.DRV_NM
+				      ,FN_MDM_GET_MC_CODE_NM('CM038', GM.VHCL_KND_CD) AS VHCL_KND_NM
+				      ,FN_MDM_GET_MC_CODE_NM('CM039', GM.TON_CD) AS VHCL_TON_NM
+				      ,GM.VHCL_KND_CD
+				      ,GM.TON_CD AS VHCL_TON_CD
+				      ,CASE WHEN LENGTH(GM.MOBILE_NO) = 10 THEN SUBSTR(GM.MOBILE_NO, 1, 3) || '-' || SUBSTR(GM.MOBILE_NO, 4, 3) || '-' || SUBSTR(GM.MOBILE_NO, 7, 4)
+				       		WHEN LENGTH(GM.MOBILE_NO) = 11 THEN SUBSTR(GM.MOBILE_NO, 1, 3) || '-' || SUBSTR(GM.MOBILE_NO, 4, 4) || '-' || SUBSTR(GM.MOBILE_NO, 8, 4)
+				            ELSE ''
+				        END AS DRV_MOBILE
+				      ,'위수탁' AS JOIN_TYPE_NM
+				  FROM (SELECT EQP_NO
+						      ,DRV_NM
+						      ,VHCL_KND_CD
+						      ,TON_CD
+						      ,MOBILE_NO
+						  FROM VMDM_KFR_CT_EQP
+						 WHERE EQP_CLS_CD = '2'
+						   <isNotEmpty property="VHCL_NO">
+						   AND (EQP_NO LIKE #VHCL_NO# || '%'
+						        OR EQP_NO LIKE '%' || #VHCL_NO#)
+						   </isNotEmpty>
+						   <isNotEmpty property="DRV_NM">
+						   AND (DRV_NM LIKE #DRV_NM# || '%'
+								OR DRV_NM LIKE '%' || #DRV_NM#)
+						   </isNotEmpty>
+						   <isNotEmpty property="VHCL_KND_CD">
+				           AND VHCL_KND_CD = #VHCL_KND_CD#
+				           </isNotEmpty>
+				           <isNotEmpty property="VHCL_TON_CD">
+				           AND TON_CD = #VHCL_TON_CD#
+				           </isNotEmpty>
+						   ) GM
+				</isNotEqual>				
+				) T
+		ORDER BY T.VHCL_NO ASC		 
+	</select>
+    
+
+	<select	id="getScList" resultClass="java.util.HashMap">
+		/**	[sql-cargoMngService.xml][cargoMngService.getScList]
+		 *	해당 차량 공차조회
+		 *	[Jang. Jaehyuk 2018.10.24]
+		 **/
+		SELECT
+			 '' AS CHK
+			,G.VHCL_NO
+			,TO_CHAR(TO_DATE(G.SC_START, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD') AS SC_DATE
+			,CASE WHEN G.SC_START <![CDATA[ <= ]]> TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+				THEN TO_CHAR(TO_DATE(G.SC_START, 'YYYYMMDDHH24MISS'), 'HH24:MI') || ' 현재공차'
+				ELSE TO_CHAR(TO_DATE(G.SC_START, 'YYYYMMDDHH24MISS'), 'HH24:MI') || ' 예약공차'
+			END AS SC_STATUS
+			,G.VHCL_SI_NAME
+			,G.VHCL_GU_NAME
+			,G.X
+			,G.Y
+			,SUBSTR(G.SC_START, 1, 8) AS SC_START_DATE
+			,SUBSTR(G.SC_START, 9, 6) AS SC_START_DT
+		FROM (SELECT F.SC_START
+				  ,H.VHCL_NO
+				  ,H.VHCL_SI_NAME
+				  ,H.VHCL_GU_NAME
+				  ,H.COORD_WGS84_X AS X
+				  ,H.COORD_WGS84_Y AS Y
+			  FROM (SELECT E.*
+					  FROM (SELECT D.VHCL_NO
+								  ,D.SC_START
+								  ,CASE WHEN D.VIEW_YN = 'Y' THEN 'Y'
+										ELSE CASE WHEN D.MAX_CNT = D.ROW_NUM THEN 'Y' ELSE 'N' END
+									END AS VIEW_YN
+							  FROM (SELECT C.*
+										  ,COUNT(*) OVER(PARTITION BY C.VHCL_NO, C.VIEW_YN) AS MAX_CNT
+										  ,ROW_NUMBER() OVER(PARTITION BY C.VHCL_NO, C.VIEW_YN ORDER BY C.SC_START) AS ROW_NUM
+									  FROM (SELECT B.VHCL_NO
+												  ,B.SC_START
+												  ,CASE WHEN B.SC_START >= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') THEN 'Y' ELSE 'N' END AS VIEW_YN
+											  FROM (SELECT A.VHCL_NO
+														  ,A.SC_START_DATE || A.SC_START_DT AS SC_START
+													  FROM (SELECT VHCL_NO
+																  ,SC_START_DATE
+																  ,SC_START_DT
+															  FROM TTMS_FREE_VHCL
+															 WHERE VHCL_NO = #VHCL_NO#
+															   AND SC_START_DATE >= TO_CHAR(SYSDATE, 'YYYYMMDD')
+															   AND DEL_YN = 'N') A) B) C) D) E
+					 WHERE E.VIEW_YN = 'Y') F
+				  ,TTMS_FREE_VHCL H
+			 WHERE H.VHCL_NO = #VHCL_NO#
+			   AND H.SC_START_DATE >= TO_CHAR(SYSDATE, 'YYYYMMDD')
+			   AND F.VHCL_NO = H.VHCL_NO
+			   AND F.SC_START = H.SC_START_DATE || H.SC_START_DT) G
+		ORDER BY G.SC_START DESC
+	</select>    
+	
+	<!-- 주문삭제 가능여부 체크 - RTB물량이면 삭제 안되게 추가-->
+	<select id="getDelAbleYn" resultClass="String">
+	SELECT /* [sql-cargoMngService.xml][cargoMngService.getDelAbleYn] */
+	       CASE WHEN A.CNT <![CDATA[>]]> 0  THEN 'N'
+	            ELSE 'Y'
+	       END
+	FROM
+		( 	SELECT
+			  (SELECT COUNT(*) CNT
+			    FROM TBIO_SO_HD A
+			    WHERE A.SO_NO = #SO_NO#
+			    	AND   A.EO_SCD  IN ( '010',  '001')  ) CNT
+			  ,(SELECT COUNT(*) CNT
+			    FROM  TRTB_IF_SO_MST  A1
+			    WHERE  A1.LEGACY_SO_ID = #SO_NO#
+                	AND A1.IF_STA_CD  in ('010', '020', '040')
+  					AND A1.LEGACY_SCD_CD = '05'	 ) CNT2
+			  FROM DUAL
+         ) A
+	</select>
+	
+	<update id="deleteOrderDataTbioSoHd">	
+	   UPDATE /*[sql-cargoMngService.xml][cargoMngService.deleteOrderDataTbioSoHd][주문취소] */
+	         TBIO_SO_HD
+	   SET EO_SCD = '666'
+	     , SO_SCD = '666'
+	     , MOD_ID = #gv_userId#
+	     , MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+	   WHERE SO_NO = #SO_NO#
+	   AND EO_SCD = '010'
+	</update>
+	
+	<update id="deleteOrderDataTtmsOdTolegHd">	
+	   UPDATE /*[sql-cargoMngService.xml][cargoMngService.deleteOrderDataTtmsOdTolegHd][주문취소] */
+	         TTMS_OD_TOLEG_HD
+	   SET TOL_SCD = '666'
+		 , EO_SCD = '666'	
+		 , SO_SCD = '666'
+	     , MOD_ID = #gv_userId#
+	     , MOD_DT = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+	   WHERE SO_NO = #SO_NO#
+	   AND EO_SCD = '010'
+	</update>
+	
+	<!-- 공차조회 대상 화물조회 -->
+	<select id="getFreiInfo" resultClass="java.util.HashMap">
+	
+		SELECT /* [sql-cargoMngService.xml][cargoMngService.getFreiInfo][공차조회 대상 화물조회] */
+			   '(' || B.SO_NO || ') / ' || B.DEP_ADDR || ' → ' || B.ARR_ADDR || ' / ' || B.ITEM_NM || ' / ' || B.VHCL_KND_NM || '(' || B.VHCL_TON_NM || ') / ' || B.AMT || '원' AS POP_TITLE
+			  ,'상차지 : ' || B.DEP_ADDR || ', 중량 : ' || B.TOT_WT || '톤, 운송료 : ' || B.AMT || '원' AS PUSH_MSG
+		      ,B.DEP_REQ_DATE
+		      ,B.DEP_REQ_TIME
+		      ,B.SIDO_CD AS SIDO_CODE
+		      ,B.GUGUN_CD AS GUGUN_CODE
+		      ,B.VHCL_TON_CD
+		      ,B.VHCL_KND_CD
+		      ,B.X
+		      ,B.Y
+		      ,B.SO_NO
+		      ,B.RTB_SO_ID
+              ,B.RTB_SEQ
+              ,B.RTB_SEQ_DATE
+              ,B.LEGACY_SCD_CD
+              ,'' as LSP_ID
+              ,'' as VHCL_NO
+              ,'' as VHCL_NOS
+              ,'' as DEP_REQ_DATE
+              ,'' as DEP_REQ_TIME
+              ,'' as IS_DEP_REQ_TIME
+              ,'' as FR_TON
+              ,'' as TO_TON
+              ,'' as SO_TYPE
+              ,'' as REQ_VHCL_KND_CD
+              ,'' as FREE_TIME_FR
+              ,'' as FREE_TIME_TO
+              ,'' as ROUND_DIST
+              ,'' as POP_TITLE
+		  FROM (SELECT TRIM(A.DEP_ADDR1 || ' ' || A.DEP_ADDR2) AS DEP_ADDR
+		              ,TRIM(A.ARR_ADDR1 || ' ' || A.ARR_ADDR2) AS ARR_ADDR 
+		              ,A.DEP_REQ_DATE
+		              ,A.DEP_REQ_TIME
+		              ,A.VHCL_KND_CD
+		              ,A.VHCL_TON_CD
+		              ,FN_MDM_GET_MC_CODE_NM('CM038', A.VHCL_KND_CD) AS VHCL_KND_NM
+		              ,FN_MDM_GET_MC_CODE_NM('CM039', A.VHCL_TON_CD) || '톤' AS VHCL_TON_NM
+		              ,A.TOT_WT
+		              ,A.AMT
+		              ,A.ITEM_NM
+		              ,A.SO_NO
+		              ,A.RTB_SO_ID
+		              ,SUBSTR(A.GUGUN_CD, 1, 2) AS SIDO_CD
+		              ,A.GUGUN_CD
+		              ,A.X
+		              ,A.Y
+		              ,A.RTB_SEQ
+		              ,A.RTB_SEQ_DATE
+		              ,A.LEGACY_SCD_CD
+		          FROM (<isEqual property="SO_TYPE" compareValue="S">
+		          		SELECT DEP_ADDR1
+		                   	  ,DEP_ADDR2
+		                   	  ,ARR_ADDR1
+		                   	  ,ARR_ADDR2
+		                   	  ,DEP_MOBILE_SIDO_CD AS GUGUN_CD
+		                   	  ,ITEM_NM
+		                      ,TOT_WT
+		                   	  ,AMT
+		                      ,SO_NO
+		                      ,SO_NO AS RTB_SO_ID
+		                   	  ,REQ_VHCL_KND_CD AS VHCL_KND_CD
+		                   	  ,REQ_VHCL_TON_CD AS VHCL_TON_CD
+		                   	  ,DEP_REQ_DATE
+		                   	  ,DEP_REQ_TIME
+		                   	  ,DEP_COORD_KATECH_X AS X
+                   			  ,DEP_COORD_KATECH_Y AS Y
+                              ,0 as RTB_SEQ
+							  ,'' as RTB_SEQ_DATE
+							  ,'05' AS LEGACY_SCD_CD
+		                  FROM TBIO_SO_HD
+		                 WHERE SO_NO = #SO_NO#
+		                   AND DEL_YN = 'N'
+		                </isEqual>
+		                <isEqual property="SO_TYPE" compareValue="R">
+		                SELECT DEP_ADDR1
+                                 ,DEP_ADDR2
+                                 ,ARR_ADDR1
+                                 ,ARR_ADDR2
+                                 ,DEP_SIDO_CD AS GUGUN_CD
+                                 ,ITEM_NM
+                                 ,WT AS TOT_WT
+                                 ,AMT
+                                 ,LEGACY_SO_ID AS SO_ID
+                                 ,RTB_SO_ID
+                                 ,REQ_VHCL_KND_CD AS VHCL_KND_CD
+                                 ,REQ_VHCL_TON_CD AS VHCL_TON_CD
+                                 ,DEP_REQ_DATE
+                                 ,DEP_REQ_TIME
+                                 ,0 AS X
+                                 ,0 AS Y
+                                 ,NVL(A.RTB_SEQ, (SELECT MAX(RTB_SEQ) AS RTB_SEQ 
+												  FROM TRTB_PLAN_MST
+												WHERE LEGACY_SO_ID = A.LEGACY_SO_ID
+												  AND RTB_SCD = '030')) AS  RTB_SEQ
+								 ,NVL(A.RTB_SEQ_DATE, (SELECT MAX(RTB_SEQ_DATE) AS RTB_SEQ_DATE
+													  FROM TRTB_PLAN_MST
+													WHERE LEGACY_SO_ID = A.LEGACY_SO_ID
+													  AND RTB_SCD = '030')) AS RTB_SEQ_DATE
+								  ,LEGACY_SCD_CD
+                             FROM TRTB_SO_MST A
+                            WHERE LEGACY_SO_NO = #SO_NO#
+		                </isEqual>) A) B
+	
+	</select>
+		
+	<select id="getScListByFrei" resultClass="java.util.HashMap">
+		SELECT /* [sql-cargoMngService.xml][cargoMngService.getScListByFrei][화물매칭 공차조회] */
+		       '' AS CHK
+		      ,F.VHCL_NO
+		      ,TO_CHAR(TO_DATE(F.SC_START_DATE, 'YYYYMMDD'), 'YYYY/MM/DD') AS SC_START_DT
+		      ,CASE WHEN F.SC_START_DATE || F.SC_START_DT <![CDATA[ <= ]]> TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		            THEN TO_CHAR(TO_DATE(F.SC_START_DATE || F.SC_START_DT, 'YYYYMMDDHH24MISS'), 'HH24:MI') || ' 현재공차'
+		            ELSE TO_CHAR(TO_DATE(F.SC_START_DATE || F.SC_START_DT, 'YYYYMMDDHH24MISS'), 'HH24:MI') || ' 예약공차'
+		        END AS SC_STATUS
+		      ,F.VHCL_SI_NAME
+		      ,F.VHCL_GU_NAME
+		      ,F.VHCL_SI_CODE
+		      ,F.VHCL_GU_CODE
+		      ,FN_MDM_GET_MC_CODE_NM('CM038', F.VHCL_KND_CD) AS VHCL_KND_NM
+		      ,FN_MDM_GET_MC_CODE_NM('CM039', F.VHCL_TON_CD) || '톤' AS VHCL_TON_NM
+		      ,F.VHCL_KND_CD
+		      ,F.VHCL_TON_CD
+		      ,F.DRIVER_NM
+		      ,CASE WHEN F.DRV_MOBILE1 IS NOT NULL AND F.DRV_MOBILE2 IS NOT NULL AND F.DRV_MOBILE3 IS NOT NULL
+		            THEN F.DRV_MOBILE1 || '-' || F.DRV_MOBILE2 || '-' || '****'
+		            ELSE ''
+		        END AS DRV_MOBILE
+		      ,CASE WHEN F.DRV_MOBILE1 IS NOT NULL AND F.DRV_MOBILE2 IS NOT NULL AND F.DRV_MOBILE3 IS NOT NULL
+		            THEN F.DRV_MOBILE1 || '-' || F.DRV_MOBILE2 || '-' || F.DRV_MOBILE3
+		            ELSE ''
+		        END AS REAL_DRV_MOBILE
+		      ,F.X
+		      ,F.Y
+		      ,0 AS CLAIM_CNT
+		      ,0 AS ACCD_CNT
+		      ,( SELECT NVL(MAX(FV.TRANS_ASSIGN_CNT), 0) 
+			        FROM TTMS_FREE_VHCL FV
+			        WHERE FV.VHCL_NO = F.VHCL_NO) AS TRANS_ASSIGN_CNT      
+		  FROM (SELECT D.*
+				      ,E.DRV_MOBILE1
+				      ,E.DRV_MOBILE2
+				      ,E.DRV_MOBILE3
+				  FROM (SELECT C.*
+						  FROM (SELECT A.VHCL_NO
+								      ,A.SC_START_DATE
+								      ,A.SC_START_DT
+								      ,A.VHCL_SI_NAME
+								      ,A.VHCL_SI_CODE
+								      ,A.VHCL_GU_NAME
+								      ,A.VHCL_GU_CODE
+								      ,A.VHCL_KND_CD
+								      ,A.VHCL_TON_CD
+								      ,A.DRIVER_NM
+								      ,A.COORD_KATECH_X AS X
+								      ,A.COORD_KATECH_Y AS Y
+								  FROM TTMS_FREE_VHCL A
+								 WHERE 1 = 1
+								   <isNotEmpty property="VHCL_NO">
+								   AND A.VHCL_NO = #VHCL_NO#
+								   </isNotEmpty>
+								   AND A.SC_START_DATE || A.SC_START_DT >= NVL((SELECT MAX(SC_START_DATE || SC_START_DT) AS MAX_SC_START_DT
+																	          	  FROM TTMS_FREE_VHCL
+																	         	 WHERE VHCL_NO = A.VHCL_NO
+																	         	   AND SC_START_DATE || SC_START_DT <![CDATA[ <= ]]> TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+																	           	   AND DEL_YN = 'N'), TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'))
+								   
+								   <isNotEmpty property="FREE_TIME_FR">
+								   AND A.SC_START_DT <![CDATA[ >= ]]> #FREE_TIME_FR#||'00'
+								   </isNotEmpty>
+								   <isNotEmpty property="FREE_TIME_TO">
+								   AND A.SC_START_DT <![CDATA[ <= ]]> #FREE_TIME_TO#||'00'
+								   </isNotEmpty>
+								   
+								   <isNotEmpty property="SIDO_CODE">
+								   AND A.VHCL_SI_CODE = #SIDO_CODE#
+									   <isNotEmpty property="GUGUN_CODE">
+									   AND A.VHCL_GU_CODE = #GUGUN_CODE#
+									   </isNotEmpty>
+								   </isNotEmpty>
+								   <isNotEmpty property="FR_TON">
+								   AND A.VHCL_TON_CD BETWEEN #FR_TON# AND #TO_TON#
+								   </isNotEmpty>
+								   <isNotEmpty property="REQ_VHCL_KND_CD">
+									AND A.VHCL_KND_CD IN (#REQ_VHCL_KND_CD#)
+									</isNotEmpty>
+								   <isNotEmpty property="ROUND_DIST">
+									   <isNotEmpty property="X">
+									   AND SQRT(POWER(#X# - A.COORD_KATECH_X, 2) + POWER(#Y# - A.COORD_KATECH_Y, 2)) <![CDATA[ <= ]]> #ROUND_DIST#
+									   </isNotEmpty>
+								   </isNotEmpty>
+								   AND A.DEL_YN = 'N') C
+				         WHERE C.SC_START_DATE = #DEP_REQ_DATE#
+				           <isEqual property="IS_DEP_REQ_TIME" compareValue="1">
+						   AND C.SC_START_DT <![CDATA[ <= ]]> #DEP_REQ_TIME#
+						   </isEqual>) D
+				      ,(SELECT A.VHCL_NO
+						      ,A.DRV_MOBILE1
+						      ,A.DRV_MOBILE2
+						      ,A.DRV_MOBILE3
+						  FROM TMDM_KFR_CT_EQP A
+						      ,TMDM_KFR_BP_LSP B
+						 WHERE A.LSP_ID = B.LSP_ID
+						   AND A.DEL_YN = 'N'
+						   AND A.USE_YN = 'Y'
+						   AND B.DEL_YN = 'N'
+						   AND B.JOIN_TYPE = 'T05'
+						   <isNotEmpty property="LSP_ID">
+						   AND B.LSP_ID = #gv_userId#
+						   </isNotEmpty>
+								   ) E
+				 WHERE D.VHCL_NO = E.VHCL_NO) F
+	</select>	
+	
+	<select id="getOrderDetailForPgPay" resultClass="java.util.HashMap">
+	SELECT /* [sql-cargoMngService.xml][cargoMngService.getOrderDetailForPgPay][선결제 운임지급 조회] */
+	       CASE WHEN BB.CJS_SHOP_ORDER_NO IS NOT NULL AND BB.RESPONSE_CODE = '0000' THEN '지급완료' 
+	            WHEN BB.CJS_SHOP_ORDER_NO IS NULL THEN '미지급' 
+	            ELSE '미지급' 
+	       END AS PAY_YN   /**에스크로지급여부**/
+	     , NVL(AA.CJS_AMOUNT_TOTAL, 0) AS CJS_AMOUNT_TOTAL /**PG 결제금액**/  
+	     , DECODE(AA.PAY_INS_DATE || AA.PAY_INS_TIME, NULL, '', TO_CHAR(TO_DATE(AA.PAY_INS_DATE || AA.PAY_INS_TIME, 'YYYYMMDDHH24MISS'), 'YY/MM/DD HH24:MI')) AS PAY_INS_DATE /**PG 결제일자 **/
+	     , AA.USER_NM     /**PG결제자명**/
+	     , CASE 
+	           WHEN BB.RESPONSE_CODE = '0000' THEN 'Y'
+	           WHEN  BB.RESPONSE_CODE  <![CDATA[ <> ]]>  '0000' AND BB.RESPONSE_CODE IS NOT NULL THEN 'N'
+	           ELSE '-' 
+	       END ESCROW_SUC_YN /**에스크로지급성공여부**/ 
+	     , CASE 
+	           WHEN BB.RESPONSE_CODE = '0000' THEN DECODE(BB.REG_DT, NULL, '', TO_CHAR(TO_DATE(BB.REG_DT, 'YYYYMMDDHH24MISS'), 'YY/MM/DD HH24:MI')) 
+	           ELSE '-' 
+	       END ESCROW_INS_DATE /**에스크로지급일자**/ 
+	     , AA.DRIVER_NM /**운전자명**/ 
+	     , AA.VHCL_NO /** 차량번호**/ 
+	     , AA.DRIVER_HP_NO /**운전자연락처**/ 
+	     , AA.SO_NO /**화물의뢰번호 **/      
+	     , AA.CJS_PAY_METHOD 
+	     , AA.CJS_SHOP_ID 
+	     , AA.CJS_PAY_ID  
+	     , AA.CJS_TRADE_ID  
+	     , AA.CJS_PAY_DATE  
+	     , AA.ACC_NO 
+	     , AA.BANK_CD
+	     , BB.RESPONSE_CODE
+	     , BB.RESPONSE_MESSAGE 
+	     , BB.RESPONSE_RESULT_CODE  
+	     , AA.CJS_SHOP_ORDER_NO AS ORDER_NO 
+	  FROM 
+	       (SELECT A.USER_NM 
+	            , A.EO_ID  
+	            , A.TOL_NO  
+	            , A.TOL_NO_SUB  
+	            , A.SHMPT_NO  
+	            , A.MNF_NO  
+	            , A.CJS_PAY_METHOD  
+	            , A.CJS_SHOP_ID  
+	            , A.CJS_PAY_ID  
+	            , A.CJS_TRADE_ID  
+	            , A.CJS_PAY_DATE  
+	            , A.CJS_AMOUNT_TOTAL  
+	            , A.CJS_SHOP_ORDER_NO  
+	            , A.CASH_RECEIPT_NUMBER  
+	            , A.CASH_RECEOPT_KIND  
+	            , A.ACC_NO  
+	            , A.BANK_CD  
+	            , A.IS_ESCROW  
+	            , A.INS_DATE AS PAY_INS_DATE  
+	            , A.INS_TIME AS PAY_INS_TIME  
+	            , A.ZTERM_DATE  
+	            , A.CRD_PGCTRL_CD_P  
+	            , A.BUY_FIX_YN  
+	            , B.ITEM_NM  
+	            , B.SO_NO  
+	            , C.LSP_ID  
+	            , C.TOL_SCD  
+	            , C.DEP_NODE_NM  
+	            , C.DEP_ADDR1  
+	            , C.DEP_ADDR2 
+	            , C.DEP_PGI_DATE  
+	            , C.DEP_PGI_TIME  
+	            , C.ARR_NODE_NM  
+	            , C.ARR_ADDR1  
+	            , C.ARR_ADDR2  
+	            , C.ARR_DLVRY_DATE  
+	            , C.ARR_DLVRY_TIME  
+	            , C.TOT_QTY  
+	            , C.TOT_WT  
+	            , C.RATE_CLS_CD  
+	            , C.AMT  
+	            , D.MNF_SCD  
+	            , D.VHCL_NO  
+	            , D.CNTRL_NO  
+	            , D.DRIVER_CD  
+	            , D.DRIVER_NM  
+	            , D.VHCL_KND_CD  
+	            , D.VHCL_TON_CD  
+	            , D.DRIVER_HP_NO 
+	         FROM 
+	              (
+	              SELECT SHPR_ID  
+	                   , USER_NM  
+	                   , EO_ID  
+	                   , TOL_NO  
+	                   , TOL_NO_SUB  
+	                   , SHMPT_NO  
+	                   , MNF_NO  
+	                   , CJS_PAY_METHOD  
+	                   , CJS_SHOP_ID  
+	                   , CJS_PAY_ID  
+	                   , CJS_TRADE_ID  
+	                   , CJS_PAY_DATE  
+	                   , CJS_AMOUNT_TOTAL  
+	                   , CJS_SHOP_ORDER_NO  
+	                   , CASH_RECEIPT_NUMBER  
+	                   , CASH_RECEOPT_KIND  
+	                   , ACC_NO  
+	                   , BANK_CD  
+	                   , IS_ESCROW  
+	                   , INS_DATE AS PAY_INS_DATE  
+	                   , INS_TIME AS PAY_INS_TIME  
+	                   , ZTERM_DATE  
+	                   , CRD_PGCTRL_CD_P  
+	                   , BUY_FIX_YN  
+	                   , INS_DATE 
+	                   , INS_TIME 
+	                FROM TMDM_KFR_PG_HIST 
+	               WHERE SEQ_NO IN 
+	                                 (
+	                                  SELECT MAX(SEQ_NO) AS SEQ_NO 
+	                                  FROM TMDM_KFR_PG_HIST 
+	                                  WHERE EO_ID IN ( 
+	                                                   SELECT EO_ID 
+	                                                   FROM TBIO_SO_HD 
+	                                                   WHERE SO_NO = #SO_NO# 
+	                                                 ) 
+	                                  AND MNF_NO IS NOT NULL 
+	                                  AND CJS_SHOP_ORDER_NO IS NOT NULL 
+	                                  GROUP BY SHPR_ID  
+	                                       , CJS_SHOP_ORDER_NO  
+	                                       , EO_ID  
+	                                       , TOL_NO  
+	                                       , TOL_NO_SUB  
+	                                       , SHMPT_NO  
+	                                       , MNF_NO 
+	                                 ) 
+	              ) A  
+	             , TBIO_SO_HD B  
+	             , TTMS_OD_TOLEG_HD C  
+	             , TTMS_PL_MFEST D 
+	        WHERE A.SHPR_ID = B.SHPR_ID 
+	              AND B.SHPR_ID = C.SHPR_ID 
+	              AND A.EO_ID = B.EO_ID 
+	              AND A.EO_ID = C.EO_ID 
+	              AND A.TOL_NO = C.TOL_NO 
+	              AND A.TOL_NO_SUB = C.TOL_NO_SUB 
+	              AND B.EO_ID = C.EO_ID 
+	              AND A.MNF_NO = D.MNF_NO 
+	              AND B.PAY_CD = 'B02' 
+	              AND B.DEL_YN = 'N' 
+	              AND B.EO_SCD != '666' 
+	              AND C.DEL_YN = 'N' 
+	              AND D.DEL_YN = 'N' 
+	       ) AA , 
+	       ( SELECT CJS_SHOP_ORDER_NO  
+	             , RESPONSE_CODE                             
+	             , RESPONSE_MESSAGE 
+	             , APPROVAL_NO  
+	             , APPROVAL_DATE  
+	             , BOOKING_NO  
+	             , DIV_NO  
+	             , RESPONSE_RESULT_CODE  
+	             , REG_ID  
+	             , REG_DT
+	         FROM TMDM_KFR_PG_ESCROW_HIST 
+	         WHERE CJS_SHOP_ORDER_NO IN (
+	         
+	                                       SELECT CJS_SHOP_ORDER_NO 
+	                                       FROM TMDM_KFR_PG_HIST 
+	                                       WHERE SEQ_NO IN 
+	                                                       (
+	                                                        SELECT MAX(SEQ_NO) AS SEQ_NO 
+	                                                        FROM TMDM_KFR_PG_HIST 
+	                                                        WHERE EO_ID IN ( 
+	                                                                         SELECT EO_ID 
+	                                                                         FROM TBIO_SO_HD 
+	                                                                         WHERE SO_NO = #SO_NO# 
+	                                                                       ) 
+	                                                        AND MNF_NO IS NOT NULL 
+	                                                        AND CJS_SHOP_ORDER_NO IS NOT NULL 
+	                                                        GROUP BY SHPR_ID  
+	                                                             , CJS_SHOP_ORDER_NO  
+	                                                             , EO_ID  
+	                                                             , TOL_NO  
+	                                                             , TOL_NO_SUB  
+	                                                             , SHMPT_NO  
+	                                                             , MNF_NO 
+	                                                       ) 
+	                                        )
+	                            
+	       ) BB 
+	 WHERE AA.CJS_SHOP_ORDER_NO = BB.CJS_SHOP_ORDER_NO(+) 
+	 AND ROWNUM = 1
+    </select>  
+    
+    
+	<update id="updateTgAtmOrderState">
+	UPDATE /*[sql-cargoMngService.xml][cargoMngService.updateTgAtmOrderState][ActiveMatching대상테이블 상태변경]*/
+	      TATM_TG_SO_MST
+	SET ATM_SCD = '01'
+	WHERE ATM_SO_ID IN (
+	                    SELECT SO_NO FROM TBIO_SO_HD
+	                    WHERE SO_NO = #SO_NO#
+	                    AND EO_SCD = '010'
+	                  )
+	AND RTB_YN = 'N'
+	AND ATM_SCD = '03'
+	</update>
+	
+	
+	<insert id="insertTgAtmOrder">             
+      INSERT INTO TATM_TG_SO_MST /*[sql-cargoMngService.xml][cargoMngService.insertTgAtmOrder][ActiveMatching대상테이블 저장]*/
+	  ( 
+			  ATM_SO_ID
+			, RTB_YN
+			, DEP_NODE_ID
+			, DEP_SIDO_CD
+			, DEP_ZIP
+			, DEP_REQ_DATE
+			, DEP_REQ_TIME
+			, ARR_NODE_ID
+			, ARR_SIDO_CD
+			, ARR_ZIP
+			, ARR_REQ_DATE
+			, ARR_REQ_TIME
+			, REQ_VHCL_TON_CD
+			, REQ_VHCL_TON_NM
+			, REQ_VHCL_KND_CD
+			, REQ_VHCL_KND_NM
+			, WT_UNIT_CD
+			, WT
+			, AMT
+			, ATM_RQ_DATE
+			, ATM_RQ_TIME
+			, ATM_SCD
+			, REG_ID
+			, REG_DT                
+			, REG_IP  
+		)
+		SELECT
+			 SO.SO_NO
+			,'N'
+			,SO.DEP_NODE_ID
+			,SO.DEP_SIDO_CD
+			,SO.DEP_ZIP
+			,SO.DEP_REQ_DATE
+			,SO.DEP_REQ_TIME 
+			,SO.ARR_NODE_ID
+			,SO.ARR_SIDO_CD
+			,SO.ARR_ZIP
+			,SO.ARR_REQ_DATE
+			,SO.ARR_REQ_TIME
+			,SO.REQ_VHCL_TON_CD                            
+			,FN_MDM_GET_MC_CODE_NM('CM039', SO.REQ_VHCL_TON_CD) 
+			,SO.REQ_VHCL_KND_CD
+			,FN_MDM_GET_MC_CODE_NM('CM038', SO.REQ_VHCL_KND_CD)
+			,SO.WT_UNIT_CD   
+			,SO.WT  
+			,SO.AMT
+			,TO_CHAR(SYSDATE+1/24/60, 'YYYYMMDD')
+			,TO_CHAR(SYSDATE+1/24/60, 'HH24MISS')  
+			,'01'                                            /*'01':매칭요청,'02':매칭중,'03':매칭완료,'04':배차완료,'05':매칭중지*/
+			,#gv_userId#
+			,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			,#gv_ipAddr#
+		FROM TBIO_SO_HD SO
+		WHERE SO.SO_NO=#SO_NO#	 
+	</insert>
+</sqlMap>

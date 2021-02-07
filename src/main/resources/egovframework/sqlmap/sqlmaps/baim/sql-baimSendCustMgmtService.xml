@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimSendCustMgmtService">
+	
+	<select id="getNextSendCustNo" resultClass="string">
+		/** [sql-baimSendCustMgmtService.xml][baimSendCustMgmtService.getNextSendCustNo]
+		 *  [발송고객코드 조회 max+1]
+		 *  [KimJinHwan 2020.07.14]
+		 **/
+		SELECT CONCAT('BS',LPAD(IFNULL(MAX(SUBSTR(TBSCC.SEND_CUST_NO,3))+1,1),6,'0')) AS CUST_ID FROM TB_BAIM_SEND_CUST_C TBSCC WHERE TBSCC.SEND_CUST_NO LIKE 'BS%'
+	</select>
+	
+	<select id="checkSendCustId" resultClass="int">
+		/** [sql-baimSendCustMgmtService.xml][baimSendCustMgmtService.checkSendCustId]
+		 *  [발송고객  중복 체크]
+		 *  [KimJinHwan 2020.02.13]
+		 **/
+		SELECT COUNT(*) AS CNT
+		  FROM TB_BAIM_SEND_CUST_C
+		 WHERE CUST_ID 			 = #CUST_ID#
+		   AND CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+	</select>
+	
+	<select id="checkCustId" resultClass="int">
+		/** [sql-baimSendCustMgmtService.xml][baimSendCustMgmtService.checkCustId]
+		 *  [고객  중복 체크]
+		 *  [KimJinHwan 2020.02.13]
+		 **/
+		SELECT COUNT(*) AS CNT
+		  FROM TB_BAIM_CUST_LIST_C
+		 WHERE CUST_ID 			 = #SEND_CUST_NO#
+	</select>
+	
+	
+	<select id="getRegCntrCnt" resultClass="java.util.HashMap">
+		/** [sql-baimSendCustMgmtService.xml][baimSendCustMgmtService.getRegCntrCnt]
+		 *  [계약 등록 건수 조회]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+		SELECT
+		    A.PICKUP_BRAN_CD, B.CNT
+		FROM   
+		     (SELECT PICKUP_BRAN_CD, '1' AS IKEY
+		        FROM TB_BAIM_SEND_CUST_C
+		       WHERE CUST_ID = #CUST_ID#
+		         AND CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#) A,
+		      (SELECT COUNT(*) CNT, '1' AS IKEY
+		        FROM TB_BAIM_FIXED_DLCM_CNTR_C
+		       WHERE CUST_ID = #CUST_ID#
+		         AND CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#) B
+		WHERE
+		     A.IKEY = B.IKEY
+		
+	</select>
+	
+	
+	<select	id="getSendCustInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimSendCustMgmtService.xml][baimSendCustMgmtService.getSendCustInfoList]
+		 *  [발송고객 리스트 조회]
+		 *  [KimJinHwan 2020.02.13]
+		 **/
+		 SELECT
+		    A.CUST_ID,
+		    B.CUST_NM AS CUST_NM, 				 /*기업고객명*/
+		    A.CUST_MGMT_DLCM_CD,
+		    A.SEND_CUST_NO,
+		    C.CUST_NM AS SEND_CUST_NM,           /*발송고객명*/
+		    A.CAL_CP_DV,
+		    A.FEE_DV,
+		    A.PICKUP_BRAN_CD,
+		    D.BRAN_NM AS PICKUP_BRAN_NM,
+		    A.PICKUPPLC_ZIP_NO,
+		    A.PICKUPPLC_ADDR,
+		    FC_AES_DECRYPT(A.PICKUPPLC_DETAIL_ADDR) AS PICKUPPLC_DETAIL_ADDR,
+		    A.DLV_BRAN_CD,
+		    E.BRAN_NM AS DLV_BRAN_NM,
+		    A.DLV_ZIP_NO,
+		    A.DLV_ADDR,
+		    FC_AES_DECRYPT(A.DLV_DETAIL_ADDR) AS DLV_DETAIL_ADDR,
+		    A.FCHRG_DV,
+		    A.INCHG_NM,
+		    A.INCHG_CELL_NO_1,
+		    A.INCHG_CELL_NO_2,
+		    FC_AES_DECRYPT(A.INCHG_CELL_NO_3) AS INCHG_CELL_NO_3,
+		    A.INCHG_EMAIL,
+		    A.DAY_PICKUP_YN,
+		    A.SEL_TRANSF,
+		    A.USE_YN,
+		    A.CAL_CP_DV_PREPAY,
+		    (CASE WHEN A.CAL_CP_DV_REGPAY='4' THEN '1'
+		            ELSE A.CAL_CP_DV_REGPAY
+		     END
+		    ) AS CAL_CP_DV_REGPAY,
+		    (CASE WHEN A.CAL_CP_DV='1' THEN B.CP_DV
+		             WHEN A.CAL_CP_DV='2' THEN F.CP_DV
+		             ELSE ''
+		     END
+		    ) AS CP_DV
+		    , C.TEL_NO_1
+	        , C.TEL_NO_2
+	        , FC_AES_DECRYPT(C.TEL_NO_3) TEL_NO_3
+	        , C.CELL_NO_1
+	        , C.CELL_NO_2
+	        , FC_AES_DECRYPT(C.CELL_NO_3) CELL_NO_3
+	        , C.ZIP_NO
+	        , C.ADDR_1 AS ADDR
+	        , FC_AES_DECRYPT(C.DETAIL_ADDR) DETAIL_ADDR
+	        , TBFDCC.CNTR_BRAN_CD							/*계약점소*/
+	        , G.BRAN_NM AS CNTR_BRAN_NM						/*계약점소명*/
+		FROM
+		    TB_BAIM_SEND_CUST_C A
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C D ON ( A.PICKUP_BRAN_CD = D.BRAN_CD )
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C E ON ( A.DLV_BRAN_CD = E.BRAN_CD )
+		    LEFT OUTER JOIN TB_BAIM_ENTER_CUST_C F ON ( A.SEND_CUST_NO = F.CUST_ID )
+		    LEFT OUTER JOIN TB_BAIM_FIXED_DLCM_CNTR_C TBFDCC ON (TBFDCC.CUST_ID = A.CUST_ID AND TBFDCC.CNTR_START_YMD = (
+	                                    SELECT CNTR_START_YMD
+	                                      FROM TB_BAIM_FIXED_DLCM_CNTR_C 
+	                                      WHERE CUST_ID=A.CUST_ID
+	                                      AND CUST_MGMT_DLCM_CD = A.CUST_MGMT_DLCM_CD
+	                                      AND CNTR_START_YMD <![CDATA[<=]]> DATE_FORMAT(NOW(), '%Y%m%d')
+	                                      ORDER BY CNTR_START_YMD DESC LIMIT 1
+                                    ))
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C G ON ( TBFDCC.CNTR_BRAN_CD = G.BRAN_CD ),
+		    TB_BAIM_ENTER_CUST_C B,
+		    TB_BAIM_CUST_LIST_C C
+		    
+		WHERE
+		    A.CUST_ID = B.CUST_ID
+		AND A.SEND_CUST_NO = C.CUST_ID
+		<isNotEmpty property="CUST_ID">
+		AND A.CUST_ID = #CUST_ID#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_MGMT_DLCM_CD">
+		AND A.CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		</isNotEmpty>
+		<isNotEmpty property="SEND_CUST_NO">
+		AND A.SEND_CUST_NO = #SEND_CUST_NO#
+		</isNotEmpty>
+		<isNotEmpty property="SEND_CUST_NM">
+		AND C.CUST_NM LIKE CONCAT('%',#SEND_CUST_NM#,'%') 
+		</isNotEmpty>
+		
+	</select>
+	
+	
+	<select id="getCustMgmtDlcmInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimSendCustMgmtService.xml][baimSendCustMgmtService.getCustMgmtDlcmInfoList]
+		 *  [협력사 리스트 조회]
+		 *  [KimJinHwan 2020.02.13]
+		 **/
+		 SELECT
+		    A.CUST_ID,
+		    A.SEND_CUST_NO,
+		    B.CUST_NM AS SEND_CUST_NM,  /*발송고객명*/
+		    A.CUST_MGMT_DLCM_CD,
+		    A.CAL_CP_DV,
+		    B.ZIP_NO,
+		    B.ADDR_1,
+		    FC_AES_DECRYPT(B.DETAIL_ADDR) AS DETAIL_ADDR,
+		    CONCAT(B.ADDR_1, ' ',  FC_AES_DECRYPT(B.DETAIL_ADDR)) AS TOTAL_ADDR,
+		    CONCAT(B.TEL_NO_1,'-',B.TEL_NO_2,'-',FC_AES_DECRYPT(B.TEL_NO_3)) AS TOTAL_TEL_NO,
+		    CONCAT(B.CELL_NO_1,'-',B.CELL_NO_2,'-',FC_AES_DECRYPT(B.CELL_NO_3)) AS TOTAL_CELL_NO
+		FROM
+		    TB_BAIM_SEND_CUST_C A,
+		    TB_BAIM_CUST_LIST_C B
+		WHERE
+		    A.SEND_CUST_NO = B.CUST_ID
+		AND A.USE_YN = 'Y'
+		AND B.DEL_YN = 'N'
+		AND A.CUST_ID = #CUST_ID#
+		<isNotEmpty property="CUST_MGMT_DLCM_CD">
+		AND A.CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_MGMT_DLCM_NM">
+		AND B.CUST_NM LIKE CONCAT('%', #CUST_MGMT_DLCM_NM#, '%')
+		</isNotEmpty>
+		ORDER BY CUST_ID, SEND_CUST_NO
+		    
+	</select>
+	
+	<insert id="insertSendCustInfo">
+		/** [sql-baimSendCustMgmtService.xml][baimSendCustMgmtService.insertSendCustInfo]
+		 *  [발송고객 상세정보 저장]
+		 *  [KimJinHwan 2020.02.13]
+		 **/
+		INSERT INTO TB_BAIM_SEND_CUST_C
+		(
+			CUST_ID
+			,CUST_MGMT_DLCM_CD
+			,SEND_CUST_NO
+			,CAL_CP_DV
+			,FEE_DV
+			,PICKUP_BRAN_CD
+			,PICKUPPLC_ZIP_NO
+			,PICKUPPLC_ADDR
+			,PICKUPPLC_DETAIL_ADDR
+			,DLV_BRAN_CD
+			,DLV_ZIP_NO
+			,DLV_ADDR
+			,DLV_DETAIL_ADDR
+			,FCHRG_DV
+			,INCHG_NM
+			,INCHG_CELL_NO_1
+			,INCHG_CELL_NO_2
+			,INCHG_CELL_NO_3
+			,INCHG_EMAIL
+			,DAY_PICKUP_YN
+			,SEL_TRANSF
+			,USE_YN
+			,CAL_CP_DV_PREPAY
+			,CAL_CP_DV_REGPAY
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#CUST_ID#
+			,#CUST_MGMT_DLCM_CD#
+			,#SEND_CUST_NO#
+			,#CAL_CP_DV#
+			,NULL
+			,#PICKUP_BRAN_CD#
+			,#PICKUPPLC_ZIP_NO#
+			,#PICKUPPLC_ADDR#
+			,FC_AES_ENCRYPT(#PICKUPPLC_DETAIL_ADDR#)
+			,#DLV_BRAN_CD#
+			,#DLV_ZIP_NO#
+			,#DLV_ADDR#
+			,FC_AES_ENCRYPT(#DLV_DETAIL_ADDR#)
+			,#FCHRG_DV#
+			,#INCHG_NM#
+			,#INCHG_CELL_NO_1#
+			,#INCHG_CELL_NO_2#
+			,FC_AES_ENCRYPT(#INCHG_CELL_NO_3#)
+			,#INCHG_EMAIL#
+			,NULL
+			,NULL
+			,'Y'
+			,#CAL_CP_DV_PREPAY#
+			,#CAL_CP_DV_REGPAY#
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+	</insert>
+	
+	<insert id="insertCustListInfo">
+		/** [sql-baimSendCustMgmtService.xml][baimSendCustMgmtService.insertCustListInfo]
+		 *  [고객 상세정보 저장]
+		 *  [KimJinHwan 2020.02.13]
+		 **/
+		INSERT INTO TB_BAIM_CUST_LIST_C
+		(
+			CUST_ID
+			,CUST_NM
+			,CUST_DV
+			,ZIP_NO
+			,ADDR_1
+			,ADDR_2
+			,ADDR_3
+			,ADDR_4
+			,ADDR_5
+			,DETAIL_ADDR
+			,TEL_NO_1
+			,TEL_NO_2
+			,TEL_NO_3
+			,CELL_NO_1
+			,CELL_NO_2
+			,CELL_NO_3
+			,REG_BRAN_CD
+			,ZN_DV
+			,DEL_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#SEND_CUST_NO#	/*고객ID (발송고객번호)*/
+			,#SEND_CUST_NM#	/*고객명  (발송고객명)*/
+			,'03'			/*고객구분(기초코드: SM012)*/
+			,#PICKUPPLC_ZIP_NO#
+			,#PICKUPPLC_ADDR#
+			,NULL
+			,NULL
+			,NULL
+			,NULL
+			,FC_AES_ENCRYPT(#PICKUPPLC_DETAIL_ADDR#)
+			,NULL
+			,NULL
+			,NULL
+			,#INCHG_CELL_NO_1#
+			,#INCHG_CELL_NO_2#
+			,FC_AES_ENCRYPT(#INCHG_CELL_NO_3#)
+			,#PICKUP_BRAN_CD#
+			,NULL
+			,'N'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+	</insert>
+	
+	
+	<update id="updateSendCustInfo">
+		/** [sql-baimSendCustMgmtService.xml][baimSendCustMgmtService.updateSendCustInfo]
+		 *  [발송고객 상세정보 수정]
+		 *  [KimJinHwan 2020.02.13]
+		 **/
+		UPDATE TB_BAIM_SEND_CUST_C
+		SET
+			CAL_CP_DV				= #CAL_CP_DV#
+			,PICKUP_BRAN_CD			= #PICKUP_BRAN_CD#
+			,PICKUPPLC_ZIP_NO		= #PICKUPPLC_ZIP_NO#
+			,PICKUPPLC_ADDR			= #PICKUPPLC_ADDR#
+			,PICKUPPLC_DETAIL_ADDR	= FC_AES_ENCRYPT(#PICKUPPLC_DETAIL_ADDR#)
+			,DLV_BRAN_CD			= #DLV_BRAN_CD#
+			,DLV_ZIP_NO				= #DLV_ZIP_NO#
+			,DLV_ADDR				= #DLV_ADDR#
+			,DLV_DETAIL_ADDR		= FC_AES_ENCRYPT(#DLV_DETAIL_ADDR#)
+			,FCHRG_DV				= #FCHRG_DV#
+			,INCHG_NM				= #INCHG_NM#
+			,INCHG_CELL_NO_1		= #INCHG_CELL_NO_1#
+			,INCHG_CELL_NO_2		= #INCHG_CELL_NO_2#
+			,INCHG_CELL_NO_3		= FC_AES_ENCRYPT(#INCHG_CELL_NO_3#)
+			,INCHG_EMAIL			= #INCHG_EMAIL#
+			,CAL_CP_DV_PREPAY		= #CAL_CP_DV_PREPAY#
+			,CAL_CP_DV_REGPAY		= #CAL_CP_DV_REGPAY#
+			,MODI_EMP_ID 			= #gv_userId#
+		 	,MODI_DTIME 			= NOW()
+		WHERE
+			CUST_ID 				= #CUST_ID#
+		AND CUST_MGMT_DLCM_CD 		= #CUST_MGMT_DLCM_CD#
+	</update>
+	
+	
+	<update id="updateCustListInfo">
+		/** [sql-baimSendCustMgmtService.xml][baimSendCustMgmtService.updateCustListInfo]
+		 *  [고객 상세정보 수정]
+		 *  [KimJinHwan 2020.02.13]
+		 **/
+		UPDATE TB_BAIM_CUST_LIST_C
+		SET
+			CUST_NM			= #SEND_CUST_NM#
+			,ZIP_NO			= #PICKUPPLC_ZIP_NO#
+			,ADDR_1			= #PICKUPPLC_ADDR#
+			,DETAIL_ADDR	= FC_AES_ENCRYPT(#PICKUPPLC_DETAIL_ADDR#)
+			,CELL_NO_1		= #INCHG_CELL_NO_1#
+			,CELL_NO_2		= #INCHG_CELL_NO_2#
+			,CELL_NO_3		= FC_AES_ENCRYPT(#INCHG_CELL_NO_3#)
+			,REG_BRAN_CD	= #PICKUP_BRAN_CD#
+			,MODI_EMP_ID 	= #gv_userId#
+		 	,MODI_DTIME 	= NOW()
+		WHERE
+			CUST_ID 		= #SEND_CUST_NO#
+	</update>
+	
+	
+	
+	<update id="updateCntrInfo">
+		/** [sql-baimSendCustMgmtService.xml][baimSendCustMgmtService.updateCntrInfo]
+		 *  [계약 집하점소코드 수정]
+		 *  [KimJinHwan 2020.02.13]
+		 **/
+		UPDATE TB_BAIM_FIXED_DLCM_CNTR_C
+		SET
+			PICKUP_BRAN_CD = #PICKUP_BRAN_CD#
+			,MODI_EMP_ID 	= #gv_userId#
+		 	,MODI_DTIME 	= NOW()
+		WHERE
+			CUST_ID	= #CUST_ID#
+		AND CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+	</update>
+</sqlMap>

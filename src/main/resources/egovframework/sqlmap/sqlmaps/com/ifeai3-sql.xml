@@ -1,0 +1,3668 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ifeai3-sql">
+
+<!-- 여기서 부터 IF-CM-01-008 사용자 정보 수신-->
+	<!-- 인터페이스 temp 테이블을 조회한다  AND NULL 체크 루틴 추가 -->
+	<select id="IFEAI3_TMDM_IF_USER_SELECT"  resultClass="java.util.HashMap">
+            SELECT 
+		           INSTANCEID
+		          ,PV_USERID
+		          ,PV_EMP_NM_LO
+		          ,PV_COUNTRY_CD
+		          ,PV_DEPT_CD
+		          ,PV_IN_OFFI_NY
+		          ,PV_COMP_CD
+		          ,PV_USER_TYPE	
+		          ,EAI_OP
+		          ,PV_JOB_KIND_CD2
+		          ,PV_OFFI_TYPE 
+		          ,EAI_STATE
+		          ,PV_STATUS
+			FROM TADM_IF_USER
+		 WHERE INSTANCEID = #INSTANCEID# 
+	</select>	
+	
+	<!-- 국가코드 체크 -->
+	<select id="IFEAI3_TMDM_GS_NATION_SELECT"  resultClass="java.util.HashMap">
+        SELECT 
+                NATION_CD
+              , NATION_NM
+              ,OFFICL_LANG_CD
+     	   FROM  TMDM_GS_NATION
+        WHERE NATION_CD = #PV_COUNTRY_CD# 
+           AND DEL_YN    = 'N'
+	</select>	
+	
+	<!-- 회사 id 체크 CM046 -->
+	<select id="IFEAI3_TMDM_GS_MC_CODE_B_SELECT"  resultClass="java.util.HashMap">
+	     SELECT 
+	             CD
+	           , CD_NM
+			 FROM TMDM_MC_CODE_B
+		 WHERE DEL_YN = 'N'
+	 	 	 AND CD_TCD =#CD_TCD#
+	 	 	 AND LANG_CD ='KO'
+		  	 AND TRIM(CD) = #PV_CD#
+		  	 AND ROWNUM = 1
+	</select>	
+
+	<!-- 조직정보체크  -->
+	<select id="TMDM_BP_CORP_SELECT"  resultClass="java.util.HashMap">
+	SELECT 
+			CORP_ID
+		  , ABBR_NM
+		  FROM TMDM_BP_CORP_IF
+	 WHERE CORP_ID = #PV_DEPT_CD#
+	   AND DEL_YN = 'N'
+	</select>	
+
+	<!-- 운전원 정보체크  -->
+	<!-- 운전원 조건 추가 2013.01.16 -->
+	<select id="TMDM_DRIVER_CHK"    resultClass="int">
+	SELECT COUNT(*)
+      FROM TADM_IF_USER
+	 WHERE INSTANCEID = #INSTANCEID#
+	   AND (
+	   			PV_USER_TYPE IN ('21','22','23','24') 
+	   			OR SUBSTR(PV_JOB_KIND_CD2, 1, 3) IN ('411', '416', '413', '417')
+	   			OR NVL(PV_JOB_KIND_CD2,'X') IN ('419026','419027','419042') 
+	   		  )
+	</select>
+
+	<!--사용자 정보 입력 : CORP_ID 임시로 X로 설정했다. TODO : GET_CORP_ID(PV_DEPT_CD) CORP_ID -->
+	<update id="IFEAI3_TMDM_IF_USER_MERGE">
+	MERGE INTO TADM_USER_IF A
+		USING ( 
+			SELECT 
+				NVL(PV_USERID,'X') AS PV_USERID, 
+				NVL(PV_EMP_NM_LO,'X') AS PV_EMP_NM_LO, 
+				PV_LOGINID, PV_PASSWORD LOGIN_PW, 
+				(SELECT PV_EMP_NM FROM TADM_IF_USER_NM WHERE INSTANCEID = #INSTANCEID# AND LANG = 'EN') USER_ENG_NM,
+				PV_TEL_COMPANY, PV_FAX, PV_TEL_MOBILE, PV_EMAIL,
+				NVL(#OFFICL_LANG_CD#,'X') LANG_CD, 
+				NVL(PV_COUNTRY_CD,'X') PV_COUNTRY_CD, 
+				TO_CHAR(PV_SYS_END,'YYYYMMDD') PV_SYS_END,
+				'Y' VALID_YN, 'Y' CERT_ISSUE_YN, DECODE(PV_USER_TYPE,'10','CO','20','CO','21','LS',DECODE(PV_VENDOR_CD,NULL,'SH','LS')) USER_TCD,
+				DECODE(PV_USER_TYPE,'10',PV_DEPT_CD,PV_MANAGE_ORG) AS CORP_ID, 
+				PV_CUSTOMER_CD, PV_VENDOR_CD, PV_AGENT_CD, PV_COMP_CD, '' DEPT_NM, 
+				DECODE(PV_USER_TYPE,'10','1','20','1','2') COMP_CCD,
+				'Y' CERT_USE_YN, 'Y' SAME_LOGIN_POSBL_YN, '' TZ_CD, DECODE(PV_USER_TYPE,'10',PV_DEPT_CD,PV_MANAGE_ORG) PV_DEPT_CD, 
+				'N' FIRST_USE_YN, 
+				'G' USER_CALN_CCD, PV_COMP_CD WORK_CALN_CD, 
+				PV_ADDRESS_ADDR1, PV_ADDRESS_ZIPCODE, 
+				PV_ADDRESS_COUNTRYCODE,
+				(SELECT MIN(LCL_ADDR_STATES) FROM TMDM_GS_ZIP_IF WHERE ZIP = PV_ADDRESS_ZIPCODE) CITY_NM, 
+				PV_EMP_NO, 'ko' DEC_FMT_CD, PV_USER_TYPE, PV_POS_CD2, PV_JOB_KIND_CD2, 
+				'N' DEL_YN,
+				LASTMODIFICATIONUSRID INS_ID, 
+				SUBSTR(CREATIONDTIME, 0, 8) INS_DATE, 
+				SUBSTR(CREATIONDTIME, 9, 6) INS_TIME,
+				LASTMODIFICATIONUSRID UPD_ID, 
+				SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE, 
+				SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME,
+				PV_CUST_PLACE,
+				PV_CJW_ID,				
+				PV_DUTY_CD2,   <!--정산 이행지님 요청 직책코드 REAL TABLE 반영 14.04.11  --> 
+				PV_DUTY_CD2_NM   <!--정산 이행지님 요청 직책코드 REAL TABLE 반영 14.04.11  -->
+			FROM TADM_IF_USER
+			WHERE INSTANCEID = #INSTANCEID# ) B
+			ON (A.USER_ID = B.PV_USERID)
+		WHEN MATCHED THEN
+			UPDATE SET A.USER_NM = B.PV_EMP_NM_LO, 
+				A.USER_ENG_NM = B.USER_ENG_NM, 
+				A.USER_FNM    = B.PV_EMP_NM_LO, 
+				A.LOGIN_ID    = B.PV_LOGINID, 
+				A.LOGIN_PW    = B.LOGIN_PW,
+				A.TEL_NO      = DECODE(B.PV_DUTY_CD2, '0I', A.TEL_NO, B.PV_TEL_COMPANY), 
+				A.FAX_NO      = B.PV_FAX, 
+				A.HP_NO       = DECODE(B.PV_DUTY_CD2, '0I', A.HP_NO, B.PV_TEL_MOBILE),		 
+				A.EMAIL       = B.PV_EMAIL, 
+				A.NATION_CD   = B.PV_COUNTRY_CD, 
+				A.CERT_VALID_DATE = B.PV_SYS_END, 
+				A.VALID_YN    = B.VALID_YN, 
+				A.CERT_ISSUE_YN = B.CERT_ISSUE_YN, 
+				A.USER_TCD    = B.USER_TCD, 
+				A.CORP_ID     = B.CORP_ID, 
+				A.SHPR_ID     = B.PV_CUSTOMER_CD,
+				A.CUST_ID     = B.PV_VENDOR_CD,
+				A.SPC_CUST_ID = NVL(B.PV_AGENT_CD, B.PV_VENDOR_CD),
+				A.COMP_ID     = B.PV_COMP_CD, 
+				A.DEPT_NM     = B.DEPT_NM, 
+				A.COMP_CCD    = B.COMP_CCD,
+				A.CERT_USE_YN = B.CERT_USE_YN, 
+				A.SAME_LOGIN_POSBL_YN = B.SAME_LOGIN_POSBL_YN, 
+				A.BRANCH_CD   = B.PV_DEPT_CD, 
+				A.FIRST_USE_YN = B.FIRST_USE_YN, 
+				A.USER_CALN_CCD = B.USER_CALN_CCD, 
+				A.WORK_CALN_CD  = B.WORK_CALN_CD, 
+				A.ADDR          = B.PV_ADDRESS_ADDR1, 
+				A.ZIP           = B.PV_ADDRESS_ZIPCODE, 
+				A.ADDR_APLY_NATION_CD = B.PV_ADDRESS_COUNTRYCODE, 
+				A.EMP_ID        = B.PV_EMP_NO, 
+				A.EMP_POSITION_CD = B.PV_POS_CD2,
+				A.USER_TYP        = B.PV_USER_TYPE,
+				A.WORK_TYP_CD   = B.PV_JOB_KIND_CD2,
+				A.DEL_YN        = B.DEL_YN, 
+				A.MOD_ID        = B.UPD_ID, 
+				A.MOD_DT        = B.UPD_DATE || B.UPD_TIME, 
+				A.INDIR_CUST_ID = B.PV_CUST_PLACE,
+				A.DUTY_CD       =   B.PV_DUTY_CD2, 
+				A.DUTY_NM      =    B.PV_DUTY_CD2_NM,
+				A.CJ_ID = B.PV_CJW_ID
+			WHEN NOT MATCHED THEN
+				INSERT ( 
+					A.USER_ID, A.USER_NM, A.USER_ENG_NM, A.USER_FNM, A.LOGIN_ID, A.LOGIN_PW,
+					A.TEL_NO, A.FAX_NO, A.HP_NO, A.EMAIL, A.LANG_CD,
+					A.NATION_CD, A.CERT_VALID_DATE, A.VALID_YN, A.CERT_ISSUE_YN, A.USER_TCD, 
+					A.CORP_ID, A.SHPR_ID, A.CUST_ID, A.SPC_CUST_ID, 
+					A.COMP_ID, A.DEPT_NM, A.COMP_CCD, A.CERT_USE_YN,
+					A.SAME_LOGIN_POSBL_YN, A.TZ_CD, A.BRANCH_CD, A.FIRST_USE_YN, A.USER_CALN_CCD, 
+					A.WORK_CALN_CD, A.ADDR, A.ZIP, A.ADDR_APLY_NATION_CD, A.EMP_ID,
+					A.DEC_FMT_CD, A.EMP_POSITION_CD, A.USER_TYP, A.WORK_TYP_CD,
+					A.DEL_YN, A.REG_ID, A.REG_DT, A.INDIR_CUST_ID,
+					A.DUTY_CD,
+					A.DUTY_NM,
+					A.CJ_ID
+				) VALUES ( 
+					B.PV_USERID, B.PV_EMP_NM_LO, B.USER_ENG_NM, B.PV_EMP_NM_LO, B.PV_LOGINID, B.LOGIN_PW,
+					B.PV_TEL_COMPANY, B.PV_FAX, B.PV_TEL_MOBILE, B.PV_EMAIL, B.LANG_CD, 
+					B.PV_COUNTRY_CD, B.PV_SYS_END, B.VALID_YN, B.CERT_ISSUE_YN, B.USER_TCD, 
+					B.CORP_ID, B.PV_CUSTOMER_CD, B.PV_VENDOR_CD, NVL(B.PV_AGENT_CD, B.PV_VENDOR_CD),
+					B.PV_COMP_CD, B.DEPT_NM, B.COMP_CCD, B.CERT_USE_YN, 
+					B.SAME_LOGIN_POSBL_YN, B.TZ_CD, B.PV_DEPT_CD, B.FIRST_USE_YN, B.USER_CALN_CCD, 
+					B.WORK_CALN_CD, B.PV_ADDRESS_ADDR1, B.PV_ADDRESS_ZIPCODE, B.PV_ADDRESS_COUNTRYCODE,	B.PV_EMP_NO, 
+					B.DEC_FMT_CD, B.PV_POS_CD2, B.PV_USER_TYPE, B.PV_JOB_KIND_CD2, 
+					B.DEL_YN, B.INS_ID, B.INS_DATE || B.INS_TIME, B.PV_CUST_PLACE,
+					PV_DUTY_CD2, 
+					PV_DUTY_CD2_NM,
+					B.PV_CJW_ID
+				)
+	</update>
+	
+	<!--운전자 정보 입력 : CORP_ID 임시로 X로 설정했다. TODO : GET_CORP_ID(PV_DEPT_CD) CORP_ID -->
+	<update id="IFEAI3_TMDM_IF_DR_INFO_MERGE">
+	<![CDATA[
+		MERGE INTO TMDM_DR_INFO A
+			USING ( 
+				SELECT PV_USERID, 
+				       PV_EMP_NM_LO, 
+				       CASE 
+				           WHEN CHK_MAX_INSTANCEID = 'NO_DATA' THEN PV_COMP_CD
+				           WHEN PV_DEPT_CD = PREV_DEPT_CD THEN PV_DEPT_CD
+				           ELSE PV_COMP_CD 
+				       END PV_COMP_CD, 
+				       PV_IN_OFFI_NY, 
+				       PV_OFFI_TYPE, 
+				       PV_JOB_KIND_CD2, 
+				       WORK_TYP_NM, 
+				       CASE 
+				           WHEN CHK_MAX_INSTANCEID = 'NO_DATA' THEN BRANCH_ID 
+				           WHEN PV_DEPT_CD = PREV_DEPT_CD THEN PV_DEPT_CD
+				           ELSE BRANCH_ID 
+				       END BRANCH_ID, 
+				       CASE 
+				           WHEN CHK_MAX_INSTANCEID = 'NO_DATA' THEN PV_DEPT_CD 
+				           WHEN PV_DEPT_CD = PREV_DEPT_CD THEN PV_DEPT_CD
+				           ELSE PV_DEPT_CD 
+				       END PV_DEPT_CD, 
+				       PV_DRVR_STATUS, 
+				       PV_CHANGE_DT, 
+				       PV_ADDRESS_ZIPCODE, 
+				       PV_ADDRESS_ADDR1, 
+				       PV_ADDRESS_ADDR2, 
+				       PV_JUR_NO, 
+				       PV_DRVR_TEL, 
+				       PV_HIRE_YMD, 
+				       PV_TD_CAR, 
+				       MDM_DATE, 
+				       PV_USER_TYPE, 
+				       PV_POS_CD2, 
+				       DEL_YN, 
+				       INS_ID, 
+				       INS_DATE, 
+				       INS_TIME, 
+				       UPD_ID, 
+				       UPD_DATE, 
+				       UPD_TIME, 
+				       TEAM_YN, 
+				       RETIRE_YMD, 
+				       PV_SALARY_CLASS, 
+				       OCCP_YN, 
+				       PV_AGENT_CD,
+				       PV_VENDOR_CD
+				  FROM 
+				       (SELECT NVL(PV_USERID,'X') AS PV_USERID, 
+				              NVL(PV_EMP_NM_LO,'X') AS PV_EMP_NM_LO, 
+				              NVL(PV_COMP_CD,'X') AS PV_COMP_CD, 
+				              NVL(PV_IN_OFFI_NY,'X') AS PV_IN_OFFI_NY, 
+				              NVL(PV_OFFI_TYPE,'X') AS PV_OFFI_TYPE, 
+				              NVL(PV_JOB_KIND_CD2,'X') AS PV_JOB_KIND_CD2, 
+				              NVL(#WORK_TYP_NM#,'X') WORK_TYP_NM,
+				              GET_CORP_ID(DECODE(PV_USER_TYPE, '10', PV_DEPT_CD, PV_MANAGE_ORG)) BRANCH_ID, 
+				              NVL(DECODE(PV_USER_TYPE, '10', PV_DEPT_CD, PV_MANAGE_ORG),'X') AS PV_DEPT_CD, 
+				              PV_DRVR_STATUS, 
+				              TO_CHAR(PV_CHANGE_DT,'YYYYMMDD') PV_CHANGE_DT, 
+				              PV_ADDRESS_ZIPCODE, 
+				              PV_ADDRESS_ADDR1, 
+				              PV_ADDRESS_ADDR2, 
+				              NVL(PV_JUR_NO,'hy1OIUfnGvLhuNZwjrqy7A==') AS PV_JUR_NO, 
+				              PV_DRVR_TEL, 
+				              TO_CHAR(PV_HIRE_YMD,'YYYYMMDD') PV_HIRE_YMD, 
+				              PV_TD_CAR, 
+				              DECODE(LASTMODIFICATIONDTIME,NULL,CREATIONDTIME,LASTMODIFICATIONDTIME) MDM_DATE, 
+				              PV_USER_TYPE, 
+				              PV_POS_CD2, 
+				              'N' DEL_YN, 
+				              LASTMODIFICATIONUSRID INS_ID, 
+				              TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+				              TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME, 
+				              LASTMODIFICATIONUSRID UPD_ID, 
+				              TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+				              TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME, 
+				              (SELECT COUNT(*) 
+				                FROM TMDM_BP_CORP_IF
+				               WHERE HQ_ORG_TYP_CD = '07' 
+				                     AND BHO_TYP_CD IS NULL 
+				                     AND DEL_YN = 'N' 
+				                     AND CORP_ID = PV_DEPT_CD 
+				              ) AS TEAM_YN, 
+				              TO_CHAR(PV_RETIRE_YMD,'YYYYMMDD') RETIRE_YMD, 
+				              PV_SALARY_CLASS, 
+				              DECODE(NVL(PV_JOB_CD,'X'),'I004', 'Y', 'I005', 'Y', 'F001', 'Y', 'F002', 'Y', 'N') OCCP_YN, 
+				              PV_AGENT_CD,
+				              PV_VENDOR_CD, 
+				              P.PREV_DEPT_CD,
+				              CASE 
+				                  WHEN R.INSTANCEID = P.INSTANCEID 
+				                  THEN 'NO_DATA' 
+				                  ELSE '-' 
+				              END CHK_MAX_INSTANCEID 
+				         FROM GCOM.TADM_IF_USER R 
+				          LEFT OUTER JOIN 
+				              (SELECT INSTANCEID, 
+				                     DECODE(PV_USER_TYPE, '10', PV_DEPT_CD, PV_MANAGE_ORG) AS PREV_DEPT_CD 
+				                FROM GCOM.TADM_IF_USER 
+				               WHERE (
+				                         PV_USERID, 
+				                         TO_CHAR(EAI_DATE, 'YYYYMMDDHH24MISS') || INSTANCEID
+				                     ) 
+				                     IN 
+				                     (SELECT PV_USERID, 
+				                            MAX(TO_CHAR(EAI_DATE, 'YYYYMMDDHH24MISS') || INSTANCEID) 
+				                       FROM GCOM.TADM_IF_USER 
+				                      WHERE PV_USERID IN 
+				                            (SELECT PV_USERID 
+				                              FROM GCOM.TADM_IF_USER 
+				                             WHERE INSTANCEID = #INSTANCEID#
+				                            ) 
+				                            AND EAI_STATE = 'S' 
+				                      GROUP BY PV_USERID 
+				                     ) 
+				              ) P 
+				              ON 1=1 
+				        WHERE R.INSTANCEID = #INSTANCEID#
+				       ) R
+								
+			
+			) B
+			   ON A.EMP_ID = B.PV_USERID
+			 WHEN MATCHED THEN
+			      UPDATE
+			         SET A.EMP_NM    = B.PV_EMP_NM_LO,
+			             A.HR_ORG_CD = CASE WHEN B.PV_DEPT_CD = '-' THEN A.HR_ORG_CD ELSE B.PV_DEPT_CD END,
+			             A.WORK_YN   = B.PV_IN_OFFI_NY,
+			             A.WORK_TCD  = B.PV_OFFI_TYPE,
+			             A.WORK_TYP_CD = B.PV_JOB_KIND_CD2,			             
+			             A.WORK_TYP_NM = B.WORK_TYP_NM,
+			             A.BRANCH_ID   = CASE WHEN B.BRANCH_ID = '-' THEN A.BRANCH_ID ELSE B.BRANCH_ID END, 
+			             A.DRVR_STAT   = B.PV_DRVR_STATUS, 
+			             A.DRVR_TERM_CHNG_DT = B.PV_CHANGE_DT, 
+			             A.ZIP         = B.PV_ADDRESS_ZIPCODE, 
+			             A.ADDR        = B.PV_ADDRESS_ADDR1, 
+			             A.DETL_ADDR   = B.PV_ADDRESS_ADDR2, 
+			             A.DRIVER_SSN  = B.PV_JUR_NO, 
+			             A.DRIVER_TEL_NO = B.PV_DRVR_TEL, 
+			             A.EMP_DATE      = B.PV_HIRE_YMD,
+			             A.REC_DATE      = B.MDM_DATE,
+			             A.EMP_POSITION_CD = B.PV_POS_CD2, 
+			             A.USER_TYP        = B.PV_USER_TYPE, 
+			             A.DEL_YN        = B.DEL_YN, 
+			             A.UPD_PERSON_ID = B.UPD_ID, 
+			             A.UPD_DATE      = B.UPD_DATE, 
+			             A.UPD_TIME      = B.UPD_TIME,
+			             A.RETIRE_DATE   = B.RETIRE_YMD,
+			             A.SALARY_CLASS  = B.PV_SALARY_CLASS,
+			             A.CNTRT_OCCP_YN = B.OCCP_YN,
+			             A.SPC_CUST_ID   = NVL(B.PV_AGENT_CD, B.PV_VENDOR_CD),
+			             A.DEPT_CD       = CASE WHEN B.PV_DEPT_CD = '-' THEN A.DEPT_CD ELSE B.PV_DEPT_CD END
+			 WHEN NOT MATCHED THEN
+			      INSERT ( A.EMP_ID, A.EMP_NM, A.HR_ORG_CD, A.WORK_YN, A.WORK_TCD, 
+			               A.WORK_TYP_CD, A.WORK_TYP_NM, A.DRVR_STAT, 
+			               A.DRVR_TERM_CHNG_DT, A.ZIP, A.ADDR, A.DETL_ADDR, A.DRIVER_SSN, 
+			               A.DRIVER_TEL_NO, A.EMP_DATE, 
+			               A.REC_DATE, A.EMP_POSITION_CD, A.USER_TYP, A.DEL_YN, A.INS_PERSON_ID, 
+			               A.INS_DATE, A.INS_TIME, A.RETIRE_DATE, A.SALARY_CLASS, A.CNTRT_OCCP_YN,
+			               A.SPC_CUST_ID, A.DEPT_CD, A.CORP_ID, A.BRANCH_ID)
+			      VALUES ( B.PV_USERID, B.PV_EMP_NM_LO, B.PV_DEPT_CD, B.PV_IN_OFFI_NY, B.PV_OFFI_TYPE, 
+			               B.PV_JOB_KIND_CD2, B.WORK_TYP_NM, B.PV_DRVR_STATUS, 
+			               B.PV_CHANGE_DT, B.PV_ADDRESS_ZIPCODE, B.PV_ADDRESS_ADDR1, B.PV_ADDRESS_ADDR2, B.PV_JUR_NO, 
+			               B.PV_DRVR_TEL, B.PV_HIRE_YMD, 
+			               B.MDM_DATE, B.PV_POS_CD2, B.PV_USER_TYPE, B.DEL_YN, B.INS_ID, 
+			               B.INS_DATE, B.INS_TIME, B.RETIRE_YMD, B.PV_SALARY_CLASS, B.OCCP_YN,
+		               	   NVL(B.PV_AGENT_CD, B.PV_VENDOR_CD), B.PV_DEPT_CD, '1000', B.BRANCH_ID)
+	 ]]>	               
+	</update>	
+
+	<!--운전자 정보 입력 : CORP_ID 임시로 X로 설정했다. TODO : GET_CORP_ID(PV_DEPT_CD) CORP_ID -->
+	<update id="IFEAI3_TMDM_IF_DR_INFO_MERGE_BAK">
+		MERGE INTO TMDM_DR_INFO A
+			USING ( SELECT 
+						NVL(PV_USERID,'X') AS PV_USERID, 
+						NVL(PV_EMP_NM_LO,'X') AS PV_EMP_NM_LO, 
+						NVL(PV_COMP_CD,'X') AS PV_COMP_CD, 
+						NVL(PV_IN_OFFI_NY,'X') AS PV_IN_OFFI_NY, 
+						NVL(PV_OFFI_TYPE,'X') AS PV_OFFI_TYPE, 
+			            NVL(PV_JOB_KIND_CD2,'X') AS PV_JOB_KIND_CD2, 
+			            NVL(#WORK_TYP_NM#,'X') WORK_TYP_NM, 
+			               NVL(GET_CORP_ID(DECODE(PV_USER_TYPE,'10',PV_DEPT_CD,PV_MANAGE_ORG)),'X') CORP_ID, 
+			               NVL(DECODE(PV_USER_TYPE,'10',PV_DEPT_CD,PV_MANAGE_ORG),'X') AS PV_DEPT_CD, PV_DRVR_STATUS, 
+			               TO_CHAR(PV_CHANGE_DT,'YYYYMMDD') PV_CHANGE_DT, 
+			               PV_ADDRESS_ZIPCODE, PV_ADDRESS_ADDR1, PV_ADDRESS_ADDR2, 
+			               NVL(PV_JUR_NO,GCOM.KXENCRYPT('X')) AS PV_JUR_NO, 
+			               PV_DRVR_TEL, TO_CHAR(PV_HIRE_YMD,'YYYYMMDD') PV_HIRE_YMD, PV_TD_CAR,
+			               DECODE(LASTMODIFICATIONDTIME,NULL,CREATIONDTIME,LASTMODIFICATIONDTIME) MDM_DATE,
+			               PV_USER_TYPE, PV_POS_CD2, 'N' DEL_YN,
+			               DECODE(LASTMODIFICATIONDTIME,NULL,'',LASTMODIFICATIONUSRID) INS_ID, 
+			               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+			               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+			               DECODE(LASTMODIFICATIONDTIME,NULL,LASTMODIFICATIONUSRID,'') UPD_ID, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+			  FROM GCOM.TADM_IF_USER
+			         WHERE INSTANCEID =#INSTANCEID#) B
+			   ON A.EMP_ID = B.PV_USERID
+			 WHEN MATCHED THEN
+			      UPDATE
+			         SET A.EMP_NM    = B.PV_EMP_NM_LO,
+			             A.CORP_ID   = B.CORP_ID,
+			             A.WORK_YN   = B.PV_IN_OFFI_NY,
+			             A.WORK_TCD  = B.PV_OFFI_TYPE,
+			             A.WORK_TYP_CD = B.PV_JOB_KIND_CD2,
+			             A.WORK_TYP_NM = B.WORK_TYP_NM,
+			             A.BRANCH_ID   = B.PV_DEPT_CD, 
+			             A.DEPT_CD     = B.PV_DEPT_CD, 
+			             A.DRVR_STAT   = B.PV_DRVR_STATUS, 
+			             A.DRVR_TERM_CHNG_DT = B.PV_CHANGE_DT, 
+			             A.ZIP         = B.PV_ADDRESS_ZIPCODE, 
+			             A.ADDR        = B.PV_ADDRESS_ADDR1, 
+			             A.DETL_ADDR   = B.PV_ADDRESS_ADDR2, 
+			             A.DRIVER_SSN  = B.PV_JUR_NO, 
+			             A.DRIVER_TEL_NO = B.PV_DRVR_TEL, 
+			             A.EMP_DATE      = B.PV_HIRE_YMD, 
+			             A.TD_OCCP_VHCL_TYPE_CD = B.PV_TD_CAR,
+			             A.REC_DATE      = B.MDM_DATE,
+			             A.EMP_POSITION_CD = B.PV_POS_CD2, 
+			             A.USER_TYP        = B.PV_USER_TYPE, 
+			             A.DEL_YN        = B.DEL_YN, 
+			             A.UPD_PERSON_ID = B.UPD_ID, 
+			             A.UPD_DATE      = B.UPD_DATE, 
+			             A.UPD_TIME      = B.UPD_TIME
+			 WHEN NOT MATCHED THEN
+			      INSERT ( A.EMP_ID, A.EMP_NM, A.CORP_ID, A.WORK_YN, A.WORK_TCD, 
+			               A.WORK_TYP_CD, A.WORK_TYP_NM, A.BRANCH_ID, A.DEPT_CD, A.DRVR_STAT, 
+			               A.DRVR_TERM_CHNG_DT, A.ZIP, A.ADDR, A.DETL_ADDR, A.DRIVER_SSN, 
+			               A.DRIVER_TEL_NO, A.EMP_DATE, A.TD_OCCP_VHCL_TYPE_CD, 
+			               A.REC_DATE, A.EMP_POSITION_CD, A.USER_TYP, A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+			      VALUES ( B.PV_USERID, B.PV_EMP_NM_LO, B.CORP_ID, B.PV_IN_OFFI_NY, B.PV_OFFI_TYPE, 
+			               B.PV_JOB_KIND_CD2, B.WORK_TYP_NM, B.PV_DEPT_CD, B.PV_DEPT_CD, B.PV_DRVR_STATUS, 
+			               B.PV_CHANGE_DT, B.PV_ADDRESS_ZIPCODE, B.PV_ADDRESS_ADDR1, B.PV_ADDRESS_ADDR2, B.PV_JUR_NO, 
+			               B.PV_DRVR_TEL, B.PV_HIRE_YMD, B.PV_TD_CAR,
+			               B.MDM_DATE, B.PV_POS_CD2, B.PV_USER_TYPE, B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>	
+
+	<!-- 사용자 정보 삭제 -->
+	<update id="IFEAI3_TMDM_IF_USER_DELETE">
+        UPDATE TADM_USER_IF
+			SET DEL_YN='Y'
+		WHERE USER_ID=#PV_USERID#
+	</update>	
+
+	<!-- 운전자  정보 삭제 -->
+	<update id="IFEAI3_TMDM_IF_DR_INFO_DELETE">
+        UPDATE TMDM_DR_INFO_IF
+			SET DEL_YN='Y'
+		WHERE EMP_ID=#PV_USERID#
+	</update>	
+
+	<!-- 인터페이스 결과 수정 -->
+	<update id="IFEAI3_TMDM_IF_USER_UPDATE">
+        UPDATE TADM_IF_USER
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>	
+
+<!-- 여기서 부터 IF-CM-01-024 사용자 역활정보 수신-->
+
+	<!-- 인터페이스 temp 테이블을 조회한다 -->
+	<select id="IFEAI3_TMDM_IF_BP_CORP_SELECT"  resultClass="java.util.HashMap">
+         SELECT INSTANCEID, PV_USER_ID, PV_AUTHORIZATION_CD, EAI_OP, EAI_STATE, STATUS
+		 	FROM GCOM.TADM_IF_ROLE_USER
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>	
+	
+	<!-- 사용자이상유무 체크 -->
+	<select id="IFEAI3_TADM_USER_SELECT"  resultClass="int">
+         SELECT COUNT(*)
+		 	 FROM GCOM.TADM_USER
+		 WHERE USER_ID = #PV_USER_ID#
+		 	  AND DEL_YN = 'N' 
+	</select>	
+	
+	<!-- 역할 이상유무  체크 -->
+	<select id="IFEAI3_TADM_ROLE_SELECT"  resultClass="int">
+       	SELECT COUNT(*)
+		     FROM GCOM.TADM_ROLE
+		 WHERE ROLE_CD = #PV_AUTHORIZATION_CD#
+			 AND DEL_YN = 'N'    
+	</select>	
+	
+	<!--사용자 역활정보 입력 -->
+	<update id="IFEAI3_TADM_ROLE_USER_MERGE">
+		MERGE INTO GCOM.TADM_ROLE_USER A
+			USING ( SELECT 
+						NVL(PV_USER_ID,'X') AS PV_USER_ID, 
+						NVL(PV_AUTHORIZATION_CD,'X') AS PV_AUTHORIZATION_CD, 
+						'N' DEL_YN,
+			               LASTMODIFICATIONUSRID INS_ID, 
+			               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+			               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+			               LASTMODIFICATIONUSRID UPD_ID, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+			          FROM GCOM.TADM_IF_ROLE_USER
+			         WHERE INSTANCEID = #INSTANCEID#
+			         AND PV_USER_ID=#PV_USER_ID#
+			         AND PV_AUTHORIZATION_CD=#PV_AUTHORIZATION_CD# ) B
+			   ON A.USER_ID = B.PV_USER_ID
+			  AND A.ROLE_CD   = B.PV_AUTHORIZATION_CD
+			 WHEN MATCHED THEN
+			      UPDATE
+			         SET A.USER_ID  = B.PV_USER_ID, 
+			             A.ROLE_CD  = B.PV_AUTHORIZATION_CD, 
+			             A.DEL_YN        = B.DEL_YN, 
+			             A.UPD_PERSON_ID = B.UPD_ID, 
+			             A.UPD_DATE      = B.UPD_DATE, 
+			             A.UPD_TIME      = B.UPD_TIME
+			 WHEN NOT MATCHED THEN
+			      INSERT ( A.USER_ID, A.ROLE_CD,
+			               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+			      VALUES ( B.PV_USER_ID, B.PV_AUTHORIZATION_CD,
+			               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME ) 
+	</update>	
+
+	<!-- 사용자 역활정보 삭제 -->
+	<update id="IFEAI3_TADM_ROLE_USER_UPDATE">
+        UPDATE GCOM.TADM_ROLE_USER
+		SET DEL_YN='Y'
+		WHERE USER_ID=#PV_USER_ID#
+		AND ROLE_CD =#PV_AUTHORIZATION_CD#
+	</update>	
+
+	<!-- 인터페이스 결과 수정 -->
+	<update id="IFEAI3_TADM_IF_ROLE_USER_UPDATE">
+        UPDATE GCOM.TADM_IF_ROLE_USER
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = current_timestamp
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>	
+
+<!-- 여기서 부터 IF-CM-01-023 사용자 조직 정보 수신-->
+
+	<!-- 인터페이스 temp 테이블을 조회한다 -->
+	<select id="IFEAI3_TMDM_IF_CORP_SELECT"  resultClass="java.util.HashMap">
+     	  SELECT INSTANCEID, PV_USER_ID, PV_ORGANIZATION_CD, EAI_OP, EAI_STATE, STATUS
+		  FROM GCOM.TADM_IF_USER_CORP
+		  WHERE INSTANCEID = #INSTANCEID#
+	</select>	
+
+	<!-- 사용자이상유무 체크 -->
+	<select id="IFEAI3_TADM_BP_CORP_SELECT"  resultClass="int">
+         SELECT COUNT(*)
+		 	 FROM GCOM.TADM_USER
+		 WHERE USER_ID = #PV_USER_ID#
+		 	  AND DEL_YN = 'N' 
+	</select>	
+
+	<!--사용자 역활정보 입력 -->
+	<update id="IFEAI3_TADM_USER_CORP_MERGE">
+		MERGE INTO GCOM.TADM_USER_CORP A
+			USING ( SELECT 
+						NVL(PV_USER_ID,'X') AS PV_USER_ID, 
+						NVL(PV_ORGANIZATION_CD,'X') AS PV_ORGANIZATION_CD, 
+						'0' AS MIN_CORP ,
+						   'N' DEL_YN,
+			               LASTMODIFICATIONUSRID INS_ID, 
+			               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+			               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+			               LASTMODIFICATIONUSRID UPD_ID, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+			          FROM GCOM.TADM_IF_USER_CORP
+			         WHERE INSTANCEID = #INSTANCEID# ) B
+			   ON A.USER_ID = B.PV_USER_ID
+			  AND A.CORP_ID = B.PV_ORGANIZATION_CD
+			 WHEN MATCHED THEN
+			      UPDATE
+			         SET A.USER_ID  = B.PV_USER_ID, 
+			             A.CORP_ID  = B.PV_ORGANIZATION_CD, 
+			             A.BASIC_CORP_YN = B.MIN_CORP,
+			             A.DEL_YN        = B.DEL_YN, 
+			             A.UPD_PERSON_ID = B.UPD_ID, 
+			             A.UPD_DATE      = B.UPD_DATE, 
+			             A.UPD_TIME      = B.UPD_TIME
+			 WHEN NOT MATCHED THEN
+			      INSERT ( A.SEQ_NO, A.USER_ID, A.CORP_ID, A.ACPT_SCD, A.BASIC_CORP_YN,
+			               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+			      VALUES ( '0', B.PV_USER_ID, B.PV_ORGANIZATION_CD, '02', MIN_CORP, 
+			               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )  
+	</update>	
+
+	<!-- 사용자 역활정보 삭제 -->
+	<update id="IFEAI3_TADM_USER_CORP_DELETE">
+        UPDATE GCOM.TADM_USER_CORP
+		SET DEL_YN='Y'
+		WHERE USER_ID=#PV_USER_ID#
+		AND CORP_ID =#PV_ORGANIZATION_CD#
+	</update>	
+	
+	
+		<!-- 인터페이스 결과 수정 -->
+	<update id="IFEAI3_TADM_IF_USER_CORP_UPDATE">
+        UPDATE GCOM.TADM_IF_USER_CORP
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = current_timestamp
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>	
+	
+	
+	<!-- 여기서 부터 IF-CM-01-022 사용자 창고정보 수신-->
+
+	<!-- 인터페이스 temp 테이블을 조회한다 -->
+	<select id="IFEAI3_TADM_IF_USER_WH_SELECT"  resultClass="java.util.HashMap">
+         SELECT INSTANCEID, PV_USER_ID, PV_PLACE_CD, EAI_OP, EAI_STATE, STATUS
+		  FROM GCOM.TADM_IF_USER_WH
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>	
+	
+	<select id="IFEAI3_TMDM_WH_MSTR_SELECT"  resultClass="int">
+       	  SELECT COUNT(*)
+		  	FROM TMDM_WH_MSTR
+		  WHERE WH_CD = #PV_PLACE_CD#
+	      	AND DEL_YN = 'N' 
+	</select>	
+	
+	
+	<!--창고 정보 입력 -->
+	<update id="IFEAI3_TADM_USER_WH_MERGE">
+			MERGE INTO GCOM.TADM_USER_WH A
+				USING ( SELECT 
+							NVL(PV_USER_ID,'X') AS PV_USER_ID, 
+							NVL(PV_PLACE_CD,'X') AS PV_PLACE_CD, 
+							   'N' DEL_YN,
+				               LASTMODIFICATIONUSRID INS_ID, 
+				               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+				               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+				               LASTMODIFICATIONUSRID UPD_ID, 
+				               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+				               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+				          FROM GCOM.TADM_IF_USER_WH
+				         WHERE INSTANCEID = #INSTANCEID# ) B
+				   ON A.USER_ID = B.PV_USER_ID
+				  AND A.WH_CD   = B.PV_PLACE_CD
+				 WHEN MATCHED THEN
+				      UPDATE
+				         SET A.USER_ID  = B.PV_USER_ID, 
+				             A.WH_CD  = B.PV_PLACE_CD, 
+				             A.DEL_YN        = B.DEL_YN, 
+				             A.UPD_PERSON_ID = B.UPD_ID, 
+				             A.UPD_DATE      = B.UPD_DATE, 
+				             A.UPD_TIME      = B.UPD_TIME
+				 WHEN NOT MATCHED THEN
+				      INSERT ( A.USER_ID, A.WH_CD,
+				               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+				      VALUES ( B.PV_USER_ID, B.PV_PLACE_CD,
+				               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )  
+	</update>	
+		
+	
+	<!-- 창고 정보 삭제  -->
+	<update id="IFEAI3_TADM_USER_WH_DELETE">
+        UPDATE GCOM.TADM_USER_WH
+		SET DEL_YN='Y'
+		WHERE USER_ID=#PV_USER_ID#
+		AND WH_CD =#PV_PLACE_CD#
+	</update>	
+	
+	<!-- 인터페이스 업데이트  -->
+	<update id="IFEAI3_TADM_IF_USER_WH_UPDATE">
+          UPDATE GCOM.TADM_IF_USER_WH
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = current_timestamp
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>	
+	
+		<!-- 여기서 부터 IF-CM-01-024 사용자 화주 정보 수신-->
+
+	<!-- 인터페이스 temp 테이블을 조회한다 -->
+	<select id="IFEAI3_TADM_IF_USER_SHPR_SELECT"  resultClass="java.util.HashMap">
+         SELECT INSTANCEID, PV_USER_ID, PV_PARTNER_CD, EAI_OP, EAI_STATE, STATUS
+ 			 FROM GCOM.TADM_IF_USER_SHPR
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>	
+	
+	<!-- 화주정보 이상유무  조회한다 -->
+	<select id="IFEAI3_TMDM_SHPR_SELECT"  resultClass="int">
+    	   SELECT COUNT(*)
+ 		  		 FROM TMDM_BP_SHPR
+ 		   WHERE SHPR_ID = #PV_PARTNER_CD#
+   		  		 AND DEL_YN = 'N'
+	</select>	
+	
+	<!--창고 정보 입력 -->
+	<update id="IFEAI3_TADM_SHPR_MERGE">
+				MERGE INTO GCOM.TADM_USER_SHPR A
+				USING ( SELECT 
+				         	NVL(PV_USER_ID,'X') AS PV_USER_ID, 
+				         	NVL(PV_PARTNER_CD,'X') AS PV_PARTNER_CD, 
+				         	   'N' DEL_YN,
+				               LASTMODIFICATIONUSRID INS_ID, 
+				               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+				               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+				               LASTMODIFICATIONUSRID UPD_ID, 
+				               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+				               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+				          FROM GCOM.TADM_IF_USER_SHPR
+				         WHERE INSTANCEID = #INSTANCEID# ) B
+				   ON A.USER_ID = B.PV_USER_ID
+				  AND A.SHPR_ID = B.PV_PARTNER_CD
+				 WHEN MATCHED THEN
+				      UPDATE
+				         SET A.USER_ID  = B.PV_USER_ID, 
+				             A.SHPR_ID  = B.PV_PARTNER_CD, 
+				             A.DEL_YN        = B.DEL_YN, 
+				             A.UPD_PERSON_ID = B.UPD_ID, 
+				             A.UPD_DATE      = B.UPD_DATE, 
+				             A.UPD_TIME      = B.UPD_TIME
+				 WHEN NOT MATCHED THEN
+				      INSERT ( A.USER_ID, A.SHPR_ID, 
+				               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+				      VALUES ( B.PV_USER_ID, B.PV_PARTNER_CD, 
+				               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME ) 
+	</update>	
+	
+	<!-- 화주 정보 삭제  -->
+	<update id="IFEAI3_TADM_SHPR_DELETE">
+        UPDATE GCOM.TADM_USER_SHPR
+		SET DEL_YN='Y'
+		WHERE USER_ID=#PV_USER_ID#
+		AND SHPR_ID =#PV_PARTNER_CD#
+	</update>	
+	
+	
+	<!-- 인터페이스 업데이트  -->
+	<update id="IFEAI3_TADM_IF_SHPR_UPDATE">
+          UPDATE GCOM.TADM_IF_USER_SHPR
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = current_timestamp
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>	
+	
+	<!-- 여기서 부터 IF-CM-01-011 구매품목  수신-->
+	
+	<!-- 인터페이스 temp 테이블을 조회한다  -->
+	<select id="IFEAI3_TMDM_IF_CT_PART_SELECT"  resultClass="java.util.HashMap">
+         SELECT INSTANCEID, EAI_STATE, PV_MATNR, EAI_OP, PV_STATUS
+ 		 	FROM TMDM_IF_CT_PART
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>	
+	
+	<!--구매품목 데이타  데이타 가져오기  -->
+	<select id="IFEAI3_TMDM_IF_CT_PART_NM_SELECT_KO"  resultClass="java.util.HashMap">
+        SELECT PV_ITEM    
+        	FROM  TMDM_IF_CT_PART_NM
+        WHERE INSTANCEID = #INSTANCEID#
+          	AND LANG       = 'KO'
+	</select>	
+	
+	<!--구매품목 데이타 (EN) 데이타 가져오기  -->
+	<select id="IFEAI3_TMDM_IF_CT_PART_NM_SELECT_EN"  resultClass="java.util.HashMap">
+        SELECT PV_ITEM    
+        FROM  TMDM_IF_CT_PART_NM
+        WHERE INSTANCEID = #INSTANCEID#
+          AND LANG       = 'EN' 
+	</select>	
+	<!--대체품 제작사 1,품번 1 데이타 가져오기  -->
+	<select id="IFEAI3_TMDM_IF_CT_PART_ALT_SELECT_1"  resultClass="java.util.HashMap">
+   		SELECT PV_ALTER_ITEM, PV_PARTS_MAKER_Q
+ 			FROM TMDM_IF_CT_PART_ALT
+		WHERE INSTANCEID = #INSTANCEID#
+		AND PV_MATNR = #PV_MATNR#
+       	AND ROWNUM = 1    
+	</select>	
+	<!--대체품 제작사 2,품번 2데이타 가져오기  -->
+	<select id="IFEAI3_TMDM_IF_CT_PART_ALT_SELECT_2"  resultClass="java.util.HashMap">
+   		SELECT PV_ALTER_ITEM, PV_PARTS_MAKER_Q   
+ 			FROM TMDM_IF_CT_PART_ALT
+		WHERE INSTANCEID = #INSTANCEID#
+		AND PV_MATNR = #PV_MATNR#
+    	AND ROWNUM = 2    
+	</select>	
+   
+   <!--대체품 제작사 3,품번 3데이타 가져오기  -->
+	<select id="IFEAI3_TMDM_IF_CT_PART_ALT_SELECT_3"  resultClass="java.util.HashMap">
+   		SELECT PV_ALTER_ITEM, PV_PARTS_MAKER_Q
+ 		 FROM TMDM_IF_CT_PART_ALT
+		WHERE INSTANCEID =#INSTANCEID#
+		AND PV_MATNR = #PV_MATNR#
+        AND ROWNUM = 3  
+	</select>	
+		
+	<!--구매품목 정보입력 -->
+	<update id="IFEAI3_TMDM_CT_PART_MERGE">
+			MERGE INTO TMDM_CT_PART A
+			USING ( SELECT PV_MATNR, PV_PARTS_MAKER, PV_MAKER_NO, PV_ITEM_LO, 
+			               PV_MTART, PV_PART_CD, PV_MEINS, PV_PREV_MAINT, PV_MAINT_OIL,
+                           PV_APPRO_MONEY, PV_PARTS_SYSTEM, 'N' DEL_YN,
+			               LASTMODIFICATIONUSRID INS_ID, 
+			               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+			               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+			               LASTMODIFICATIONUSRID UPD_ID, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME,
+			               PV_BKLAS, PV_ATWRT1 
+			               ,PV_MATKL
+			          FROM TMDM_IF_CT_PART
+			         WHERE INSTANCEID = #INSTANCEID# ) B
+			   ON A.BUY_ITEM_NO = B.PV_MATNR
+			 WHEN MATCHED THEN
+			      UPDATE
+			         SET A.PART_MFER_ID    = B.PV_PARTS_MAKER, 
+			             A.MFER_ITEM_CD    = B.PV_MAKER_NO, 
+			             A.BUY_ITEM_NM_LCL = B.PV_ITEM_LO,
+			             A.BUY_ITEM_NM_KO  = B.PV_ITEM_LO,
+			             A.BUY_ITEM_NM_EN  = #PV_ITEM_EN# ,
+			             A.BUY_ITEM_TYP    = B.PV_MTART, 
+			             A.BEF_ITEM_CD     = B.PV_PART_CD, 
+			             A.UNIT_PART       = B.PV_MEINS,
+			             A.SYST_CD         = B.PV_PARTS_SYSTEM,
+			             A.ALT_MFER_ID1    = #PV_PARTS_MAKER_Q1#, 
+			             A.ALT_ITEM_NO1    = #PV_ALTER_ITEM1#,
+			             A.ALT_MFER_ID2    = #PV_PARTS_MAKER_Q2#,
+			             A.ALT_ITEM_NO2    = #PV_ALTER_ITEM2#,
+			             A.ALT_MFER_ID3    = #PV_PARTS_MAKER_Q3#, 
+			             A.ALT_ITEM_NO3    = #PV_ALTER_ITEM3#,
+			             A.PMAINT          = B.PV_PREV_MAINT,
+                         A.REPAIR_PURPS_FUEL_YN = B.PV_MAINT_OIL,
+                         A.INSR_PROV_RATE_YN = B.PV_APPRO_MONEY,
+			             A.DEL_YN        = B.DEL_YN, 
+			             A.UPD_PERSON_ID = B.UPD_ID, 
+			             A.UPD_DATE      = B.UPD_DATE, 
+			             A.UPD_TIME      = B.UPD_TIME,
+			             A.VALU_CLASS    = B.PV_BKLAS,
+			             A.ATWRT1        = B.PV_ATWRT1
+			             ,A.MATKL        = B.PV_MATKL  
+			 WHEN NOT MATCHED THEN
+			      INSERT ( A.BUY_ITEM_NO, A.PART_MFER_ID, A.MFER_ITEM_CD, A.BUY_ITEM_NM_LCL, A.BUY_ITEM_NM_KO, A.BUY_ITEM_NM_EN, 
+			               A.BUY_ITEM_TYP, A.BEF_ITEM_CD, A.UNIT_PART, 
+			               A.SYST_CD, A.ALT_MFER_ID1, A.ALT_ITEM_NO1, A.ALT_MFER_ID2, A.ALT_ITEM_NO2, A.ALT_MFER_ID3, A.ALT_ITEM_NO3,
+			               A.PMAINT, A.REPAIR_PURPS_FUEL_YN, A.INSR_PROV_RATE_YN,  
+			               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME, A.VALU_CLASS, A.ATWRT1 
+			               ,A.MATKL
+			             )
+			      VALUES ( B.PV_MATNR, B.PV_PARTS_MAKER, B.PV_MAKER_NO, B.PV_ITEM_LO, B.PV_ITEM_LO, #PV_ITEM_EN#,
+			               B.PV_MTART, B.PV_PART_CD, B.PV_MEINS,
+			               B.PV_PARTS_SYSTEM, 
+			               #PV_PARTS_MAKER_Q1#,
+			               #PV_ALTER_ITEM1#,
+			               #PV_PARTS_MAKER_Q2#,
+			               #PV_ALTER_ITEM2#,
+			               #PV_PARTS_MAKER_Q3#,
+			               #PV_ALTER_ITEM3#,
+			               B.PV_PREV_MAINT, B.PV_MAINT_OIL, B.PV_APPRO_MONEY,
+			               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME, B.PV_BKLAS, B.PV_ATWRT1 
+			               ,B.PV_MATKL
+						)
+	</update>
+	       
+
+	<!--구매품목 제원코드 매핑정보 MERGE -->
+	<update id="IFEAI3_TMDM_CT_PART_MPG_MERGE">
+			MERGE INTO TMDM_CT_PART_MPG A
+			USING ( SELECT PV_EQP_MODEL_NO, PV_EQP_PART_NO,
+			               'N' DEL_YN,
+			               'INTERFACE' INS_ID, 
+			               TO_CHAR(SYSDATE,'YYYYMMDD') INS_DATE, 
+			               TO_CHAR(SYSDATE,'HH24MISS') INS_TIME,
+			               '' UPD_ID, 
+			               '' UPD_DATE, 
+			               '' UPD_TIME
+			          FROM TMDM_IF_CT_PART_MPG
+			         WHERE INSTANCEID = #INSTANCEID# ) B
+			   ON A.BUY_ITEM_NO = B.PV_EQP_PART_NO
+			  AND A.SPEC_CD     = B.PV_EQP_MODEL_NO
+			 WHEN MATCHED THEN
+			      UPDATE
+			         SET A.SPEC_CD       = B.PV_EQP_MODEL_NO,
+			             A.DEL_YN        = B.DEL_YN, 
+			             A.UPD_PERSON_ID = B.UPD_ID, 
+			             A.UPD_DATE      = B.UPD_DATE, 
+			             A.UPD_TIME      = B.UPD_TIME
+			 WHEN NOT MATCHED THEN
+			      INSERT ( A.SPEC_CD, A.BUY_ITEM_NO, 
+			               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+			      VALUES ( B.PV_EQP_MODEL_NO, B.PV_EQP_PART_NO, 
+			               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	
+	</update>
+	
+	<!--구매품목 정보 삭제  -->
+	<update id="IFEAI3_TMDM_CT_PART_UPDATE">
+			UPDATE TMDM_CT_PART
+			   SET DEL_YN = 'Y'
+			 WHERE BUY_ITEM_NO = #PV_MATNR#
+	</update>	
+	      
+	<!--구매품목 제원 코드 매핑 삭제  -->
+	<update id="IFEAI3_TMDM_CT_PART_MPG_UPDATE">
+			UPDATE TMDM_CT_PART_MPG
+			   SET DEL_YN = 'Y'
+			 WHERE BUY_ITEM_NO = #PV_MATNR#
+	</update>	
+
+
+	<!--인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_CT_PART_UPDATE">
+			UPDATE TMDM_IF_CT_PART
+             SET EAI_STATE =#EAI_STATE#
+                  ,EAI_MSG = #EAI_MSG#
+                  ,EAI_DATE =current_timestamp
+			WHERE INSTANCEID = #INSTANCEID#
+	</update>	
+
+
+	<!-- 여기서 부터 IF-CM-01-010 장비제원  수신-->
+	
+	<!-- 인터페이스 temp 테이블을 조회한다  -->
+	<select id="IFEAI3_TMDM_IF_CT_JEWON_SELECT"  resultClass="java.util.HashMap">
+	         SELECT INSTANCEID, EAI_STATE, PV_CNTRL_NO, EAI_OP, NVL(STATUS,'NRML') STATUS
+				  FROM TMDM_IF_CT_JEWON
+			 WHERE INSTANCEID = #INSTANCEID#
+	</select>	
+	
+	<!--장비  데이타  데이타 가져오기  -->
+	<select id="IFEAI3_TMDM_IF_CT_JEWON_NM_SELECT_KO"  resultClass="java.util.HashMap">
+		      SELECT PV_NAME    
+				  FROM TMDM_IF_CT_JEWON_NM
+			  WHERE INSTANCEID = #INSTANCEID#
+			      AND LANG       = 'KO'
+			   
+	</select>	
+	
+	<!--장비품목 정보입력 -->
+	<update id="IFEAI3_TMDM_CT_JEWON_MERGE">				
+			MERGE INTO TMDM_CT_JEWON A
+			USING ( SELECT PV_CNTRL_NO, PV_EQP_NM_LO, PV_MFER_CODE, PV_MAKE_YEAR, PV_EGIN_CLS, 
+			               PV_CAR_TON_CD, PV_GRADE, 'N' DEL_YN,
+			               LASTMODIFICATIONUSRID INS_ID, 
+			               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+			               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+			               LASTMODIFICATIONUSRID UPD_ID, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME 
+			          FROM TMDM_IF_CT_JEWON
+			         WHERE INSTANCEID = #INSTANCEID# ) B
+			   ON A.SPEC_CD = B.PV_CNTRL_NO
+			 WHEN MATCHED THEN
+			      UPDATE
+			         SET A.SPEC_NM       = B.PV_EQP_NM_LO,  
+			             A.MFER          = B.PV_MFER_CODE, 
+			             A.YR_MODEL      = B.PV_MAKE_YEAR,
+			             A.EGIN_CLS      = B.PV_EGIN_CLS, 
+			             A.EQP_TON_CD    = B.PV_CAR_TON_CD, 
+			             A.GRADE         = B.PV_GRADE, 
+			             A.DEL_YN        = B.DEL_YN, 
+			             A.UPD_PERSON_ID = B.UPD_ID, 
+			             A.UPD_DATE      = B.UPD_DATE, 
+			             A.UPD_TIME      = B.UPD_TIME
+			 WHEN NOT MATCHED THEN
+			      INSERT ( A.SPEC_CD, A.SPEC_NM, A.MFER, A.YR_MODEL, A.EGIN_CLS,
+			               A.EQP_TON_CD, A.GRADE,
+			               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+			      VALUES ( B.PV_CNTRL_NO, B.PV_EQP_NM_LO, B.PV_MFER_CODE, B.PV_MAKE_YEAR, B.PV_EGIN_CLS, 
+			               B.PV_CAR_TON_CD, B.PV_GRADE,
+			               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+	
+		<!--장비 제원 코드 매핑 삭제  -->
+	<update id="IFEAI3_TMDM_JEWON_UPDATE">
+			 UPDATE TMDM_CT_JEWON
+			   SET DEL_YN = 'Y'
+			 WHERE SPEC_CD = #PV_CNTRL_NO#
+	</update>	
+	
+		<!--인터페이스 결과 수정 -->
+	<update id="IFEAI2_TMDM_IF_CT_JEWON_UPDATE">
+				UPDATE TMDM_IF_CT_JEWON
+				   SET EAI_STATE = #EAI_STATE#,
+				       EAI_MSG   = #EAI_MSG#,
+				       EAI_DATE  = current_timestamp
+				 WHERE INSTANCEID = #INSTANCEID#
+	</update>	
+	
+	<select id="IFEAI3_TMDM_IF_IT_ITEM_MSTR_SELECT"  resultClass="java.util.HashMap">
+        	 SELECT I.INSTANCEID, 
+			       I.PV_ITEM_CD, 
+			       I.PV_SHIPPER_CD, 
+			       I.PV_CUST_ITEM_NO, 
+			       I.PV_AGGR_ANAL, 
+			       I.PV_PERFOR_CRIT, 
+			       I.PV_IS_SETPRODUCT, 
+			       I.EAI_OP, 
+			       I.EAI_STATE, 
+			       I.LASTMODIFICATIONUSRID, 
+			       I.PV_STATUS, 
+			       CASE WHEN S.SYSDIV = 'GLS' THEN 'GLS' ELSE 'KX' END SYS_DIV
+			FROM TMDM_IF_IT_ITEM_MSTR I
+			LEFT OUTER JOIN TMDM_BP_SHPR_IF S
+			ON I.PV_SHIPPER_CD = S.SHPR_ID
+			WHERE I.INSTANCEID = #INSTANCEID#
+	</select>
+	
+	<!-- 화주 에러 체크 조회  -->
+	<select id="IFEAI3_TMDM_BP_SHPR_EMP_SELECT"  resultClass="java.util.HashMap">
+	        	 SELECT SHPR_ID
+				  FROM TMDM_KFR_BP_SHPR
+				 WHERE SHPR_ID = #PV_SHIPPER_CD#
+	</select>
+	
+	<!-- 고객품번, 대한통운 품목코드 중복체크 -->
+	<select id="IFEAI3_TMDM_IT_ITEM_DUP_CHK"  resultClass="java.lang.Integer">
+	    SELECT SUM(CNT) DUP_CNT
+          FROM
+             ( SELECT CASE WHEN SUBSTR(#PV_ITEM_CD#,1,3) = '100' AND #PV_ITEM_CD# <![CDATA[<=]]> '1000180478' THEN 0 ELSE COUNT(1) END AS CNT
+                 FROM TMDM_IT_ITEM_MSTR_IF
+                WHERE KX_ITEM_CD = #PV_ITEM_CD#
+                  AND ( SHPR_ID != #PV_SHIPPER_CD#
+                      OR ITEM_CD != #PV_CUST_ITEM_NO# )
+               UNION
+               SELECT COUNT(1) CNT
+                 FROM TMDM_IT_ITEM_MSTR_IF
+                WHERE SHPR_ID = #PV_SHIPPER_CD#
+                  AND ITEM_CD = #PV_CUST_ITEM_NO#
+                  AND KX_ITEM_CD != #PV_ITEM_CD#
+             )
+	</select> 		
+	
+	
+	<!-- 상품유형군 순번 데이타 조회  -->
+	<select id="IFEAI3_TMDM_IT_ITEM_TYPE_GRP_SELECT"  resultClass="java.lang.Integer">
+	        	 SELECT NVL(ITEM_TYP_SEQ_NO,0)     
+				  FROM TMDM_IT_ITEM_TYPE_GRP
+				 WHERE SHPR_ID = '10069897' 				 
+					AND ITEM_TYP_CCD = #ITEM_TYP_CCD#
+		   			AND SHPR_ITEM_TYP_CD = #SHPR_ITEM_TYP_CD#
+	</select>	
+	
+	<!--화주 정보 입력 -->
+	<!-- GLS통합 컬럼 추가 2013.05.20 -->
+	<update id="IFEAI3_TMDM_IT_ITEM_MSTR_MERGE">
+				
+	    MERGE INTO TMDM_IT_ITEM_MSTR_IF A
+		USING ( 
+                
+                SELECT 		
+                    PV_SHIPPER_CD AS PV_SHIPPER_CD,
+                    PV_CUST_ITEM_NO AS PV_CUST_ITEM_NO,
+                    PV_ITEM_NM_LO AS PV_ITEM_NM_LO,
+                    PV_ITEM_TYPE ITEM_CCD,
+                    PV_CBM AS PV_CBM,
+                    PV_CBM_UNIT AS PV_CBM_UNIT,
+                    PV_WIGHT AS PV_WIGHT,
+                    PV_WIGHT_UNIT AS PV_WIGHT_UNIT,
+                    PV_VERTICAL AS PV_VERTICAL,
+                    PV_WIDTH AS PV_WIDTH,
+                    PV_HEIGHT AS PV_HEIGHT,
+                    PV_SIZE_UNIT AS PV_SIZE_UNIT,
+                    PV_ITEM_CD AS PV_ITEM_CD,
+                    'N' DEL_YN,
+                    NVL(LASTMODIFICATIONUSRID, 'MDM') AS REG_ID,
+                    CREATIONDTIME AS REG_DT,
+                    LASTMODIFICATIONUSRID AS MOD_ID,
+                    LASTMODIFICATIONDTIME AS MOD_DT,
+                    PV_IPSU AS PV_IPSU,
+                    PV_IPSU_UNIT AS PV_IPSU_UNIT,
+                    PV_ATTR_01 AS PV_ATTR_01,
+                    PV_ATTR_02 AS PV_ATTR_02,
+                    PV_ATTR_03 AS PV_ATTR_03,
+                    PV_ATTR_04 AS PV_ATTR_04,
+                    PV_ATTR_05 AS PV_ATTR_05,
+                    PV_ATTR_06 AS PV_ATTR_06,
+                    PV_ATTR_07 AS PV_ATTR_07,
+                    PV_ATTR_08 AS PV_ATTR_08,
+                    PV_ATTR_09 AS PV_ATTR_09,
+                    PV_ATTR_10 AS PV_ATTR_10,
+                    PV_ATTR_11 AS PV_ATTR_11,
+                    PV_ATTR_12 AS PV_ATTR_12,
+                    PV_ATTR_13 AS PV_ATTR_13,
+                    PV_ATTR_14 AS PV_ATTR_14,
+                    PV_ATTR_15 AS PV_ATTR_15,
+                    PV_ATTR_16 AS PV_ATTR_16,
+                    PV_ATTR_17 AS PV_ATTR_17,
+                    PV_ATTR_18 AS PV_ATTR_18,
+                    PV_ATTR_19 AS PV_ATTR_19,
+                    PV_ATTR_20 AS PV_ATTR_20,
+                    PV_AGGR_ANAL AS PV_AGGR_ANAL,
+                    PV_MTRL_MGMT AS PV_MTRL_MGMT,
+                    PV_ALTKN AS PV_ALTKN,
+                    PV_APLOFCBIZDIV AS PV_APLOFCBIZDIV,
+                    PV_BOX_KAN_CD AS PV_BOX_KAN_CD,
+                    PV_CLSS AS PV_CLSS,
+                    PV_VLDPRD AS PV_VLDPRD,
+                    PV_TRFFCOP AS PV_TRFFCOP,
+                    PV_TRFFKEY AS PV_TRFFKEY,
+                    PV_UNIT_CONFIG AS PV_UNIT_CONFIG,
+                    PV_ITEM_GP AS PV_ITEM_GP,
+                    PV_WH_CD AS PV_WH_CD,
+                    PV_SUPPLY AS PV_SUPPLY,
+                    PV_CARTON_GP AS PV_CARTON_GP,
+                    PV_ABC AS PV_ABC,
+                    PV_DUSEYN AS PV_DUSEYN,
+                    PV_OUPADJYN AS PV_OUPADJYN,
+                    PV_RCPTHLDCD AS PV_RCPTHLDCD,
+                    PV_RCPTINSPLOC AS PV_RCPTINSPLOC,
+                    PV_CUST_ITEM_NO_ORG AS PV_CUST_ITEM_NO_ORG,
+                    PV_CLNT_USE_UNIT AS PV_CLNT_USE_UNIT,
+                    PV_ACOSCD AS PV_ACOSCD,
+                    PV_PRE_COM_ITEM_NO AS PV_PRE_COM_ITEM_NO,
+                    PV_WRH_OUT_CRTR_DT AS PV_WRH_OUT_CRTR_DT,
+                    PV_SKUCTG AS PV_SKUCTG,
+                    PV_USEPLLT AS PV_USEPLLT,
+                    PV_BOXENTRWGT AS PV_BOXENTRWGT,
+                    PV_PUNIT_IPSU AS PV_PUNIT_IPSU,
+                    PV_PLLTPERBOXNUM AS PV_PLLTPERBOXNUM,
+                    PV_AVGCASEWGT AS PV_AVGCASEWGT,
+                    PV_PLTWGT AS PV_PLTWGT,
+                    PV_SUPPSTOR AS PV_SUPPSTOR,
+                    PV_SUPPQTY AS PV_SUPPQTY,
+                    PV_EACHGRSSWGT AS PV_EACHGRSSWGT,
+                    PV_EACHNETWGT AS PV_EACHNETWGT,
+                    PV_WMSUSGCUBE AS PV_WMSUSGCUBE,
+                    PV_BOXNETWGT AS PV_BOXNETWGT,
+                    PV_ORRIMINCNT AS PV_ORRIMINCNT,
+                    PV_CONVNMR AS PV_CONVNMR,
+                    PV_CONVDNM AS PV_CONVDNM,
+                    PV_BOXGRADE AS PV_BOXGRADE,
+                    PV_CLNT_ITEM_SPEC AS PV_CLNT_ITEM_SPEC,
+                    PV_BOXCUBE AS PV_BOXCUBE,
+                    PV_WH_CD_GLS AS PV_WH_CD_GLS,
+                    PV_SUPPLY_GLS AS PV_SUPPLY_GLS,
+                    PV_PLLTPERBOXNUM_GLS AS PV_PLLTPERBOXNUM_GLS,
+                    PV_ITEM_GP_GLS AS PV_ITEM_GP_GLS,
+                    PV_BOXGRADE_GLS AS PV_BOXGRADE_GLS,
+                    PV_BOXCUBE_GLS AS PV_BOXCUBE_GLS,
+                    PV_CRTR_DT AS PV_CRTR_DT,
+                    PV_DIVLOT AS PV_DIVLOT,
+                    PV_APPNCUSTCD AS PV_APPNCUSTCD,
+                    PV_VLDPRD2 AS PV_VLDPRD2,
+                    PV_DSTRPRD AS PV_DSTRPRD,
+                    PV_INFRITEMSTG AS PV_INFRITEMSTG,
+                    PV_INFRITEMPLPLOC AS PV_INFRITEMPLPLOC,
+                    PV_DCS_DT AS PV_DCS_DT,
+                    PV_RCVYN AS PV_RCVYN,
+                    PV_RPSCD AS PV_RPSCD,
+                    PV_MODUSR AS PV_MODUSR,
+                    PV_STNDFLGGLS AS PV_STNDFLGGLS,
+                    PV_CNVYDLVDIV AS PV_CNVYDLVDIV,
+                    PV_SKUSTD AS PV_SKUSTD,
+                    PV_SKUSTD2 AS PV_SKUSTD2,
+                    PV_PHTRSP10DGT AS PV_PHTRSP10DGT,
+                    PV_SKUSPCLSPC1BLKYN AS PV_SKUSPCLSPC1BLKYN ,
+                    PV_SKUSPCLSPC1SCRTYN AS PV_SKUSPCLSPC1SCRTYN ,
+                    PV_SKUSPCLSPC3INFRSKUSTG AS PV_SKUSPCLSPC3INFRSKUSTG ,
+                    PV_DSC1 AS PV_DSC1 ,
+                    PV_DSC2 AS PV_DSC2 ,
+                    PV_DSC2_1 AS PV_DSC2_1 ,
+                    PV_DSC2_2 AS PV_DSC2_2 ,
+                    PV_UNTCMPSCD2 AS PV_UNTCMPSCD2 ,
+                    PV_PERBOXEACHQTY2 AS PV_PERBOXEACHQTY2 ,
+                    PV_BOXCUBEGLS2 AS PV_BOXCUBEGLS2 ,
+                    PV_PLLTPERBOXNUMGLS2 AS PV_PLLTPERBOXNUMGLS2 ,
+                    PV_WMSUSGCUBE2 AS PV_WMSUSGCUBE2 ,
+                    PV_SKUGRP AS PV_SKUGRP
+		          FROM TMDM_IF_IT_ITEM_MSTR
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON (A.SHPR_ID = B.PV_SHIPPER_CD
+		        AND A.ITEM_CD = B.PV_CUST_ITEM_NO)
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.ITEM_NM        = B.PV_ITEM_NM_LO,
+					A.ITEM_CCD       = B.ITEM_CCD, 
+					A.ITEM_VOL       = B.PV_CBM,
+					A.VOL_UNIT_CD    = B.PV_CBM_UNIT, 
+					A.ITEM_WT        = B.PV_WIGHT, 
+					A.WT_UNIT_CD     = B.PV_WIGHT_UNIT, 
+					A.LEN            = B.PV_VERTICAL, 
+					A.WIDTH          = B.PV_WIDTH, 
+					A.HEIGHT         = B.PV_HEIGHT, 
+					A.LEN_UNIT_CD    = B.PV_SIZE_UNIT,
+					A.KX_ITEM_CD     = B.PV_ITEM_CD,
+					A.KX_ITEM_NM     = B.PV_ITEM_NM_LO,
+					A.DEL_YN         = B.DEL_YN,  
+					A.MOD_ID         = B.MOD_ID, 
+					A.MOD_DT         = B.MOD_DT, 
+					A.BAGAGEQTY      = B.PV_IPSU, 
+					A.BAGAGEQTY_UNIT = B.PV_IPSU_UNIT, 
+					A.TPL_ATTR_01    = B.PV_ATTR_01, 
+					A.TPL_ATTR_02    = B.PV_ATTR_02, 
+					A.TPL_ATTR_03    = B.PV_ATTR_03, 
+					A.TPL_ATTR_04    = B.PV_ATTR_04, 
+					A.TPL_ATTR_05    = B.PV_ATTR_05, 
+					A.TPL_ATTR_06    = B.PV_ATTR_06, 
+					A.TPL_ATTR_07    = B.PV_ATTR_07, 
+					A.TPL_ATTR_08    = B.PV_ATTR_08, 
+					A.TPL_ATTR_09    = B.PV_ATTR_09, 
+					A.TPL_ATTR_10    = B.PV_ATTR_10, 
+					A.TPL_ATTR_11    = B.PV_ATTR_11, 
+					A.TPL_ATTR_12    = B.PV_ATTR_12, 
+					A.TPL_ATTR_13    = B.PV_ATTR_13, 
+					A.TPL_ATTR_14    = B.PV_ATTR_14, 
+					A.TPL_ATTR_15    = B.PV_ATTR_15, 
+					A.TPL_ATTR_16    = B.PV_ATTR_16, 
+					A.TPL_ATTR_17    = B.PV_ATTR_17, 
+					A.TPL_ATTR_18    = B.PV_ATTR_18, 
+					A.TPL_ATTR_19    = B.PV_ATTR_19, 
+					A.TPL_ATTR_20    = B.PV_ATTR_20,
+					A.AGG_ANAL_CD    = B.PV_AGGR_ANAL,    
+					A.GOOD_CNTRL_CD  = B.PV_MTRL_MGMT,
+					A.ALTKN  = B.PV_ALTKN, 
+					A.APLOFCBIZDIV  = B.PV_APLOFCBIZDIV, 
+					A.BOX_KAN_CD  = B.PV_BOX_KAN_CD, 
+					A.CLSS  = B.PV_CLSS, 
+					A.VLDPRD  = B.PV_VLDPRD, 
+					A.TRFFCOP  = B.PV_TRFFCOP, 
+					A.TRFFKEY  = B.PV_TRFFKEY, 
+					A.UNIT_CONFIG  = B.PV_UNIT_CONFIG, 
+					A.ITEM_GP  = B.PV_ITEM_GP, 
+					A.WH_CD  = B.PV_WH_CD, 
+					A.SUPPLY  = B.PV_SUPPLY, 
+					A.CARTON_GP  = B.PV_CARTON_GP, 
+					A.ABC  = B.PV_ABC, 
+					A.DUSEYN  = B.PV_DUSEYN, 
+					A.OUPADJYN  = B.PV_OUPADJYN, 
+					A.RCPTHLDCD  = B.PV_RCPTHLDCD, 
+					A.RCPTINSPLOC  = B.PV_RCPTINSPLOC, 
+					A.CUST_ITEM_NO_ORG  = B.PV_CUST_ITEM_NO_ORG, 
+					A.CLNT_USE_UNIT  = B.PV_CLNT_USE_UNIT, 
+					A.ACOSCD  = B.PV_ACOSCD, 
+					A.PRE_COM_ITEM_NO  = B.PV_PRE_COM_ITEM_NO, 
+					A.WRH_OUT_CRTR_DT  = B.PV_WRH_OUT_CRTR_DT, 
+					A.SKUCTG  = B.PV_SKUCTG, 
+					A.USEPLLT  = B.PV_USEPLLT, 
+					A.BOXENTRWGT  = B.PV_BOXENTRWGT, 
+					A.PUNIT_IPSU  = B.PV_PUNIT_IPSU, 
+					A.PLLTPERBOXNUM  = B.PV_PLLTPERBOXNUM, 
+					A.AVGCASEWGT  = B.PV_AVGCASEWGT, 
+					A.PLTWGT  = B.PV_PLTWGT, 
+					A.SUPPSTOR  = B.PV_SUPPSTOR, 
+					A.SUPPQTY  = B.PV_SUPPQTY, 
+					A.EACHGRSSWGT  = B.PV_EACHGRSSWGT, 
+					A.EACHNETWGT  = B.PV_EACHNETWGT, 
+					A.WMSUSGCUBE  = B.PV_WMSUSGCUBE, 
+					A.BOXNETWGT  = B.PV_BOXNETWGT, 
+					A.ORRIMINCNT  = B.PV_ORRIMINCNT, 
+					A.CONVNMR  = B.PV_CONVNMR, 
+					A.CONVDNM  = B.PV_CONVDNM, 
+					A.BOXGRADE  = B.PV_BOXGRADE, 
+					A.CLNT_ITEM_SPEC  = B.PV_CLNT_ITEM_SPEC, 
+					A.BOXCUBE  = B.PV_BOXCUBE, 
+					A.WH_CD_GLS  = B.PV_WH_CD_GLS, 
+					A.SUPPLY_GLS  = B.PV_SUPPLY_GLS, 
+					A.PLLTPERBOXNUM_GLS  = B.PV_PLLTPERBOXNUM_GLS, 
+					A.ITEM_GP_GLS  = B.PV_ITEM_GP_GLS, 
+					A.BOXGRADE_GLS  = B.PV_BOXGRADE_GLS, 
+					A.BOXCUBE_GLS  = B.PV_BOXCUBE_GLS, 
+					A.CRTR_DT  = B.PV_CRTR_DT, 
+					A.DIVLOT  = B.PV_DIVLOT, 
+					A.APPNCUSTCD  = B.PV_APPNCUSTCD, 
+					A.VLDPRD2  = B.PV_VLDPRD2, 
+					A.DSTRPRD  = B.PV_DSTRPRD, 
+					A.INFRITEMSTG  = B.PV_INFRITEMSTG, 
+					A.INFRITEMPLPLOC  = B.PV_INFRITEMPLPLOC, 
+					A.DCS_DT  = B.PV_DCS_DT, 
+					A.RCVYN  = B.PV_RCVYN, 
+					A.RPSCD  = B.PV_RPSCD, 
+					A.MODUSR  = B.PV_MODUSR, 
+					A.STNDFLGGLS  = B.PV_STNDFLGGLS, 
+					A.CNVYDLVDIV  = B.PV_CNVYDLVDIV, 
+					A.SKUSTD  = B.PV_SKUSTD, 
+					A.SKUSTD2  = B.PV_SKUSTD2, 
+					A.PHTRSP10DGT  = B.PV_PHTRSP10DGT, 
+					A.SKUSPCLSPC1BLKYN = B.PV_SKUSPCLSPC1BLKYN, 
+					A.SKUSPCLSPC1SCRTYN = B.PV_SKUSPCLSPC1SCRTYN, 
+					A.SKUSPCLSPC3INFRSKUSTG = B.PV_SKUSPCLSPC3INFRSKUSTG, 
+					A.DSC1 = B.PV_DSC1, 
+					A.DSC2 = B.PV_DSC2, 
+					A.DSC2_1 = B.PV_DSC2_1, 
+					A.DSC2_2 = B.PV_DSC2_2, 
+					A.UNTCMPSCD2 = B.PV_UNTCMPSCD2, 
+					A.PERBOXEACHQTY2 = B.PV_PERBOXEACHQTY2, 
+					A.BOXCUBEGLS2 = B.PV_BOXCUBEGLS2, 
+					A.PLLTPERBOXNUMGLS2 = B.PV_PLLTPERBOXNUMGLS2, 
+					A.WMSUSGCUBE2 = B.PV_WMSUSGCUBE2, 
+					A.SKUGRP = B.PV_SKUGRP
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.SHPR_ID, A.ITEM_CD, A.ITEM_NM, A.ITEM_CCD, A.ITEM_VOL, 
+						A.VOL_UNIT_CD, A.ITEM_WT, A.WT_UNIT_CD, A.LEN, A.WIDTH, 
+						A.HEIGHT, A.LEN_UNIT_CD, A.KX_ITEM_CD, A.KX_ITEM_NM,
+						A.DEL_YN, A.REG_ID, A.REG_DT, A.BAGAGEQTY, A.BAGAGEQTY_UNIT, 
+						A.TPL_ATTR_01, A.TPL_ATTR_02, A.TPL_ATTR_03, A.TPL_ATTR_04, A.TPL_ATTR_05, 
+						A.TPL_ATTR_06, A.TPL_ATTR_07, A.TPL_ATTR_08, A.TPL_ATTR_09, A.TPL_ATTR_10, 
+						A.TPL_ATTR_11, A.TPL_ATTR_12, A.TPL_ATTR_13, A.TPL_ATTR_14, A.TPL_ATTR_15, 
+						A.TPL_ATTR_16, A.TPL_ATTR_17, A.TPL_ATTR_18, A.TPL_ATTR_19, A.TPL_ATTR_20,
+						A.AGG_ANAL_CD, A.GOOD_CNTRL_CD,
+						A.ALTKN, 
+						A.APLOFCBIZDIV, 
+						A.BOX_KAN_CD, 
+						A.CLSS, 
+						A.VLDPRD, 
+						A.TRFFCOP, 
+						A.TRFFKEY, 
+						A.UNIT_CONFIG, 
+						A.ITEM_GP, 
+						A.WH_CD, 
+						A.SUPPLY, 
+						A.CARTON_GP, 
+						A.ABC, 
+						A.DUSEYN, 
+						A.OUPADJYN, 
+						A.RCPTHLDCD, 
+						A.RCPTINSPLOC, 
+						A.CUST_ITEM_NO_ORG, 
+						A.CLNT_USE_UNIT, 
+						A.ACOSCD, 
+						A.PRE_COM_ITEM_NO, 
+						A.WRH_OUT_CRTR_DT, 
+						A.SKUCTG, 
+						A.USEPLLT, 
+						A.BOXENTRWGT, 
+						A.PUNIT_IPSU, 
+						A.PLLTPERBOXNUM, 
+						A.AVGCASEWGT, 
+						A.PLTWGT, 
+						A.SUPPSTOR, 
+						A.SUPPQTY, 
+						A.EACHGRSSWGT, 
+						A.EACHNETWGT, 
+						A.WMSUSGCUBE, 
+						A.BOXNETWGT, 
+						A.ORRIMINCNT, 
+						A.CONVNMR, 
+						A.CONVDNM, 
+						A.BOXGRADE, 
+						A.CLNT_ITEM_SPEC, 
+						A.BOXCUBE, 
+						A.WH_CD_GLS, 
+						A.SUPPLY_GLS, 
+						A.PLLTPERBOXNUM_GLS, 
+						A.ITEM_GP_GLS, 
+						A.BOXGRADE_GLS, 
+						A.BOXCUBE_GLS, 
+						A.CRTR_DT, 
+						A.DIVLOT, 
+						A.APPNCUSTCD, 
+						A.VLDPRD2, 
+						A.DSTRPRD, 
+						A.INFRITEMSTG, 
+						A.INFRITEMPLPLOC, 
+						A.DCS_DT, 
+						A.RCVYN, 
+						A.RPSCD, 
+						A.MODUSR, 
+						A.STNDFLGGLS, 
+						A.CNVYDLVDIV, 
+						A.SKUSTD, 
+						A.SKUSTD2, 
+						A.PHTRSP10DGT, 
+						A.SKUSPCLSPC1BLKYN, 
+						A.SKUSPCLSPC1SCRTYN, 
+						A.SKUSPCLSPC3INFRSKUSTG, 
+						A.DSC1, 
+						A.DSC2, 
+						A.DSC2_1, 
+						A.DSC2_2, 
+						A.UNTCMPSCD2, 
+						A.PERBOXEACHQTY2, 
+						A.BOXCUBEGLS2, 
+						A.PLLTPERBOXNUMGLS2, 
+						A.WMSUSGCUBE2, 
+						A.SKUGRP
+						)
+		      VALUES ( B.PV_SHIPPER_CD, B.PV_CUST_ITEM_NO, B.PV_ITEM_NM_LO, B.ITEM_CCD, B.PV_CBM, 
+					B.PV_CBM_UNIT, B.PV_WIGHT, B.PV_WIGHT_UNIT, B.PV_VERTICAL, B.PV_WIDTH, 
+					B.PV_HEIGHT, B.PV_SIZE_UNIT, B.PV_ITEM_CD, B.PV_ITEM_NM_LO, 
+					B.DEL_YN, B.REG_ID, B.REG_DT, B.PV_IPSU, B.PV_IPSU_UNIT, 
+					B.PV_ATTR_01, B.PV_ATTR_02, B.PV_ATTR_03, B.PV_ATTR_04, B.PV_ATTR_05, 
+					B.PV_ATTR_06, B.PV_ATTR_07, B.PV_ATTR_08, B.PV_ATTR_09, B.PV_ATTR_10, 
+					B.PV_ATTR_11, B.PV_ATTR_12, B.PV_ATTR_13, B.PV_ATTR_14, B.PV_ATTR_15, 
+					B.PV_ATTR_16, B.PV_ATTR_17, B.PV_ATTR_18, B.PV_ATTR_19, B.PV_ATTR_20,
+					B.PV_AGGR_ANAL, B.PV_MTRL_MGMT,
+					B.PV_ALTKN, 
+					B.PV_APLOFCBIZDIV, 
+					B.PV_BOX_KAN_CD, 
+					B.PV_CLSS, 
+					B.PV_VLDPRD, 
+					B.PV_TRFFCOP, 
+					B.PV_TRFFKEY, 
+					B.PV_UNIT_CONFIG, 
+					B.PV_ITEM_GP, 
+					B.PV_WH_CD, 
+					B.PV_SUPPLY, 
+					B.PV_CARTON_GP, 
+					B.PV_ABC, 
+					B.PV_DUSEYN, 
+					B.PV_OUPADJYN, 
+					B.PV_RCPTHLDCD, 
+					B.PV_RCPTINSPLOC, 
+					B.PV_CUST_ITEM_NO_ORG, 
+					B.PV_CLNT_USE_UNIT, 
+					B.PV_ACOSCD, 
+					B.PV_PRE_COM_ITEM_NO, 
+					B.PV_WRH_OUT_CRTR_DT, 
+					B.PV_SKUCTG, 
+					B.PV_USEPLLT, 
+					B.PV_BOXENTRWGT, 
+					B.PV_PUNIT_IPSU, 
+					B.PV_PLLTPERBOXNUM, 
+					B.PV_AVGCASEWGT, 
+					B.PV_PLTWGT, 
+					B.PV_SUPPSTOR, 
+					B.PV_SUPPQTY, 
+					B.PV_EACHGRSSWGT, 
+					B.PV_EACHNETWGT, 
+					B.PV_WMSUSGCUBE, 
+					B.PV_BOXNETWGT, 
+					B.PV_ORRIMINCNT, 
+					B.PV_CONVNMR, 
+					B.PV_CONVDNM, 
+					B.PV_BOXGRADE, 
+					B.PV_CLNT_ITEM_SPEC, 
+					B.PV_BOXCUBE, 
+					B.PV_WH_CD_GLS, 
+					B.PV_SUPPLY_GLS, 
+					B.PV_PLLTPERBOXNUM_GLS, 
+					B.PV_ITEM_GP_GLS, 
+					B.PV_BOXGRADE_GLS, 
+					B.PV_BOXCUBE_GLS, 
+					B.PV_CRTR_DT, 
+					B.PV_DIVLOT, 
+					B.PV_APPNCUSTCD, 
+					B.PV_VLDPRD2, 
+					B.PV_DSTRPRD, 
+					B.PV_INFRITEMSTG, 
+					B.PV_INFRITEMPLPLOC, 
+					B.PV_DCS_DT, 
+					B.PV_RCVYN, 
+					B.PV_RPSCD, 
+					B.PV_MODUSR, 
+					B.PV_STNDFLGGLS, 
+					B.PV_CNVYDLVDIV, 
+					B.PV_SKUSTD, 
+					B.PV_SKUSTD2, 
+					B.PV_PHTRSP10DGT, 
+					B.PV_SKUSPCLSPC1BLKYN, 
+					B.PV_SKUSPCLSPC1SCRTYN, 
+					B.PV_SKUSPCLSPC3INFRSKUSTG, 
+					B.PV_DSC1, 
+					B.PV_DSC2, 
+					B.PV_DSC2_1, 
+					B.PV_DSC2_2, 
+					B.PV_UNTCMPSCD2, 
+					B.PV_PERBOXEACHQTY2, 
+					B.PV_BOXCUBEGLS2, 
+					B.PV_PLLTPERBOXNUMGLS2, 
+					B.PV_WMSUSGCUBE2, 
+					B.PV_SKUGRP
+					)
+	</update>
+	
+	<!--화주 정보 입력 2-->
+	<update id="IFEAI3_TMDM_IT_ITEM_TYPE_GRP_MPG_MERGE">
+		MERGE INTO TMDM_IT_ITEM_TYPE_GRP_MPG A
+			USING ( SELECT PV_SHIPPER_CD, PV_CUST_ITEM_NO, CAST(#ITEM_TYP_CCD# as varchar) ITEM_TYP_CCD,  
+			               CAST(#PV_ITEM_TYP_SEQ_NO# as integer) ITEM_TYP_SEQ_NO,
+			               'N' DEL_YN,
+			               LASTMODIFICATIONUSRID INS_ID, 
+			               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+			               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+			               LASTMODIFICATIONUSRID UPD_ID, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME 
+			          FROM TMDM_IF_IT_ITEM_MSTR
+			         WHERE INSTANCEID = #INSTANCEID# ) B
+			   ON A.SHPR_ID         = B.PV_SHIPPER_CD
+			  AND A.ITEM_CD         = B.PV_CUST_ITEM_NO
+			  AND A.ITEM_TYP_CCD    = B.ITEM_TYP_CCD
+			 WHEN MATCHED THEN
+			      UPDATE
+			         SET A.ITEM_TYP_SEQ_NO = B.ITEM_TYP_SEQ_NO,
+			             A.DEL_YN        = B.DEL_YN, 
+			             A.UPD_PERSON_ID = B.UPD_ID, 
+			             A.UPD_DATE      = B.UPD_DATE, 
+			             A.UPD_TIME      = B.UPD_TIME
+			 WHEN NOT MATCHED THEN
+			      INSERT ( A.SHPR_ID, A.ITEM_CD, A.ITEM_TYP_CCD, A.ITEM_TYP_SEQ_NO, 
+			               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+			      VALUES ( B.PV_SHIPPER_CD, B.PV_CUST_ITEM_NO, B.ITEM_TYP_CCD, B.ITEM_TYP_SEQ_NO,
+			               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME ) 
+	</update>
+	
+	
+	<!--화주 정보 입력 3-->
+	<update id="IFEAI3_TMDM_IT_MA_ITEM_MERGE">
+		MERGE INTO GWMS.TWMS_MA_ITEM A
+			USING ( SELECT PV_SHIPPER_CD, PV_CUST_ITEM_NO, PV_ITEM_NM_LO, 'SE' ITEM_GCD,
+			               NVL(PV_HEIGHT,1) AS PV_HEIGHT, NVL(PV_WIDTH,1) AS PV_WIDTH, NVL(PV_VERTICAL,1) AS PV_VERTICAL, NVL(PV_WIGHT,1) AS PV_WIGHT,
+			               '' MID_GCD, '' SMLL_GCD, NVL(PV_CBM,1) AS PV_CBM, PV_KAN_CD,
+			               NVL(PV_UNIT,'EA') AS PV_UNIT, '' MFER_ID, PV_ITEM_NM_SH,
+			               NVL(PV_SIZE_UNIT,'CM') AS PV_SIZE_UNIT, NVL(PV_WIGHT_UNIT,'KG') AS PV_WIGHT_UNIT, NVL(PV_CBM_UNIT,'CBM') AS PV_CBM_UNIT,
+			               'N' DEL_YN,
+			               NVL(LASTMODIFICATIONUSRID,'MDM') INS_ID,
+			               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE,
+			               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+			               LASTMODIFICATIONUSRID UPD_ID,
+			               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE,
+			               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME,			               
+							'' AS LEN, '' AS DETL_DESC,
+							'' AS VRT_LEN, '' AS VRT_WIDTH, '' AS VRT_HEIGHT, '' AS VRT_PRTY_YN, '' AS CATEGORY,
+							'' AS COLOR_NM, '' AS STYLE_NM, '' AS BRAND_NM, '' AS BUY_SITE_URL, '' AS GDS_URL,
+							'' AS IMG_URL, 0 AS PRICE
+			          FROM TMDM_IF_IT_ITEM_MSTR
+			         WHERE INSTANCEID = #INSTANCEID# ) B
+			   ON A.STRR_ID         = B.PV_SHIPPER_CD
+			  AND A.ITEM_CD         = B.PV_CUST_ITEM_NO
+			 WHEN MATCHED THEN
+			      UPDATE
+			         SET A.DESC     = B.PV_ITEM_NM_LO,
+			             A.ITEM_GCD = B.ITEM_GCD,
+			             A.HEIGHT   = B.PV_HEIGHT,
+			             A.WIDTH    = B.PV_WIDTH,
+			             A.DEPTH    = B.PV_VERTICAL,
+			             A.WT       = B.PV_WIGHT,
+			             A.VOL      = B.PV_CBM,
+			             A.ITEM_BARCODE  = B.PV_KAN_CD,
+			             A.ITEM_STRG_CD  = B.PV_UNIT,
+			             A.NET_WT        = B.PV_WIGHT,
+			             A.DISP_ITEM_STRG_CD = B.PV_UNIT,
+			             A.ABBR_NM       = B.PV_ITEM_NM_SH,
+			             A.LEN_UNIT_CD   = B.PV_SIZE_UNIT,
+			             A.WT_UNIT_CD    = B.PV_WIGHT_UNIT,
+			             A.VOL_UNIT_CD   = B.PV_CBM_UNIT,
+			             A.DEL_YN        = B.DEL_YN,
+			             A.UPD_PERSON_ID = B.UPD_ID,
+			             A.UPD_DATE      = B.UPD_DATE,
+			             A.UPD_TIME      = B.UPD_TIME,
+                   A.VRT_LEN        = A.VRT_LEN,
+                   A.VRT_WIDTH      = A.VRT_WIDTH,
+                   A.VRT_HEIGHT     = A.VRT_HEIGHT,
+                   A.VRT_PRTY_YN    = A.VRT_PRTY_YN,
+                   A.CATEGORY       = A.CATEGORY,
+                   A.COLOR_NM       = A.COLOR_NM,
+                   A.STYLE_NM       = A.STYLE_NM,
+                   A.BRAND_NM       = A.BRAND_NM,
+                   A.BUY_SITE_URL   = A.BUY_SITE_URL,
+                   A.GDS_URL        = A.GDS_URL,
+                   A.IMG_URL        = A.IMG_URL,
+                   A.PRICE          = A.PRICE
+			 WHEN NOT MATCHED THEN
+			      INSERT ( A.STRR_ID, A.ITEM_CD, A.DESC, A.ITEM_GCD, A.HEIGHT,
+			               A.WIDTH, A.DEPTH, A.WT, A.VOL, A.ITEM_BARCODE,
+			               A.ITEM_STRG_CD, A.NET_WT, A.DISP_ITEM_STRG_CD, A.ABBR_NM, A.LEN_UNIT_CD,
+			               A.WT_UNIT_CD, A.VOL_UNIT_CD,
+			               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME,
+			               A.LEN, A.DETL_DESC, 
+                    A.VRT_LEN, A.VRT_WIDTH, A.VRT_HEIGHT, A.VRT_PRTY_YN, A.CATEGORY,
+                    A.COLOR_NM, A.STYLE_NM, A.BRAND_NM, A.BUY_SITE_URL, A.GDS_URL, 
+                    A.IMG_URL, A.PRICE			               
+			                )
+			      VALUES ( B.PV_SHIPPER_CD, B.PV_CUST_ITEM_NO, B.PV_ITEM_NM_LO, B.ITEM_GCD, B.PV_HEIGHT,
+			               B.PV_WIDTH, B.PV_VERTICAL, B.PV_WIGHT, B.PV_CBM, B.PV_KAN_CD,
+			               B.PV_UNIT, B.PV_ITEM_NM_SH, B.PV_UNIT, B.PV_ITEM_NM_SH, B.PV_SIZE_UNIT,
+			               B.PV_WIGHT_UNIT, B.PV_CBM_UNIT,
+			               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME,
+                      B.LEN, B.DETL_DESC, 
+                      B.VRT_LEN, B.VRT_WIDTH, B.VRT_HEIGHT, B.VRT_PRTY_YN, B.CATEGORY,
+                      B.COLOR_NM, B.STYLE_NM, B.BRAND_NM, B.BUY_SITE_URL, B.GDS_URL, 
+                      B.IMG_URL, B.PRICE
+			                )
+	</update>
+	<update id="IFEAI3_TMDM_IT_MA_STRR_ITEM_MERGE">
+				INSERT INTO GWMS.TWMS_MA_STRR_ITEM (
+		  WH_CD,
+		  STRR_ID,
+		  ITEM_CD,
+		  INS_PERSON_ID,
+		  INS_DATE,
+		  INS_TIME
+		)
+			SELECT
+			  WH_CD AS WH_CD
+			  , PV_SHIPPER_CD AS STRR_ID
+			  , PV_CUST_ITEM_NO AS ITEM_CD
+			  , DECODE(LASTMODIFICATIONDTIME,NULL,LASTMODIFICATIONUSRID,'') UPD_ID
+			  , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+			  , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+			FROM GWMS.TWMS_MA_WH_STRR_D T1,
+			     TMDM_IF_IT_ITEM_MSTR T2
+			WHERE T2.INSTANCEID = #INSTANCEID#
+			AND NOT EXISTS ( SELECT 1 FROM GWMS.TWMS_MA_STRR_ITEM
+			  WHERE WH_CD = T1.WH_CD
+			  AND STRR_ID = T2.PV_SHIPPER_CD
+			  AND ITEM_CD = T2.PV_CUST_ITEM_NO
+			)
+	</update>
+	
+	<insert id="IFEAI3_TWMS_IF_MA_ITEM_INSERT">
+		INSERT INTO GWMS.TWMS_IF_ITEM(
+		  INSTANCEID, MDM_ITEM_CD, EAI_OP, IF_YN, STRR_ID,
+		  ITEM_CD, DESC, SUPPR_ID, ITEM_GCD, PRICE,
+		  HEIGHT, WT, DEPTH, WIDTH, MID_GCD,
+		  SMLL_GCD, VOL, ITEM_BARCODE, ITEM_STRG_CD, ABBR_NM,
+		  LEN_UNIT_CD, WT_UNIT_CD, VOL_UNIT_CD, 
+		  INS_PERSON_ID, INS_DATE, INS_TIME,
+		  LEN, DETL_DESC,
+		  VRT_LEN, VRT_WIDTH, VRT_HEIGHT, VRT_PRTY_YN, CATEGORY,
+		  COLOR_NM, STYLE_NM, BRAND_NM, BUY_SITE_URL, GDS_URL,
+		  IMG_URL <!--,
+		  PV_RIM, PV_PLY, PV_TP, PV_PTN, PV_GUBUN,PV_SP, PV_SCTN -->
+		)
+		  SELECT
+		    INSTANCEID AS INSTANCEID,
+		    PV_ITEM_CD AS MDM_ITEM_CD,
+		    EAI_OP AS EAI_OP,
+		    'N' AS IF_YN,
+		    PV_SHIPPER_CD AS STRR_ID,
+		    PV_CUST_ITEM_NO AS ITEM_CD,
+		    NVL(PV_ITEM_NM_LO,PV_CUST_ITEM_NO) AS DESC,
+		    '' AS SUPPR_ID,
+		    PV_PERFOR_CRIT AS ITEM_GCD,
+		    NVL(PV_PRICE,0) AS PRICE,	
+		    NVL(PV_HEIGHT,'1') AS HEIGHT,
+		    NVL(PV_WIGHT,'1') AS WT,		     
+		    NVL(PV_VERTICAL,'1') AS DEPTH, 
+		    NVL(PV_WIDTH,'1') AS WIDTH,
+		    '' MID_GCD, 
+		    '' SMLL_GCD, 
+		    NVL(PV_CBM,'1') AS VOL, 
+		    PV_KAN_CD AS ITEM_BARCODE,
+		    NVL(PV_UNIT,'EA') AS ITEM_STRG_CD,
+		    PV_ITEM_NM_SH AS ABBR_NM,
+		    NVL(PV_SIZE_UNIT,'CM') AS LEN_UNIT_CD, 
+		    NVL(PV_WIGHT_UNIT,'KG') AS WT_UNIT_CD, 
+		    NVL(PV_CBM_UNIT,'CBM') AS VOL_UNIT_CD,		    
+		    DECODE(LASTMODIFICATIONUSRID,NULL,'MDMS',LASTMODIFICATIONUSRID) AS INS_PERSON_ID,
+		    NVL( TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD'),TO_CHAR(SYSDATE,'YYYYMMDD') ) AS INS_DATE,
+		    NVL( TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS'),TO_CHAR(SYSDATE,'YYYYMMDD') ) AS INS_TIME,		    
+		    '' AS LEN, '' AS DETL_DESC,
+		    '' AS VRT_LEN, '' AS VRT_WIDTH, '' AS VRT_HEIGHT, '' AS VRT_PRTY_YN, '' AS CATEGORY,
+		    '' AS COLOR_NM, '' AS STYLE_NM, '' AS BRAND_NM, '' AS BUY_SITE_URL, '' AS GDS_URL,
+		    '' AS IMG_URL <!--,
+		    PV_RIM, PV_PLY, PV_TP, PV_PTN, PV_GUBUN,PV_SP, PV_SCTN  -->
+		  FROM TMDM_IF_IT_ITEM_MSTR
+		  WHERE INSTANCEID = #INSTANCEID#
+	</insert>
+	
+<!-- WMS I/F START -->	
+	<insert id="IF_TWMS_MA_UNIT_CFG_INSERT">
+		INSERT INTO GWMS.TWMS_MA_UNIT_CFG(
+		  WH_CD ,STRR_ID ,ITEM_CD ,ITEM_STRG_CD ,REP_UNIT_YN
+		  ,QTY ,DISP_ITEM_STRG_CD ,REP_DISP_UNIT_YN ,DEL_YN
+		  ,INS_PERSON_ID ,INS_DATE ,INS_TIME
+		)
+			SELECT
+			  T1.WH_CD
+			  ,T1.STRR_ID
+			  ,T2.PV_CUST_ITEM_NO AS ITEM_CD
+			  ,NVL( DECODE(T2.PV_UNIT,'PAL','PL','BOX','BX',T2.PV_UNIT),'EA') AS ITEM_STRG_CD			  
+			  ,'Y' AS REP_UNIT_YN
+			  ,'1' AS QTY
+			  ,NVL( DECODE(T2.PV_UNIT,'PAL','PL','BOX','BX',T2.PV_UNIT),'EA') AS DISP_ITEM_STRG_CD
+			  ,'N' AS REP_DISP_UNIT_YN
+			  ,'N' AS DEL_YN
+		    ,DECODE(LASTMODIFICATIONUSRID,NULL,'MDMS',LASTMODIFICATIONUSRID) AS INS_PERSON_ID
+		    ,NVL( TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD'),TO_CHAR(SYSDATE,'YYYYMMDD') ) AS INS_DATE
+		    ,NVL( TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS'),TO_CHAR(SYSDATE,'YYYYMMDD') ) AS INS_TIME
+			FROM 
+			GWMS.TWMS_MA_WH_STRR_D T1,
+			TMDM_IF_IT_ITEM_MSTR T2
+			WHERE T1.STRR_ID = T2.PV_SHIPPER_CD
+			AND T2.INSTANCEID = #INSTANCEID#
+	</insert>
+	<delete id="IF_TWMS_MA_UNIT_CFG_DELETE">
+		DELETE FROM GWMS.TWMS_MA_UNIT_CFG V2
+		WHERE EXISTS(
+		    SELECT T1.WH_CD, T2.PV_SHIPPER_CD, T2.PV_CUST_ITEM_NO FROM 
+		    GWMS.TWMS_MA_WH_STRR_D T1,
+		    TMDM_IF_IT_ITEM_MSTR T2
+		    WHERE T1.STRR_ID = T2.PV_SHIPPER_CD
+		    AND T2.INSTANCEID = #INSTANCEID#
+		    AND T1.WH_CD = V2.WH_CD
+		    AND T2.PV_SHIPPER_CD = V2.STRR_ID
+		    AND T2.PV_CUST_ITEM_NO = V2.ITEM_CD
+		)
+		<isEqual property="EAI_OP" compareValue="U">
+		    AND ( QTY=1 OR REP_UNIT_YN='Y' OR ITEM_STRG_CD=(
+		        SELECT NVL( DECODE(PV_UNIT,'PAL','PL','BOX','BX',PV_UNIT),'EA') FROM TMDM_IF_IT_ITEM_MSTR
+		        WHERE INSTANCEID = #INSTANCEID#
+		      )
+		    )
+	    </isEqual>
+	</delete>
+	
+	<!-- 2012-12-03 금호타이어를 위하여 DOT_YN 추가 -->
+	<insert id="IFEAI3_TWMS_IF_MA_STRR_ITEM_MERGE">
+		MERGE INTO GWMS.TWMS_MA_STRR_ITEM A
+		USING (
+		  SELECT T1.WH_CD, T1.STRR_ID, T2.PV_CUST_ITEM_NO AS ITEM_CD, 'EA' AS PICK_UNIT_CD,
+		    DECODE(LASTMODIFICATIONUSRID,NULL,'MDMS',LASTMODIFICATIONUSRID) AS INS_PERSON_ID,
+		    NVL( TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD'),TO_CHAR(SYSDATE,'YYYYMMDD') ) AS INS_DATE,
+		    NVL( TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS'),TO_CHAR(SYSDATE,'HH24MISS') ) AS INS_TIME,
+		    CASE WHEN T2.PV_SHIPPER_CD='10049104' THEN 'Y' ELSE 'N' END AS DOT_YN,
+		    CASE WHEN T1.STRR_ID IN ('10116503', '10116504') AND T1.WH_CD IN ('Z0002120', 'Z0002121') THEN T2.PV_ATTR_01 ELSE NULL END OUTB_SER_SCAN_YN
+		  FROM GWMS.TWMS_MA_WH_STRR_D T1,
+		       TMDM_IF_IT_ITEM_MSTR T2
+		  WHERE T1.STRR_ID = T2.PV_SHIPPER_CD
+		  AND T2.INSTANCEID = #INSTANCEID#
+		  AND 1 = CASE WHEN T1.STRR_ID IN ('10116503', '10116504') AND T1.WH_CD IN ('Z0002120', 'Z0002121') THEN
+			     		     (CASE WHEN T2.PV_ATTR_02 = 'PARTS' AND T1.WH_CD = 'Z0002121' THEN 1
+			                         WHEN T2.PV_ATTR_02 = 'SOK' AND T1.WH_CD = 'Z0002120' THEN 1
+			                         WHEN T2.PV_ATTR_02 = 'SCEK' AND T1.WH_CD = 'Z0002120' THEN 1
+			                         ELSE 0 END)
+			          ELSE 1 END 
+		) B
+		  ON A.WH_CD = B.WH_CD
+		  AND A.STRR_ID     = B.STRR_ID
+		  AND A.ITEM_CD     = B.ITEM_CD
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    A.WH_CD         = B.WH_CD,
+		    A.STRR_ID       = B.STRR_ID,
+		    A.ITEM_CD       = B.ITEM_CD,
+		    A.PICK_UNIT_CD  = B.PICK_UNIT_CD,
+		    A.UPD_PERSON_ID = B.INS_PERSON_ID,
+		    A.UPD_DATE      = B.INS_DATE,
+		    A.UPD_TIME      = B.INS_TIME,
+		    A.OUTB_SER_SCAN_YN = B.OUTB_SER_SCAN_YN
+		WHEN NOT MATCHED THEN
+		  INSERT (
+		    WH_CD, STRR_ID, ITEM_CD, PICK_UNIT_CD,
+		    INS_PERSON_ID, INS_DATE, INS_TIME, DOT_YN, OUTB_SER_SCAN_YN
+		  ) VALUES (
+		    B.WH_CD, B.STRR_ID, B.ITEM_CD, B.PICK_UNIT_CD,
+		    B.INS_PERSON_ID, B.INS_DATE, B.INS_TIME, B.DOT_YN, B.OUTB_SER_SCAN_YN
+		  )
+	</insert>	
+	
+	
+	<insert id="IFEAI3_TWMS_IF_MA_ITEM_MERGE">	
+	    MERGE INTO GWMS.TWMS_MA_ITEM A
+			USING (
+			
+			  SELECT
+					INSTANCEID AS INSTANCEID,
+					PV_ITEM_CD AS MDM_ITEM_CD,
+					EAI_OP AS EAI_OP,
+					'N' AS IF_YN,
+					PV_SHIPPER_CD AS STRR_ID,
+					PV_CUST_ITEM_NO AS ITEM_CD,
+					NVL(PV_ITEM_NM_LO,PV_CUST_ITEM_NO) AS DESC,
+					'' AS SUPPR_ID,
+				
+					/* 1:PC, 2:LT, 3:TB, 4:ORG, 5:ETC, 6:TUBE, 7:FLAP, 8:BATTERY, 9:ATB, 10:VALVE */
+					/* 금화타이어 품목 그룹 강제 생성 */
+					CASE WHEN PV_SHIPPER_CD='10049104' THEN
+					CASE  WHEN  SUBSTR(PV_ATTR_19,0,3)='F_1' THEN 'GHT001' 
+					   WHEN SUBSTR(PV_ATTR_19,0,3)='F_2' THEN 'GHT011' 
+					   WHEN SUBSTR(PV_ATTR_19,0,3)='F_3' THEN 'GHT002' 
+					   WHEN SUBSTR(PV_ATTR_19,0,3)='F_4' THEN 'GHT003' 
+					   WHEN SUBSTR(PV_ATTR_19,0,3)='F_5' THEN 'GHT004' 
+					       WHEN PV_ATTR_19='T_TUBE' THEN 'GHT006' /* 'TUBE' */
+					       WHEN PV_ATTR_19='T_FLAP' THEN 'GHT007' /* 'FLAP' */
+					       WHEN PV_ATTR_19='T_BATT' THEN 'GHT008' /* 'BATTERY' */
+					       WHEN PV_ATTR_19 IN ('T_ENG_OIL','T_SEASON','T_CHEM') THEN 'GHT009' /* 'ATB' */
+					       WHEN PV_ATTR_19='T_EQUIP' THEN 'GHT010' /* 'VALVE' */
+					       ELSE 'GHT005'                
+					END
+					ELSE NVL (PV_PERFOR_CRIT, 'GT0000')
+					END ITEM_GCD ,       
+					NVL(PV_PRICE,0) AS PRICE,	
+					NVL(PV_HEIGHT,'1') AS HEIGHT,
+					NVL(PV_WIGHT,'1') AS WT,		     
+					NVL(PV_VERTICAL,'1') AS DEPTH,
+					NVL(PV_WIDTH,'1') AS WIDTH,
+					'' MID_GCD, 
+					'' SMLL_GCD, 
+					NVL(PV_CBM,'1') AS VOL, 
+					PV_KAN_CD AS ITEM_BARCODE,
+					NVL( DECODE(PV_UNIT,'PAL','PL','BOX','BX',PV_UNIT),'EA') AS ITEM_STRG_CD,
+					NVL( DECODE(PV_UNIT,'PAL','PL','BOX','BX',PV_UNIT),'EA') AS DISP_ITEM_STRG_CD,
+					PV_ITEM_NM_SH AS ABBR_NM,
+					CASE WHEN EAI_OP = 'I' OR EAI_OP='U' THEN 'N' ELSE 'Y' END AS DEL_YN,
+					DECODE(LASTMODIFICATIONUSRID,NULL,'MDMS',LASTMODIFICATIONUSRID) AS INS_PERSON_ID,
+					NVL( TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD'),TO_CHAR(SYSDATE,'YYYYMMDD') ) AS INS_DATE,
+					NVL( TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS'),TO_CHAR(SYSDATE,'HH24MISS') ) AS INS_TIME,
+					NVL(PV_VERTICAL,'1') AS LEN,
+					NVL(PV_SIZE_UNIT,'CM') AS LEN_UNIT_CD, 
+					    NVL(PV_WIGHT_UNIT,'KG') AS WT_UNIT_CD, 
+					    NVL( DECODE(PV_CBM_UNIT,'M3','CBM',PV_CBM_UNIT),'CBM') AS VOL_UNIT_CD,
+					'' AS DETL_DESC,
+					'' AS VRT_LEN,
+					'' AS VRT_WIDTH,
+					'' AS VRT_HEIGHT,
+					'' AS VRT_PRTY_YN,
+					'' AS CATEGORY,
+					'' AS COLOR_NM,
+					'' AS STYLE_NM,
+					'' AS BRAND_NM,
+					'' AS BUY_SITE_URL,
+					'' AS GDS_URL,
+					'' AS IMG_URL,
+					'' AS BRAND,
+					PV_ITEM_CD,
+					PV_ITEM_TYPE,
+					NVL( DECODE(PV_IPSU,'','1','0','1','0.00000','1',PV_IPSU),'1') AS PV_IPSU,
+					DECODE(PV_IPSU_UNIT,'PAL','PL','BOX','BX',PV_IPSU_UNIT) AS PV_IPSU_UNIT,
+					PV_ATTR_01,
+					PV_ATTR_02,
+					PV_ATTR_03,
+					PV_ATTR_04,
+					PV_ATTR_05,
+					PV_ATTR_06,
+					PV_ATTR_07,
+					PV_ATTR_08,
+					PV_ATTR_09,
+					PV_ATTR_10,
+					PV_ATTR_11,
+					PV_ATTR_12,
+					PV_ATTR_13,
+					PV_ATTR_14,
+					PV_ATTR_15,
+					PV_ATTR_16,
+					PV_ATTR_17,
+					PV_ATTR_18,
+					PV_ATTR_19,
+					PV_ATTR_20
+				FROM TMDM_IF_IT_ITEM_MSTR
+				WHERE INSTANCEID = #INSTANCEID#
+			  
+			  
+			) B
+			  ON A.STRR_ID     = B.STRR_ID
+			  AND A.ITEM_CD     = B.ITEM_CD
+			WHEN MATCHED THEN
+			  UPDATE SET
+				A.STRR_ID      = B.STRR_ID
+				,A.ITEM_CD      = B.ITEM_CD
+				,A.DESC         = B.DESC
+				,A.SUPPR_ID     = NVL('', A.SUPPR_ID)
+				,A.ITEM_GCD     = B.ITEM_GCD
+				,A.PRICE        = B.PRICE
+				,A.HEIGHT       = B.HEIGHT
+				,A.WT           = B.WT
+				,A.DEPTH        = B.DEPTH
+				,A.WIDTH        = B.WIDTH
+				,A.MID_GCD      = B.MID_GCD
+				,A.SMLL_GCD     = B.SMLL_GCD
+				,A.VOL          = B.VOL
+				,A.ITEM_BARCODE = B.ITEM_BARCODE
+				,A.ITEM_STRG_CD = B.ITEM_STRG_CD
+				,A.DISP_ITEM_STRG_CD = B.DISP_ITEM_STRG_CD
+				,A.ABBR_NM      = B.ABBR_NM
+				,A.DEL_YN		= B.DEL_YN
+				,A.UPD_PERSON_ID = B.INS_PERSON_ID
+				,A.UPD_DATE     = B.INS_DATE
+				,A.UPD_TIME     = B.INS_TIME
+				,A.LEN          = B.LEN
+				,A.LEN_UNIT_CD  = B.LEN_UNIT_CD
+				,A.WT_UNIT_CD   = B.WT_UNIT_CD
+				,A.VOL_UNIT_CD  = B.VOL_UNIT_CD
+				,A.DETL_DESC    = B.DETL_DESC
+				,A.VRT_LEN      = B.VRT_LEN
+				,A.VRT_WIDTH    = B.VRT_WIDTH
+				,A.VRT_HEIGHT   = B.VRT_HEIGHT
+				,A.VRT_PRTY_YN  = B.VRT_PRTY_YN
+				
+				,A.COLOR_NM     = B.COLOR_NM
+				,A.STYLE_NM     = B.STYLE_NM
+				,A.BRAND_NM     = B.BRAND_NM
+				,A.BUY_SITE_URL = B.BUY_SITE_URL
+				,A.GDS_URL      = B.GDS_URL
+				,A.IMG_URL      = B.IMG_URL
+				,A.BRAND        = B.BRAND
+				,A.PV_ITEM_CD 	= B.PV_ITEM_CD 
+				,A.PV_ITEM_TYPE = B.PV_ITEM_TYPE
+				,A.PV_IPSU		= B.PV_IPSU
+				,A.PV_IPSU_UNIT	= NVL(B.PV_IPSU_UNIT, B.ITEM_STRG_CD)
+				
+				/* 소니코리아 마스터 매핑, TPL_ATTR_01 ==> OUTB_SER_SCAN_YN 시리얼 스캔여부, TPL_ATTR_05 ==> CATEGORY 제품 카테고리 코드 */
+				,A.CATEGORY     = CASE WHEN B.STRR_ID IN ('10116503', '10116504') THEN B.PV_ATTR_05 ELSE B.CATEGORY END
+				,A.OUTB_SER_SCAN_YN = CASE WHEN B.STRR_ID IN ('10116503', '10116504') THEN B.PV_ATTR_01 ELSE NULL END
+	
+				,A.PV_ATTR_01	= B.PV_ATTR_01
+				,A.PV_ATTR_02	= B.PV_ATTR_02
+				,A.PV_ATTR_03	= B.PV_ATTR_03
+				,A.PV_ATTR_04	= B.PV_ATTR_04
+				,A.PV_ATTR_05	= B.PV_ATTR_05
+				,A.PV_ATTR_06	= B.PV_ATTR_06
+				,A.PV_ATTR_07	= B.PV_ATTR_07
+				,A.PV_ATTR_08	= B.PV_ATTR_08
+				,A.PV_ATTR_09	= B.PV_ATTR_09
+				,A.PV_ATTR_10	= B.PV_ATTR_10
+				,A.PV_ATTR_11	= B.PV_ATTR_11
+				,A.PV_ATTR_12	= B.PV_ATTR_12
+				,A.PV_ATTR_13	= B.PV_ATTR_13
+				,A.PV_ATTR_14	= B.PV_ATTR_14
+				,A.PV_ATTR_15	= B.PV_ATTR_15
+				,A.PV_ATTR_16	= B.PV_ATTR_16
+				,A.PV_ATTR_17	= B.PV_ATTR_17
+				,A.PV_ATTR_18	= B.PV_ATTR_18
+				,A.PV_ATTR_19	= B.PV_ATTR_19
+				,A.PV_ATTR_20	= B.PV_ATTR_20
+			WHEN NOT MATCHED THEN
+			  INSERT (
+				STRR_ID, 
+				ITEM_CD, 
+				DESC, 
+				SUPPR_ID, 
+				ITEM_GCD, 
+				PRICE, 
+				HEIGHT, 
+				WT, 
+				DEPTH, 
+				WIDTH, 
+				MID_GCD, 
+				SMLL_GCD, 
+				VOL, 
+				ITEM_BARCODE, 
+				ITEM_STRG_CD, 
+				DISP_ITEM_STRG_CD, 
+				ABBR_NM, 
+				DEL_YN, 
+				INS_PERSON_ID, 
+				INS_DATE, 
+				INS_TIME, 
+				LEN, 
+				LEN_UNIT_CD, 
+				WT_UNIT_CD, 
+				VOL_UNIT_CD, 
+				DETL_DESC, 
+				VRT_LEN, 
+				VRT_WIDTH, 
+				VRT_HEIGHT, 
+				VRT_PRTY_YN, 
+				COLOR_NM, 
+				STYLE_NM, 
+				BRAND_NM, 
+				BUY_SITE_URL, 
+				GDS_URL, 
+				IMG_URL, 
+				BRAND, 
+				PV_ITEM_CD, 
+				PV_ITEM_TYPE, 
+				PV_IPSU, 
+				PV_IPSU_UNIT, 
+				PV_ATTR_01, 
+				PV_ATTR_02, 
+				PV_ATTR_03, 
+				PV_ATTR_04, 
+				PV_ATTR_05, 
+				PV_ATTR_06, 
+				PV_ATTR_07, 
+				PV_ATTR_08, 
+				PV_ATTR_09, 
+				PV_ATTR_10, 
+				PV_ATTR_11, 
+				PV_ATTR_12, 
+				PV_ATTR_13, 
+				PV_ATTR_14, 
+				PV_ATTR_15, 
+				PV_ATTR_16, 
+				PV_ATTR_17, 
+				PV_ATTR_18, 
+				PV_ATTR_19, 
+				PV_ATTR_20,
+				CATEGORY,
+				OUTB_SER_SCAN_YN
+			) VALUES (
+				B.STRR_ID, 
+				B.ITEM_CD, 
+				B.DESC, 
+				B.SUPPR_ID, 
+				B.ITEM_GCD, 
+				B.PRICE, 
+				B.HEIGHT, 
+				B.WT, 
+				B.DEPTH, 
+				B.WIDTH, 
+				B.MID_GCD, 
+				B.SMLL_GCD, 
+				B.VOL, 
+				B.ITEM_BARCODE, 
+				B.ITEM_STRG_CD, 
+				B.DISP_ITEM_STRG_CD, 
+				B.ABBR_NM, 
+				B.DEL_YN, 
+				B.INS_PERSON_ID, 
+				B.INS_DATE, 
+				B.INS_TIME, 
+				B.LEN,
+				B.LEN_UNIT_CD,
+				B.WT_UNIT_CD,
+				B.VOL_UNIT_CD,
+				B.DETL_DESC,
+				B.VRT_LEN,
+				B.VRT_WIDTH,
+				B.VRT_HEIGHT,
+				B.VRT_PRTY_YN,
+				B.COLOR_NM,
+				B.STYLE_NM,
+				B.BRAND_NM,
+				B.BUY_SITE_URL,
+				B.GDS_URL,
+				B.IMG_URL,
+				B.BRAND,
+				B.PV_ITEM_CD,
+				B.PV_ITEM_TYPE,
+				B.PV_IPSU,
+				NVL(B.PV_IPSU_UNIT, B.ITEM_STRG_CD),
+				B.PV_ATTR_01,
+				B.PV_ATTR_02,
+				B.PV_ATTR_03,
+				B.PV_ATTR_04,
+				B.PV_ATTR_05,
+				B.PV_ATTR_06,
+				B.PV_ATTR_07,
+				B.PV_ATTR_08,
+				B.PV_ATTR_09,
+				B.PV_ATTR_10,
+				B.PV_ATTR_11,
+				B.PV_ATTR_12,
+				B.PV_ATTR_13,
+				B.PV_ATTR_14,
+				B.PV_ATTR_15,
+				B.PV_ATTR_16,
+				B.PV_ATTR_17,
+				B.PV_ATTR_18,
+				B.PV_ATTR_19,
+				B.PV_ATTR_20,
+				CASE WHEN B.STRR_ID IN ('10116503', '10116504') THEN B.PV_ATTR_05 ELSE B.CATEGORY END,
+				CASE WHEN B.STRR_ID IN ('10116503', '10116504') THEN B.PV_ATTR_01 ELSE NULL END
+			)
+	</insert>
+	
+	<!--화주 정보 입력 4-1 -->
+	<insert id="IFEAI3_TWMS_IF_BOM_H_INSERT">
+		MERGE INTO GWMS.TWMS_MA_BOM_H A
+		USING (
+		  SELECT
+		  T2.WH_CD,
+		    T1.PV_SHIPPER_CD AS PRNT_STRR_ID,
+		    T1.PV_CUST_ITEM_NO AS PRNT_ITEM_CD,
+		    '' AS DESC,
+		    NVL('',TO_CHAR(SYSDATE,'YYYYMMDD') ) AS VALID_STAT_DATETIME,
+		    NVL('','99991231' ) AS EXPR_DATETIME,
+		    CASE WHEN T1.EAI_OP = 'I' OR T1.EAI_OP='U' THEN 'Y' ELSE 'N' END AS USE_YN,
+		    CASE WHEN T1.EAI_OP = 'I' OR T1.EAI_OP='U' THEN 'N' ELSE 'Y' END AS DEL_YN,
+		    DECODE(T1.LASTMODIFICATIONUSRID,NULL,'MDMS',T1.LASTMODIFICATIONUSRID) AS INS_PERSON_ID,
+		    NVL( TO_CHAR(T1.LASTMODIFICATIONDTIME,'YYYYMMDD'),TO_CHAR(SYSDATE,'YYYYMMDD') ) AS INS_DATE,
+		    NVL( TO_CHAR(T1.LASTMODIFICATIONDTIME,'HH24MISS'),TO_CHAR(SYSDATE,'HH24MISS') ) AS INS_TIME
+		  FROM 
+		    TMDM_IF_IT_ITEM_MSTR T1,
+		    GWMS.TWMS_MA_WH_STRR_D T2
+		  WHERE T1.PV_SHIPPER_CD = T2.STRR_ID
+		  AND T1.INSTANCEID = #INSTANCEID#
+		) B
+		  ON  A.WH_CD =B.WH_CD
+		  AND A.PRNT_STRR_ID  = B.PRNT_STRR_ID
+		  AND A.PRNT_ITEM_CD  = B.PRNT_ITEM_CD
+		WHEN MATCHED THEN
+		  UPDATE SET
+        A.DESC = B.DESC
+        ,A.VALID_STAT_DATETIME = B.VALID_STAT_DATETIME
+        ,A.EXPR_DATETIME = B.EXPR_DATETIME
+        ,A.USE_YN = B.USE_YN
+        ,A.DEL_YN = B.DEL_YN
+		WHEN NOT MATCHED THEN
+		  INSERT (
+        BOM_NO, WH_CD,
+		    PRNT_STRR_ID ,PRNT_ITEM_CD ,DESC ,VALID_STAT_DATETIME ,EXPR_DATETIME
+		    ,USE_YN ,DEL_YN ,INS_PERSON_ID ,INS_DATE ,INS_TIME
+		  ) VALUES (
+        LPAD(GWMS.SEQ_WMS_TBOM_H_KEY.NEXTVAL	,'10'	,0),
+        B.WH_CD,
+		    B.PRNT_STRR_ID ,B.PRNT_ITEM_CD ,B.DESC ,B.VALID_STAT_DATETIME ,B.EXPR_DATETIME
+		    ,B.USE_YN ,B.DEL_YN ,B.INS_PERSON_ID ,B.INS_DATE ,B.INS_TIME
+		  )
+	</insert>	
+	<!--TWMS_IF_BOM_P 입력 -->
+	<insert id="IFEAI3_TWMS_IF_BOM_P_INSERT">
+		MERGE INTO GWMS.TWMS_IF_BOM_P A
+		USING (
+		  SELECT
+		    T1.PV_SHIPPER_CD AS PRNT_STRR_ID,
+		    T1.PV_CUST_ITEM_NO AS PRNT_ITEM_CD,
+		    '' AS DESC,
+		    NVL('',TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS') ) AS VALID_STAT_DATETIME,
+		    NVL('','99991231235959' ) AS EXPR_DATETIME,
+		    CASE WHEN T1.EAI_OP = 'I' OR T1.EAI_OP='U' THEN 'Y' ELSE 'N' END AS USE_YN,
+		    CASE WHEN T1.EAI_OP = 'I' OR T1.EAI_OP='U' THEN 'N' ELSE 'Y' END AS DEL_YN,
+		    DECODE(T1.LASTMODIFICATIONUSRID,NULL,'MDMS',T1.LASTMODIFICATIONUSRID) AS INS_PERSON_ID,
+		    NVL( TO_CHAR(T1.LASTMODIFICATIONDTIME,'YYYYMMDD'),TO_CHAR(SYSDATE,'YYYYMMDD') ) AS INS_DATE,
+		    NVL( TO_CHAR(T1.LASTMODIFICATIONDTIME,'HH24MISS'),TO_CHAR(SYSDATE,'YYYYMMDD') ) AS INS_TIME
+		  FROM 
+		    TMDM_IF_IT_ITEM_MSTR T1,
+		    GWMS.TWMS_MA_WH_STRR_D T2
+		  WHERE T1.PV_SHIPPER_CD = T2.STRR_ID
+		  AND T1.INSTANCEID = #INSTANCEID#
+		  AND EXISTS (
+		  	SELECT 1 FROM TMDM_IF_IT_ITEM_PRODUCT T3 WHERE T3.INSTANCEID = T1.INSTANCEID
+		  )
+		) B
+		  ON  A.PRNT_STRR_ID  = B.PRNT_STRR_ID
+		  AND A.PRNT_ITEM_CD  = B.PRNT_ITEM_CD
+		WHEN MATCHED THEN
+		  UPDATE SET
+		  A.DESC = B.DESC
+		  ,A.VALID_STAT_DATETIME = B.VALID_STAT_DATETIME
+		  ,A.EXPR_DATETIME = B.EXPR_DATETIME
+		  ,A.USE_YN = B.USE_YN
+		  ,A.DEL_YN = B.DEL_YN
+		  ,A.INS_PERSON_ID = B.INS_PERSON_ID
+		  ,A.INS_DATE = B.INS_DATE
+		  ,A.INS_TIME = B.INS_TIME
+		WHEN NOT MATCHED THEN
+		  INSERT (
+		    PRNT_STRR_ID ,PRNT_ITEM_CD ,DESC ,VALID_STAT_DATETIME ,EXPR_DATETIME
+		    ,USE_YN ,DEL_YN ,INS_PERSON_ID ,INS_DATE ,INS_TIME
+		  ) VALUES (
+		    B.PRNT_STRR_ID ,B.PRNT_ITEM_CD ,B.DESC ,B.VALID_STAT_DATETIME ,B.EXPR_DATETIME
+		    ,B.USE_YN ,B.DEL_YN ,B.INS_PERSON_ID ,B.INS_DATE ,B.INS_TIME
+		  )
+	</insert>
+	<!--TWMS_IF_BOM_P 입력 -->	
+	<delete id="IFEAI3_TWMS_IF_BOM_C_DELETE">
+		DELETE FROM GWMS.TWMS_IF_BOM_C T1
+		WHERE EXISTS(
+			SELECT 1 FROM TMDM_IF_IT_ITEM_MSTR T2
+			WHERE T2.PV_SHIPPER_CD = T1.PRNT_STRR_ID
+			AND T2.PV_CUST_ITEM_NO = T1.PRNT_ITEM_CD			
+			AND T2.INSTANCEID = #INSTANCEID#
+		)
+	</delete>
+	<insert id="IFEAI3_TWMS_IF_BOM_C_INSERT">
+		INSERT INTO GWMS.TWMS_IF_BOM_C (  
+		  PRNT_STRR_ID,
+		  PRNT_ITEM_CD,
+		  CHLD_STRR_ID,
+		  CHLD_ITEM_CD,
+		  LINE_NO,
+		  REQR_QTY
+		)
+		  SELECT X.PV_SHIPPER_CD AS PRNT_STRR_ID,
+		  X.PV_CUST_ITEM_NO AS PRNT_ITEM_CD,
+		  Y.PV_SHIPPER_CD_Q AS CHLD_STRR_ID,
+		    Y.PV_CUST_ITEM_NO_Q AS CHLD_ITEM_CD,
+		    Y.PV_NO AS LINE_NO,
+		    NVL(Y.PV_QNTT,1) AS REQR_QTY
+		  FROM TMDM_IF_IT_ITEM_MSTR X, 
+		  	TMDM_IF_IT_ITEM_PRODUCT Y
+		  WHERE X.INSTANCEID = Y.INSTANCEID
+		  AND X.INSTANCEID = #INSTANCEID#
+	</insert>
+	
+	<update id = "IFEAI3_TWMS_MA_UNIT_TYP_MERGE">	
+		MERGE INTO GWMS.TWMS_MA_UNIT_TYP A USING ( 
+		  SELECT
+		    X.INSTANCEID,
+		    PV_SRC_CODE_CD AS STRG_CD,
+		    'GOODS' AS STRG_TCD,
+		    PV_NAMEKO AS DESC,
+		    PV_CTL_3 AS DETL_DESC,
+		    1 AS VOL,
+		    1 AS LOAD_WT,
+		    1 AS WCELL_WT,
+		    1 AS HEIGHT,
+		    1 AS WIDTH,
+		    1 AS DEPTH,
+		    1 AS ADJST_VOL,
+		    1 AS PALLET_QTY,
+		    1 AS NET_VOL,
+		    1 AS NET_LOAD_WT,
+		    1 AS NET_WCELL_WT,
+		    1 AS NET_HEIGHT,
+		    1 AS NET_WIDTH,
+		    1 AS NET_DEPTH,
+		    1 AS NET_ADJST_VOL,
+		    '' AS ULD_CD,
+		    CASE WHEN X.EAI_OP = 'I' OR X.EAI_OP='U' THEN 'N' ELSE 'Y' END AS DEL_YN,
+		    'MDM' AS INS_PERSON_ID, 
+		    TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		    TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME
+		  FROM TMDM_IF_MC_CODE_M X
+		  WHERE PV_CODE_GROUP_CD='RC00021'
+		  AND X.INSTANCEID = #INSTANCEID#		           
+		) B
+		ON A.STRG_CD    = B.STRG_CD
+		/* AND A.STRG_TCD		= B.STRG_TCD PK 추가 고려 해야 될 부분 */
+		WHEN MATCHED THEN
+		  UPDATE SET
+		  	A.STRG_TCD		= B.STRG_TCD,
+		    A.DESC          = B.DESC,
+		    A.DETL_DESC     = B.DETL_DESC,
+		    A.DEL_YN        = B.DEL_YN,
+		    A.UPD_PERSON_ID = B.INS_PERSON_ID,
+		    A.UPD_DATE      = B.INS_DATE,
+		    A.UPD_TIME      = B.INS_TIME
+		WHEN NOT MATCHED THEN
+		  INSERT ( 
+		    STRG_CD,
+		    STRG_TCD,
+		    DESC,
+		    DETL_DESC,
+		    VOL,
+		    LOAD_WT,
+		    WCELL_WT,
+		    HEIGHT,
+		    WIDTH,
+		    DEPTH,
+		    ADJST_VOL,
+		    PALLET_QTY,
+		    NET_VOL,
+		    NET_LOAD_WT,
+		    NET_WCELL_WT,
+		    NET_HEIGHT,
+		    NET_WIDTH,
+		    NET_DEPTH,
+		    NET_ADJST_VOL,
+		    ULD_CD,
+		    DEL_YN,
+		    INS_PERSON_ID, 
+		    INS_DATE, 
+		    INS_TIME
+		  ) VALUES (
+		    B.STRG_CD,
+		    B.STRG_TCD,
+		    B.DESC,
+		    B.DETL_DESC,
+		    B.VOL,
+		    B.LOAD_WT,
+		    B.WCELL_WT,
+		    B.HEIGHT,
+		    B.WIDTH,
+		    B.DEPTH,
+		    B.ADJST_VOL,
+		    B.PALLET_QTY,
+		    B.NET_VOL,
+		    B.NET_LOAD_WT,
+		    B.NET_WCELL_WT,
+		    B.NET_HEIGHT,
+		    B.NET_WIDTH,
+		    B.NET_DEPTH,
+		    B.NET_ADJST_VOL,
+		    B.ULD_CD,
+		    B.DEL_YN,
+		    B.INS_PERSON_ID, 
+		    B.INS_DATE, 
+		    B.INS_TIME
+		  )
+	</update>
+	
+	<update id = "IFEAI3_TWMS_MA_ITEM_GRP_MERGE">
+		MERGE INTO GWMS.TWMS_MA_ITEM_GRP A USING (
+		  SELECT
+		    X.INSTANCEID,
+		    PV_SRC_CODE_CD AS ITEM_GCD,
+		    PV_NAMEKO AS DESC,
+		    CASE WHEN X.EAI_OP = 'I' OR X.EAI_OP='U' THEN 'N' ELSE 'Y' END AS DEL_YN,
+		    'MDM' AS INS_PERSON_ID, 
+		    TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		    TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME
+		  FROM TMDM_IF_MC_CODE_M X
+		  WHERE PV_CODE_GROUP_CD='RC00010'
+		  AND X.INSTANCEID = #INSTANCEID#
+		) B
+		ON A.ITEM_GCD       = B.ITEM_GCD
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    A.DESC          = B.DESC,
+		    A.DEL_YN        = B.DEL_YN,
+		    A.UPD_PERSON_ID = B.INS_PERSON_ID,
+		    A.UPD_DATE      = B.INS_DATE,
+		    A.UPD_TIME      = B.INS_TIME
+		WHEN NOT MATCHED THEN
+		  INSERT (
+		    ITEM_GCD,
+		    DESC,
+		    DEL_YN,
+		    INS_PERSON_ID,
+		    INS_DATE,
+		    INS_TIME
+		  ) VALUES (
+		    B.ITEM_GCD,
+		    B.DESC,
+		    B.DEL_YN,
+		    B.INS_PERSON_ID,
+		    B.INS_DATE,
+		    B.INS_TIME
+		  )
+	</update>
+	
+	<update id = "IFEAI3_TWMS_MA_STRR_ITEM_GRP_MERGE">
+		MERGE INTO GWMS.TWMS_MA_STRR_ITEM_GRP A USING (
+		  SELECT
+		    X.INSTANCEID,
+		    T.WH_CD,
+		    PV_SRC_CODE_CD AS ITEM_GCD,
+		    CASE WHEN X.EAI_OP = 'I' OR X.EAI_OP='U' THEN 'N' ELSE 'Y' END AS DEL_YN,
+		    'MDM' AS INS_PERSON_ID, 
+		    TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		    TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME
+		  FROM TMDM_IF_MC_CODE_M X,
+		       GWMS.TWMS_MA_WH_STRR_H T
+		  WHERE PV_CODE_GROUP_CD='RC00010'
+		  AND T.DEL_YN='N'
+		  AND X.INSTANCEID = #INSTANCEID#
+		) B
+		ON A.WH_CD          = B.WH_CD
+		AND A.ITEM_GCD        = B.ITEM_GCD
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    A.DEL_YN        = B.DEL_YN,
+		    A.UPD_PERSON_ID = B.INS_PERSON_ID,
+		    A.UPD_DATE      = B.INS_DATE,
+		    A.UPD_TIME      = B.INS_TIME
+		WHEN NOT MATCHED THEN
+		  INSERT (
+		    WH_CD,
+		    ITEM_GCD,
+		    DEL_YN,
+		    INS_PERSON_ID,
+		    INS_DATE,
+		    INS_TIME
+		  ) VALUES (
+		    B.WH_CD,
+		    B.ITEM_GCD,
+		    B.DEL_YN,
+		    B.INS_PERSON_ID,
+		    B.INS_DATE,
+		    B.INS_TIME
+		  )
+	</update>
+	
+	<update id = "IFEAI3_TWMS_MA_UNIT_CFG_MERGE">
+		MERGE INTO GWMS.TWMS_MA_UNIT_CFG A USING (
+		  SELECT
+		    T1.INSTANCEID,
+		    T3.WH_CD AS WH_CD,
+		    T2.PV_SHIPPER_CD AS STRR_ID,
+		    T2.PV_CUST_ITEM_NO AS ITEM_CD,
+		    T2.PV_SUBST_UNIT AS ITEM_STRG_CD,
+		    'N' AS REP_UNIT_YN,
+		    '' AS STRG_CD,
+		    PV_NUMERAT AS QTY,
+		    T2.PV_SUBST_UNIT AS DISP_ITEM_STRG_CD,
+		    NVL(T2.PV_REP_UNIT_YN,'N') AS REP_DISP_UNIT_YN,
+		    CASE WHEN T1.EAI_OP = 'I' OR T1.EAI_OP='U' THEN 'N' ELSE 'Y' END AS DEL_YN,
+		    'MDM' AS INS_PERSON_ID, 
+		    TO_CHAR(T2.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		    TO_CHAR(T2.EAI_DATE,'HH24MISS') INS_TIME
+		  FROM 
+		  TMDM_IF_IT_ITEM_MSTR T1,
+		  TMDM_IF_IT_ITEM_UOM T2,
+		  GWMS.TWMS_MA_WH_STRR_D T3
+		  WHERE T1.INSTANCEID = T2.INSTANCEID
+		  AND T1.PV_UNIT = T2.PV_STD_UNIT
+		  AND T1.PV_UNIT != T2.PV_SUBST_UNIT
+		  AND T2.PV_SHIPPER_CD 	= T3.STRR_ID
+		  AND T3.DEL_YN='N'
+		  AND T1.INSTANCEID 	= #INSTANCEID#
+		) B
+		ON A.WH_CD          	= B.WH_CD
+		AND A.STRR_ID       	= B.STRR_ID
+		AND A.ITEM_CD       	= B.ITEM_CD
+		AND A.ITEM_STRG_CD  	= B.ITEM_STRG_CD
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    A.QTY           	= B.QTY,
+		    A.REP_DISP_UNIT_YN 	= B.REP_DISP_UNIT_YN,
+		    A.DEL_YN        	= B.DEL_YN,
+		    A.UPD_PERSON_ID 	= B.INS_PERSON_ID,
+		    A.UPD_DATE      	= B.INS_DATE,
+		    A.UPD_TIME      	= B.INS_TIME
+		WHEN NOT MATCHED THEN
+		  INSERT(
+		    WH_CD,
+		    STRR_ID,
+		    ITEM_CD,
+		    ITEM_STRG_CD,
+		    REP_UNIT_YN,
+		    STRG_CD,
+		    QTY,
+		    DISP_ITEM_STRG_CD,
+		    REP_DISP_UNIT_YN,
+		    DEL_YN,
+		    INS_PERSON_ID, 
+		    INS_DATE, 
+		    INS_TIME
+		  ) VALUES (
+		    B.WH_CD,
+		    B.STRR_ID,
+		    B.ITEM_CD,
+		    B.ITEM_STRG_CD,
+		    B.REP_UNIT_YN,
+		    B.STRG_CD,
+		    B.QTY,
+		    B.DISP_ITEM_STRG_CD,
+		    B.REP_DISP_UNIT_YN,
+		    B.DEL_YN,
+		    B.INS_PERSON_ID, 
+		    B.INS_DATE, 
+		    B.INS_TIME
+		  )
+	</update>
+	
+<!-- WMS I/F END -->	
+	
+	<!--화주 정보 입력 4-->
+	<update id="IFEAI3_TMDM_IF_BOM_H_MERGE">
+		MERGE INTO GWMS.TWMS_IF_BOM_H A
+			USING ( SELECT INSTANCEID, PV_SHIPPER_CD, PV_CUST_ITEM_NO, PV_ITEM_NM_LO,
+			               'N' DEL_YN,
+			               DECODE(LASTMODIFICATIONDTIME,NULL,'',LASTMODIFICATIONUSRID) INS_ID, 
+			               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+			               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+			               DECODE(LASTMODIFICATIONDTIME,NULL,LASTMODIFICATIONUSRID,'') UPD_ID, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+			               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME 
+			          FROM TMDM_IF_IT_ITEM_MSTR
+			         WHERE INSTANCEID = #INSTANCEID# ) B
+			   ON A.BOM_NO       = B.INSTANCEID
+			  AND A.PRNT_STRR_ID = B.PV_SHIPPER_CD
+			  AND A.PRNT_ITEM_CD = B.PV_CUST_ITEM_NO
+			 WHEN MATCHED THEN
+			      UPDATE
+			         SET A.DESC          = B.PV_ITEM_NM_LO, 
+			             A.DEL_YN        = B.DEL_YN, 
+			             A.INS_PERSON_ID = DECODE(B.INS_ID,NULL,A.INS_PERSON_ID,B.INS_ID),
+			             A.INS_DATE      = B.INS_DATE, 
+			             A.INS_TIME      = B.INS_TIME, 
+			             A.UPD_PERSON_ID = B.UPD_ID, 
+			             A.UPD_DATE      = B.UPD_DATE, 
+			             A.UPD_TIME      = B.UPD_TIME
+			 WHEN NOT MATCHED THEN
+			      INSERT ( A.BOM_NO, A.PRNT_STRR_ID, A.PRNT_ITEM_CD, A.DESC, A.USE_YN, 
+			               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+			      VALUES ( B.INSTANCEID, B.PV_SHIPPER_CD, B.PV_CUST_ITEM_NO, B.PV_ITEM_NM_LO, 'Y',
+			               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+
+	
+	
+	<!--화주 정보 입력 5-->
+	<update id="IFEAI3_TMDM_IF_BOM_D_MERGE">
+				
+							MERGE INTO GWMS.TWMS_IF_BOM_D A
+			USING ( SELECT X.INSTANCEID, Y.PV_NO, Y.PV_COMPONENT, Y.PV_SHIPPER_CD_Q, Y.PV_CUST_ITEM_NO_Q, Y.PV_QNTT,
+			               'N' DEL_YN,
+			               DECODE(X.LASTMODIFICATIONDTIME,NULL,'',X.LASTMODIFICATIONUSRID) INS_ID, 
+			               TO_CHAR(X.CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+			               TO_CHAR(X.CREATIONDTIME,'HH24MISS') INS_TIME,
+			               DECODE(X.LASTMODIFICATIONDTIME,NULL,X.LASTMODIFICATIONUSRID,'') UPD_ID, 
+			               TO_CHAR(X.LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+			               TO_CHAR(X.LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME 
+			          FROM TMDM_IF_IT_ITEM_MSTR X, TMDM_IF_IT_ITEM_PRODUCT Y
+			         WHERE X.INSTANCEID = #INSTANCEID#
+			           AND X.INSTANCEID = Y.INSTANCEID) B
+			   ON A.BOM_NO      = B.INSTANCEID
+			  AND A.BOM_DETL_NO = B.PV_NO
+			 WHEN MATCHED THEN
+			      UPDATE
+			         SET A.CHLD_STRR_ID  = B.PV_COMPONENT, 
+			             A.CHLD_ITEM_CD  = B.PV_CUST_ITEM_NO_Q,
+			             A.REQR_QTY      = B.PV_QNTT,
+			             A.DEL_YN        = B.DEL_YN, 
+			             A.INS_PERSON_ID = DECODE(B.INS_ID,NULL,A.INS_PERSON_ID,B.INS_ID),
+			             A.INS_DATE      = B.INS_DATE, 
+			             A.INS_TIME      = B.INS_TIME, 
+			             A.UPD_PERSON_ID = B.UPD_ID, 
+			             A.UPD_DATE      = B.UPD_DATE, 
+			             A.UPD_TIME      = B.UPD_TIME
+			 WHEN NOT MATCHED THEN
+			      INSERT ( A.BOM_NO, A.BOM_DETL_NO, A.CHLD_STRR_ID, A.CHLD_ITEM_CD, A.REQR_QTY, 
+			               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+			      VALUES ( B.INSTANCEID, B.PV_NO, B.PV_SHIPPER_CD_Q, B.PV_CUST_ITEM_NO_Q, B.PV_QNTT,
+			               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+	
+	<!--화주 정보  삭제  -->
+	<update id="IFEAI3_TMDM_IT_ITEM_MSTR_UPDATE">
+				 UPDATE TMDM_IT_ITEM_MSTR_IF
+				   SET DEL_YN = 'Y'
+				 WHERE SHPR_ID = #PV_SHIPPER_CD#
+				   AND ITEM_CD = #PV_CUST_ITEM_NO#
+	</update>
+	
+	<!-- GWMS 화주 정보  삭제  -->
+	<update id="IFEAI3_TWMS_MA_ITEM_UPDATE">
+		UPDATE GWMS.TWMS_MA_ITEM SET
+			DEL_YN = 'Y'
+			,UPD_PERSON_ID = #LASTMODIFICATIONUSRID#
+			,UPD_DATE = TO_CHAR(SYSDATE,'YYYYMMDD')
+			,UPD_TIME = TO_CHAR(SYSDATE,'HH24MISS')
+		WHERE STRR_ID = #PV_SHIPPER_CD#
+		AND ITEM_CD = #PV_CUST_ITEM_NO#
+	</update>
+	
+	
+	<!--화주품목 유형군 매핑 정보삭제   -->
+	<update id="IFEAI3_TMDM_IT_ITEM_TYPE_GRP_MPG_UPDATE">
+		 UPDATE TMDM_IT_ITEM_TYPE_GRP_MPG
+  		   SET DEL_YN = 'Y'
+		 WHERE SHPR_ID = #PV_SHIPPER_CD#
+		   AND ITEM_CD = #PV_CUST_ITEM_NO#
+		   AND ITEM_TYP_CCD = #ITEM_TYP_CCD#
+		   AND ITEM_TYP_SEQ_NO = #PV_ITEM_TYP_SEQ_NO#
+	</update>	
+		
+	
+	<!--화주 품목 인터페이스 수정  -->
+	<update id="IFEAI2_TMDM_IF_ITEM_MSTR_UPDATE">
+			UPDATE TMDM_IF_IT_ITEM_MSTR
+			   SET EAI_STATE = #EAI_STATE#,
+			       EAI_MSG   = #EAI_MSG#,
+			       EAI_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			 WHERE INSTANCEID = #INSTANCEID#
+	</update>	
+	
+	<!--/화주 구성품 인터페이스 수정 -->
+	<update id="IFEAI2_TMDM_IF_ITEM_PRODUCT_UPDATE">
+			UPDATE TMDM_IF_IT_ITEM_PRODUCT
+			   SET EAI_STATE = #EAI_STATE#,
+			       EAI_MSG   = #EAI_MSG#,
+			       EAI_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		     WHERE INSTANCEID = #INSTANCEID# 
+	</update>
+	
+	
+	<!-- 장비 수신 시작 , 2012-03-29, mjkim -->
+	
+	<!-- 장비 인터페이스 temp 테이블을 조회한다  -->
+	<!-- 임차구분, 위수탁업체변경 적용일 추가 2013.03.06 -->
+	<select id="IFEAI3_TMDM_IF_CT_EQP_SELECT"  resultClass="java.util.HashMap">
+
+		SELECT
+			INSTANCEID
+			, PV_CNTRL_BL							<!--  관리소속 -->
+			, PV_OP_BL								<!--  운영소속 -->
+			, PV_CARR_CD							<!--  선사코드 -->
+			, PV_NATION_CD							<!--  국가코드 -->
+			, PV_EQP_BIG_CTGRY						<!--  장비대분류 CM043 -->
+			, PV_EQP_MID_CTGRY						<!--  장비중분류 CM044 -->
+			, PV_MFER_CODE							<!--  제작사 CT131 -->
+			, PV_EQP_CLS							<!--  장비소유구분 CM036 -->
+			, PV_EQP_STATUS							<!--  차량상태 CM048 -->
+			, PV_EQUIP_TYPE							<!--  차종코드 CM038 -->
+			, PV_MGMT_KND							<!--  장비운영상세 CM037 -->
+			, PV_BIZ_CATE							<!--  장비업종구분 CM056 -->
+			, PV_SPEC_CD							<!--  제원코드 CM061 -->
+			, PV_CAR_TON_CD							<!--  톤급 CM039 -->
+			, PV_BIZ_PART							<!--  사업부문 CM052 -->
+			, PV_ITEM_CD							<!--  종목코드 CM062 -->
+			, PV_EQP_REG_CITY						<!--  장비등록지 CM041 -->
+			, PV_COMP_CD							<!--  회사ID CM046 -->
+			, PV_EQP_REG_GOV						<!--  장비등록지관할관청 CM042 -->
+			, PV_FUEL								<!--  연료종류 CM054 -->
+			, PV_EXHT_CUT_DEVC_CD					<!--  매연저감장치코드 CT354 -->
+			, RTRIM(EAI_OP) EAI_OP
+			, EAI_STATE
+			, LASTMODIFICATIONUSRID
+			, PV_MNG_NO								<!-- 관리번호 -->
+			, PV_VALIDFROM_01 AS PV_VALIDFROM_01			<!-- 운영소속적용일 -->
+			, PV_VALIDFROM_02 AS PV_VALIDFROM_02			<!-- 장비업종구분적용일 -->
+			, NVL(PV_HALT_STATUS,'N') PV_HALT_STATUS							<!-- 휴차상태 -->
+			, PV_VALIDFROM_03 AS PV_VALIDFROM_03			<!-- 휴차구분적용일 -->
+			, PV_VALIDFROM_04 AS PV_VALIDFROM_04			<!-- 장비관리구분적용일 -->
+			, PV_EQP_NO								<!-- 영업번호 -->
+			, PV_VALIDFROM_05 AS PV_VALIDFROM_05			<!-- 장비영업번호적용일 -->
+			, PV_VALIDFROM_06 AS PV_VALIDFROM_06			<!-- 차량상태변경적용일 -->
+			, PV_VALIDFROM_07 AS PV_VALIDFROM_07			<!-- 제원코드변경적용일 -->
+			, SUBSTR(PV_EQP_REG_DATE, 0, 8) AS PV_EQP_REG_DATE			<!-- 장비등록일 -->
+			, PV_STATUS
+			, PV_RENTED_YN 														<!-- 임차구분 -->
+			, PV_CONSIGN_COMP													<!-- 위수탁업체 -->
+			, PV_VALIDFROM_08 AS PV_VALIDFROM_08			<!-- 위수탁업체변경 적용일 -->			
+			, PV_COSTC 
+			, PV_VLDFR_COSTC AS PV_VLDFR_COSTC
+			, PV_VLDFR_EQP_REG_GOV AS PV_VLDFR_EQP_REG_GOV <!-- 등록지 관할관청 변경일 추가 -->
+			, SUBSTR(LASTMODIFICATIONDTIME, 0, 8) AS LASTMODIFICATIONDTIME
+		FROM TMDM_IF_CT_EQP
+		WHERE INSTANCEID = #INSTANCEID#
+
+	</select>
+	
+	<!-- 관리, 운영 소속 데이타 체크(조회) -> 조직정보체크 (TMDM_BP_CORP_SELECT) 사용  -->
+
+	<!-- 선사, 항공사  데이타 체크(조회) -->
+	<select id="IFEAI3_TMDM_GS_CARR_CHECK"  resultClass="int">
+		
+		SELECT COUNT(*)
+		FROM TMDM_GS_CARR
+		WHERE CARR_REP_CD = #CARR_REP_CD#
+ 
+	</select>
+	
+	<!-- 선적(국가)코드 데이타 체크(조회) - 국가코드 체크(IFEAI3_TMDM_GS_NATION_SELECT) 사용 -->
+	
+	<!-- 공통코드 데이타 체크(조회) - 국가코드 체크(IFEAI3_TMDM_GS_MC_CODE_B_SELECT) 사용 -->
+	
+	<!-- 장비정보 입력 -->
+	<!-- 임차구분 추가 2013.03.06 jsa -->
+	<update id="IFEAI3_TMDM_CT_EQP_MERGE">
+
+		MERGE INTO TMDM_CT_EQP_IF A 
+			USING ( 
+				SELECT  PV_MNG_NO, PV_EQP_NM_LO, PV_EQP_BIG_CTGRY, PV_EQP_MID_CTGRY, PV_CNTRL_BL, PV_OP_BL,
+	                PV_MFER_CODE, PV_EQP_CLS, PV_EQP_STATUS, PV_EQP_NO, 
+	                DECODE(PV_EQP_CLS,'1',null,'4',null,PV_CONSIGN_COMP) PV_CONSIGN_COMP, 
+	                PV_EQUIP_TYPE, PV_MGMT_KND, PV_BIZ_CATE, SUBSTR(PV_BUY_DATE, 0, 8) PV_BUY_DATE, PV_BUY_COST, 
+	                PV_INSPCT_DATE AS PV_INSPCT_DATE, PV_NEXT_INSPCT_DATE AS PV_NEXT_INSPCT_DATE, PV_CHK_DL_DATE AS PV_CHK_DL_DATE, 
+	                NVL(PV_HALT_STATUS,'N') PV_HALT_STATUS, PV_INSR, 
+	                PV_EQP_REG_NO, PV_EQP_WT, 
+	                DECODE(PV_EQP_CLS,'1',NULL,'4',NULL,PV_BIZ_NO) PV_BIZ_NO, PV_SPEC_CD, PV_LOAD_QTY,
+	                PV_PRDYR, PV_CAR_TON_CD, PV_FORM, PV_SHAPE, PV_EGIN_POWER, 
+	                PV_TANK_CAPA, PV_EGIN_CLS, PV_CYLND_QTY, PV_ALL_WIDTH, PV_ALL_LEN, 
+	                PV_BENE_LEN, PV_ALL_HEIGHT, PV_BENE_HEIGHT, PV_BENE_WIDTH, PV_BIZ_PART,
+	                PV_ITEM_CD, PV_EQUIP_MODEL, PV_GARAGE, PV_EQP_REG_CITY, PV_ASSET_CD, 
+	                PV_BOS_CD, PV_COSTC, PV_COMP_CD, PV_DRIVER_NM, PV_DRIVER_TEL_NO, 
+	                PV_EQP_REG_GOV, PV_PIER, PV_SELF_LOAD, PV_TRAVEL_BUF_LENG, PV_TOT_HEIGHT, 
+	                PV_LIFT_CAPA, PV_RAIL_YJ, PV_OTH, PV_VSL_NM_CD, PV_VSL_CALL_SIGN, 
+	                PV_CARR_CD, PV_TEL_NO, PV_SHIP_NTALITY, PV_PORT_CD, PV_NATION_CD,
+	                PV_LOA, PV_DWT, PV_HOLD_QTY, PV_TWIN_DECK_YN, PV_REM, 
+	                SUBSTR(PV_DISUSE_DATE, 0 ,8) AS PV_DISUSE_DATE, PV_VSL_DESC, PV_GET_DATE, PV_UNLOAD_E_KND, PV_EQP_NO SALE_NO,
+	                PV_SETUP_PORT, PV_SETUP_DATE, PV_INSPCT_DL_DATE, '' DRVR_CD, 
+	                REPLACE(PV_MOBILE_NO,'-','') AS PV_MOBILE_NO, 
+	                PV_LOAD_WT, PV_LOAD_VOL, PV_DISPLACEMENT, PV_VIN_NUM, PV_CAR_CAPACITY, 
+	                PV_BOND_YN, PV_MOVE_HNDL_YN, PV_IMDG_HNDL_YN, SUBSTR(PV_EQP_REG_DATE, 0, 8) PV_EQP_REG_DATE, 
+	                DECODE(
+						( 	SELECT COUNT(*)
+							FROM TMDM_BP_CORP_IF
+							WHERE CORP_TCD = 'N'
+							AND HQ_ORG_TYP_CD = '04'
+							AND BHO_TYP_CD IS NULL
+							START WITH CORP_ID = (SELECT PRNT_CORP_ID FROM TMDM_BP_CORP_IF WHERE CORP_ID = PV_OP_BL)
+							CONNECT BY PRIOR PRNT_CORP_ID = CORP_ID 
+						)
+					, 0
+					, PV_OP_BL
+					,	( 
+							SELECT CORP_ID
+							FROM TMDM_BP_CORP_IF
+							WHERE CORP_TCD = 'N'
+							AND HQ_ORG_TYP_CD = '04'
+							AND BHO_TYP_CD IS NULL
+							START WITH CORP_ID = (SELECT PRNT_CORP_ID FROM TMDM_BP_CORP_IF WHERE CORP_ID = PV_OP_BL)
+							CONNECT BY PRIOR PRNT_CORP_ID = CORP_ID 
+						)
+					) AS CORP_ID,
+	                PV_GPS_YN, PV_FUEL, PV_CONSIGN_DATE AS PV_CONSIGN_DATE, PV_EXHT_CUT_DEVC_CD,
+	                PV_AGENCY_YN, PV_UNLOAD_T_KND, PV_MOBILE_INSTALL_YN, PV_SENSOR_INSTALL_YN,
+	                'N' DEL_YN,
+	                NVL(LASTMODIFICATIONUSRID,'X') AS REG_ID, 
+	                CREATIONDTIME AS REG_DT, 
+	                LASTMODIFICATIONUSRID MOD_ID, 
+	                LASTMODIFICATIONDTIME AS MOD_DT 
+	                , PV_RENTED_YN
+	                , PV_GPS_NO
+				FROM TMDM_IF_CT_EQP
+				WHERE INSTANCEID = #INSTANCEID#
+			) B ON (A.CNTRL_NO = B.PV_MNG_NO) 
+		WHEN MATCHED THEN
+			UPDATE SET A.EQP_NM  = B.PV_EQP_NM_LO, 
+				A.EQP_BIG_CTGRY  = B.PV_EQP_BIG_CTGRY, 
+				A.EQP_MID_CTGRY  = B.PV_EQP_MID_CTGRY, 
+				A.CNTRL_BL       = B.PV_CNTRL_BL, 
+				A.OP_BL          = B.PV_OP_BL, 
+				A.MFER           = B.PV_MFER_CODE, 
+				A.EQP_CLS_CD     = B.PV_EQP_CLS, 
+				A.EQP_SCD        = B.PV_EQP_STATUS, 
+				A.EQP_NO         = B.PV_EQP_NO, 
+				A.CONSIGN_COMP   = B.PV_CONSIGN_COMP, 
+				A.VHCL_KND_CD    = B.PV_EQUIP_TYPE, 
+				A.EQP_CNTRL_CCD  = B.PV_MGMT_KND, 
+				A.CAT_BUSI_CD    = B.PV_BIZ_CATE, 
+				A.BUY_DATE       = B.PV_BUY_DATE, 
+				A.BUY_COST       = B.PV_BUY_COST, 
+				A.INSPCT_DATE    = SUBSTR(B.PV_INSPCT_DATE, 0, 8), 
+				A.NEXT_INSPCT_DATE = SUBSTR(B.PV_NEXT_INSPCT_DATE, 0, 8), 
+				A.CHK_DL_DATE    = B.PV_CHK_DL_DATE, 
+				A.HALT_STATUS    = B.PV_HALT_STATUS, 
+				A.INSR           = B.PV_INSR, 
+				A.REG_NO         = B.PV_EQP_REG_NO, 
+				A.EQP_WT         = B.PV_EQP_WT,             
+				A.BIZ_NO         = B.PV_BIZ_NO, 
+				A.BEF_SPEC_CD    = B.PV_SPEC_CD, 
+				A.LOAD_QTY       = B.PV_LOAD_QTY,   
+				A.PRDYR          = B.PV_PRDYR, 
+				A.TON_CD         = B.PV_CAR_TON_CD, 
+				A.FORM           = B.PV_FORM, 
+				A.SHAPE          = B.PV_SHAPE, 
+				A.EGIN_POWER     = B.PV_EGIN_POWER, 
+				A.TANK_CAPA      = B.PV_TANK_CAPA, 
+				A.EGIN_CLS       = B.PV_EGIN_CLS, 
+				A.CYLND_QTY      = B.PV_CYLND_QTY, 
+				A.ALL_WIDTH      = B.PV_ALL_WIDTH, 
+				A.ALL_LEN        = B.PV_ALL_LEN, 
+				A.BENE_LEN       = B.PV_BENE_LEN, 
+				A.ALL_HEIGHT     = B.PV_ALL_HEIGHT, 
+				A.BENE_HEIGHT    = B.PV_BENE_HEIGHT, 
+				A.BENE_WIDTH     = B.PV_BENE_WIDTH, 
+				A.BIZ_PART       = B.PV_BIZ_PART, 
+				A.ITEM_CD        = B.PV_ITEM_CD, 
+				A.SPECF_CD       = B.PV_EQUIP_MODEL, 
+				A.GARAGE         = B.PV_GARAGE, 
+				A.EQP_REG        = B.PV_EQP_REG_CITY, 
+				A.ASSET_CD       = B.PV_ASSET_CD,  
+				A.BOS_CD         = B.PV_BOS_CD, 
+				A.COSTC          = B.PV_COSTC, 
+				A.COMP_CD        = B.PV_COMP_CD, 
+				A.SPOT_DRIVER_NM = B.PV_DRIVER_NM, 
+				A.SPOT_TEL_NO    = B.PV_DRIVER_TEL_NO, 
+				A.EQP_REG_JRST   = B.PV_EQP_REG_GOV, 
+				A.PIER           = B.PV_PIER, 
+				A.SELF_LOAD      = B.PV_SELF_LOAD, 
+				A.TRAVEL_BUF_LENG = B.PV_TRAVEL_BUF_LENG, 
+				A.TOT_HEIGHT     = B.PV_TOT_HEIGHT, 
+				A.LIFT_CAPA      = B.PV_LIFT_CAPA, 
+				A.RAIL_YJ        = B.PV_RAIL_YJ, 
+				A.OTH            = B.PV_OTH, 
+				A.VSL_NM_CD      = B.PV_VSL_NM_CD, 
+				A.VSL_CALL_SIGN  = B.PV_VSL_CALL_SIGN, 
+				A.LINE_CD        = B.PV_CARR_CD, 
+				A.TEL_NO         = B.PV_TEL_NO,
+				A.SHIP_NTALITY   = B.PV_SHIP_NTALITY, 
+				A.PORT_CD        = B.PV_PORT_CD, 
+				A.NATION_CD      = B.PV_NATION_CD, 
+				A.LOA            = B.PV_LOA, 
+				A.DWT            = B.PV_DWT, 
+				A.HOLD_CNT       = B.PV_HOLD_QTY, 
+				A.TWIN_DECK_YN   = B.PV_TWIN_DECK_YN, 
+				A.REM            = B.PV_REM,            
+				A.DISUSE_DATE    = B.PV_DISUSE_DATE, 
+				A.VSL_DESC       = B.PV_VSL_DESC, 
+				A.GET_DATE       = B.PV_GET_DATE, 
+				A.PRO_EQP_KND    = B.PV_UNLOAD_E_KND, 
+				A.SALE_NO        = B.SALE_NO, 
+				A.SETUP_PORT     = B.PV_SETUP_PORT, 
+				A.SETUP_DATE     = B.PV_SETUP_DATE, 
+				A.INSPCT_DL_DATE = B.PV_INSPCT_DL_DATE, 
+				A.MOBILE_NO      = B.PV_MOBILE_NO, 
+				A.LOAD_WT        = B.PV_LOAD_WT, 
+				A.LOAD_VOL       = B.PV_LOAD_VOL, 
+				A.ENGDISP        = B.PV_DISPLACEMENT, 
+				A.CARBODY_NO     = B.PV_VIN_NUM, 
+				A.CAR_CAPACITY   = B.PV_CAR_CAPACITY, 
+				A.BOND_YN        = B.PV_BOND_YN, 
+				A.MOVE_HNDL_YN   = B.PV_MOVE_HNDL_YN, 
+				A.IMDG_HNDL_YN   = B.PV_IMDG_HNDL_YN, 
+				A.DEV_REG_DATE   = B.PV_EQP_REG_DATE, 
+				A.CORP_ID        = B.CORP_ID, 
+				A.GPS_INSTALL_YN = B.PV_GPS_YN, 
+				A.FUELO_KND_CD   = B.PV_FUEL, 
+				A.CONSIGN_PUBLISH_DATE = SUBSTR(B.PV_CONSIGN_DATE, 0, 8), 
+				A.EXHT_CUT_DEVC_CD = B.PV_EXHT_CUT_DEVC_CD, 
+				A.INTCD_YN         = B.PV_AGENCY_YN,
+				A.UNLD_EQP_IMPLE   = B.PV_UNLOAD_T_KND,
+				A.MOBILE_INSTALL_YN = B.PV_MOBILE_INSTALL_YN,
+				A.OIL_SENSOR_INSTALL_YN = B.PV_SENSOR_INSTALL_YN,
+				A.DEL_YN        = B.DEL_YN, 
+				A.MOD_ID        = B.MOD_ID, 
+				A.MOD_DT        = B.MOD_DT, 
+				A.RENTED_YN     = B.PV_RENTED_YN,
+				A.EQP_REG_CITY  = B.PV_EQP_REG_CITY,
+				A.EQP_REG_GOV   = B.PV_EQP_REG_GOV,
+				A.GPS_NO        = B.PV_GPS_NO
+		WHEN NOT MATCHED THEN
+			INSERT ( A.CNTRL_NO, A.EQP_NM, A.EQP_BIG_CTGRY, A.EQP_MID_CTGRY, A.CNTRL_BL, A.OP_BL, 
+				A.MFER, A.EQP_CLS_CD, A.EQP_SCD, A.EQP_NO, A.CONSIGN_COMP, 
+				A.VHCL_KND_CD, A.EQP_CNTRL_CCD, A.CAT_BUSI_CD, A.BUY_DATE, A.BUY_COST, 
+				A.INSPCT_DATE, A.NEXT_INSPCT_DATE, A.CHK_DL_DATE, A.HALT_STATUS, A.INSR, 
+				A.REG_NO, A.EQP_WT, A.BIZ_NO, A.BEF_SPEC_CD, A.LOAD_QTY, 
+				A.PRDYR, A.TON_CD, A.FORM, A.SHAPE, A.EGIN_POWER, 
+				A.TANK_CAPA, A.EGIN_CLS, A.CYLND_QTY, A.ALL_WIDTH, A.ALL_LEN, 
+				A.BENE_LEN, A.ALL_HEIGHT, A.BENE_HEIGHT, A.BENE_WIDTH, A.BIZ_PART, 
+				A.ITEM_CD, A.SPECF_CD, A.GARAGE, A.EQP_REG, A.ASSET_CD, 
+				A.BOS_CD, A.COSTC, A.COMP_CD, A.SPOT_DRIVER_NM, A.SPOT_TEL_NO, 
+				A.EQP_REG_JRST, A.PIER, A.SELF_LOAD, A.TRAVEL_BUF_LENG, A.TOT_HEIGHT, 
+				A.LIFT_CAPA, A.RAIL_YJ, A.OTH, A.VSL_NM_CD, A.VSL_CALL_SIGN, 
+				A.LINE_CD, A.TEL_NO, A.SHIP_NTALITY, A.PORT_CD, A.NATION_CD, 
+				A.LOA, A.DWT, A.HOLD_CNT, A.TWIN_DECK_YN, A.REM, 
+				A.DISUSE_DATE, A.VSL_DESC, A.GET_DATE, A.PRO_EQP_KND, A.SALE_NO, 
+				A.SETUP_PORT, A.SETUP_DATE, A.INSPCT_DL_DATE, A.DRVR_CD, A.MOBILE_NO, 
+				A.LOAD_WT, A.LOAD_VOL, A.ENGDISP, A.CARBODY_NO, A.CAR_CAPACITY, 
+				A.BOND_YN, A.MOVE_HNDL_YN, A.IMDG_HNDL_YN, A.DEV_REG_DATE, A.CORP_ID, 
+				A.GPS_INSTALL_YN, A.FUELO_KND_CD, A.CONSIGN_PUBLISH_DATE, A.EXHT_CUT_DEVC_CD, A.UNLD_EQP_IMPLE,
+				A.INTCD_YN, A.MOBILE_INSTALL_YN, A.OIL_SENSOR_INSTALL_YN, A.DEL_YN, A.REG_ID, 
+				A.REG_DT
+				, A.RENTED_YN
+				, A.EQP_REG_CITY
+				, A.EQP_REG_GOV
+				, A.GPS_NO
+			) VALUES ( 
+				B.PV_MNG_NO, B.PV_EQP_NM_LO, B.PV_EQP_BIG_CTGRY, B.PV_EQP_MID_CTGRY, B.PV_CNTRL_BL, B.PV_OP_BL, 
+				B.PV_MFER_CODE, B.PV_EQP_CLS, B.PV_EQP_STATUS, B.PV_EQP_NO, B.PV_CONSIGN_COMP, 
+				B.PV_EQUIP_TYPE, B.PV_MGMT_KND, B.PV_BIZ_CATE, B.PV_BUY_DATE, B.PV_BUY_COST, 
+				SUBSTR(B.PV_INSPCT_DATE, 0, 8), B.PV_NEXT_INSPCT_DATE, B.PV_CHK_DL_DATE, B.PV_HALT_STATUS, B.PV_INSR, 
+				B.PV_EQP_REG_NO, B.PV_EQP_WT, B.PV_BIZ_NO, B.PV_SPEC_CD, B.PV_LOAD_QTY,
+				B.PV_PRDYR, B.PV_CAR_TON_CD, B.PV_FORM, B.PV_SHAPE, B.PV_EGIN_POWER, 
+				B.PV_TANK_CAPA, B.PV_EGIN_CLS, B.PV_CYLND_QTY, B.PV_ALL_WIDTH, B.PV_ALL_LEN, 
+				B.PV_BENE_LEN, B.PV_ALL_HEIGHT, B.PV_BENE_HEIGHT, B.PV_BENE_WIDTH, B.PV_BIZ_PART,
+				B.PV_ITEM_CD, B.PV_EQUIP_MODEL, B.PV_GARAGE, B.PV_EQP_REG_CITY, B.PV_ASSET_CD, 
+				B.PV_BOS_CD, B.PV_COSTC, B.PV_COMP_CD, B.PV_DRIVER_NM, B.PV_DRIVER_TEL_NO, 
+				B.PV_EQP_REG_GOV, B.PV_PIER, B.PV_SELF_LOAD, B.PV_TRAVEL_BUF_LENG, B.PV_TOT_HEIGHT, 
+				B.PV_LIFT_CAPA, B.PV_RAIL_YJ, B.PV_OTH, B.PV_VSL_NM_CD, B.PV_VSL_CALL_SIGN, 
+				B.PV_CARR_CD, B.PV_TEL_NO, B.PV_SHIP_NTALITY, B.PV_PORT_CD, B.PV_NATION_CD,
+				B.PV_LOA, B.PV_DWT, B.PV_HOLD_QTY, B.PV_TWIN_DECK_YN, B.PV_REM, 
+				B.PV_DISUSE_DATE, B.PV_VSL_DESC, B.PV_GET_DATE, B.PV_UNLOAD_E_KND, B.SALE_NO,
+				B.PV_SETUP_PORT, B.PV_SETUP_DATE, B.PV_INSPCT_DL_DATE, B.DRVR_CD, B.PV_MOBILE_NO, 
+				B.PV_LOAD_WT, B.PV_LOAD_VOL, B.PV_DISPLACEMENT, B.PV_VIN_NUM, B.PV_CAR_CAPACITY, 
+				B.PV_BOND_YN, B.PV_MOVE_HNDL_YN, B.PV_IMDG_HNDL_YN, B.PV_EQP_REG_DATE, B.CORP_ID,
+				B.PV_GPS_YN, B.PV_FUEL, SUBSTR(B.PV_CONSIGN_DATE, 0, 8), B.PV_EXHT_CUT_DEVC_CD, B.PV_UNLOAD_T_KND,
+				B.PV_AGENCY_YN, B.PV_MOBILE_INSTALL_YN, B.PV_SENSOR_INSTALL_YN, B.DEL_YN, B.REG_ID, B.REG_DT
+				, B.PV_RENTED_YN, B.PV_EQP_REG_CITY, B.PV_EQP_REG_GOV, B.PV_GPS_NO
+			)
+	 
+	</update>
+	
+	<!-- 장비정보 삭제 -->
+	<update id="IFEAI3_TMDM_CT_EQP_UPDATE">
+		
+		UPDATE TMDM_CT_EQP_IF
+		SET DEL_YN = 'Y'
+		WHERE CNTRL_NO = #CNTRL_NO#
+ 
+	</update>
+	
+	<!-- 장비 인터페이스 정보 수정 -->
+	<update id="IFEAI3_TMDM_IF_CT_EQP_UPDATE">
+		
+		UPDATE TMDM_IF_CT_EQP
+		SET EAI_STATE = #EAI_STATE#,
+		EAI_MSG   = #EAI_MSG#,
+		EAI_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE INSTANCEID = #INSTANCEID#
+ 
+	</update>
+	
+	<!-- 장비명 인터페이스 정보 수정 -->
+	<update id="IFEAI3_TMDM_IF_CT_EQP_NM_UPDATE">
+		
+		UPDATE TMDM_IF_CT_EQP_NM
+		SET EAI_STATE = #EAI_STATE#,
+		EAI_MSG   = #EAI_MSG#,
+		EAI_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE INSTANCEID = #INSTANCEID#
+ 
+	</update>
+	
+	<!-- 장비 테이블을 조회한다  -->
+	<!-- 임차구분추가 2013.03.05 jsa -->
+	<!-- 등록지, 등록지관할관청 추가 2014.06.26 -->
+	<select id="IFEAI3_TMDM_CT_EQP_SELECT"  resultClass="java.util.HashMap">
+
+		SELECT
+			CNTRL_NO						<!-- 장비 코드(관리번호) -->
+			, EQP_NM						<!-- 장비 명 -->
+			, EQP_BIG_CTGRY					<!-- 장비 대분류 -->
+			, EQP_MID_CTGRY					<!-- 장비 중분류 -->
+			, CNTRL_BL						<!-- 관리소속 -->
+			, OP_BL							<!-- 운영소속 -->
+			, MFER							<!-- 제조사 -->
+			, EQP_CLS_CD					<!-- 장비구분코드 -->
+			, EQP_SCD						<!-- 장비상태코드 -->
+			, EQP_STAT_REASON_CD			<!-- 장비상태사유코드 -->
+			, EQP_NO						<!-- 장비번호 -->
+			, APLY_ECT_DATE					<!-- 적용예정일 -->
+			, CONSIGN_COMP					<!-- 위수탁사업자 -->
+			, VHCL_KND_CD					<!-- 차량종류코드 -->
+			, EQP_CNTRL_CCD					<!-- 장비 관리구분 -->
+			, CAT_BUSI_CD					<!-- 업종코드 -->
+			, BUY_DATE						<!-- 구입일 -->
+			, BUY_COST						<!-- 구입가격 -->
+			, INSPCT_DATE					<!-- 검사일자 -->
+			, NEXT_INSPCT_DATE				<!-- 차기검사일자 -->
+			, CHK_DL_DATE					<!-- 점검기한일 -->
+			, HALT_STATUS					<!-- 휴차상태 -->
+			, INSR							<!-- 보험 -->
+			, REG_NO						<!-- 등록번호 -->
+			, EQP_WT						<!-- 장비중량 -->
+			, BIZ_NO						<!-- 사업자번호 -->
+			, BEF_SPEC_CD					<!-- 기존제원코드 -->
+			, LOAD_QTY						<!-- 적재수량 -->
+			, PRDYR							<!-- 년식 -->
+			, TON_CD						<!-- 톤급 -->
+			, USED_ASSET_YN					<!-- 중고자산여부 -->
+			, FORM							<!-- 형식 -->
+			, SHAPE							<!-- 형상 -->
+			, EGIN_POWER					<!-- 엔진마력 -->
+			, TANK_CAPA						<!-- 탱크용량 -->
+			, EGIN_CLS						<!-- 엔진형식 -->
+			, CYLND_QTY						<!-- 기통수 -->
+			, ALL_WIDTH						<!-- 전체폭 -->
+			, ALL_LEN						<!-- 전체장 -->
+			, BENE_LEN						<!-- 하대장 -->
+			, ALL_HEIGHT					<!-- 전체고 -->
+			, BENE_HEIGHT					<!-- 하대고 -->
+			, BENE_WIDTH					<!-- 하대폭 -->
+			, BIZ_PART						<!-- 사업부분 -->
+			, GOAL_DATE						<!-- 목표일자 -->
+			, ITEM_CD						<!-- 종목코드 -->
+			, SPECF_CD						<!-- 차량코드(제원코드) -->
+			, GARAGE						<!-- 차고지 -->
+			, EQP_REG						<!-- 장비등록지 -->
+			, ASSET_CD						<!-- 자산코드 -->
+			, BOS_CD						<!-- BOS 코드 -->
+			, COSTC							<!-- 코스트센터 -->
+			, ECT_PCOST_NO					<!-- 예정원가번호 -->
+			, MONTH_GOAL					<!-- 월목표 -->
+			, COMP_CD						<!-- 업체 코드 -->
+			, SPOT_DRIVER_NM				<!-- 운전자명 -->
+			, SPOT_TEL_NO					<!-- 운전자연락처 -->
+			, EQP_REG_JRST					<!-- 장비등록관할청 -->
+			, PURPS							<!-- 용도 -->
+			, PIER							<!-- 부두 -->
+			, SELF_LOAD						<!-- 자중 -->
+			, TRAVEL_BUF_LENG				<!-- 주행버퍼길이 -->
+			, TOT_HEIGHT					<!-- 총높이 -->
+			, LIFT_CAPA						<!-- 인양능력 -->
+			, RAIL_YJ						<!-- 레일양정 -->
+			, OTH							<!-- 기타사항 -->
+			, VSL_NM_CD						<!-- 선명코드 -->
+			, VSL_CALL_SIGN					<!-- 선박호출부호 -->
+			, VSL_KND						<!-- 선박 종류 -->
+			, LINE_CD						<!-- 선사코드 -->
+			, TEL_NO						<!-- 전화번호 -->
+			, SHIP_NTALITY					<!-- 모선국적 -->
+			, PORT_CD						<!-- 항만코드 -->
+			, NATION_CD						<!-- 국가코드 -->
+			, LOA							<!-- LOA -->
+			, DWT							<!-- DWT -->
+			, HOLD_CNT						<!-- HOLD 개수 -->
+			, TWIN_DECK_YN					<!-- TWIN-DECK유무 -->
+			, REM							<!-- 비고 -->
+			, DISUSE_DATE					<!-- 폐기일자 -->
+			, VSL_DESC						<!-- 선박설명 -->
+			, GET_DATE						<!-- 취득일 -->
+			, PRO_EQP_KND					<!-- 중기종류 -->
+			, SALE_NO						<!-- 영업번호 -->
+			, SETUP_PORT					<!-- 설치항만 -->
+			, SETUP_DATE					<!-- 설치일자 -->
+			, INSPCT_DL_DATE				<!-- 검사기한일 -->
+			, EAI_INPUT_DT					<!-- 생성일(EAI) -->
+			, EAI_INPUT_TIME				<!-- 생성시간(EAI) -->
+			, DRVR_CD						<!-- 운전원코드 -->
+			, MOBILE_NO						<!-- 모바일번호 -->
+			, LOAD_WT						<!-- 적재무게 -->
+			, LOAD_VOL						<!-- 적재부피 -->
+			, ENGDISP						<!-- 배기량 -->
+			, CARBODY_NO					<!-- 차대번호 -->
+			, CAR_CAPACITY					<!-- 승차정원 -->
+			, BOND_YN						<!-- 보세여부 -->
+			, MOVE_HNDL_YN					<!-- 이사물여부 -->
+			, IMDG_HNDL_YN					<!-- 위험물취급여부 -->
+			, DEV_REG_DATE					<!-- 장비등록일자 -->
+			, EXHT_CUT_DEVC_CD				<!-- 매연저감장치코드 -->
+			, DRVR_STTG_DATE				<!-- 운전원배치일자 -->
+			, BE_TOWED_STTG_DATE			<!-- 피견인 배치일자 -->
+			, BE_TOWED_CNTRL_NO				<!-- 피견인 장비코드 -->
+			, CORP_ID						<!-- 지사ID -->
+			, GPS_INSTALL_YN				<!-- GPS장착여부 -->
+			, FUELO_KND_CD					<!-- 연료종류코드 -->
+			, CONSIGN_PUBLISH_DATE			<!-- 위수탁개시일 -->
+			, DEL_YN						<!-- 삭제 여부 -->
+			, REG_ID					    <!-- 입력자ID -->
+			, REG_DT						<!-- 입력 일자 -->
+			, MOD_ID						<!-- 수정자 ID -->
+			, MOD_DT						<!-- 수정일자 -->
+			, RENTED_YN						<!-- 임차구분 -->
+             ,EQP_REG_CITY					<!-- 등록지 -->
+             ,EQP_REG_GOV					<!-- 등록지관할관청 -->
+		FROM TMDM_CT_EQP_IF
+		WHERE CNTRL_NO = #CNTRL_NO#
+	
+	</select>
+	
+	<!-- 장비 변경 이력 입력(등록) TBCT_EQ_EQP_CHANGE -->
+	<!-- 신규건 오류로 수정 2013.01.23 -->
+	<insert id="IFEAI3_GTMS_EQ_EQP_CHANGE_INSERT">
+		BEGIN
+			
+			INSERT INTO GTMS.TBCT_EQ_EQP_CHANGE (
+				CNTRL_NO						<!-- 관리번호 -->
+				, EQP_CHG_SEQ_NO				<!-- 장비변경일련번호 -->
+				, SALE_NO						<!-- 영업번호 -->
+				, CHG_DATE						<!-- 변경일자 -->
+				, CHG_ITEM						<!-- 변경항목 -->
+				, CHG_BEF_CONTENT				<!-- 변경전내용 -->
+				, CHG_AFT_CONTENT				<!-- 변경후내용 -->
+				, DEL_YN						<!-- 삭제여부 -->
+				, INS_PERSON_ID					<!-- 입력자ID -->
+				, INS_DATE						<!-- 입력일자 -->
+				, INS_TIME						<!-- 입력시각 -->
+			)VALUES(
+				#CNTRL_NO#						<!-- 관리번호 -->
+				, (SELECT COALESCE(MAX(EQP_CHG_SEQ_NO),0) + 1  
+                  FROM GTMS.TBCT_EQ_EQP_CHANGE
+                  WHERE CNTRL_NO = #CNTRL_NO#)	<!-- 장비변경일련번호 -->
+				, #SALE_NO#						<!-- 영업번호 -->
+				, #CHG_DATE#					<!-- 변경일자 -->
+				, #CHG_ITEM#					<!-- 변경항목 -->
+				, #CHG_BEF_CONTENT#				<!-- 변경전내용 -->
+				, #CHG_AFT_CONTENT#				<!-- 변경후내용 -->
+				, 'N'							<!-- 삭제여부 -->
+				, #USER_ID#
+				, TO_CHAR(SYSDATE, 'YYYYMMDD')
+				, TO_CHAR(SYSDATE, 'HH24MISS')
+			);
+			
+			UPDATE GTMS.TBCT_EQ_EQP_HIST 
+			   SET CHG_DATE = #CHG_DATE#, EAI_STATE = 'I'
+			 WHERE CNTRL_NO = #CNTRL_NO#
+			   AND CHG_DATE = '99999999';
+		END	
+		
+	</insert>
+	
+	<!-- 장비 변경 이력 입력(등록) GTMS.TBCT_EQ_EQP_HIST -->
+	<!-- RFID 미발급 차량의 주유분에 대해서 차량정보 일괄 처리 2013.01.18 -->
+	<!-- 신규건 오류로 수정 2013.01.23 -->
+	<insert id="IFEAI3_GTMS_EQ_EQP_HIST_INSERT">
+		
+        INSERT INTO GTMS.TBCT_EQ_EQP_HIST (
+              CNTRL_NO
+             ,STA_DATE
+             ,EQP_CHG_SEQ_NO
+             ,CHG_DATE
+             ,CHG_ITEM
+             ,OP_BL
+             ,EQP_CNTRL_CCD
+             ,SPEC_CD
+             ,CAT_BUSI_CD
+             ,EQP_SCD
+             ,HALT_STATUS
+             ,RENT_YN
+             ,SALE_NO
+             ,WASTE_DATE
+             ,REG_DATE
+             ,DEL_YN
+             ,INS_PERSON_ID
+             ,INS_DATE
+             ,INS_TIME
+             ,EQP_CLS_CD
+             ,VHCL_KND_CD
+             ,EQP_TON_CD
+             ,COMP_CD
+             ,EAI_STATE
+             ,EAI_MSG
+             ,EAI_DATE
+           ) 
+           VALUES( #CNTRL_NO#
+              ,COALESCE(#CHG_DATE#, TO_CHAR(SYSDATE, 'YYYYMMDD'))
+              ,(SELECT COALESCE(MAX(EQP_CHG_SEQ_NO),0) + 1  
+                  FROM GTMS.TBCT_EQ_EQP_HIST
+                 WHERE CNTRL_NO = #CNTRL_NO#
+                   AND STA_DATE = #CHG_DATE#) 
+              ,'99999999'
+              ,#CHG_ITEM#
+              ,(CASE WHEN #CHG_ITEM# = '01' THEN #CHG_AFT_CONTENT# ELSE #OP_BL# END)
+              ,(CASE WHEN #CHG_ITEM# = '08' THEN #CHG_AFT_CONTENT# ELSE #EQP_CNTRL_CCD# END)
+              ,(CASE WHEN #CHG_ITEM# = '05' THEN #CHG_AFT_CONTENT# ELSE #BEF_SPEC_CD# END)
+              ,(CASE WHEN #CHG_ITEM# = '02' THEN #CHG_AFT_CONTENT# ELSE #CAT_BUSI_CD# END)
+              ,(CASE WHEN #CHG_ITEM# = '04' THEN #CHG_AFT_CONTENT# ELSE #EQP_SCD# END)
+              ,(CASE WHEN #CHG_ITEM# = '03' THEN #CHG_AFT_CONTENT# ELSE #HALT_STATUS# END)
+              ,'N'
+              ,(CASE WHEN #CHG_ITEM# = '07' THEN #CHG_AFT_CONTENT# ELSE #SALE_NO# END) 
+              ,#DISUSE_DATE#
+              ,#DEV_REG_DATE#
+              ,'N'
+              ,#USER_ID#
+              ,TO_CHAR(SYSDATE, 'YYYYMMDD')
+              ,TO_CHAR(SYSDATE, 'HH24MISS')
+              ,#EQP_CLS_CD#
+              ,#VHCL_KND_CD#
+              ,#TON_CD#
+              ,DECODE(#PV_EQP_CLS#,'1',null,#COMP_CD#)
+              ,'I'
+              , '' 
+              ,''
+            )
+	</insert>
+	
+	<!-- 장비 변경 이력 이전 데이타  CHG_DATE 업데이트 TMDM_EQ_EQP_HIST -->
+	<update id="IFEAI3_TMDM_EQ_EQP_CHANGE_INSERT">
+	BEGIN
+		INSERT INTO TMDM_EQ_EQP_CHANGE (
+				CNTRL_NO						<!-- 관리번호 -->
+				, EQP_CHG_SEQ_NO				<!-- 장비변경일련번호 -->
+				, SALE_NO						<!-- 영업번호 -->
+				, CHG_DATE						<!-- 변경일자 -->
+				, CHG_ITEM						<!-- 변경항목 -->
+				, CHG_BEF_CONTENT				<!-- 변경전내용 -->
+				, CHG_AFT_CONTENT				<!-- 변경후내용 -->
+				, DEL_YN						<!-- 삭제여부 -->
+				, INS_PERSON_ID					<!-- 입력자ID -->
+				, INS_DATE						<!-- 입력일자 -->
+				, INS_TIME						<!-- 입력시각 -->
+			)VALUES(
+				#CNTRL_NO#						<!-- 관리번호 -->
+				, (SELECT COALESCE(MAX(EQP_CHG_SEQ_NO),0) + 1  
+                  FROM TMDM_EQ_EQP_CHANGE
+                  WHERE CNTRL_NO = #CNTRL_NO#)	<!-- 장비변경일련번호 -->
+				, #SALE_NO#						<!-- 영업번호 -->
+				, #CHG_DATE#					<!-- 변경일자 -->
+				, #CHG_ITEM#					<!-- 변경항목 -->
+				, #CHG_BEF_CONTENT#				<!-- 변경전내용 -->
+				, #CHG_AFT_CONTENT#				<!-- 변경후내용 -->
+				, 'N'							<!-- 삭제여부 -->
+				, #USER_ID#
+				, TO_CHAR(SYSDATE, 'YYYYMMDD')
+				, TO_CHAR(SYSDATE, 'HH24MISS')
+			);
+
+		
+		UPDATE TMDM_EQ_EQP_HIST
+		SET CHG_DATE = #CHG_DATE#, EAI_STATE = 'I', SAP_EAI_STATE = 'D'
+		WHERE CNTRL_NO = #CNTRL_NO#
+		AND CHG_DATE = '99999999';
+	END
+	</update>
+
+	<!-- 공통 장비 변경 이력 입력(등록) TMDM_EQ_EQP_HIST -->
+	<!-- 임차구분추가 2013.03.05 jsa -->
+	<insert id="IFEAI3_TMDM_EQ_EQP_HIST_INSERT">
+        INSERT INTO TMDM_EQ_EQP_HIST (
+              CNTRL_NO
+             ,STA_DATE
+             ,EQP_CHG_SEQ_NO
+             ,CHG_DATE
+             ,CHG_ITEM
+             ,OP_BL
+             ,EQP_CNTRL_CCD
+             ,SPEC_CD
+             ,CAT_BUSI_CD
+             ,EQP_SCD
+             ,HALT_STATUS
+             ,RENT_YN
+             ,SALE_NO
+             ,WASTE_DATE
+             ,REG_DATE
+             ,DEL_YN
+             ,INS_PERSON_ID
+             ,INS_DATE
+             ,INS_TIME
+             ,EQP_CLS_CD
+             ,VHCL_KND_CD
+             ,EQP_TON_CD
+             ,COMP_CD
+             ,CONSIGN_COMP
+             ,EAI_STATE
+             ,EAI_MSG
+             ,EAI_DATE
+             ,COSTC
+             ,EQP_REG_CITY
+             ,EQP_REG_GOV
+           ) 
+           VALUES( #CNTRL_NO#
+              ,COALESCE(#CHG_DATE#, TO_CHAR(SYSDATE, 'YYYYMMDD'))
+              ,(SELECT COALESCE(MAX(EQP_CHG_SEQ_NO),0) + 1  
+                  FROM TMDM_EQ_EQP_HIST
+                 WHERE CNTRL_NO = #CNTRL_NO#
+                   AND STA_DATE = #CHG_DATE#) 
+              ,'99999999'
+              ,#CHG_ITEM#
+              ,(CASE WHEN #CHG_ITEM# = '01' THEN #CHG_AFT_CONTENT# ELSE #OP_BL# END)
+              ,(CASE WHEN #CHG_ITEM# = '08' THEN #CHG_AFT_CONTENT# ELSE #EQP_CNTRL_CCD# END)
+              ,(CASE WHEN #CHG_ITEM# = '05' THEN #CHG_AFT_CONTENT# ELSE #BEF_SPEC_CD# END)
+              ,(CASE WHEN #CHG_ITEM# = '02' THEN #CHG_AFT_CONTENT# ELSE #CAT_BUSI_CD# END)
+              ,(CASE WHEN #CHG_ITEM# = '04' THEN #CHG_AFT_CONTENT# ELSE #EQP_SCD# END)
+              ,(CASE WHEN #CHG_ITEM# = '03' THEN #CHG_AFT_CONTENT# ELSE #HALT_STATUS# END)
+              ,'N'
+              ,(CASE WHEN #CHG_ITEM# = '07' THEN #CHG_AFT_CONTENT# ELSE #SALE_NO# END) 
+              ,#DISUSE_DATE#
+              ,#DEV_REG_DATE#
+              ,'N'
+              ,#USER_ID#
+              ,TO_CHAR(SYSDATE, 'YYYYMMDD')
+              ,TO_CHAR(SYSDATE, 'HH24MISS')
+              ,#EQP_CLS_CD#
+              ,#VHCL_KND_CD#
+              ,#TON_CD#
+              ,DECODE(#PV_EQP_CLS#,'1',null,#COMP_CD#)
+              ,(CASE WHEN #CHG_ITEM# = '09' THEN #CHG_AFT_CONTENT# ELSE #CONSIGN_COMP# END)
+              ,'I'
+              , '' 
+              ,''
+              ,(CASE WHEN #CHG_ITEM# = '10' THEN #CHG_AFT_CONTENT# ELSE #COSTC# END) 
+              ,#PV_EQP_REG_CITY#
+              ,#PV_EQP_REG_GOV#
+            )
+	</insert>
+		
+	<!-- 자사 운영 영업번호 관리 -->
+	<update id="TBCT_EQ_TE_MGT_MERGE">
+		
+		MERGE INTO GTMS.TBCT_EQ_TE_MGT 
+			USING DUAL ON ( SALE_NO = #SALE_NO# )
+		WHEN MATCHED THEN
+    		UPDATE SET OLD_REM = NEW_REM
+		    	, OLD_CORP_ID = NEW_CORP_ID
+		        , OLD_CNTRL_NO = NEW_CNTRL_NO
+		        , NEW_CORP_ID = #NEW_CORP_ID#
+		        , NEW_CNTRL_NO = #NEW_CNTRL_NO#
+		WHEN NOT MATCHED THEN
+		    INSERT (
+		        SALE_NO
+		        , REG_CORP_ID				<!-- 등록 지사코드 -->
+				, REG_DATE					<!-- 등록일자 -->
+		        , NEW_CORP_ID
+		        , NEW_CNTRL_NO
+		        , INS_PERSON_ID
+		        , INS_DATE
+		        , INS_TIME
+		    ) VALUES (
+		        #SALE_NO#
+		        , #REG_CORP_ID#
+				, #REG_DATE#
+		        , #NEW_CORP_ID#
+		        , #NEW_CNTRL_NO#
+		        , #USER_ID#
+		        ,TO_CHAR(SYSDATE, 'YYYYMMDD')
+		        ,TO_CHAR(SYSDATE, 'HH24MISS')
+		    )
+    
+	</update>
+	
+	<!-- SEQ 최대값 조회  -->
+	<select id="TBCT_EQ_TE_MGT_HIST_SEQ_SELECT" resultClass="int">
+	
+		SELECT NVL(MAX(SEQ),0)
+		FROM GTMS.TBCT_EQ_TE_MGT_HIST
+		WHERE SALE_NO = #SALE_NO#
+	
+	</select>
+	
+	<!-- 자사 운영 영업번호 이력 관리 -->
+	<update id="TBCT_EQ_TE_MGT_HIST_INSERT">
+		
+		INSERT INTO GTMS.TBCT_EQ_TE_MGT_HIST (
+			SEQ							<!-- 순번 -->
+			, SALE_NO					<!-- 영업번호 -->
+			, REG_CORP_ID				<!-- 등록 지사코드 -->
+			, REG_DATE					<!-- 등록일자 -->
+			, REG_CLOSE_DATE			<!-- 등록만료일자 -->
+			, OLD_REM					<!-- 이전비고 -->
+			, OLD_CORP_ID				<!-- 이전 지사코드 -->
+			, OLD_CNTRL_NO				<!-- 이전 관리번호 -->
+			, NEW_CORP_ID				<!-- 신규 지사코드 -->
+			, NEW_CNTRL_NO				<!-- 신규 관리번호 -->
+			, NEW_REM					<!-- 신규비고 -->
+			, DEL_YN					<!-- 삭제여부 -->
+			, INS_PERSON_ID				<!-- 입력 자 ID -->
+			, INS_DATE					<!-- 입력 일자 -->
+			, INS_TIME					<!-- 입력 시각 -->
+		)
+		SELECT #SEQ# + 1
+			, #SALE_NO#
+			, #REG_CORP_ID#
+			, #REG_DATE#
+			, ''
+			<isNotEqual property="SEQ" compareValue="0">
+				, NEW_REM
+				, NEW_CORP_ID
+				, NEW_CNTRL_NO
+			</isNotEqual>
+			<isEqual property="SEQ" compareValue="0">
+				, ''
+				, ''
+				, ''
+			</isEqual>
+			, #NEW_CORP_ID#
+			, #NEW_CNTRL_NO#
+			, #NEW_REM#
+			, 'N'
+			, #USER_ID#
+			, TO_CHAR(SYSDATE, 'YYYYMMDD')
+			, TO_CHAR(SYSDATE, 'HH24MISS')
+		FROM GTMS.TBCT_EQ_TE_MGT_HIST
+		WHERE ROWNUM = 1
+  		<isNotEqual property="SEQ" compareValue="0">
+  			AND SALE_NO = #SALE_NO#
+  			AND SEQ = #SEQ#
+  		</isNotEqual>
+		
+	</update>
+	
+	<!-- 용차일경우 추가1, 수정  2012-06-15 -->
+	<update id="TBCT_CT_EQP_LSP_MERGE">	
+		 MERGE INTO GTMS.TTMS_CT_EQP_CORP
+		 USING DUAL ON (
+		       CORP_ID = #OP_BL#
+		   AND CNTRL_NO = #CNTRL_NO#
+		   AND LSP_ID = #COMP_CD#)
+		  WHEN MATCHED THEN
+	    UPDATE SET USE_YN = 'Y'
+		          ,DEL_YN = 'N'
+			      ,UPD_PERSON_ID = #USER_ID#	            <!-- 수정 자 ID -->	
+			      ,UPD_DATE	= TO_CHAR(SYSDATE,'YYYYMMDD')	<!-- 수정 일자 -->	
+			      ,UPD_TIME	= TO_CHAR(SYSDATE,'HH24MISS')	<!-- 수정 시각 -->	
+          WHEN NOT MATCHED THEN
+        INSERT (
+        	 CORP_ID
+			,LSP_ID
+			,CNTRL_NO
+			,USE_YN
+			,DEL_YN
+			,INS_PERSON_ID
+			,INS_DATE
+			,INS_TIME
+        ) VALUES (
+        	 #OP_BL#
+			,#COMP_CD#
+			,#CNTRL_NO#
+			,'Y'
+			,'N'
+			,#USER_ID#
+			,TO_CHAR(SYSDATE,'YYYYMMDD')	
+			,TO_CHAR(SYSDATE,'HH24MISS')
+        ) 
+    
+	</update>
+	
+	<!-- 용차일경우 추가1  2012-05-21 -->
+	<update id="TBCT_CT_EQP_LSP_MERGE_BAK">
+		
+		MERGE INTO GTMS.TTMS_CT_EQP_LSP
+			USING DUAL ON ( CNTRL_NO = #CNTRL_NO# AND LSP_ID = #COMP_CD# )
+		WHEN MATCHED THEN
+    		UPDATE SET 
+		    	UPD_PERSON_ID = #USER_ID#
+				, UPD_DATE = TO_CHAR(SYSDATE, 'YYYYMMDD')
+				, UPD_TIME = TO_CHAR(SYSDATE, 'HH24MISS')
+		WHEN NOT MATCHED THEN
+		    INSERT (
+		        CNTRL_NO
+		        , SEQ				
+				, LSP_ID					
+		        , DEL_YN
+		        , INS_PERSON_ID				<!-- 입력 자 ID -->
+				, INS_DATE					<!-- 입력 일자 -->
+				, INS_TIME					<!-- 입력 시각 -->
+		    ) VALUES (
+		        #CNTRL_NO#
+		        , (SELECT NVL(MAX(SEQ),0)+1 FROM GTMS.TTMS_CT_EQP_LSP WHERE CNTRL_NO = #CNTRL_NO#)
+				, #COMP_CD#
+		        , 'N'
+		        , #USER_ID#
+		        ,TO_CHAR(SYSDATE, 'YYYYMMDD')
+		        ,TO_CHAR(SYSDATE, 'HH24MISS')
+		    )
+    
+	</update>
+	
+	<!-- 용차일경우 추가2  2012-05-21 -->
+	<update id="TMDM_BP_CORP_MPG_MERGE">
+	
+		MERGE INTO TMDM_BP_CORP_MPG
+			USING (SELECT LSP_TCD FROM TMDM_BP_LSP WHERE LSP_ID = #COMP_CD#) A 
+			ON ( RCP_TCD = A.LSP_TCD AND RCP_ID = #COMP_CD# AND CORP_ID = #OP_BL# )
+		WHEN MATCHED THEN
+			UPDATE SET DEL_YN = 'N'
+			, UPD_PERSON_ID = #USER_ID#
+			, UPD_DATE = TO_CHAR(SYSDATE, 'YYYYMMDD')
+			, UPD_TIME = TO_CHAR(SYSDATE, 'HH24MISS')
+		WHEN NOT MATCHED THEN
+			INSERT (
+				RCP_TCD
+		        ,RCP_ID
+		        ,CORP_ID
+		        ,DEL_YN
+		        ,INS_PERSON_ID
+		        ,INS_DATE
+		        ,INS_TIME
+			) VALUES(
+				(SELECT LSP_TCD FROM TMDM_BP_LSP WHERE LSP_ID = #COMP_CD#)
+				,#COMP_CD#
+				,#OP_BL#
+				,'N'
+				,#USER_ID#
+		        ,TO_CHAR(SYSDATE, 'YYYYMMDD')
+		        ,TO_CHAR(SYSDATE, 'HH24MISS')
+			)
+	</update>
+	
+	<!-- 장비 수신 끝 -->
+	
+	<!-- 인터페이스 temp 테이블을 조회한다  -->
+	<select id="IFEAI3_TMDM_IF_CT_PART_MPG_SELECT"  resultClass="java.util.HashMap">
+         SELECT INSTANCEID, EAI_STATE, PV_EQP_PART_NO, PV_EQP_MODEL_NO, EAI_OP, STATUS
+ 		 	FROM TMDM_IF_CT_PART_MPG
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>		
+
+	<!-- 구매품목 번호 체크 -->
+	<select id="IFEAI3_TMDM_CT_PART_SELECT"  resultClass="java.util.HashMap">
+        SELECT BUY_ITEM_NO, BUY_ITEM_NM_KO
+    	  FROM  TMDM_CT_PART
+         WHERE BUY_ITEM_NO = #PV_MATNR# 
+           AND DEL_YN    = 'N'
+	</select>		
+
+	<!-- 장비모델 번호 체크 -->
+	<select id="IFEAI3_TMDM_CT_JEWON_SELECT"  resultClass="java.util.HashMap">
+        SELECT SPEC_CD, SPEC_NM 
+    	  FROM TMDM_CT_JEWON
+         WHERE SPEC_CD   = #PV_SPEC_CD# 
+           AND DEL_YN    = 'N'
+	</select>
+	
+	<!--인터페이스 결과 수정 -->
+	<update id="IFEAI3_TMDM_IF_CT_PART_MPG_UPDATE">
+			UPDATE TMDM_IF_CT_PART_MPG
+             SET EAI_STATE =#EAI_STATE#
+                ,EAI_MSG   =#EAI_MSG#
+                ,EAI_DATE  =current_timestamp
+			WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	<!-- 장비모델 구매품목 맵핑 끝 -->	
+	
+	<select id="IFEAI3_TMDM_IT_ITEM_TYPE_STATUS_SELECT"  resultClass="java.util.HashMap">
+		SELECT INSTANCEID,
+		       CODEID,
+		       LASTMODIFICATIONUSRID,
+		       EAI_STATE,
+		       EAI_OP
+		  FROM TMDM_IF_IT_ITEM_TYPE
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>
+	
+	<update id="IFEAI3_TMDM_IT_ITEM_TYPE_STATUS_UPDATE">
+		UPDATE TMDM_IF_IT_ITEM_TYPE
+			SET EAI_STATE =#EAI_STATE#
+	 			,EAI_MSG   =#EAI_MSG#
+				,EAI_DATE  =current_timestamp
+		WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<update id="IFEAI3_TMDM_IT_ITEM_TYPE_DELETE">
+		UPDATE TMDM_IT_ITEM_TYPE
+			SET DEL_YN = 'Y'
+		WHERE CODEID = #CODEID#
+	</update>
+	
+	<update id="IFEAI3_TMDM_IT_ITEM_TYPE_MERGE">
+		MERGE INTO TMDM_IT_ITEM_TYPE B
+		    USING (
+		        SELECT 
+		            CODEID,
+		            PV_ALTKN,
+		            PV_APLOFCBIZDIV,
+		            PV_MTRL_MGMT,
+		            PV_CARGOCLSS,
+		            PV_CARGOCLSSNAME_KO,
+		            PV_CARGOCLSSNAME_EN,
+		            PV_CARGOCLSSGRP,
+		            PV_CARGOCLSSGRPNAME,
+		            PV_CUST_MASTID,
+		            PV_UPLCARUNT,
+		            PV_STATUS
+		        FROM TMDM_IF_IT_ITEM_TYPE WHERE INSTANCEID = #INSTANCEID#
+		    ) A 
+		    ON ( A.CODEID = B.CODEID )
+		WHEN MATCHED THEN
+		    UPDATE SET     
+		        ALTKN = A.PV_ALTKN,
+		        APLOFCBIZDIV = A.PV_APLOFCBIZDIV,
+		        MTRL_MGMT = A.PV_MTRL_MGMT,
+		        CARGOCLSS = A.PV_CARGOCLSS,
+		        CARGOCLSSNAME_KO = A.PV_CARGOCLSSNAME_KO,
+		        CARGOCLSSNAME_EN = A.PV_CARGOCLSSNAME_EN,
+		        CARGOCLSSGRP = A.PV_CARGOCLSSGRP,
+		        CARGOCLSSGRPNAME = A.PV_CARGOCLSSGRPNAME,
+		        CUST_MASTID = A.PV_CUST_MASTID,
+		        UPLCARUNT = A.PV_UPLCARUNT,
+		        STATUS = A.PV_STATUS,
+		        DEL_YN = 'N',
+		        UPD_PERSON_ID = #USER_ID#,
+		        UPD_DATE = TO_CHAR(SYSDATE, 'YYYYMMDD'),
+		        UPD_TIME = TO_CHAR(SYSDATE, 'HH24MISS')
+		WHEN NOT MATCHED THEN
+		    INSERT (
+		        CODEID,
+		        ALTKN,
+		        APLOFCBIZDIV,
+		        MTRL_MGMT,
+		        CARGOCLSS,
+		        CARGOCLSSNAME_KO,
+		        CARGOCLSSNAME_EN,
+		        CARGOCLSSGRP,
+		        CARGOCLSSGRPNAME,
+		        CUST_MASTID,
+		        UPLCARUNT,
+		        STATUS,
+		        DEL_YN,
+		        INS_PERSON_ID, 
+		        INS_DATE, 
+		        INS_TIME
+		    ) VALUES(
+		        A.CODEID,
+		        A.PV_ALTKN,
+		        A.PV_APLOFCBIZDIV,
+		        A.PV_MTRL_MGMT,
+		        A.PV_CARGOCLSS,
+		        A.PV_CARGOCLSSNAME_KO,
+		        A.PV_CARGOCLSSNAME_EN,
+		        A.PV_CARGOCLSSGRP,
+		        A.PV_CARGOCLSSGRPNAME,
+		        A.PV_CUST_MASTID,
+		        A.PV_UPLCARUNT,
+		        A.PV_STATUS,
+		        'N',
+		        #USER_ID#,
+		        TO_CHAR(SYSDATE, 'YYYYMMDD'),
+		        TO_CHAR(SYSDATE, 'HH24MISS')
+		    )
+	</update>
+	
+	<insert id="IFEAI3_TMDM_EQ_EQP_CHANGE_INSERT_COSTC">
+		<selectKey keyProperty="EQP_CHG_SEQ_NO" resultClass="String">
+		SELECT CAST( (COALESCE(MAX(EQP_CHG_SEQ_NO),0) + 1) AS VARCHAR(10)) AS EQP_CHG_SEQ_NO   
+                  FROM TMDM_EQ_EQP_CHANGE
+                  WHERE CNTRL_NO = #CNTRL_NO#
+		</selectKey>
+		INSERT INTO TMDM_EQ_EQP_CHANGE (
+				CNTRL_NO						<!-- 관리번호 -->
+				, EQP_CHG_SEQ_NO				<!-- 장비변경일련번호 -->
+				, SALE_NO						<!-- 영업번호 -->
+				, CHG_DATE						<!-- 변경일자 -->
+				, CHG_ITEM						<!-- 변경항목 -->
+				, CHG_BEF_CONTENT				<!-- 변경전내용 -->
+				, CHG_AFT_CONTENT				<!-- 변경후내용 -->
+				, DEL_YN						<!-- 삭제여부 -->
+				, INS_PERSON_ID					<!-- 입력자ID -->
+				, INS_DATE						<!-- 입력일자 -->
+				, INS_TIME						<!-- 입력시각 -->
+			)VALUES(
+				#CNTRL_NO#						<!-- 관리번호 -->
+				, #EQP_CHG_SEQ_NO#	<!-- 장비변경일련번호 -->
+				, #SALE_NO#						<!-- 영업번호 -->
+				, #CHG_DATE#					<!-- 변경일자 -->
+				, #CHG_ITEM#					<!-- 변경항목 -->
+				, #CHG_BEF_CONTENT#				<!-- 변경전내용 -->
+				, #CHG_AFT_CONTENT#				<!-- 변경후내용 -->
+				, 'N'							<!-- 삭제여부 -->
+				, #USER_ID#
+				, TO_CHAR(SYSDATE, 'YYYYMMDD')
+				, TO_CHAR(SYSDATE, 'HH24MISS')
+			)
+	</insert>
+	
+	<insert id="IFEAI3_TMDM_EQ_EQP_HIST_INSERT_COSTC">
+       INSERT INTO TMDM_EQ_EQP_HIST (
+             CNTRL_NO
+            ,STA_DATE
+            ,EQP_CHG_SEQ_NO
+            ,CHG_DATE
+            ,CHG_ITEM
+            ,OP_BL
+            ,EQP_CNTRL_CCD
+            ,SPEC_CD
+            ,CAT_BUSI_CD
+            ,EQP_SCD
+            ,HALT_STATUS
+            ,RENT_YN
+            ,SALE_NO
+            ,WASTE_DATE
+            ,REG_DATE
+            ,DEL_YN
+            ,INS_PERSON_ID
+            ,INS_DATE
+            ,INS_TIME
+            ,EQP_CLS_CD
+            ,VHCL_KND_CD
+            ,EQP_TON_CD
+            ,COMP_CD
+            ,CONSIGN_COMP
+            ,EAI_STATE
+            ,EAI_MSG
+            ,EAI_DATE
+            ,COSTC
+            ,EQP_REG_CITY
+            ,EQP_REG_GOV
+          ) 			
+          VALUES( CAST(#CNTRL_NO# AS VARCHAR(10))
+             ,COALESCE(#CHG_DATE#, TO_CHAR(SYSDATE, 'YYYYMMDD'))
+             ,(SELECT COALESCE(MAX(EQP_CHG_SEQ_NO),0) + 1  
+                 FROM TMDM_EQ_EQP_HIST
+                WHERE CNTRL_NO = #CNTRL_NO#
+                  AND STA_DATE = #CHG_DATE#) 
+             ,#PRM_CHG_DATE#
+             ,CAST(#CHG_ITEM# AS VARCHAR(10))
+             ,(CASE WHEN #CHG_ITEM# = '01' THEN #CHG_AFT_CONTENT# ELSE #OP_BL# END)
+             ,(CASE WHEN #CHG_ITEM# = '08' THEN #CHG_AFT_CONTENT# ELSE #EQP_CNTRL_CCD# END)
+             ,(CASE WHEN #CHG_ITEM# = '05' THEN #CHG_AFT_CONTENT# ELSE #BEF_SPEC_CD# END)
+             ,(CASE WHEN #CHG_ITEM# = '02' THEN #CHG_AFT_CONTENT# ELSE #CAT_BUSI_CD# END)
+             ,(CASE WHEN #CHG_ITEM# = '04' THEN #CHG_AFT_CONTENT# ELSE #EQP_SCD# END)
+             ,(CASE WHEN #CHG_ITEM# = '03' THEN #CHG_AFT_CONTENT# ELSE #HALT_STATUS# END)
+             ,CAST('N' AS VARCHAR(1))
+             ,(CASE WHEN #CHG_ITEM# = '07' THEN #CHG_AFT_CONTENT# ELSE #SALE_NO# END) 
+             ,CAST(#DISUSE_DATE# AS VARCHAR(10))
+             ,CAST(#DEV_REG_DATE# AS VARCHAR(10))
+             ,CAST('N' AS VARCHAR(1))
+             ,CAST(#USER_ID# AS VARCHAR(50))
+             ,TO_CHAR(SYSDATE, 'YYYYMMDD')
+             ,TO_CHAR(SYSDATE, 'HH24MISS')
+             ,CAST(#EQP_CLS_CD# AS VARCHAR(10))
+             ,CAST(#VHCL_KND_CD# AS VARCHAR(10))
+             ,CAST(#TON_CD# AS VARCHAR(10))
+             ,DECODE(#PV_EQP_CLS#,'1',null,#COMP_CD#)
+             ,(CASE WHEN #CHG_ITEM# = '09' THEN #CHG_AFT_CONTENT# ELSE #CONSIGN_COMP# END)
+             ,CAST('I' AS VARCHAR(1))
+             ,CAST('' AS VARCHAR(1))
+             ,CAST('' AS VARCHAR(1))
+             ,(CASE WHEN #CHG_ITEM# = '10' THEN #CHG_AFT_CONTENT# ELSE #COSTC# END) 
+             ,CAST(#PV_EQP_REG_CITY# AS VARCHAR(10))
+             ,CAST(#PV_EQP_REG_GOV# AS VARCHAR(10))
+           )	
+	</insert>
+	
+	<select id="IFEAI3_TMDM_EQ_EQP_HIST_LAST_STA_DATE_SELECT"  resultClass="String">
+		SELECT CASE WHEN STA_DATE <![CDATA[<=]]> #CHG_DATE# THEN 'Y'
+		            ELSE 'N'
+		       END AS STAT
+		  FROM TMDM_EQ_EQP_HIST WHERE CNTRL_NO = #CNTRL_NO# AND CHG_DATE = '99999999'
+	</select>
+	
+	<select id="IFEAI3_TMDM_EQ_EQP_HIST_MIN_CHG_DATE_SELECT"  resultClass="String">
+		SELECT CHG_DATE
+		  FROM TMDM_EQ_EQP_HIST WHERE CNTRL_NO = #CNTRL_NO# AND CHG_DATE <![CDATA[<>]]> '99999999'
+		    AND CHG_DATE <![CDATA[>]]> #CHG_DATE# AND STA_DATE <![CDATA[<=]]> #CHG_DATE#
+		  ORDER BY DAYS(TO_DATE(CHG_DATE,'YYYYMMDD'))- DAYS(TO_DATE(#CHG_DATE#,'YYYYMMDD')) ASC
+			FETCH FIRST 1 ROWS ONLY
+	</select>
+	
+	<select id="IFEAI3_TMDM_EQ_EQP_HIST_MIN_STA_DATE_SELECT"  resultClass="String">
+		SELECT MIN(STA_DATE) AS CHG_DATE FROM TMDM_EQ_EQP_HIST WHERE CNTRL_NO = #CNTRL_NO#
+	</select>
+	
+	<update id="IFEAI3_TMDM_EQ_EQP_HIST_CHG_DATE_UPDATE">
+		UPDATE TMDM_EQ_EQP_HIST
+		   SET CHG_DATE = #CHG_DATE#
+		     ,EAI_STATE = 'I', SAP_EAI_STATE = 'D'
+		  WHERE CNTRL_NO = #CNTRL_NO#
+		    AND CHG_DATE = #PRM_CHG_DATE#
+	</update>
+		
+	<update id="IFEAI3_TMDM_EQ_EQP_HIST_CHG_REG_CITY">
+		UPDATE TMDM_EQ_EQP_HIST SET EQP_REG_CITY = #PV_EQP_REG_CITY#
+		 WHERE CNTRL_NO = #CNTRL_NO# 
+		  AND STA_DATE <![CDATA[>=]]> (
+			SELECT MAX(STA_DATE) AS STA_DATE 
+			  FROM TMDM_EQ_EQP_HIST WHERE CNTRL_NO = #CNTRL_NO#  AND CHG_ITEM = '11'
+		  	)
+		  	AND EQP_REG_CITY = #BF_EQP_REG_CITY#
+	</update>		
+	
+	<insert id="IFEAI3_TMDM_BP_SHPR_TERM_MERGE">
+		MERGE INTO TMDM_BP_LSP_TERM
+		USING (
+	        SELECT * FROM TMDM_IF_BP_CUST_V_TERM 
+	        WHERE INSTANCEID = #INSTANCEID#
+	      ) I ON (LSP_ID = I.PV_VENDOR_CD AND CUST_SECT_CD = I.PV_CUSTSECT AND ZTERM_CD = I.PV_ZTERM_V  )
+		  WHEN MATCHED THEN
+		  	UPDATE SET STATUS = I.PV_STATUS
+		  WHEN NOT MATCHED THEN
+		    INSERT (LSP_ID, CUST_SECT_CD, ZTERM_CD, STATUS)
+		    VALUES (I.PV_VENDOR_CD, I.PV_CUSTSECT, I.PV_ZTERM_V, I.PV_STATUS)
+	</insert>
+	
+	<update id="IFEAI3_TMDM_IF_BP_SHPR_TERM_UPDATE">
+		UPDATE TMDM_IF_BP_CUST_V_TERM
+		SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = current_timestamp
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<select id="IFEAI3_TMDM_IF_BP_SHPR_TERM_SELECT"  resultClass="java.util.HashMap">
+		SELECT INSTANCEID, EAI_STATE
+ 		 	FROM TMDM_IF_BP_CUST_V_TERM
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>
+	
+	
+</sqlMap>

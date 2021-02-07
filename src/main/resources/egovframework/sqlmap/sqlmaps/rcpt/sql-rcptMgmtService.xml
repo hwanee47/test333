@@ -1,0 +1,838 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rcptMgmtService">
+	
+	<select id="getLnNoNextValOrdTemp" resultClass="String">
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.getLnNoNextValOrdTemp]
+		     [주문접수 Temp LN_NO MAX+1 값 조회]
+		     [KJH 2020.05.13]
+		*/
+		SELECT IFNULL(MAX(LN_NO),0)+1 
+		FROM TB_WMS_ORD_MGMT_C_EXCEL_TEMP
+		WHERE
+			REG_EMP_ID = #gv_userId#
+	</select>
+	
+	<select id="selectRcptOrdTemp" resultClass="java.util.HashMap">
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.selectRcptOrdTemp]
+		     [주문접수 Temp 조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			0 AS CHK
+			, (SELECT MAX(C.CUST_REPRE_NM) FROM TB_WMS_CUST_MGMT_C C WHERE C.SHIPPER_ID = T.CUST_CD) AS CUST_NM
+			, (SELECT MAX(I.ITEM_NM) FROM TB_WMS_ITEM_MGMT_C I WHERE I.ITEM_CD = T.GDS_CD AND I.SHIPPER_ID = T.CUST_CD) AS GDS_NM
+			, 'U' AS ROW_TYPE
+			,REG_EMP_ID			,LN_NO				,CUST_CD			,SHP_MALL_SLIP_NO	,WORK_DV_CD
+			,SLIP_YMD			,WAYBILL_NO			,CENT_CD			,GDS_CD
+			
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(T.ORD_QTY, 0))) AS ORD_QTY
+			
+			,FR_ZIP_NO			,FR_BASIC_ADDR		,FC_AES_DECRYPT(FR_DETAIL_ADDR) AS FR_DETAIL_ADDR	,CONCAT(FR_TEL_NO_1, '-', FR_TEL_NO_2, '-', FC_AES_DECRYPT(FR_TEL_NO_3)) AS FR_TEL_NO
+			,FR_TEL_NO_1		,FR_TEL_NO_2		,FC_AES_DECRYPT(FR_TEL_NO_3) AS FR_TEL_NO_3		
+			,CONCAT(FR_CELL_NO_1, '-', FR_CELL_NO_2, '-', FC_AES_DECRYPT(FR_CELL_NO_3)) AS FR_CELL_NO
+			,FR_CELL_NO_1		,FR_CELL_NO_2		,FC_AES_DECRYPT(FR_CELL_NO_3) AS FR_CELL_NO_3
+			
+			,TO_ZIP_NO			,TO_BASIC_ADDR		,FC_AES_DECRYPT(TO_DETAIL_ADDR)	AS TO_DETAIL_ADDR	,CONCAT(TO_TEL_NO_1, '-', TO_TEL_NO_2, '-', FC_AES_DECRYPT(TO_TEL_NO_3)) AS TO_TEL_NO
+			,TO_TEL_NO_1		,TO_TEL_NO_2		,FC_AES_DECRYPT(TO_TEL_NO_3) AS TO_TEL_NO_3
+			,CONCAT(TO_CELL_NO_1, '-', TO_CELL_NO_2, '-', FC_AES_DECRYPT(TO_CELL_NO_3)) AS TO_CELL_NO
+			,TO_CELL_NO_1		,TO_CELL_NO_2		,FC_AES_DECRYPT(TO_CELL_NO_3) AS TO_CELL_NO_3		
+			
+			,ORDRR_ZIP_NO		,ORDRR_ADDR			,FC_AES_DECRYPT(ORDRR_DETAIL_ADDR)	AS ORDRR_DETAIL_ADDR	,CONCAT(ORDRR_TEL_NO_1, '-', ORDRR_TEL_NO_2, '-', FC_AES_DECRYPT(ORDRR_TEL_NO_3)) AS ORDRR_TEL_NO
+			,ORDRR_TEL_NO_1		,ORDRR_TEL_NO_2		,FC_AES_DECRYPT(ORDRR_TEL_NO_3) AS ORDRR_TEL_NO_3		
+			,CONCAT(ORDRR_CELL_NO_1, '-', ORDRR_CELL_NO_2, '-', FC_AES_DECRYPT(ORDRR_CELL_NO_3)) AS ORDRR_CELL_NO
+			,ORDRR_CELL_NO_1	,ORDRR_CELL_NO_2	,FC_AES_DECRYPT(ORDRR_CELL_NO_3) AS ORDRR_CELL_NO_3		
+			
+			,SLIP_TYPE			,SHP_MALL			,FR_DLCM_CD			,FR_DLCM_NM			,FR_NM
+			,FR_DLCM_TYPE		,FR_STATE			,FR_CITY			,TO_DLCM_CD			,TO_NM
+			,ORDRR_NM
+			,TO_DLCM_NM			,TO_STATE			,TO_CITY			,PRIO_RANK
+			,DLV_MSG			,CUST_REQ_MSG		,SLIP_DECIS_YMD		,PCHS_YMD			,ELEC_YMD
+			,ADAP_YMD			,ADAP_HOUR			,DLV_YMD			,DLV_HOUR			,DLV_GRP_OPR_CAR_NO
+			,MEMO1				,MEMO2				,REF_DATA_1			,REF_DATA_2			,REF_DATA_3
+			,REF_DATA_4			,REF_DATA_5			,REF_DATA_6			,REF_DATA_7			,REF_DATA_8
+			,REF_DATA_9			,REF_DATA_10		,DLV_DV				,ADDR_ABRV			,DLV_PIDV_BRAN_NM
+			,DLV_EMP_NM			,DLV_EMP_SORT_CD	,DEST_CD			,DEST_SUB_CD		,FCHRG_DV
+			,ORD_GEN_FLAG		,WAYBILL_PRT_QTY	,ST					,USE_YN				,ERR_MSG
+			,CENT_CD AS WAREH_CD
+			,CENT_CD AS DB_WAREH_CD
+			,LN_NO
+			,MPCK_KEY
+			,MPCK_SEQ
+			,RCPT_DV
+		  FROM TB_WMS_ORD_MGMT_C_EXCEL_TEMP T
+		 WHERE 1=1
+		   AND T.REG_EMP_ID = #gv_userId#
+		   AND T.SLIP_YMD BETWEEN #STA_DT# AND #END_DT#
+		   <isNotEmpty property="WAREH_CD">
+			AND T.CENT_CD = #WAREH_CD#
+		   </isNotEmpty>
+		   <isNotEmpty property="CUST_CD">
+			AND T.CUST_CD = #CUST_CD#
+		   </isNotEmpty>
+		   AND WORK_DV_CD IN ('00','11') /* 신규(00), 접수에러(11) */
+	</select>
+	
+	<select id="selectRcptOrdTempLnNo" resultClass="java.util.HashMap">
+		SELECT COUNT(LN_NO) AS CHK_LN_NO
+		  FROM TB_WMS_ORD_MGMT_C_EXCEL_TEMP
+		WHERE REG_EMP_ID = #gv_userId#
+		  AND CENT_CD = #WAREH_CD#
+	</select>
+	
+	<insert id="insertRcptOrdTempModi" >
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.insertRcptOrdTempModi]
+		     [주문접수 Temp 수정]
+		     [KSH 2020.03.15]
+		*/
+		INSERT INTO TB_WMS_ORD_MGMT_C_EXCEL_TEMP (
+			  REG_EMP_ID
+			, CENT_CD
+			, CUST_CD
+			, SLIP_YMD
+			, SHP_MALL_SLIP_NO
+			, WAYBILL_NO
+			, LN_NO
+			, GDS_CD
+			, ORD_QTY
+			, WORK_DV_CD
+			, FR_NM				, FR_ZIP_NO			, FR_BASIC_ADDR			, FR_DETAIL_ADDR
+			, FR_TEL_NO_1		, FR_TEL_NO_2		, FR_TEL_NO_3
+			, TO_NM				, TO_ZIP_NO			, TO_BASIC_ADDR			, TO_DETAIL_ADDR
+			, TO_TEL_NO_1		, TO_TEL_NO_2		, TO_TEL_NO_3
+			, ORDRR_NM 			, ORDRR_ZIP_NO 		, ORDRR_ADDR 			, ORDRR_DETAIL_ADDR
+			, ORDRR_TEL_NO_1 	, ORDRR_TEL_NO_2   	, ORDRR_TEL_NO_3 
+			, ORDRR_CELL_NO_1  	, ORDRR_CELL_NO_2  	, ORDRR_CELL_NO_3 
+		) VALUES (
+			  #gv_userId#
+			, #WAREH_CD#
+			, #CUST_CD#
+			, #SLIP_YMD#
+			, #SHP_MALL_SLIP_NO#
+			, #WAYBILL_NO#
+			, #LN_NO#
+			, #GDS_CD#
+			, (CASE WHEN #ORD_QTY# IS NULL OR #ORD_QTY# = '' THEN 0 ELSE #ORD_QTY# END)
+			, '00' /*신규상태(10)*/
+			, #FR_NM#			, #FR_ZIP_NO#			, #FR_BASIC_ADDR#			, FC_AES_ENCRYPT(#FR_DETAIL_ADDR#)
+			, #FR_TEL_NO_1#		, #FR_TEL_NO_2#			, FC_AES_ENCRYPT(#FR_TEL_NO_3#)
+			, #TO_NM#			, #TO_ZIP_NO#			, #TO_BASIC_ADDR#			, FC_AES_ENCRYPT(#TO_DETAIL_ADDR#)
+			, #TO_TEL_NO_1#		, #TO_TEL_NO_2#			, FC_AES_ENCRYPT(#TO_TEL_NO_3#)
+			, #ORDRR_NM# 		, #ORDRR_ZIP_NO# 		, #ORDRR_ADDR# 				, FC_AES_ENCRYPT(#ORDRR_DETAIL_ADDR#)
+			, #ORDRR_TEL_NO_1# 	, #ORDRR_TEL_NO_2#   	, FC_AES_ENCRYPT(#ORDRR_TEL_NO_3#) 
+			, #ORDRR_CELL_NO_1# , #ORDRR_CELL_NO_2#  	, FC_AES_ENCRYPT(#ORDRR_CELL_NO_3#) 
+		)
+	</insert>
+	<update id="updateRcptOrdTempModi" >
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.updateRcptOrdTempModi]
+		     [주문접수 Temp 수정]
+		     [KSH 2020.03.15]
+		*/
+		UPDATE TB_WMS_ORD_MGMT_C_EXCEL_TEMP
+		  SET CUST_CD = #CUST_CD#
+			, SHP_MALL_SLIP_NO = #SHP_MALL_SLIP_NO#
+			, WAYBILL_NO = #WAYBILL_NO#
+			, GDS_CD = #GDS_CD#
+			, ORD_QTY = (CASE WHEN #ORD_QTY# IS NULL OR #ORD_QTY# = '' THEN 0 ELSE #ORD_QTY# END)
+			, ORD_GEN_FLAG = null
+		    , ERR_MSG = ''
+		    , WORK_DV_CD = '10' /*주문접수(10)*/ 
+		    , SLIP_YMD = #SLIP_YMD#
+		    , CENT_CD = #WAREH_CD#
+		    , FR_NM	= #FR_NM#
+		    , FR_ZIP_NO	= #FR_ZIP_NO#		
+		    , FR_BASIC_ADDR	= #FR_BASIC_ADDR#		
+		    , FR_DETAIL_ADDR = FC_AES_ENCRYPT(#FR_DETAIL_ADDR#)
+			, FR_TEL_NO_1 = #FR_TEL_NO_1#
+			, FR_TEL_NO_2 = #FR_TEL_NO_2#
+			, FR_TEL_NO_3 = FC_AES_ENCRYPT(#FR_TEL_NO_3#)
+			, FR_CELL_NO_1 = #FR_CELL_NO_1#
+			, FR_CELL_NO_2 = #FR_CELL_NO_2#
+			, FR_CELL_NO_3 = FC_AES_ENCRYPT(#FR_CELL_NO_3#)
+			, TO_NM = #TO_NM#
+			, TO_ZIP_NO = #TO_ZIP_NO#
+			, TO_BASIC_ADDR = #TO_BASIC_ADDR#
+			, TO_DETAIL_ADDR = FC_AES_ENCRYPT(#TO_DETAIL_ADDR#)
+			, TO_TEL_NO_1 = #TO_TEL_NO_1#
+			, TO_TEL_NO_2 = #TO_TEL_NO_2#
+			, TO_TEL_NO_3 = FC_AES_ENCRYPT(#TO_TEL_NO_3#)
+			, TO_CELL_NO_1 = #TO_CELL_NO_1#
+			, TO_CELL_NO_2 = #TO_CELL_NO_2#
+			, TO_CELL_NO_3 = FC_AES_ENCRYPT(#TO_CELL_NO_3#)
+			, ORDRR_NM = #ORDRR_NM#
+			, ORDRR_ZIP_NO = #ORDRR_ZIP_NO#
+			, ORDRR_ADDR = #ORDRR_ADDR#
+			, ORDRR_DETAIL_ADDR = FC_AES_ENCRYPT(#ORDRR_DETAIL_ADDR#)
+			, ORDRR_TEL_NO_1 = #ORDRR_TEL_NO_1#
+			, ORDRR_TEL_NO_2 = #ORDRR_TEL_NO_2#
+			, ORDRR_TEL_NO_3 = FC_AES_ENCRYPT(#ORDRR_TEL_NO_3#)
+			, ORDRR_CELL_NO_1 = #ORDRR_CELL_NO_1#
+			, ORDRR_CELL_NO_2 = #ORDRR_CELL_NO_2#
+			, ORDRR_CELL_NO_3 = FC_AES_ENCRYPT(#ORDRR_CELL_NO_3#)
+			, MPCK_KEY = #MPCK_KEY#
+			, MPCK_SEQ = #MPCK_SEQ#
+			, RCPT_DV = #RCPT_DV#
+			, CUST_REQ_MSG = #CUST_REQ_MSG#
+		 WHERE CENT_CD = #DB_WAREH_CD#
+		   AND REG_EMP_ID = #gv_userId#
+		   AND LN_NO = #LN_NO#
+	</update>
+	
+	<delete id="deleteRcptOrdTemp" >
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.deleteRcptOrdTemp]
+		     [주문접수 Temp 수정]
+		     [KSH 2020.03.15]
+		*/
+		DELETE FROM TB_WMS_ORD_MGMT_C_EXCEL_TEMP
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND REG_EMP_ID = #gv_userId#
+		   AND LN_NO = #LN_NO#
+	</delete>
+	
+	<delete id="deleteRcptTemp" >
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.deleteRcptTargetOrd]
+		     [주문확정건 삭제]
+		     [KSH 2020.03.15]
+		*/
+		DELETE FROM TB_WMS_ORD_MGMT_C_EXCEL_TEMP
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND REG_EMP_ID = #gv_userId#
+		   AND ORD_GEN_FLAG = 'P'
+	</delete>
+	
+	<delete id="deleteRcptOrd">
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.deleteRcptOrd]
+		     [Temp 비우기]
+		     [KSH 2020.03.12]
+		*/
+		DELETE FROM TB_WMS_ORD_MGMT_C_EXCEL_TEMP
+		WHERE REG_EMP_ID = #gv_userId#
+		<!-- AND CENT_CD = #WAREH_CD# -->
+	</delete>
+	
+	<insert id="insertRcptOrdTemp">
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.insertRcptOrdTemp]
+		     [Excel Upload Temp]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_WMS_ORD_MGMT_C_EXCEL_TEMP
+		(
+			  REG_EMP_ID
+			, CENT_CD
+			, CUST_CD
+			, LN_NO
+			, SLIP_YMD
+			, SHP_MALL_SLIP_NO
+			, GDS_CD
+			, ORD_QTY
+			, WORK_DV_CD
+			
+			, FR_NM			, FR_ZIP_NO			, FR_BASIC_ADDR			, FR_DETAIL_ADDR
+			, FR_TEL_NO_1	, FR_TEL_NO_2		, FR_TEL_NO_3
+			, FR_CELL_NO_1	, FR_CELL_NO_2		, FR_CELL_NO_3
+			
+			
+			, TO_NM			, TO_ZIP_NO			, TO_BASIC_ADDR			, TO_DETAIL_ADDR
+			, TO_TEL_NO_1	, TO_TEL_NO_2		, TO_TEL_NO_3
+			, TO_CELL_NO_1	, TO_CELL_NO_2		, TO_CELL_NO_3
+			
+			
+			, ORDRR_NM		, ORDRR_ZIP_NO		, ORDRR_ADDR			, ORDRR_DETAIL_ADDR
+			, ORDRR_TEL_NO_1	, ORDRR_TEL_NO_2		, ORDRR_TEL_NO_3
+			, ORDRR_CELL_NO_1	, ORDRR_CELL_NO_2		, ORDRR_CELL_NO_3
+			
+			, WAYBILL_NO
+			, MPCK_KEY
+			, MPCK_SEQ
+			, RCPT_DV
+			, CUST_REQ_MSG
+		) VALUES (
+		      #gv_userId#
+		    , #WAREH_CD#
+			, #CUST_CD#
+			, #LN_NO#
+			, (CASE WHEN IFNULL(#SLIP_YMD#,'') = '' THEN DATE_FORMAT(NOW(),'%Y%m%d') ELSE #SLIP_YMD# END)
+			, #SHP_MALL_SLIP_NO#
+			, #GDS_CD#
+			, (CASE WHEN IFNULL(#ORD_QTY#,'') = '' THEN NULL ELSE #ORD_QTY# END)
+			, '00' /*신규상태(10)*/
+			
+			, #FR_NM#			, #FR_ZIP_NO#			, #FR_BASIC_ADDR#			, FC_AES_ENCRYPT(#FR_DETAIL_ADDR#)
+			, #FR_TEL_NO_1#		, #FR_TEL_NO_2#			, FC_AES_ENCRYPT(#FR_TEL_NO_3#)
+			, #FR_CELL_NO_1#	, #FR_CELL_NO_2#		, FC_AES_ENCRYPT(#FR_CELL_NO_3#)
+			
+			, #TO_NM#			, #TO_ZIP_NO#			, #TO_BASIC_ADDR#			, FC_AES_ENCRYPT(#TO_DETAIL_ADDR#)
+			, #TO_TEL_NO_1#		, #TO_TEL_NO_2#			, FC_AES_ENCRYPT(#TO_TEL_NO_3#)
+			, #TO_CELL_NO_1#	, #TO_CELL_NO_2#		, FC_AES_ENCRYPT(#TO_CELL_NO_3#)
+			
+			, #ORDRR_NM#			, #ORDRR_ZIP_NO#	, #ORDRR_ADDR#	, FC_AES_ENCRYPT(#ORDRR_DETAIL_ADDR#)
+			, #ORDRR_TEL_NO_1#		, #ORDRR_TEL_NO_2#	, FC_AES_ENCRYPT(#ORDRR_TEL_NO_3#)
+			, #ORDRR_CELL_NO_1#		, #ORDRR_CELL_NO_2#	, FC_AES_ENCRYPT(#ORDRR_CELL_NO_3#)
+			
+			, #WAYBILL_NO#
+			, #MPCK_KEY#
+			, #MPCK_SEQ#
+			, #RCPT_DV#
+			, #CUST_REQ_MSG#
+		)
+	</insert>
+	
+	<update id="updateRcptOrdDecis" >
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.updateRcptOrdDecis]
+		     [주문접수 Validatiton Check 이전 Target Flag Update]
+		     [KSH 2020.03.15]
+		*/
+		UPDATE TB_WMS_ORD_MGMT_C_EXCEL_TEMP
+		   SET ORD_GEN_FLAG = 'P'
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND REG_EMP_ID = #gv_userId#
+		   AND CUST_CD = #CUST_CD#
+		   AND LN_NO = #LN_NO#
+	</update>
+	
+	<update id="updateCheckRcptOrdItem" >
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.updateCheckRcptOrdItem]
+		     [품목체크]
+		     [KSH 2020.03.15]
+		*/
+		UPDATE TB_WMS_ORD_MGMT_C_EXCEL_TEMP T
+		   SET ORD_GEN_FLAG = 'F'
+		     , ERR_MSG = '등록되지 않은 품목코드 입니다.'
+		     , WORK_DV_CD = '11' /*접수에러(11)*/
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND REG_EMP_ID = #gv_userId#
+		   AND ORD_GEN_FLAG = 'P'
+		   AND NOT EXISTS (SELECT 1 FROM TB_WMS_ITEM_MGMT_C I WHERE T.GDS_CD = I.ITEM_CD AND T.CUST_CD = I.SHIPPER_ID)
+	</update>
+	
+	<update id="updateCheckRcptOrdQty" >
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.updateCheckRcptOrdQty]
+		     [품목체크]
+		     [KSH 2020.03.15]
+		*/
+		UPDATE TB_WMS_ORD_MGMT_C_EXCEL_TEMP T
+		   SET ORD_GEN_FLAG = 'F'
+		     , ERR_MSG = '수량을 확인해주세요'
+		     , WORK_DV_CD = '11' /*접수에러(11)*/
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND REG_EMP_ID = #gv_userId#
+		   AND ORD_GEN_FLAG = 'P'
+		   AND (ORD_QTY <![CDATA[<]]> 1 OR ORD_QTY IS NULL)
+	</update>
+	
+	
+	<update id="updateRcptOrdTempSlipNo" >
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.updateRcptOrdTempSlipNo]
+		     [주문번호생성]
+		     [KSH 2020.03.15]
+		*/
+		UPDATE TB_WMS_ORD_MGMT_C_EXCEL_TEMP T
+		   SET SLIP_NO = (SELECT CONCAT(  'R'
+							   , DATE_FORMAT(NOW(),'%Y%m%d')
+							   , (SELECT LPAD((SELECT IFNULL(SUBSTR((SELECT (MAX(SLIP_NO)) FROM TB_WMS_ORD_MGMT_MST_C B) FROM -5),0)+(CAST(T.LN_NO AS UNSIGNED))),5,'0'))
+						  )
+		   )
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND REG_EMP_ID = #gv_userId#
+		   AND ORD_GEN_FLAG = 'P'
+		   
+	</update>
+	
+	
+	<insert id="insertRcptOrdDecisHeader">
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.insertRcptOrdDecisHeader]
+		     [주문접수 Insert Header]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_WMS_ORD_MGMT_MST_C
+		(
+			  CUST_CD
+			, SLIP_YMD
+			, SLIP_TYPE
+			, SLIP_NO
+			, SHP_MALL_SLIP_NO
+			, WORK_DV_CD
+			, CENT_CD
+			
+			, FR_NM			, FR_ZIP_NO			, FR_BASIC_ADDR			, FR_DETAIL_ADDR
+			, FR_TEL_NO_1	, FR_TEL_NO_2		, FR_TEL_NO_3
+			, FR_CELL_NO_1	, FR_CELL_NO_2		, FR_CELL_NO_3
+			
+			, TO_NM			, TO_ZIP_NO			, TO_BASIC_ADDR			, TO_DETAIL_ADDR
+			, TO_TEL_NO_1	, TO_TEL_NO_2		, TO_TEL_NO_3
+			, TO_CELL_NO_1	, TO_CELL_NO_2		, TO_CELL_NO_3
+			
+			, ORDRR_NM		, ORDRR_ZIP_NO		, ORDRR_ADDR			, ORDRR_DETAIL_ADDR
+			, ORDRR_TEL_NO_1	, ORDRR_TEL_NO_2		, ORDRR_TEL_NO_3
+			, ORDRR_CELL_NO_1	, ORDRR_CELL_NO_2		, ORDRR_CELL_NO_3
+			
+			, CUST_REQ_MSG
+			, RCPT_DV
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		)
+		SELECT
+			CUST_CD
+			, SLIP_YMD
+			, 'SLIP_TYPE'
+			, SLIP_NO
+			, SHP_MALL_SLIP_NO
+			, '10' <!-- 작업상태=> 00:신규, 10 : 주문접수, 20 : 주문확정, 30 : 출고주문접수, 40 : 할당완료, 50 : 피킹완료, 60 : 출고확정 -->
+			, #WAREH_CD#
+			
+			, FR_NM			, FR_ZIP_NO			, FR_BASIC_ADDR		, FR_DETAIL_ADDR
+			, FR_TEL_NO_1	, FR_TEL_NO_2		, FR_TEL_NO_3
+			, FR_CELL_NO_1	, FR_CELL_NO_2		, FR_CELL_NO_3
+			
+			, TO_NM			, TO_ZIP_NO			, TO_BASIC_ADDR		, TO_DETAIL_ADDR
+			, TO_TEL_NO_1	, TO_TEL_NO_2		, TO_TEL_NO_3
+			, TO_CELL_NO_1	, TO_CELL_NO_2		, TO_CELL_NO_3
+			
+			, ORDRR_NM		, ORDRR_ZIP_NO		, ORDRR_ADDR			, ORDRR_DETAIL_ADDR
+			, ORDRR_TEL_NO_1	, ORDRR_TEL_NO_2		, ORDRR_TEL_NO_3
+			, ORDRR_CELL_NO_1	, ORDRR_CELL_NO_2		, ORDRR_CELL_NO_3
+			
+			, CUST_REQ_MSG
+			, RCPT_DV
+			, #gv_userId#
+			, NOW()
+			, #gv_userId#
+			, NOW()
+		  FROM TB_WMS_ORD_MGMT_C_EXCEL_TEMP
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND REG_EMP_ID = #gv_userId#
+		   AND ORD_GEN_FLAG = 'P'
+	</insert>
+	
+	<insert id="insertRcptOrdDecisDetail">
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.insertRcptOrdDetailDecis]
+		     [주문접수 Insert Detail]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_WMS_ORD_MGMT_DETAIL_C
+		(
+			  CUST_CD
+			, SLIP_YMD
+			, SLIP_NO
+			, LN_NO
+			, SHP_MALL_SLIP_NO
+			, GDS_CD
+			, ORD_QTY
+			, CENT_CD
+			
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		)
+		SELECT
+			  CUST_CD
+			, SLIP_YMD
+			, SLIP_NO
+			, (@ROWNUM:=@ROWNUM+1) AS LN_NO
+			, SHP_MALL_SLIP_NO
+			, GDS_CD
+			, ORD_QTY
+			, #WAREH_CD# AS CENT_CD
+			
+			, #gv_userId# AS REG_EMP_ID
+			, NOW() AS REG_DTIME
+			, #gv_userId# AS MODI_EMP_ID
+			, NOW() AS MODI_DTIME
+		  FROM TB_WMS_ORD_MGMT_C_EXCEL_TEMP, (SELECT @ROWNUM:=0) R
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND REG_EMP_ID = #gv_userId#
+		   AND ORD_GEN_FLAG = 'P'
+	</insert>
+
+	<select id="selectRcptOrdList" resultClass="java.util.HashMap">
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.selectRcptOrdList]
+		     [주문확정 조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			0 AS CHK
+			,(SELECT MAX(C.CUST_REPRE_NM) FROM TB_WMS_CUST_MGMT_C C WHERE C.SHIPPER_ID = H.CUST_CD) AS CUST_NM
+			,CONCAT(H.FR_TEL_NO_1, '-', H.FR_TEL_NO_2, '-', FC_AES_DECRYPT(H.FR_TEL_NO_3)) AS FR_TEL_NO
+			,CONCAT(H.FR_CELL_NO_1, '-', H.FR_CELL_NO_2, '-', FC_AES_DECRYPT(H.FR_CELL_NO_3)) AS FR_CELL_NO
+			,CONCAT(H.TO_TEL_NO_1, '-', H.TO_TEL_NO_2, '-', FC_AES_DECRYPT(H.TO_TEL_NO_3)) AS TO_TEL_NO
+			,CONCAT(H.TO_CELL_NO_1, '-', H.TO_CELL_NO_2, '-', FC_AES_DECRYPT(H.TO_CELL_NO_3)) AS TO_CELL_NO
+			,CONCAT(H.ORDRR_TEL_NO_1, '-', H.ORDRR_TEL_NO_2, '-', FC_AES_DECRYPT(H.ORDRR_TEL_NO_3)) AS ORDRR_TEL_NO
+			,CONCAT(H.ORDRR_CELL_NO_1, '-', H.ORDRR_CELL_NO_2, '-', FC_AES_DECRYPT(H.ORDRR_CELL_NO_3)) AS ORDRR_CELL_NO
+			,H.FR_TEL_NO_1		,H.FR_TEL_NO_2		,FC_AES_DECRYPT(H.FR_TEL_NO_3) AS FR_TEL_NO_3
+			,H.TO_TEL_NO_1		,H.TO_TEL_NO_2		,FC_AES_DECRYPT(H.TO_TEL_NO_3) AS TO_TEL_NO_3
+			,H.CUST_CD			,H.SLIP_YMD			,H.SLIP_TYPE		,H.SLIP_NO			,H.CENT_CD AS WAREH_CD
+			,H.WAYBILL_NO		,H.SHP_MALL_SLIP_NO	,H.WORK_DV_CD		,H.SHP_MALL			,H.FR_DLCM_CD
+			,H.FR_DLCM_NM		,H.FR_DLCM_TYPE		,H.FR_NM			,H.FR_STATE			,H.FR_CITY
+			,H.FR_ZIP_NO		,H.FR_BASIC_ADDR	,FC_AES_DECRYPT(H.FR_DETAIL_ADDR) AS FR_DETAIL_ADDR	,H.TO_DLCM_CD		,H.TO_DLCM_NM
+			,H.TO_NM			,H.TO_STATE			,H.TO_CITY			,H.TO_ZIP_NO		,H.TO_BASIC_ADDR
+			,FC_AES_DECRYPT(H.TO_DETAIL_ADDR) AS TO_DETAIL_ADDR	,H.PRIO_RANK		,H.DLV_MSG			,H.CUST_REQ_MSG
+			,H.SLIP_DECIS_YMD	,H.PCHS_YMD			,H.ELEC_YMD			,H.ADAP_YMD			,H.ADAP_HOUR
+			,H.DLV_YMD			,H.DLV_HOUR			,H.DLV_GRP_OPR_CAR_NO	,H.MEMO1		,H.MEMO2
+			,H.REF_DATA_1		,H.REF_DATA_2		,H.REF_DATA_3		,H.REF_DATA_4		,H.REF_DATA_5
+			,H.REF_DATA_6		,H.REF_DATA_7		,H.REF_DATA_8		,H.REF_DATA_9		,H.REF_DATA_10
+			,H.DLV_DV			,H.ADDR_ABRV		,H.DLV_PIDV_BRAN_NM	,H.DLV_EMP_NM		,H.DLV_EMP_SORT_CD
+			,H.DEST_CD			,H.DEST_SUB_CD		,H.FCHRG_DV			,H.ORD_GEN_FLAG		,H.WAYBILL_PRT_QTY
+			,H.ST				,H.USE_YN			,H.QTY_DIV_YN		,H.REG_EMP_ID		,DATE_FORMAT(H.REG_DTIME, '%Y-%m-%d %H:%i:%s') AS REG_DTIME
+			,H.MODI_EMP_ID		,H.MODI_DTIME
+			,H.ORDRR_NM
+			,H.ORDRR_ZIP_NO
+			,H.ORDRR_ADDR
+			,FC_AES_DECRYPT(H.ORDRR_DETAIL_ADDR) AS ORDRR_DETAIL_ADDR
+			,H.MPCK_KEY
+			,H.MPCK_SEQ
+			,H.RCPT_DV
+		  FROM TB_WMS_ORD_MGMT_MST_C H
+		  	INNER JOIN TB_WMS_ORD_MGMT_DETAIL_C D ON H.CUST_CD = D.CUST_CD AND H.SLIP_YMD = D.SLIP_YMD AND H.SLIP_NO = D.SLIP_NO
+		 WHERE 1=1 <!-- AND WORK_DV_CD = '10' -->
+			<isNotEqual property="gv_userType" compareValue="SUPER">
+				<isNotEqual property="gv_userType" compareValue="ADMIN">
+				/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 고객만 조회처리.*/
+			   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = H.CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+			   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = H.CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+			   </isNotEqual>
+		    </isNotEqual>
+		   AND H.WORK_DV_CD IN ('10', '20') /*주문접수(10), 주문확정(20)*/
+		<isNotEmpty property="WAREH_CD">
+			AND H.CENT_CD = #WAREH_CD#
+	    </isNotEmpty>
+		<isNotEmpty property="CUST_CD">
+			AND H.CUST_CD = #CUST_CD#
+		</isNotEmpty>
+		<isNotEmpty property="GDS_CD">
+			AND D.GDS_CD = #GDS_CD#
+		</isNotEmpty>
+		<isNotEmpty property="SLIP_NO">
+			AND H.SLIP_NO = #SLIP_NO#
+		</isNotEmpty>
+		<isNotEmpty property="SHP_MALL_SLIP_NO">
+			AND H.SHP_MALL_SLIP_NO = #SHP_MALL_SLIP_NO#
+		</isNotEmpty>
+		<isNotEmpty property="WAYBILL_NO">
+			AND H.WAYBILL_NO = #WAYBILL_NO#
+		</isNotEmpty>
+		<isNotEmpty property="WORK_DV_CD">
+			AND H.WORK_DV_CD = #WORK_DV_CD#
+		</isNotEmpty>
+		<isNotEmpty property="STA_DT">
+			AND H.SLIP_YMD BETWEEN #STA_DT# AND #END_DT#
+		</isNotEmpty>
+		ORDER BY H.WORK_DV_CD, H.CENT_CD, H.CUST_CD, H.SLIP_YMD, H.SLIP_TYPE, H.SLIP_NO
+	</select>
+	
+	<select id="selectRcptOrdDetailList" resultClass="java.util.HashMap">
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.selectRcptOrdDetailList]
+		     [주문확정 Detail 조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT 
+			
+			(SELECT MAX(I.ITEM_NM) FROM TB_WMS_ITEM_MGMT_C I WHERE I.ITEM_CD = D.GDS_CD AND I.SHIPPER_ID = D.CUST_CD) AS GDS_NM
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(D.ORD_QTY, 0))) AS ORD_QTY
+
+			,D.CUST_CD				,D.SLIP_YMD				,D.SLIP_NO				,D.LN_NO				,D.SHP_MALL_SLIP_NO
+			,D.SHP_MALL_SLIP_LN		,D.CENT_CD				,D.IO_TYPE				,D.STOG_LOC				,D.MATR_MV_TYPE
+			,D.GDS_CD				,D.SALE_GDS_CD			,D.CUST_ORI_ORD_UNIT	,D.ORD_UNIT				,D.ORD_QTY
+			,D.ALLOC_QTY			,D.INSP_QTY				,D.DECIS_QTY			,D.STC_DV_LOT			,D.LOT_DV_VAL_1
+			,D.LOT_DV_VAL_2			,D.LOT_DV_VAL_3			,D.LOT_DV_VAL_4			,D.LOT_DV_VAL_5			,D.STC_DV_ID
+			,D.PRIO_RANK			,D.MEMO1				,D.MEMO2				,D.DLV_MSG				,D.CUST_REQ_MSG
+			,D.MPCK_NO				,D.PACKING_METH			,D.PACKING_NO			,D.ETC_INFO_1			,D.ETC_INFO_2
+			,D.ETC_INFO_3			,D.ETC_INFO_4			,D.ETC_INFO_5			,D.REF_DATA_1			,D.REF_DATA_2
+			,D.REF_DATA_3			,D.REF_DATA_4			,D.REF_DATA_5			,D.REF_DATA_8			,D.REF_DATA_9
+			,D.REF_DATA_10			,D.SLIP_DECIS_YMD		,D.DLV_CMPL_YMD			,D.RSN_CD				,D.RSN_CONT
+			,D.ST					,D.USE_YN				,D.MODI_POSS_YN			,D.WORK_PRGS_POSS_YN	,D.WORK_PRGS_REL_MSG
+			,D.QTY_DIV_YN			,D.REG_EMP_ID			,D.REG_DTIME			,D.MODI_EMP_ID			,D.MODI_DTIME
+		  FROM TB_WMS_ORD_MGMT_DETAIL_C D
+		 WHERE D.CUST_CD = #CUST_CD#
+		   AND D.SLIP_YMD = #SLIP_YMD#
+		   AND D.SLIP_NO = #SLIP_NO#
+		   <isNotEqual property="gv_userType" compareValue="SUPER">
+				<isNotEqual property="gv_userType" compareValue="ADMIN">
+				/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 고객만 조회처리.*/
+				 AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+				 AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+				</isNotEqual>
+		   </isNotEqual>
+		 
+	</select>
+	
+	<select id="selectRcptOrdListItemQty" resultClass="java.util.HashMap">
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.selectRcptOrdListItemQty]
+		     [주문 분할시, 수량별 insert를 위한  조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT D.CENT_CD, D.CUST_CD, D.SLIP_YMD, D.SLIP_NO, D.GDS_CD, SUM(D.ORD_QTY) AS ORD_QTY, '' AS MPCK_SEQ, '' AS EMP_ID
+			, H.FR_NM, H.FR_ZIP_NO, H.FR_BASIC_ADDR, H.FR_DETAIL_ADDR
+			, H.FR_TEL_NO_1, H.FR_TEL_NO_2, H.FR_TEL_NO_3
+			, H.FR_CELL_NO_1, H.FR_CELL_NO_2, H.FR_CELL_NO_3
+			, H.TO_NM, H.TO_ZIP_NO, H.TO_BASIC_ADDR, H.TO_DETAIL_ADDR
+			, H.TO_TEL_NO_1, H.TO_TEL_NO_2, H.TO_TEL_NO_3
+			, H.TO_CELL_NO_1, H.TO_CELL_NO_2, H.TO_CELL_NO_3
+			, H.ORDRR_NM, H.ORDRR_ZIP_NO, H.ORDRR_ADDR, H.ORDRR_DETAIL_ADDR
+			, H.ORDRR_TEL_NO_1, H.ORDRR_TEL_NO_2, H.TO_TEL_NO_3
+			, H.ORDRR_CELL_NO_1, H.ORDRR_CELL_NO_2, H.ORDRR_CELL_NO_3
+		  FROM TB_WMS_ORD_MGMT_DETAIL_C D
+		  INNER JOIN TB_WMS_ORD_MGMT_MST_C H ON D.CENT_CD = H.CENT_CD AND D.CUST_CD = H.CUST_CD AND D.SLIP_YMD = H.SLIP_YMD AND H.SLIP_NO = D.SLIP_NO
+		 WHERE D.CENT_CD = #WAREH_CD#
+		   AND D.CUST_CD = #CUST_CD#
+		   AND D.SLIP_YMD = #SLIP_YMD#
+		   AND D.SLIP_NO = #SLIP_NO#
+		 GROUP BY D.CENT_CD, D.CUST_CD, D.SLIP_YMD, D.SLIP_NO, D.GDS_CD, D.LN_NO
+	</select>
+	
+	<insert id="insertRcptOrdListDivision">
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.insertRcptOrdListDivision]
+		     [수량별 출고주문 접수 insert]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_WMS_WAREO_ORD_C
+		(
+			  CENT_CD
+			, CUST_ID
+			, RCPT_YMD
+			, CUST_USE_NO
+			
+			, RCPT_DV <!-- 접수구분 -->
+			, WORK_DV_CD <!-- 작업구분코드 -->
+			, REQ_DV_CD <!-- 요청구분코드 ????? -->
+			
+			, MPCK_KEY
+			, MPCK_SEQ
+			
+			, GDS_CD
+			, GDS_QTY
+			
+			, SENDR_NM			, SENDR_ZIP_NO			, SENDR_ADDR			, SENDR_DETAIL_ADDR
+			, SENDR_TEL_NO_1	, SENDR_TEL_NO_2		, SENDR_TEL_NO_3
+			, SENDR_CELL_NO_1	, SENDR_CELL_NO_2		, SENDR_CELL_NO_3
+			
+			, RCVR_NM			, RCVR_ZIP_NO			, RCVR_ADDR			, RCVR_DETAIL_ADDR
+			, RCVR_TEL_NO_1		, RCVR_TEL_NO_2			, RCVR_TEL_NO_3
+			, RCVR_CELL_NO_1	, RCVR_CELL_NO_2		, RCVR_CELL_NO_3
+			
+			, ORDRR_NM			, ORDRR_ZIP_NO			, ORDRR_ADDR		, ORDRR_DETAIL_ADDR
+			, ORDRR_TEL_NO_1	, ORDRR_TEL_NO_2		, ORDRR_TEL_NO_3
+			, ORDRR_CELL_NO_1	, ORDRR_CELL_NO_2		, ORDRR_CELL_NO_3
+			
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		) VALUES (
+			  #CENT_CD#
+			, #CUST_CD#
+			, #SLIP_YMD#
+			, #SLIP_NO# <!-- CUST_USE_NO -->
+			
+			, '20' <!-- 접수구분  ::  일반접수(10), 분할접수 (20) -->
+			, '20' <!-- 작업구분코드 WORK_DV_CD 신규(00), 주문접수(10), 주문확정(20), 할당완료(30), 피킹완료(40), 출고확정(50) -->
+			, '00' <!-- 요청구분코드 ????? -->
+			
+			, CONCAT(#SLIP_YMD#, '_', #SLIP_NO#, '_', #MPCK_SEQ#)	<!-- MPCK_KEY  -->
+			, #MPCK_SEQ# <!-- MPCK_SEQ -->
+			
+			, #GDS_CD#
+			, 1 <!-- GDS_QTY -->
+			
+			, #FR_NM#			, #FR_ZIP_NO#			, #FR_BASIC_ADDR#		, #FR_DETAIL_ADDR#
+			, #FR_TEL_NO_1#		, #FR_TEL_NO_2#			, #FR_TEL_NO_3#
+			, #FR_TEL_NO_1#		, #FR_TEL_NO_2#			, #FR_TEL_NO_3#			
+			
+			, #TO_NM#			, #TO_ZIP_NO#			, #TO_BASIC_ADDR#		, #TO_DETAIL_ADDR#
+			, #TO_TEL_NO_1#		, #TO_TEL_NO_2#			, #TO_TEL_NO_3#
+			, #TO_TEL_NO_1#		, #TO_TEL_NO_2#			, #TO_TEL_NO_3#
+			
+			, #ORDRR_NM#		, #ORDRR_ZIP_NO#		, #ORDRR_ADDR#			, #ORDRR_DETAIL_ADDR#
+			, #ORDRR_TEL_NO_1#	, #ORDRR_TEL_NO_2#		, #ORDRR_TEL_NO_3#
+			, #ORDRR_CELL_NO_1#	, #ORDRR_CELL_NO_2#		, #ORDRR_CELL_NO_3#
+			
+			, #EMP_ID#
+			, NOW()
+			, #EMP_ID#
+			, NOW()
+		)
+	</insert>
+	
+	<insert id="insertRcptOrdList">
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.insertRcptOrdList]
+		     [일반 출고주문 접수]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_WMS_WAREO_ORD_C
+		(
+			  CENT_CD
+			, CUST_ID
+			, RCPT_YMD
+			, CUST_USE_NO
+			
+			, RCPT_DV <!-- 접수구분 -->
+			, WORK_DV_CD <!-- 작업구분코드 -->
+			, REQ_DV_CD <!-- 요청구분코드 ????? -->
+			
+			, MPCK_KEY
+			, MPCK_SEQ
+			
+			, GDS_CD
+			, GDS_QTY
+			
+			, SENDR_NM			, SENDR_ZIP_NO			, SENDR_ADDR			, SENDR_DETAIL_ADDR
+			, SENDR_TEL_NO_1	, SENDR_TEL_NO_2		, SENDR_TEL_NO_3
+			, SENDR_CELL_NO_1	, SENDR_CELL_NO_2		, SENDR_CELL_NO_3
+			
+			, RCVR_NM			, RCVR_ZIP_NO			, RCVR_ADDR			, RCVR_DETAIL_ADDR
+			, RCVR_TEL_NO_1		, RCVR_TEL_NO_2			, RCVR_TEL_NO_3
+			, RCVR_CELL_NO_1	, RCVR_CELL_NO_2		, RCVR_CELL_NO_3
+			
+			, ORDRR_NM			, ORDRR_ZIP_NO			, ORDRR_ADDR		, ORDRR_DETAIL_ADDR
+			, ORDRR_TEL_NO_1	, ORDRR_TEL_NO_2		, ORDRR_TEL_NO_3
+			, ORDRR_CELL_NO_1	, ORDRR_CELL_NO_2		, ORDRR_CELL_NO_3
+			
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		)
+		SELECT
+			  #WAREH_CD#
+			, H.CUST_CD
+			, H.SLIP_YMD
+			, H.SLIP_NO
+			
+			, '20' <!-- 10 : 일반접수, 20 : 분할접수 -->
+			, '20' <!-- 10 : 주문접수, 20 : 주문확정, 30 : 출고주문접수, 40 : 할당완료, 50 : 피킹완료, 60 : 출고확정 -->
+			, '00' <!-- ??? -->
+			
+			, CONCAT(#SLIP_YMD#, '_', #SLIP_NO#, '_1') <!-- CONCAT((@ROWNUM:=@ROWNUM), ' ', 'MPCK')  --> 
+			, 1 <!-- (@ROWNUM:=@ROWNUM+1) -->
+			
+			, D.GDS_CD
+			, D.ORD_QTY
+			
+			, FR_NM			, FR_ZIP_NO			, FR_BASIC_ADDR			, FR_DETAIL_ADDR
+			, FR_TEL_NO_1	, FR_TEL_NO_2		, FR_TEL_NO_3
+			, FR_TEL_NO_1	, FR_TEL_NO_2		, FR_TEL_NO_3
+			
+			, TO_NM			, TO_ZIP_NO			, TO_BASIC_ADDR			, TO_DETAIL_ADDR
+			, TO_TEL_NO_1	, TO_TEL_NO_2		, TO_TEL_NO_3
+			, TO_TEL_NO_1	, TO_TEL_NO_2		, TO_TEL_NO_3
+			
+			, ORDRR_NM		, ORDRR_ZIP_NO		, ORDRR_ADDR			, ORDRR_DETAIL_ADDR
+			, ORDRR_TEL_NO_1	, ORDRR_TEL_NO_2		, ORDRR_TEL_NO_3
+			, ORDRR_CELL_NO_1	, ORDRR_CELL_NO_2		, ORDRR_CELL_NO_3
+			
+			, #gv_userId#
+			, NOW()
+			, #gv_userId#
+			, NOW()
+		  FROM TB_WMS_ORD_MGMT_MST_C H
+		    INNER JOIN TB_WMS_ORD_MGMT_DETAIL_C D ON H.CUST_CD = D.CUST_CD AND H.SLIP_YMD = D.SLIP_YMD AND H.SLIP_NO = D.SLIP_NO
+		    INNER JOIN (SELECT @ROWNUM:=0) R
+		 WHERE 1=1
+		   AND H.CENT_CD = #WAREH_CD#
+		   AND H.CUST_CD = #CUST_CD#
+		   AND H.SLIP_YMD = #SLIP_YMD#
+		   AND H.SLIP_NO = #SLIP_NO#
+	</insert>
+	
+	<update id="updateRcptOrdList" >
+		/* [sql-rcptMgmtService.xml][rcptMgmtService.updateRcptOrdList]
+		     [주문확정 상태값 Update]
+		     [KSH 2020.03.12]
+		*/
+		UPDATE TB_WMS_ORD_MGMT_MST_C
+		   SET WORK_DV_CD = #WORK_DV_CD#
+		     , MODI_EMP_ID = #gv_userId#
+			 , MODI_DTIME = NOW()
+		 WHERE CUST_CD = #CUST_CD#
+		   AND SLIP_YMD = #SLIP_YMD#
+		   AND SLIP_NO = #SLIP_NO#
+	</update>
+	
+	
+	<select id="getRcptOrdExcelForm" resultClass="java.util.HashMap">
+		/** [sql-rcptMgmtService.xml][rcptMgmtService.getRcptOrdExcelForm]
+		 *  [주문접수 엑셀 양식 조회]
+		 *  [KimJinHwan 2020.05.07]
+		 **/
+		SELECT
+			XLS_FRM_NM
+			,XLS_FRM_NM AS XLS_FRM_NM_ORG
+			,XLS_HD_LIST	AS COL_ID
+		FROM
+			TB_BAIM_USER_XLS_FRM_C
+		WHERE
+			CUST_ID = #CUST_ID# 
+		AND XLS_FRM_NM = #XLS_FRM_NM#
+		AND WAREIO_DV = #WAREIO_DV#
+			
+	</select>
+	
+	
+	<insert id="mergeUserExcelForm" >
+		/** [sql-rcptMgmtService.xml][rcptMgmtService.mergeUserExcelForm]
+		 *  [엑셀양식 저장]
+		 *  [KimJinHwan 2020.05.22]
+		 **/
+		INSERT INTO TB_BAIM_USER_XLS_FRM_C
+		(
+			CUST_ID
+			,WAREIO_DV
+			,XLS_FRM_NM
+			,XLS_HD_LIST
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#CUST_ID#
+			,#WAREIO_DV#
+			,#XLS_FRM_NM#
+			,#XLS_HD_LIST#
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		ON
+			DUPLICATE KEY
+		UPDATE
+			XLS_FRM_NM		= #XLS_FRM_NM_NEW#
+			,XLS_HD_LIST	= #XLS_HD_LIST#
+			,MODI_EMP_ID    = #gv_userId#
+			,MODI_DTIME     = NOW()
+	</insert>
+	
+	
+	<select id="checkDupUserExcelForm" resultClass="int">
+		/** [sql-rcptMgmtService.xml][rcptMgmtService.checkDupUserExcelForm]
+		 *  [엑셀양식 중복체크]
+		 *  [KimJinHwan 2020.05.25]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_BAIM_USER_XLS_FRM_C
+		WHERE
+			CUST_ID	= #CUST_ID#
+		AND WAREIO_DV  = #WAREIO_DV#
+		AND XLS_FRM_NM = #XLS_FRM_NM#
+	
+	</select>
+	
+	
+	<delete	id="deleteUserExcelForm">
+		/** [sql-rcptMgmtService.xml][rcptMgmtService.deleteUserExcelForm]
+		 *  [엑셀양식 삭제]
+		 *  [KimJinHwan 2020.05.25]
+		 **/
+		DELETE FROM TB_BAIM_USER_XLS_FRM_C
+		WHERE
+			CUST_ID	= #CUST_ID#
+		AND WAREIO_DV  = #WAREIO_DV#
+		AND XLS_FRM_NM = #XLS_FRM_NM#	
+	</delete>
+</sqlMap>

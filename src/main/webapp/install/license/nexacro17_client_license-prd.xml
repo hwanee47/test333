@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<license version="1.1">
+	<product>
+		<name>nexacro&#32;platform</name>
+		<version>17</version>
+		<function>Runtime,WebBrowser</function>
+	</product>
+	<customer>
+		<name>화물정보망고도화_구축_PJT</name>
+		<developerCount>0</developerCount>
+		<rootDomain>128.11.1.70,128.11.1.71,128.11.1.72,61.33.235.226,61.33.235.227,61.33.235.231,61.33.235.234,hellotruck.co.kr,tts.hellotruck.co.kr</rootDomain>
+		<targetPlatform>Windows,WindowsRT</targetPlatform>
+	</customer>
+	<date>
+		<activation>2018-10-22</activation>
+		<term>0</term>
+	</date>
+	<key>CKGDJRXAKJ81817BUVP9EGX3RDF95DMJA</key>
+</license>

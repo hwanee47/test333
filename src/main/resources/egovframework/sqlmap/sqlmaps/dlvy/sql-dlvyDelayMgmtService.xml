@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dlvyDelayMgmtService">
+	<select id="getDlvyDelayList" resultClass="java.util.HashMap">
+		SELECT 
+		 A.WAYBILL_NO
+		 ,DATE_FORMAT(A.REG_YMD,'%Y-%m-%d') AS REG_YMD
+		 ,DATE_FORMAT(A.WORK_YMD,'%Y-%m-%d') AS WORK_YMD
+		 ,A.DELAY_RSN_CD
+		 ,E.CD_NM AS DELAY_RSN_NM
+		 ,A.DETAIL_RSN
+		 ,A.WORK_EMP_NO
+		 ,F.EMP_NM
+		 ,C.CUST_NM AS ENTER_CUST_NM
+		 ,D.CUST_NM AS RCVR_CUST_NM
+		 ,F.BRAN_CD
+		 ,G.BRAN_NM
+		FROM TB_PIDV_CRG_DELAY_SCAN_C A,
+		TB_WAYBILL_REG_MST_C B,
+		TB_BAIM_ENTER_CUST_C C,
+		TB_BAIM_CUST_LIST_C D,
+		TMDM_MC_CODE_B E,
+		TB_BAIM_EMP_MGT_C F,
+		TB_BAIM_BRAN_MGT_C G
+		WHERE A.WAYBILL_NO= B.WAYBILL_NO
+		AND B.ENTER_CUST_NO = C.CUST_ID
+		AND E.CD_TCD = 'PD001'
+		AND E.CD = A.DELAY_RSN_CD
+		AND B.SEND_CUST_NO = D.CUST_ID
+		AND F.BRAN_CD = G.BRAN_CD
+		AND A.WORK_EMP_NO = F.EMP_NO
+		AND A.DELAY_KND = '02'
+		<isNotEmpty property="BRAN_CD">
+		AND A.BRAN_CD = #BRAN_CD#
+		</isNotEmpty>
+		<isNotEmpty property="EMP_NO">
+		AND A.WORK_EMP_NO = #EMP_NO#
+		</isNotEmpty>
+		AND A.WORK_YMD = #WORK_YMD#
+	</select>
+	
+	<insert id="insertDelayInfo">
+		INSERT INTO TB_PIDV_CRG_DELAY_SCAN_C (
+		   WAYBILL_NO
+		  ,WORK_YMD
+		  ,DELAY_KND
+		  ,BRAN_CD
+		  ,DELAY_RSN_CD
+		  ,DETAIL_RSN
+		  ,WORK_HOUR
+		  ,WORK_EMP_NO
+		  ,REG_YMD
+		  ,REG_HOUR
+		  ,REG_EMP_ID
+		  ,REG_DTIME
+		  ,MODI_EMP_ID
+		  ,MODI_DTIME
+		) VALUES (
+		   #WAYBILL_NO#
+		  ,#WORK_YMD#
+		  ,'02'
+		  ,#BRAN_CD#
+		  ,#DELAY_RSN_CD#
+		  ,#DETAIL_RSN#
+		  ,TIME_FORMAT(NOW(), "%H%i%s")
+		  ,#EMP_NO#
+		  ,DATE_FORMAT(NOW(), '%Y%m%d')
+		  ,TIME_FORMAT(NOW(), "%H%i%s")
+		  ,#gv_userId#                                  
+		  ,REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','') 
+		  ,#gv_userId#                                      
+		  ,REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','') 
+		)
+	</insert>
+	
+	<select id="getChkDelayDupl" resultClass="Integer">
+	/** [sql-dlvyDepatMgmtService.xml][dlvyDepatMgmtService.getChkDepatDupl]
+		 *  [미배송사유 INSERT전 중복체크]
+		 *  [JinSeonJu 2020.02.22]
+		 **/
+		SELECT COUNT(*)
+		FROM TB_PIDV_CRG_DELAY_SCAN_C A
+		WHERE A.WAYBILL_NO = #WAYBILL_NO#
+		AND A.WORK_YMD = #WORK_YMD#
+		AND A.DELAY_KND = '02'
+	</select>
+	
+	
+	<update id="updateDelayInfo">
+		/** [sql-dlvyDepatMgmtService.xml][dlvyDepatMgmtService.updateDelayInfo]
+		 *  [미배송사유 UPDATE]
+		 *  [JinSeonJu 2020.02.22]
+		 **/
+		UPDATE TB_PIDV_CRG_DELAY_SCAN_C SET
+		  BRAN_CD = #BRAN_CD#
+		  ,DELAY_RSN_CD = #DELAY_RSN_CD#
+		  ,DETAIL_RSN = #DETAIL_RSN#
+		  ,WORK_HOUR = TIME_FORMAT(now(), "%H%i%s")
+		  ,WORK_EMP_NO = #EMP_NO#
+		  ,MODI_EMP_ID = #gv_userId#
+		  ,MODI_DTIME = REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','') 
+		WHERE WAYBILL_NO = #WAYBILL_NO#
+		  AND WORK_YMD = #WORK_YMD#
+		  AND DELAY_KND = '02'
+	</update>
+	
+	<delete id="deleteDelayInfo">
+		/** [sql-dlvyDepatMgmtService.xml][dlvyDepatMgmtService.deleteDelayInfo]
+		 *  [미배송사유 DELETE]
+		 *  [JinSeonJu 2020.02.22]
+		 **/
+		DELETE FROM TB_PIDV_CRG_DELAY_SCAN_C
+		WHERE WAYBILL_NO = #WAYBILL_NO#
+		  AND WORK_YMD = #WORK_YMD#
+		  AND DELAY_KND = '02'
+	</delete>
+	
+	
+	<select id="getDlvyDelayStsListBywabillNo" resultClass="java.util.HashMap">
+		/** [sql-baimBranMgmtService.xml][dlvyDepatMgmtService.getChkDepatDupl]
+		 *  [미배송 현황 조회 - 운송장 등록기준]
+		 *  [JinSeonJu 2020.02.22]
+		 **/
+		SELECT 
+			A.PICKUP_BRAN_CD AS BRAN_CD
+			,B.BRAN_NM
+			, B.MGMT_UP_BRAN_CD
+			, COUNT(1) AS DELAY_CNT
+			, #WORK_YMD_FROM# AS WORK_YMD_FROM
+			, #WORK_YMD_TO# AS WORK_YMD_TO
+			, #DS_DIV# as DS_DIV
+		FROM
+			TB_WAYBILL_REG_MST_C A
+			,(SELECT B_1.BRAN_CD, B_1.BRAN_NM, B_1.MGMT_UP_BRAN_CD 
+				FROM TB_BAIM_BRAN_MGT_C B_1 
+				WHERE MGMT_UP_BRAN_CD = #MGMT_UP_BRAN_CD#) B
+			,TB_PIDV_CRG_ST_C ST
+		WHERE A.PICKUP_BRAN_CD = B.BRAN_CD
+		AND A.WAYBILL_NO = ST.WAYBILL_NO
+		AND A.PICKUP_YMD BETWEEN #WORK_YMD_FROM# AND #WORK_YMD_TO#
+		AND ST.GDS_ST_CD = '84'		/* ST019 - 미배달 */
+		AND A.RTURN_YN ='Y'
+		GROUP BY A.PICKUP_BRAN_CD, B.BRAN_NM, B.MGMT_UP_BRAN_CD
+		ORDER BY B.MGMT_UP_BRAN_CD
+	</select>
+	
+	<select id="getDlvyDelayDetailByWaybillNo" resultClass="java.util.HashMap">
+		SELECT 
+			 A.PICKUP_YMD 	/* 일자 */
+	       , A.WAYBILL_NO 	/* 운송장번호 */
+	       , D.EMP_NM /* SM사원명 */
+	       , E.CUST_NM /* 기업고객 */
+	       , C.SENDR_NM /* 보내는분 */
+	       , C.RCVR_NM /* 받는분 */
+	       , RSNCD.CD_NM AS DELAY_RSN  /* 사유 */
+           , DELAY.DETAIL_RSN AS DETAIL_RSN  /* 상세사유 */
+	       , ST.BRAN_CD /* 최종스캔점소 */
+	       , DATE_FORMAT(CONCAT(ST.WORK_YMD, ST.WORK_HOUR),'%Y-%m-%d %H:%i:%s') AS WORK_TIME /* 스캔일시 */
+	       , CD.CD_NM AS FRT_DV_NM /* 운임구분  */
+	       , A.QTY      /* 수량 */
+	       , A.WT_FRT /* 총운임 */
+	       , C.BASIC_FRT /* 기본운임 */
+	       , A.SIZE /* 사이즈 */
+	       , A.WT /* 중량 */
+	       , CONCAT(C.RCVR_ADDR,' ' ,IFNULL(FC_AES_DECRYPT(C.RCVR_DETAIL_ADDR),'')) AS RCVR_ADDR
+	       , CONCAT(C.RCVR_CELL_NO_1,'-',C.RCVR_CELL_NO_2, '-',IFNULL(FC_AES_DECRYPT(C.RCVR_CELL_NO_3),'')) AS RCVR_CELL_NO
+	       , CONCAT(C.RCVR_TEL_NO_1,'-',C.RCVR_TEL_NO_2, '-',IFNULL(FC_AES_DECRYPT(C.RCVR_TEL_NO_3),'')) AS RCVR_TEL_NO
+		FROM
+			TB_WAYBILL_REG_MST_C A
+			,(SELECT B_1.BRAN_CD, B_1.BRAN_NM, B_1.MGMT_UP_BRAN_CD 
+				FROM TB_BAIM_BRAN_MGT_C B_1 
+				WHERE MGMT_UP_BRAN_CD = #MGMT_UP_BRAN_CD#) B
+		    ,TB_PIDV_CRG_ST_C ST
+		    ,TB_RCPT_LIST_C C
+		    , TB_BAIM_EMP_MGT_C D
+		    , TB_BAIM_ENTER_CUST_C E
+		    , TMDM_MC_CODE_B CD
+		    , TMDM_MC_CODE_B RSNCD
+			, TB_PIDV_CRG_DELAY_SCAN_C DELAY
+		WHERE A.PICKUP_BRAN_CD = B.BRAN_CD
+	    AND A.WAYBILL_NO = ST.WAYBILL_NO
+	    AND A.WAYBILL_NO = C.WAYBILL_NO
+	    AND C.PICKUP_EMP_NO = D.EMP_NO
+	    AND A.ENTER_CUST_NO = E.CUST_ID
+	    AND A.FRT_DV = CD.CD
+	    AND DELAY.DELAY_RSN_CD = RSNCD.CD
+	    AND A.WAYBILL_NO = DELAY.WAYBILL_NO
+	    AND RSNCD.CD_TCD = 'PD001'
+	    AND A.RTURN_YN = 'Y'
+	    AND CD.CD_TCD = 'CS006'
+	    AND ST.GDS_ST_CD = '84'
+		AND DELAY.WORK_YMD BETWEEN #WORK_YMD_FROM# AND #WORK_YMD_TO#
+		ORDER BY B.MGMT_UP_BRAN_CD
+	</select>
+	
+	<select id="getDlvyDelayStsListByDepatScan" resultClass="java.util.HashMap">
+	/** [sql-baimBranMgmtService.xml][dlvyDepatMgmtService.getChkDepatDupl]
+		 *  [미배송 현황 조회 - 배송출발 기준]
+		 *  [JinSeonJu 2020.02.22]
+		 **/
+		 SELECT  A.BRAN_CD
+			, C.BRAN_NM
+			, COUNT(DISTINCT A.WAYBILL_NO) AS DELAY_CNT
+		FROM TB_PIDV_DEPAT_SCAN_C A
+			,TB_PIDV_CRG_ST_C B
+			,TB_BAIM_BRAN_MGT_C C
+		WHERE C.MGMT_UP_BRAN_CD = #MGMT_UP_BRAN_CD#
+		AND A.WORK_YMD BETWEEN #WORK_YMD_FROM# AND #WORK_YMD_TO#
+		AND A.CRG_ST = '82'
+		AND A.WAYBILL_NO = B.WAYBILL_NO
+		AND A.BRAN_CD = C.BRAN_CD
+		AND B.GDS_ST_CD != '91'
+		GROUP BY A.BRAN_CD, C.BRAN_NM, C.MGMT_UP_BRAN_CD
+		ORDER BY C.MGMT_UP_BRAN_CD
+	</select>
+	
+	<select id="getDlvyDelayStstDetailByDepatScan" resultClass="java.util.HashMap">
+		SELECT 
+		A.PICKUP_YMD /* 일자 */
+       , A.WAYBILL_NO /* 운송장번호 */
+       , C.PICKUP_EMP_NO  /* SM사원코드 */
+       , D.EMP_NM /* SM사원명 */
+       , E.CUST_NM /* 기업고객 */
+       , C.SENDR_NM /* 보내는분 */
+       , C.RCVR_NM /* 받는분 */
+       , '' AS DELAY_RSN  /* 사유 */
+       , '' AS DETAIL_RSN /* 상세사유 */
+       , ST.BRAN_CD /* 최종스캔점소 */
+       , DATE_FORMAT(CONCAT(ST.WORK_YMD, ST.WORK_HOUR),'%Y-%m-%d %H:%i:%s') /* 스캔일시 */
+       , CD.CD_NM /* 운임구분  */
+       , A.QTY      /* 수량 */
+       , A.WT_FRT /* 총운임 */
+       , C.BASIC_FRT /* 기본운임 */
+       , A.SIZE /* 사이즈 */
+       , A.WT /* 중량 */
+       , CONCAT(C.RCVR_ADDR,' ' ,IFNULL(FC_AES_DECRYPT(C.RCVR_DETAIL_ADDR),'')) AS RCVR_ADDR
+       , CONCAT(C.RCVR_CELL_NO_1,'-',C.RCVR_CELL_NO_2, '-',IFNULL(FC_AES_DECRYPT(C.RCVR_CELL_NO_3),'')) AS RCVR_CELL_NO
+       , CONCAT(C.RCVR_TEL_NO_1,'-',C.RCVR_TEL_NO_2, '-',IFNULL(FC_AES_DECRYPT(C.RCVR_TEL_NO_3),'')) AS RCVR_TEL_NO
+		FROM
+			TB_WAYBILL_REG_MST_C A
+			,(SELECT B_1.BRAN_CD, B_1.BRAN_NM, B_1.MGMT_UP_BRAN_CD 
+				FROM TB_BAIM_BRAN_MGT_C B_1 
+				WHERE MGMT_UP_BRAN_CD = #MGMT_UP_BRAN_CD#) B
+      , TB_PIDV_CRG_ST_C ST
+      , TB_RCPT_LIST_C C
+      , TB_BAIM_EMP_MGT_C D
+      , TB_BAIM_ENTER_CUST_C E
+      , TB_PIDV_DEPAT_SCAN_C DPT
+      , TMDM_MC_CODE_B CD
+		WHERE A.PICKUP_BRAN_CD = B.BRAN_CD
+	    AND A.WAYBILL_NO = ST.WAYBILL_NO
+	    AND A.WAYBILL_NO = C.WAYBILL_NO
+	    AND A.WAYBILL_NO = DPT.WAYBILL_NO
+	    AND C.PICKUP_EMP_NO = D.EMP_NO
+	    AND C.CUST_ID = E.CUST_ID
+	    AND A.FRT_DV = CD.CD
+	    AND A.RTURN_YN = 'Y'
+	    AND CD.CD_TCD = 'CS006'
+	    AND ST.GDS_ST_CD != '91' /* (ST019)배달완료 */
+	    AND DPT.CRG_ST = '82' /* (ST019)배달출발  */
+	    AND 
+		AND A.PICKUP_YMD BETWEEN  #WORK_YMD_FROM# AND #WORK_YMD_TO#
+		ORDER BY B.MGMT_UP_BRAN_CD
+	</select>
+	
+	<select id="getDlvyDelayStsListByDelayRsn" resultClass="java.util.HashMap">
+		/** [sql-baimBranMgmtService.xml][dlvyDepatMgmtService.getChkDepatDupl]
+		 *  [미배송 현황 조회 - 사유 등록기준]
+		 *  [JinSeonJu 2020.02.22]
+		 **/
+		SELECT A.BRAN_CD
+			, C.BRAN_NM
+			, COUNT(DISTINCT A.WAYBILL_NO) AS DELAY_CNT 
+		FROM TB_PIDV_CRG_DELAY_SCAN_C A,
+			TB_PIDV_CRG_ST_C B,
+			(SELECT C_1.BRAN_CD, C_1.BRAN_NM, C_1.MGMT_UP_BRAN_CD 
+							FROM TB_BAIM_BRAN_MGT_C C_1 
+							WHERE C_1.MGMT_UP_BRAN_CD =  #MGMT_UP_BRAN_CD#) C
+		WHERE A.WORK_YMD BETWEEN  #WORK_YMD_FROM# AND #WORK_YMD_TO#
+		 AND A.DELAY_KND = '02'
+		 AND A.WAYBILL_NO = B.WAYBILL_NO
+		 AND A.BRAN_CD = C.BRAN_CD
+		GROUP BY A.BRAN_CD, C.BRAN_NM, C.MGMT_UP_BRAN_CD
+		ORDER BY C.MGMT_UP_BRAN_CD
+	</select>
+	
+	<select id="getDlvyDelayStsDetailByDelayRsn" resultClass="java.util.HashMap">
+	SELECT 
+		A.PICKUP_YMD /* 일자 */
+       , A.WAYBILL_NO /* 운송장번호 */
+       , C.PICKUP_EMP_NO  /* SM사원코드 */
+       , D.EMP_NM /* SM사원명 */
+       , E.CUST_NM /* 기업고객 */
+       , C.SENDR_NM /* 보내는분 */
+       , C.RCVR_NM /* 받는분 */
+       ,(SELECT CONCAT(IFNULL(IN_CD.CD_NM,''),IFNULL(DPT.DETAIL_RSN,''))
+            FROM TMDM_MC_CODE_B IN_CD
+            WHERE IN_CD.CD_TCD = 'PD001'
+            AND IN_CD.CD = DPT.DELAY_RSN_CD ) AS DELAY_RSN  /* 사유 */
+       , ST.BRAN_CD /* 최종스캔점소 */
+       , DATE_FORMAT(CONCAT(ST.WORK_YMD, ST.WORK_HOUR),'%Y-%m-%d %H:%i:%s') /* 스캔일시 */
+       , CD.CD_NM /* 운임구분  */
+       , A.QTY      /* 수량 */
+       , A.WT_FRT /* 총운임 */
+       , C.BASIC_FRT /* 기본운임 */
+       , A.SIZE /* 사이즈 */
+       , A.WT /* 중량 */
+       , CONCAT(C.RCVR_ADDR,' ' ,IFNULL(FC_AES_DECRYPT(C.RCVR_DETAIL_ADDR),'')) AS RCVR_ADDR
+       , CONCAT(C.RCVR_CELL_NO_1,'-',C.RCVR_CELL_NO_2, '-',IFNULL(FC_AES_DECRYPT(C.RCVR_CELL_NO_3),'')) AS RCVR_CELL_NO
+       , CONCAT(C.RCVR_TEL_NO_1,'-',C.RCVR_TEL_NO_2, '-',IFNULL(FC_AES_DECRYPT(C.RCVR_TEL_NO_3),'')) AS RCVR_TEL_NO
+		FROM
+			TB_WAYBILL_REG_MST_C A
+			,(SELECT B_1.BRAN_CD, B_1.BRAN_NM, B_1.MGMT_UP_BRAN_CD 
+				FROM TB_BAIM_BRAN_MGT_C B_1 
+				WHERE MGMT_UP_BRAN_CD = #MGMT_UP_BRAN_CD#) B
+	      ,TB_PIDV_CRG_ST_C ST
+	      ,TB_RCPT_LIST_C C
+	      , TB_BAIM_EMP_MGT_C D
+	      , TB_BAIM_ENTER_CUST_C E
+	      , TB_PIDV_CRG_DELAY_SCAN_C DPT
+	      , TMDM_MC_CODE_B CD
+			WHERE A.PICKUP_BRAN_CD = B.BRAN_CD
+	    AND A.WAYBILL_NO = ST.WAYBILL_NO
+	    AND A.WAYBILL_NO = C.WAYBILL_NO
+	    AND A.WAYBILL_NO = DPT.WAYBILL_NO
+	    AND C.PICKUP_EMP_NO = D.EMP_NO
+	    AND C.CUST_ID = E.CUST_ID
+	    AND A.FRT_DV = CD.CD
+	    AND A.RTURN_YN = 'Y'
+	    AND DPT.DELAY_KND = '02'
+	    AND CD.CD_TCD = 'CS006'
+			AND A.PICKUP_YMD = (SELECT MAX(IN_1.WORK_YMD) 
+	                          FROM TB_PIDV_CRG_DELAY_SCAN_C IN_1
+	                          WHERE IN_1.WORK_YMD BETWEEN  #WORK_YMD_FROM# AND #WORK_YMD_TO#
+	                          AND IN_1.DELAY_KND = '02'
+	                          AND IN_1.WAYBILL_NO = A.WAYBILL_NO)
+		ORDER BY B.MGMT_UP_BRAN_CD
+	
+	</select>
+</sqlMap>

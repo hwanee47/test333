@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="menuMgmService">
+
+	<!-- 대메뉴/소메뉴 정보 조회-->
+    <select id="selectMenuList" resultClass="java.util.HashMap">
+    	/* [menuMgmService][selectMenuList][메뉴 수정][2020.02.27][kjh] */
+		SELECT MENU_CD
+		        , MENU_NM
+		        , MENU_NM_EN
+		        , MENU_NM_ZH
+		        , MENU_TYPE
+		        , MSTR_MENU_CD
+		        , MENU_URL
+		        , MENU_SYS
+		        , MENU_DESC
+		        , SORT_MAIN
+         		, SORT_SUB
+		        , MENU_IMG_CLASS
+		        , USE_YN
+		        , DEL_YN
+		        , SUBSTR(MENU_CD,1,4) AS SYS_DUTY_DV
+		FROM TMDM_KFR_MENU
+		WHERE MENU_TYPE = #MENU_TYPE#
+		<isEqual property="MENU_TYPE" compareValue="1">
+	    	AND MSTR_MENU_CD = #MSTR_MENU_CD#
+	    </isEqual>
+	    <isEqual property="MENU_TYPE" compareValue="0">
+		    <isNotEmpty property="MENU_NM">
+		    	AND MENU_NM LIKE CONCAT('%', #MENU_NM#, '%')
+		    </isNotEmpty>
+		    <isNotEmpty property="USE_YN">
+		    	AND USE_YN = #USE_YN#
+		    </isNotEmpty>
+	    </isEqual>
+		AND DEL_YN = 'N'
+		<isNotEmpty property="MENU_SYS">
+	    	AND MENU_SYS = #MENU_SYS#
+	    </isNotEmpty>
+	    <isEqual property="MENU_TYPE" compareValue="0">
+	    	ORDER BY SORT_MAIN ASC
+	    </isEqual>
+	    <isEqual property="MENU_TYPE" compareValue="1">
+	    	ORDER BY SORT_SUB ASC
+	    </isEqual> 
+    </select>
+    
+    <!-- 메뉴 순서 중복 확인.-->
+    <select id="selectMenuSortChk" resultClass="java.util.HashMap">
+    	/* [menuMgmService][selectMenuSortChk][메뉴 수정][2018.07.23][seungmin] */
+    	SELECT  MENU_CD
+	    FROM TMDM_KFR_MENU
+	    WHERE MENU_TYPE = #MENU_TYPE#
+	    <isEqual property="MENU_TYPE" compareValue="0">
+	    	AND SORT_MAIN = #SORT_MAIN#
+	    </isEqual>
+	    <isEqual property="MENU_TYPE" compareValue="1">
+	    	AND MSTR_MENU_CD = #MSTR_MENU_CD#
+	    	AND SORT_SUB = #SORT_SUB#
+	    </isEqual>
+	    	AND DEL_YN = 'N'
+	    <!-- AND MENU_SYS in ('M', 'C') -->
+	   <isNotEmpty  property="MENU_SYS">
+       	AND MENU_SYS = #MENU_SYS# 
+       </isNotEmpty>
+    </select>
+    
+    <!-- 대메뉴/소메뉴 등록 -->
+    <insert id="insertMenu">
+    	/* [menuMgmService][insertMenu][메뉴 수정][2020.02.25][kjh] */
+		INSERT INTO TMDM_KFR_MENU
+		(
+			SITE_CD,
+			MENU_CD,
+	        MENU_NM,
+	        MENU_NM_EN,
+	        MENU_NM_ZH,
+	        MENU_TYPE,
+	        USE_YN,
+	        DEL_YN,
+	        <isEqual property="MENU_TYPE" compareValue="0">
+	        	SORT_MAIN,
+	        	SORT_SUB,
+	        </isEqual>
+	        <isEqual property="MENU_TYPE" compareValue="1">
+	        	MSTR_MENU_CD,
+	        	SORT_MAIN,
+	        	SORT_SUB,
+	        </isEqual>
+	        MENU_URL,
+	        MENU_SYS,
+	        MENU_IMG_CLASS,
+	        MENU_DESC,
+			REG_ID,
+			REG_DT
+		)VALUES(
+			#gv_siteCd#,
+			<!-- (SELECT CONCAT('M', LPAD(CAST(IFNULL(MAX(SUBSTR(MENU_CD, 2)), 0) as UNSIGNED) + 1, 7, 0)) FROM TMDM_KFR_MENU A), -->
+			(SELECT CONCAT(#SYS_DUTY_DV#, LPAD(CAST(IFNULL(MAX(SUBSTR(MENU_CD, 5)), 0) as UNSIGNED) + 1, 4, 0)) FROM TMDM_KFR_MENU A WHERE SUBSTR(MENU_CD,1,4)=#SYS_DUTY_DV#),
+			#MENU_NM#,
+			#MENU_NM_EN#,
+	        #MENU_NM_ZH#,
+			#MENU_TYPE#,
+			#USE_YN#,
+			'N',
+			<isEqual property="MENU_TYPE" compareValue="0">
+				#SORT_MAIN#,
+				'0',
+			</isEqual>
+			<isEqual property="MENU_TYPE" compareValue="1">
+				#MSTR_MENU_CD#,
+				#SORT_MAIN#,
+				#SORT_SUB#,
+			</isEqual>
+			#MENU_URL#,
+			#MENU_SYS#,
+			#MENU_IMG_CLASS#,
+			#MENU_DESC#,
+			#gv_userId#,
+			DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		)
+	</insert>
+	
+	<!-- 대메뉴/소메뉴 수정 -->
+	<update id="updateMenu">
+		/* [menuMgmService][updateMenu][메뉴 수정][2018.07.23][seungmin] */
+		UPDATE TMDM_KFR_MENU
+		SET MENU_NM = #MENU_NM#,
+			MENU_NM_EN = #MENU_NM_EN#,
+			MENU_NM_ZH = #MENU_NM_ZH#,
+			USE_YN = #USE_YN#,
+			MENU_SYS = #MENU_SYS#,
+			<isEqual property="MENU_TYPE" compareValue="0">
+	        	SORT_MAIN = #SORT_MAIN#,
+	        </isEqual>
+	        <isEqual property="MENU_TYPE" compareValue="1">
+	        	SORT_SUB = #SORT_SUB#,
+	        </isEqual>
+	        MENU_URL = #MENU_URL#,
+	        MENU_IMG_CLASS = #MENU_IMG_CLASS#,
+			MOD_ID = #gv_userId#,
+			MOD_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		WHERE MENU_CD = #MENU_CD# 		
+	</update>
+	
+	<!-- 대메뉴 수정시 하위메뉴 SORT_MAIN 값 수정 -->
+	<update id="updateSortMain">
+		/* [menuMgmService][updateSortMain][메뉴 수정][2018.07.23][seungmin] */
+		UPDATE TMDM_KFR_MENU A
+		   SET SORT_MAIN = #SORT_MAIN#,
+		   		MENU_SYS = #MENU_SYS#,
+		   		MOD_ID = #gv_userId#,
+				MOD_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		WHERE MSTR_MENU_CD = #MENU_CD#
+	</update>
+	
+	<!-- 대메뉴/소메뉴 삭제 -->
+	<update id="deleteMenu">
+		/* [menuMgmService][deleteMenu][메뉴 수정][2018.07.23][seungmin] */
+		UPDATE TMDM_KFR_MENU 
+		SET DEL_YN = 'Y',
+			MOD_ID = #gv_userId#,
+			MOD_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		WHERE MSTR_MENU_CD = #MENU_CD# OR MENU_CD = #MENU_CD#	
+	</update>
+	
+	<!-- 대메뉴/소메뉴 수정 -->
+	<update id="updateMenuTemp">
+		/* [menuMgmService][updateMenuTemp][메뉴 수정][2018.07.23][seungmin] */
+		UPDATE TMDM_KFR_MENU
+		SET MENU_NM_EN = #EN#,
+			MENU_NM_ZH = #ZH#
+		WHERE MENU_CD = #MENU_CD# 		
+	</update>
+</sqlMap>

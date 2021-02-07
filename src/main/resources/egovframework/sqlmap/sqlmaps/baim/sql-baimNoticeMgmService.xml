@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimNoticeMgmService">
+
+	<!-- 공지사항 목록조회 -->
+    <select id="getNoticeList" resultClass="java.util.HashMap">
+/* [sql-baimNoticeMgmService.xml][getNoticeList][공지사항 목록조회][2019.03.06][JinSeonJu] */
+		SELECT
+				 TL.AUTO_SEQ													AS AUTO_SEQ		/** 자동순번 **/
+				,TL.SUBJECT														AS SUBJECT		/** 제목 **/
+				,TL.CONTENT														AS CONTENT		/** 내용 **/
+				,''																    AS CHK			/** 체크 **/
+				,TL.POSTED_S_DATE												AS POSTED_S_DATE
+				,TL.POSTED_E_DATE												AS POSTED_E_DATE
+				,DATE_FORMAT(TL.REG_DT,'%Y-%m-%d')                              AS REG_DT
+        		,CONCAT(DATE_FORMAT(TL.POSTED_S_DATE,'%Y%m%d'),'~',DATE_FORMAT(TL.POSTED_E_DATE,'%Y%m%d'))		AS POSTED_DT
+				,KU.NAME						                  				AS REG_NM
+		FROM
+				TBXP_NOTICE_LIST TL
+				LEFT JOIN (
+				    SELECT
+				             ID
+				            ,NAME
+				            /*,CASE @GROUPING WHEN ID THEN @RANKT := @RANK + 1 ELSE @RANK := 1 END AS NUM*/
+                    ,@GROUPING := ID
+            FROM TADM_KFR_USER, (SELECT @GROUPING := '', @RANK := 0) XX
+				    <!-- WHERE DEL_YN = 'N' -->
+            ORDER BY MOD_DT DESC,REG_DT DESC
+				)KU
+				    ON  KU.ID = TL.REG_ID
+				    /*AND KU.NUM = 1*/
+		WHERE 1=1
+		<isEmpty property="STA_DT">
+			<isEmpty property="END_DT">
+			AND POSTED_S_DATE &lt;= NOW()
+			AND POSTED_E_DATE &gt;= NOW()
+			</isEmpty>
+		</isEmpty>
+		<isNotEmpty prepend="AND" property="DEL_YN">
+			DEL_YN	= #DEL_YN#		
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="AUTH">
+			TL.AUTH REGEXP #AUTH#
+		</isNotEmpty>
+		<!-- <isEmpty  prepend="AND" property="AUTH">
+			TL.AUTH = ''
+		</isEmpty> -->
+        <isNotEmpty prepend="AND" property="SUBJECT">
+        	SUBJECT LIKE CONCAT('%' , #SUBJECT# , '%')
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="CONTENT">
+        	CONTENT LIKE CONCAT('%' , #CONTENT# , '%')
+        </isNotEmpty>
+		<isNotEmpty prepend="AND" property="STA_DT">
+			POSTED_S_DATE &gt;= #STA_DT#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="END_DT">
+			POSTED_E_DATE &lt;= #END_DT#	
+		</isNotEmpty>
+        <isNotEmpty prepend="AND" property="TEMP_YN">
+        	TEMP_YN = #TEMP_YN#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="TITLE">
+        	SUBJECT LIKE CONCAT('%', #TITLE# ,'%') 
+        </isNotEmpty>
+		ORDER BY REG_DT DESC, MOD_DT DESC
+</select>
+    
+    <!-- 공지사항 상세정보 조회 -->
+    <select id="getNoticeInfo" resultClass="java.util.HashMap">
+    	/* [sql-baimNoticeMgmService.xml][getNoticeInfo][sql-noticeMgmService.xml][2019.03.06][JinSeonJu]  */
+        SELECT
+				 TL.AUTO_SEQ													AS AUTO_SEQ			/** 자동순번 **/
+				,TL.SUBJECT														AS SUBJECT			/** 제목 **/
+				,TL.CONTENT														AS CONTENT			/** 내용 **/
+				,TL.AUTH														AS AUTH				/** 권한 **/
+				,TL.TEMP_YN														AS TEMP_YN			/** 임시저장여부 **/
+				,TL.HIDDEN_YN													AS HIDDEN_YN		/** 숨김여부 **/
+				,TL.POSTED_S_DATE												AS POSTED_S_DATE	/** 게시 시작 기간 **/
+				,TL.POSTED_E_DATE												AS POSTED_E_DATE	/** 게시 종료 기간 **/
+				,TL.SUBJECT_POPUP												AS SUBJECT_POPUP	/** 팝업 제목 **/
+				,TL.POPUP_YN													AS POPUP_YN			/** 팝업 여부 **/
+				,TL.STATUS_YN													AS STATUS_YN		/** 준회원 공개 여부 **/
+				,TL.LINK_SEQ													AS LINK_SEQ			/** 연결 게시물 **/
+				,DATE_FORMAT(TL.REG_DT,'%Y-%m-%d')	AS REG_DT
+        ,CONCAT(DATE_FORMAT(TL.POSTED_S_DATE,'%Y-%m-%d'),'~',DATE_FORMAT(TL.POSTED_E_DATE,'%Y-%m-%d'))		AS POSTED_DT
+				,KU.NAME														AS REG_NM
+        FROM
+				TBXP_NOTICE_LIST TL
+				LEFT JOIN (
+				    SELECT
+				             ID
+				            ,NAME
+				            ,CASE @GROUPING WHEN ID THEN @RANKT := @RANK + 1 ELSE @RANK := 1 END AS NUM
+                    ,@GROUPING := ID
+            FROM TADM_KFR_USER, (SELECT @GROUPING := '', @RANK := 0) XX
+				    <!-- WHERE
+				            DEL_YN = 'N' -->
+            ORDER BY MOD_DT DESC,REG_DT DESC
+				)KU
+				    ON  KU.ID = TL.REG_ID
+				    AND KU.NUM = 1
+		WHERE
+				TL.AUTO_SEQ	= #AUTO_SEQ#
+    </select>
+
+	<!-- 빠른화물 목록조회 -->
+    <select id="getQuickList" resultClass="java.util.HashMap">
+    	/* [sql-baimNoticeMgmService.xml][getQuickList][빠른화물 목록조회][2018.11.23][yhkim] */
+    	SELECT
+    			 SUBJECT													AS SUBJECT
+    			,TO_CHAR(TO_DATE(REG_DT,'YYYYMMDDHH24MISS'),'YYYYMMDD')		AS REG_DT
+    			,REG_ID														AS REG_ID
+    			,AUTO_SEQ													AS AUTO_SEQ
+    	FROM
+    			TBXP_NOTICE_LIST
+		WHERE
+				AUTH = 'Q'	
+    </select>
+    
+	<!-- 빠른화물 상세정보조회 -->
+    <select id="getQuickInfo" resultClass="java.util.HashMap">
+    	/* [sql-baimNoticeMgmService.xml][getQuickInfo][빠른화물 상세정보조회][2018.11.23][yhkim] */
+    	SELECT
+    			 SUBJECT													AS SUBJECT
+    			,CONTENT													AS CONTENT
+    	FROM
+    			TBXP_NOTICE_LIST
+		WHERE
+				AUTO_SEQ = #AUTO_SEQ#
+    </select>
+    
+	<!-- 공지사항(포탈) 목록조회  -->
+    <select id="getNoticePop" resultClass="java.util.HashMap">
+    	/* [sql-baimNoticeMgmService.xml][getNoticePop][공지사항(포탈) 목록조회][2018.11.23][yhkim] */
+    	SELECT
+    			 CONCAT('P',SUBSTR(TL.AUTO_SEQ,INSTR(TL.AUTO_SEQ,'_',1,1)+1,LENGTH(TL.AUTO_SEQ)))	AS AUTO_SEQ
+    			,TL.SUBJECT_POPUP															AS SUBJECT_POPUP
+    			,TL.CONTENT																	AS CONTENT
+    			,CF.SOURCE_FILE_NM															AS SOURCE_FILE_NM
+		FROM
+				TBXP_NOTICE_LIST TL
+		        LEFT JOIN TMDM_KFR_COMM_FILE CF
+		            ON  TL.AUTO_SEQ = CF.WRK_NO
+		            AND CF.TB_NAME = 'TBXP_NOTICE_LIST'
+		            AND CF.DEL_YN = 'N'  
+		WHERE
+				TL.AUTH REGEXP #AUTH#
+		AND
+				TL.POPUP_YN = 'Y'
+		AND
+				TL.POSTED_S_DATE &lt;= DATE_FORMAT(NOW(),'%Y%m%d')
+		AND
+				TL.POSTED_E_DATE &gt;= DATE_FORMAT(NOW(),'%Y%m%d')
+		AND
+				TL.DEL_YN = 'N'
+		AND
+				TL.TEMP_YN = 'N'
+		AND
+				TL.HIDDEN_YN ='N'
+		ORDER BY TL.AUTO_SEQ 
+    </select>
+    
+    <select id="getAtuoSeq" resultClass="String">
+    /* [sql-baimNoticeMgmService.xml][saveNoticeInfo][공지사항 키값조회][2020.03.06][JinSeonJu] */
+    	SELECT GWDS_DEV.NEXTVAL('TBXP_NOTICE_LIST.AUTO_SEQ') FROM DUAL;
+    </select>
+    
+    <insert id="insertNoticeInfo">
+    /* [sql-baimNoticeMgmService.xml][saveNoticeInfo][공지사항 정보 저장 등록][2020.03.06][JinSeonJu] */
+    	INSERT INTO TBXP_NOTICE_LIST   (
+				 AUTO_SEQ
+				,SUBJECT
+				,CONTENT
+				,AUTH
+				,POSTED_S_DATE
+				,POSTED_E_DATE
+				,SUBJECT_POPUP
+				,POPUP_YN
+				,STATUS_YN
+				,LINK_SEQ
+				,TEMP_YN
+				,DEL_YN
+				,HIDDEN_YN
+				,REG_ID
+				,REG_DT
+				,MOD_ID	
+				,MOD_DT	
+				,REG_IP
+				,SITE_CD
+			)VALUES(
+				<!-- CONCAT('TNL_', LPAD(#AUTO_SEQ#, 6, 0)) -->
+				(SELECT CONCAT('TNL_',LPAD(IFNULL(MAX(SUBSTR(B.AUTO_SEQ,5))+1,1),6,'0')) FROM TBXP_NOTICE_LIST B)
+				,#SUBJECT#
+				,#CONTENT#
+				,'T00'
+				,#POSTED_S_DATE#
+				,#POSTED_E_DATE#
+				,#SUBJECT_POPUP#
+				,#POPUP_YN#
+				,#STATUS_YN#
+				,#LINK_SEQ#
+				,#TEMP_YN#
+				,'N'
+				,'N'
+				,#gv_userId#
+				,REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+				,#gv_userId#
+				,REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+				,#gv_ipAddr#
+				,'GWDS'
+			)
+    </insert>
+    
+    <!-- 공지사항 정보 저장 -->
+    <update id="updateNoticeInfo">
+    	/* [sql-baimNoticeMgmService.xml][saveNoticeInfo][공지사항 정보 저장 등록][2020.03.06][JinSeonJu] */
+        	UPDATE  TBXP_NOTICE_LIST 
+        	SET
+	        	 SUBJECT		= #SUBJECT#
+	        	,CONTENT		= #CONTENT#
+	        	,POSTED_S_DATE	= #POSTED_S_DATE#
+	        	,POSTED_E_DATE	= #POSTED_E_DATE#
+	        	,SUBJECT_POPUP	= #SUBJECT_POPUP#
+	        	,POPUP_YN		= #POPUP_YN#
+	        	,STATUS_YN		= #STATUS_YN#
+	        	,LINK_SEQ		= #LINK_SEQ#
+				,MOD_ID			= #gv_userId#
+				,MOD_DT			= REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+				,MOD_IP			= #gv_ipAddr#
+			WHERE AUTO_SEQ = #AUTO_SEQ#
+    </update>
+    
+    <!-- 공지사항 삭제 (DEL_YN = Y) -->
+    <update id="deleteNoticeInfo">
+    	/* [sql-baimNoticeMgmService.xml][deleteNoticeInfo][공지사항 삭제][2019.03.06][JinSeonJu]  */
+		UPDATE
+		        TBXP_NOTICE_LIST
+		SET
+		         MOD_ID		= #gv_userId#
+		        ,MOD_DT		= REPLACE(DATE_FORMAT(NOW(), '%Y%m%d%T'),':','')
+		        ,DEL_YN		= 'Y'
+		WHERE
+		        AUTO_SEQ = #AUTO_SEQ#
+    </update>
+</sqlMap>

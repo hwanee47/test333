@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	
+	<link rel="stylesheet" type="text/css" href="common.css" />
+
+	<!-- Google Map 관련 라이센스 및 JS 파일 -->
+	<script src="https://maps.googleapis.com/maps/api/js?client=gme-cjkoreaexpress&amp&region=KR" async="" defer="defer"></script>
+	<script type="text/javascript" src="../../js/jquery.js"></script>
+	<script type="text/javascript" src="../../js/googleMap/control_main.js"></script>
+	<script type="text/javascript" src="../../js/googleMap/proj4js-combined.js"></script>
+	<script type="text/javascript" src="../../js/gmap.js"></script>
+
+</head>
+
+<body>
+
+<div class="wrapper">
+	<!-- 좌측 지도 영역 -->
+	<div id="map" class="map_box_l"></div>
+	<!-- //좌측 지도 영역 -->
+
+	<!-- 우측 정보 영역 -->
+	<div class="info_box_r">
+		<!-- 테이블 영역 -->
+		<div class="board_wrap">
+			<table cellspacing="0" cellpadding="0" class="board_common" summary="운행중인 위수탁 차량 테이블로 수도권, 강원권, 충청권, 영남권, 호남권의 항목으로 구성되어 있습니다.">
+				<caption>운행중인 위수탁 차량</caption>
+				<colgroup>
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				</colgroup>
+				<thead>
+				<tr>
+					<th style="color:#fff; background:#0153a5;">수도권</th>
+					<th>강원권</th>
+					<th>충청권</th>
+					<th>영남권</th>
+					<th>호남권</th>
+				</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="height:34px; font-weight:bold; color:#0153a5; line-height:35px; border-bottom:2px solid #0153a5;">140</td>
+						<td>90</td>
+						<td>220</td>
+						<td>240</td>
+						<td>190</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="board_wrap" style="margin-bottom:15px;">
+			<table cellspacing="0" cellpadding="0" class="board_common02" summary="수도권 테이블로 지역의 항목으로 구성되어 있습니다.">
+				<caption>수도권</caption>
+				<colgroup>
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				</colgroup>
+				<tbody>
+					<tr>
+						<th>서울</th>
+						<th>인천</th>
+						<th>고양시</th>
+						<th>과천시</th>
+						<th>광명시</th>
+					</tr>
+					<tr>
+						<th>광주시</th>
+						<th>구리시</th>
+						<th>군포시</th>
+						<th>김포시</th>
+						<th>남양주시</th>
+					</tr>
+					<tr>
+						<th>동두천시</th>
+						<th>부천시</th>
+						<th>성남시</th>
+						<th>수원시</th>
+						<th>시흥시</th>
+					</tr>
+					<tr>
+						<th>안산시</th>
+						<th>안성시</th>
+						<th>안양시</th>
+						<th>양주시</th>
+						<th>여주시</th>
+					</tr>
+					<tr>
+						<th>오산시</th>
+						<th>용인시</th>
+						<th>의왕시</th>
+						<th>의정부시</th>
+						<th>이천시</th>
+					</tr>
+					<tr>
+						<th>파주시</th>
+						<th>평택시</th>
+						<th>포천시</th>
+						<th style="color:#fff; background:#0153a5;">하남시</th>
+						<th>화성시</th>
+					</tr>
+					<tr>
+						<th>가평군</th>
+						<th>양평군</th>
+						<th>연천군</th>
+						<th></th>
+						<th></th>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="board_wrap">
+			<table cellspacing="0" cellpadding="0" class="board_common03" summary="하남시 테이블로 지역의 항목으로 구성되어 있습니다." style="margin-bottom:10px;">
+				<caption>하남시</caption>
+				<colgroup>
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				<col width="110" />
+				</colgroup>
+				<thead>
+					<tr>
+						<th>차량번호</th>
+						<th>상차지</th>
+						<th>하차지</th>
+						<th>차종/톤급</th>
+						<th>남은시간</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>5678</td>
+						<td>전북 진주</td>
+						<td>경기 하남 aa</td>
+						<td>카고/25</td>
+						<td class="tx_r">1:00:00</td>
+					</tr>
+					<tr>
+						<td>5678</td>
+						<td>전북 진주</td>
+						<td>경기 하남 aa</td>
+						<td>카고/25</td>
+						<td class="tx_r">30:00</td>
+					</tr>
+					<tr>
+						<td>5678</td>
+						<td>전북 진주</td>
+						<td>경기 하남 aa</td>
+						<td>카고/25</td>
+						<td class="tx_r">30:00</td>
+					</tr>
+					<tr>
+						<td>5678</td>
+						<td>전북 진주</td>
+						<td>경기 하남 aa</td>
+						<td>카고/25</td>
+						<td class="tx_r">30:00</td>
+					</tr>
+					<tr>
+						<td>5678</td>
+						<td>전북 진주</td>
+						<td>경기 하남 aa</td>
+						<td>카고/25</td>
+						<td class="tx_r">30:00</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<table cellspacing="0" cellpadding="0" class="board_common03" summary="하남시 테이블로 지역의 항목으로 구성되어 있습니다.">
+				<caption>하남시</caption>
+				<colgroup>
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				<col width="*" />
+				<col width="110" />
+				</colgroup>
+				<thead>
+					<tr>
+						<th>고객명</th>
+						<th>상차지</th>
+						<th>하차지</th>
+						<th>차종/톤급</th>
+						<th>남은시간</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>신무림</td>
+						<td>전북 진주</td>
+						<td>경기 하남 aa</td>
+						<td>카고/25</td>
+						<td class="tx_r">1:00:00</td>
+					</tr>
+					<tr>
+						<td>신무림</td>
+						<td>전북 진주</td>
+						<td>경기 하남 aa</td>
+						<td>카고/25</td>
+						<td class="tx_r">30:00</td>
+					</tr>
+					<tr>
+						<td>신무림</td>
+						<td>전북 진주</td>
+						<td>경기 하남 aa</td>
+						<td>카고/25</td>
+						<td class="tx_r">30:00</td>
+					</tr>
+					<tr>
+						<td>신무림</td>
+						<td>전북 진주</td>
+						<td>경기 하남 aa</td>
+						<td>카고/25</td>
+						<td class="tx_r">30:00</td>
+					</tr>
+					<tr>
+						<td>신무림</td>
+						<td>전북 진주</td>
+						<td>경기 하남 aa</td>
+						<td>카고/25</td>
+						<td class="tx_r">30:00</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<!-- //테이블 영역 -->
+
+		<!-- 그래프 영역 -->
+		<div>
+		</div>
+		<!-- //그래프 영역 -->
+	</div>
+	<!-- //우측 정보 영역 -->
+</div>
+
+</body>
+</html>

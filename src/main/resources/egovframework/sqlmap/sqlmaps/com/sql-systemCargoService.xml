@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="systemCargoService">
+	<!-- 화물정보망 주문 존재 여부 확인. -->
+    <select id="getOrderCheck" resultClass="java.util.HashMap">
+    /*[sql-systemCargoService.xml][systemCargoService.getOrderCheck][화물정보망 주문 존재 여부 확인.][2019.02.22][Seungmin] */
+	    SELECT TOL_SCD
+		        , OPEN_SYS_CD
+		        , OPEN_SYS_SCD
+		        , REQ_VHCL_NO
+		        , (
+                    SELECT  MAX(DRV_MOBILE1 || DRV_MOBILE2 || AESDECRYPT(DRV_MOBILE3))
+                    FROM TMDM_KFR_CT_EQP
+                    WHERE VHCL_NO = H.REQ_VHCL_NO
+                    AND LSP_ID = H.LSP_ID
+                    AND CNTRL_NO = H.REQ_CNTRL_NO
+                ) MOBILE
+		FROM TTMS_OD_TOLEG_HD H
+		WHERE DEL_YN = 'N'
+		AND TOL_NO = #TOL_NO#
+    </select>
+    
+    <!-- 사업자번호 인증 -->
+    <select id="getBizNoCheck" resultClass="java.util.HashMap">
+	/*[sql-systemCargoService.xml][systemCargoService.getBizNoCheck][사업자번호 인증][2019.02.22][Seungmin] */    
+		 SELECT TO_CHAR((USR_CNT + LSP_CNT)) CNT
+		 		, JOIN_TYPE
+		  FROM
+		       (SELECT COUNT(*) USR_CNT
+		              , COUNT((SELECT LSP_ID
+		                 	FROM TMDM_KFR_BP_LSP
+		               		WHERE BIZ_REG_NO=#BIZ_REG_NO#
+							AND DEL_YN='N'
+		              )) AS LSP_CNT
+		              , MIN(JOIN_TYPE) AS JOIN_TYPE
+		        FROM TADM_KFR_USER
+		        WHERE BIZ_REG_NO=#BIZ_REG_NO#
+				AND JOIN_TYPE IN ('T04','T05')
+		        AND DEL_YN='N'
+		       )
+    </select>
+    
+    <!-- 차량 등록 여부 확인. -->
+    <select id="getCarInfoCheck" resultClass="java.util.HashMap">
+	/*[sql-systemCargoService.xml][systemCargoService.getCarInfoCheck][차량 등록 여부 확인.][2019.02.22][Seungmin] */    
+		 SELECT TO_CHAR(U.SEQ_NO) AS SEQ_NO
+		        , TO_CHAR(U.ID) AS ID
+		        , TO_CHAR(U.LSP_ID) AS LSP_ID
+		        , TO_CHAR(E.VHCL_NO) AS VHCL_NO
+		        , TO_CHAR(E.CNTRL_NO) AS CNTRL_NO
+		        , TO_CHAR(T.TEMP_VHCL_NO) AS TEMP_VHCL_NO
+		FROM TADM_KFR_USER U
+		    , TMDM_KFR_BP_LSP L
+		    , TMDM_KFR_CT_EQP E
+		    , TMDM_KFR_CT_EQP_TEMP T
+		WHERE U.DEL_YN 			= 'N' 
+		AND U.JOIN_TYPE 		= 'T05'
+		AND U.STATUS IN ('0', '1')
+		AND U.LSP_ID 			= L.LSP_ID(+)
+		AND L.DEL_YN(+) 		= 'N'
+		AND U.LSP_ID 			= E.LSP_ID(+)
+		AND E.DEL_YN(+) 		= 'N'
+		AND E.VHCL_NO(+) 		= #VHCL_NO#
+		AND T.TEMP_USE_YN(+) 	= 'Y'
+		AND T.TEMP_DEL_YN(+) 	= 'N'
+		AND T.TEMP_CON_YN(+) 	= 'I'
+		AND U.SEQ_NO 			= T.TEMP_SEQ_NO(+)
+		AND T.TEMP_VHCL_NO(+) 	= #VHCL_NO#
+		AND U.BIZ_REG_NO 		= #BIZ_REG_NO#
+		AND ROWNUM =1
+    </select>
+    
+     <!-- 사용자 SEQ 채번 -->
+    <select id="selectSeqNo" resultClass="String">
+	/*[sql-systemCargoService.xml][systemCargoService.selectSeqNo][사용자 SEQ 채번][2019.02.22][Seungmin] */   	
+      SELECT SEQ_TADM_KFR_USER.NEXTVAL AS SEQ_NO FROM DUAL
+    </select>  
+    
+     <!-- 화물맨 차주 회원가입 -->
+    <insert id="createUserInfo">
+	 /*[sql-systemCargoService.xml][systemCargoService.createUserInfo][화물맨 차주 회원가입][2019.02.22][Seungmin] */   
+		INSERT INTO TADM_KFR_USER (
+		    SEQ_NO
+		    ,JOIN_TYPE
+		    ,STATUS
+		    ,ID
+		    ,MASTER_YN
+		    ,MASTER_SEQ
+		    ,BIZ_TYPE
+		    ,BIZ_NM
+		    ,BIZ_REG_NO
+		    ,RCIV_SMS
+		    ,RCIV_EMAIL
+		    ,NAME
+		    ,MOBILE1
+		    ,MOBILE2
+		    ,MOBILE3
+		    ,EMAIL1
+		    ,EMAIL2
+		    ,CORP_ID
+		    ,E_CORP_ID
+		    ,REG_ID
+		    ,REG_DT
+		    ,SOURCE_NM
+		    ,DEL_YN
+		    ,LSP_ID
+		    ,ATTRIBUTE01
+		    ,ATTRIBUTE02
+		    ,ATTRIBUTE03
+		    ,ATTRIBUTE04
+		    ,ATTRIBUTE05
+		    ,ATTRIBUTE06
+		    ,ATTRIBUTE07
+		    ,ATTRIBUTE08
+		    ,ATTRIBUTE09
+		    ,ATTRIBUTE10
+		) VALUES (
+		    #SEQ_NO#
+		    ,#JOIN_TYPE#
+		    ,'0'
+		    ,('c' || REPLACE(#BIZ_REG_NO#, '-', ''))
+		    ,'Y'
+		    ,#SEQ_NO#
+		    ,#BIZ_TYPE#
+		    ,#BIZ_NM#
+		    ,REPLACE(#BIZ_REG_NO#, '-', '')
+		    ,'Y'
+		    ,'Y'
+		    ,#NAME#
+		    ,#MOBILE1#
+		    ,#MOBILE2#
+		    ,AESENCRYPT(TRIM(#MOBILE3#))
+		    ,AESENCRYPT(TRIM(#EMAIL1#))
+		    ,#EMAIL2#
+		    ,#CORP_ID#
+		    ,#CORP_ID#
+		    ,#gv_userId#
+		    ,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		    ,'HMM'
+		    ,'N'
+		    ,#LSP_ID#
+		    ,#ATTRIBUTE01#
+		    ,#ATTRIBUTE02#
+		    ,#ATTRIBUTE03#
+		    ,#ATTRIBUTE04#
+		    ,#ATTRIBUTE05#
+		    ,#ATTRIBUTE06#
+		    ,#ATTRIBUTE07#
+		    ,#ATTRIBUTE08#
+		    ,#ATTRIBUTE09#
+		    ,#ATTRIBUTE10#
+		)
+	</insert>
+	
+	 <!-- LSP ID 생성. -->
+	<select id="createLspId" resultClass="String">
+	/*[sql-systemCargoService.xml][systemCargoService.createLspId][LSP ID 생성.][2019.02.22][Seungmin] */   	
+		SELECT ('L' || LPAD(SEQ_TMDM_KFR_BP_LSP.NEXTVAL, 7, 0)) FROM DUAL
+	</select>
+	
+	<!-- 차주 정보 생성. -->
+	<insert id="insertLspInfo">
+	/*[sql-systemCargoService.xml][systemCargoService.insertLspInfo][차주 정보 생성.][2019.02.22][Seungmin] */
+		INSERT INTO TMDM_KFR_BP_LSP(
+			LSP_ID
+			,SITE_CD
+			,JOIN_TYPE
+			,BIZ_TYPE
+			,CORP_ID
+			,BASE_CORP_ID
+			,LSP_GRADE
+			,LSP_DRIV_PERIOD
+			,LSP_TRNSIT_PERIOD
+			,PART_TYPE
+			,BUKRS
+			,KTOKK
+			,BIZ_REG_NO
+			,LSP_LOCAL_NM
+			,FITYP
+			,ZTERM_V
+			,LSP_NM
+			,PRSNT_NM
+			,COMP_ZIP1
+			,COMP_ZIP2
+			,COMP_ADDR1
+			,COMP_ADDR2
+			,NATION_CD
+			,TEL1
+			,TEL2
+			,TEL3
+			,FAX1
+			,FAX2
+			,FAX3
+			,EMAIL1
+			,EMAIL2
+			,CORP_REG_NO
+			,STCDT
+			,BIZ_TYP_NM
+			,IND_TYP_NM
+			,ACTSS
+			,USE_YN
+			,DEL_YN
+			,COSTC
+			,REG_ID
+			,REG_DT
+			,CONTRACT_YN
+		)VALUES(
+			#LSP_ID#
+			,'CJKX'
+			,#JOIN_TYPE#
+			,#BIZ_TYPE#
+			,#CORP_ID#
+			,#BASE_CORP_ID#
+			,#GRADE#
+			,#LSP_DRIV_PERIOD#
+			,#LSP_TRNSIT_PERIOD#
+			,'V'
+			,'1000'
+			,'1300'
+			,REPLACE(#BIZ_REG_NO#, '-', '')
+			,#BIZ_NM#
+			,#FITYP#
+			,#ZTERM_V#
+			,#BIZ_NM#
+			,#NAME#
+			,SUBSTR(REPLACE(#COMP_ZIP#,'-',''), 0,3) 
+			,SUBSTR(REPLACE(#COMP_ZIP#,'-',''), 4,LENGTH(#COMP_ZIP#)-3) 
+			,#COMP_ADDR1#
+			,AESENCRYPT(TRIM(#COMP_ADDR2#))
+			,'KR'
+			,#TEL1#
+			,#TEL2#
+			,AESENCRYPT(TRIM(#TEL3#))
+			,#FAX1#
+			,#FAX2#
+			,AESENCRYPT(TRIM(#FAX3#))
+			,AESENCRYPT(TRIM(#EMAIL1#))
+			,#EMAIL2#
+			,#CORP_REG_NO#
+			,#STCDT#
+			,#BIZ_TYP_NM#
+			,#IND_TYP_NM#
+			,#ACTSS#
+			,'Y'
+			,'N'
+			,#COSTC#
+			,(SELECT MAX(REG_ID) FROM TMDM_IF_SYS_HIST WHERE TOL_NO = #TOL_NO#)
+			,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			,#CONTRACT_YN#
+		)
+    </insert>
+    
+     <!-- 차량 관리번호 생성. -->
+	<select id="createCntrlNo" resultClass="String">
+	/*[sql-systemCargoService.xml][systemCargoService.createCntrlNo][차량 관리번호 생성.][2019.02.22][Seungmin] */   	
+		SELECT 'KX' || LPAD(SEQ_TMDM_KFR_CT_EQP.NEXTVAL, 6, 0) FROM DUAL
+	</select>
+    
+    <!-- 차량 정보 생성.-->
+    <insert id="insertCtEqpInfo">
+	 /*[sql-systemCargoService.xml][systemCargoService.insertCtEqpInfo][차량 정보 생성.][2019.02.22][Seungmin] */
+		INSERT INTO TMDM_KFR_CT_EQP 
+		(	LSP_ID
+			  ,VHCL_NO
+			  ,VHCL_NM 
+			  ,CNTRL_NO 
+			  ,TON_CD
+			  ,VHCL_KND_CD 
+			  ,VHCL_TYPE
+			  ,DRV_NM
+			  ,DRV_TEL1
+			  ,DRV_TEL2
+			  ,DRV_TEL3
+			  ,DRV_MOBILE1 
+			  ,DRV_MOBILE2 
+			  ,DRV_MOBILE3 
+			  ,FIRSTJOIN_YN 
+			  ,REGISTRY_ID
+			  ,ORI_LSP_NM
+			  ,USE_YN
+			  ,DEL_YN 
+			  ,REG_ID
+	          ,REG_DT
+		  ) 
+		VALUES (#LSP_ID#
+		      ,replace(#VHCL_NO#, ' ', '')
+		      ,#VHCL_NM#
+		      ,#CNTRL_NO#
+		      ,#TON_CD#
+		      ,#VHCL_KND_CD#
+		      ,#VHCL_TYPE#
+		      ,#DRV_NM#
+		      ,#DRV_TEL1#
+		      ,#DRV_TEL2#
+		      ,AESENCRYPT(TRIM(#DRV_TEL3#))
+		      ,#MOBILE1#
+		      ,#MOBILE2#
+		      ,AESENCRYPT(TRIM(#MOBILE3#))
+		      ,'N'
+		      ,'HMM'
+		      ,#BIZ_NM#
+		      ,'Y'
+		      ,'N'
+		      ,#gv_userId#
+			  ,TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+	      )
+	</insert> 
+	
+	<!-- 임시 차량 정보 생성.-->
+    <insert id="insertCtEqpTempInfo">
+	 /*[sql-systemCargoService.xml][systemCargoService.insertCtEqpTempInfo][임시 차량 정보 생성.][2019.02.22][Seungmin] */
+		INSERT INTO TMDM_KFR_CT_EQP_TEMP 
+		(	TEMP_SEQ_NO
+			, TEMP_VHCL_NO
+			, TEMP_LSP_ID
+			, TEMP_VHCL_NM
+			, TEMP_CNTRL_NO
+			, TEMP_TON_CD
+			, TEMP_VHCL_KND_CD
+			, TEMP_VHCL_TYPE
+			, TEMP_DRV_NM
+			, TEMP_DRV_TEL1
+			, TEMP_DRV_TEL2
+			, TEMP_DRV_TEL3
+			, TEMP_DRV_MOBILE1
+			, TEMP_DRV_MOBILE2
+			, TEMP_DRV_MOBILE3
+			, TEMP_FIRSTJOIN_YN
+			, TEMP_REGISTRY_ID
+			, TEMP_USE_YN
+			, TEMP_DEL_YN
+			, TEMP_ORI_LSP_NM
+			, TEMP_CON_YN
+			, REG_ID
+			, REG_DT
+		  ) 
+		VALUES (
+				#SEQ_NO#
+				, #VHCL_NO#
+				, #LSP_ID#
+				, #VHCL_NM#
+				, #CNTRL_NO#
+				, #TON_CD#
+				, #VHCL_KND_CD#
+				, #VHCL_TYPE#
+				, #DRV_NM#
+				, #DRV_TEL1#
+		        , #DRV_TEL2#
+		        , AESENCRYPT(TRIM(#DRV_TEL3#))
+				, #MOBILE1#
+		        , #MOBILE2#
+		        , AESENCRYPT(TRIM(#MOBILE3#))
+				, 'N'
+				, 'HMM'
+				, 'Y'
+				, 'N'
+				, #BIZ_NM#
+				, 'A'
+				, #gv_userId#
+				, TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+	      )
+	</insert> 
+	
+	<!-- 사용자 정보에 LSP_ID 적용.-->
+	<update id="updateUserLspId">
+	/*[sql-systemCargoService.xml][systemCargoService.updateUserLspId][사용자 정보에 LSP_ID 적용.][2019.02.22][Seungmin] */
+    	UPDATE TADM_KFR_USER
+   		SET LSP_ID = #LSP_ID#
+   		WHERE SEQ_NO = #SEQ_NO#
+    </update>
+    
+    <!-- 임시차량 정보 조회.-->
+    <select id="selectCtEqpTemp" resultClass="java.util.HashMap">
+    /*[sql-systemCargoService.xml][systemCargoService.selectCtEqpTemp][임시차량 정보 조회.][2019.02.22][Seungmin] */
+		SELECT 				
+				  		TEMP_SEQ_NO AS SEQ_NO,
+						TEMP_LSP_ID AS LSP_ID,
+						TEMP_VHCL_NO AS VHCL_NO,
+						TEMP_VHCL_NM AS VHCL_NM,
+						TEMP_TON_CD AS TON_CD,
+						TEMP_VHCL_KND_CD AS VHCL_KND_CD,
+						TEMP_VHCL_TYPE AS VHCL_TYPE,
+						TEMP_DRV_NM AS DRV_NM,
+						TEMP_DRV_TEL1 AS DRV_TEL1,
+						TEMP_DRV_TEL2 AS DRV_TEL2,
+						AESDECRYPT(TRIM(TEMP_DRV_TEL3)) AS DRV_TEL3,
+						TEMP_DRV_MOBILE1 AS MOBILE1,
+						TEMP_DRV_MOBILE2 AS MOBILE2,
+						AESDECRYPT(TRIM(TEMP_DRV_MOBILE3)) AS MOBILE3,
+						TEMP_ORI_LSP_NM AS BIZ_NM,
+				FROM TMDM_KFR_CT_EQP_TEMP
+				WHERE TEMP_USE_YN	='Y'
+				  AND TEMP_DEL_YN	='N'
+				  AND TEMP_SEQ_NO 	= #SEQ_NO#
+				  AND TEMP_VHCL_NO 	= #VHCL_NO#
+				  AND TEMP_CON_YN 	= 'I'
+      </select>
+      
+      <!-- 임시차량 정보 업데이트-->
+      <update id="updateCtEqpTempConYn">
+       /*[sql-systemCargoService.xml][systemCargoService.updateCtEqpTempConYn][임시차량 정보 업데이트][2019.02.22][Seungmin] */
+		UPDATE TMDM_KFR_CT_EQP_TEMP 
+		SET TEMP_CON_YN	= 'A'
+			, MOD_ID 	= #gv_userId#
+			, MOD_DT 	= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE 1=1
+		AND	TEMP_SEQ_NO 	= #SEQ_NO#
+		AND TEMP_VHCL_NO 	= REPLACE(#VHCL_NO#, ' ', '')
+    </update> 
+    
+    <!-- 화물정보망 주문 정보 조회. -->
+    <select id="selectOrderInfo" resultClass="java.util.HashMap">
+    /*[sql-systemCargoService.xml][systemCargoService.selectOrderInfo][화물정보망 주문 정보 조회.][2019.02.22][Seungmin] */
+	    SELECT SO_NO
+	    		, TOL_NO
+	    		, AP_RATE_CLS_CD
+	    		, AP_RATE_AMT
+	    		, AP_AMT
+	    		, AP_RATE_HST_NO
+	    		, AP_SHMPT_SEQ_NO
+	    		, TRIPPED_TOL_NO
+	    		, DEP_REQ_DATE
+	    		, DEP_NODE_NM
+	    		, MNF_NO
+	    		, SHMPT_NO
+	    		, TOL_SCD
+	    		, (SELECT FN_MDM_GET_MC_CODE_NM ('TOL_SCD', TOL_SCD) FROM DUAL) AS TOL_SCD_NM
+	    		, OPEN_SYS_SCD
+		FROM TTMS_OD_TOLEG_HD
+		WHERE DEL_YN = 'N'
+		AND TOL_NO = #TOL_NO#
+		<isNotEmpty property="TOL_SCD">
+			AND TOL_SCD = #TOL_SCD#
+		</isNotEmpty>
+    </select>
+    
+    <!-- 화물맨, 화물정보망 간 공통코드 매핍 정보 조회. -->
+    <select id="getComCodeFromHMM" resultClass="java.util.HashMap">
+    /*[sql-systemCargoService.xml][systemCargoService.getComCodeFromHMM][화물맨, 화물정보망 간 공통코드 매핍 정보 조회.][2019.02.22][Seungmin] */
+	    SELECT CD
+	    		, CD_TYP_NM
+	    		, CD_NM
+	    		, CD_DESC
+	    		, REF_1
+	    		, REF_2
+	    		, REF_3
+	    		, REF_4
+	    		, REF_5
+	    FROM TMDM_IF_SYS_CODE
+		WHERE SYS_CD = #SYS_CD#
+		AND CD_TCD = #CD_TCD#
+		AND CD = #CD#
+		AND DEL_YN = 'N'
+    </select>
+    
+    <!-- 주문이 I/F 처리 된 건인지 확인.-->
+    <select id="getOrderInterfaceYn" resultClass="java.util.HashMap">
+    /*[sql-systemCargoService.xml][systemCargoService.getOrderInterfaceYn][주문이 I/F 처리 된 건인지 확인.][2019.02.22][Seungmin] */
+		SELECT OPEN_SYS_CD
+				, TOL_SCD
+		FROM TTMS_OD_TOLEG_HD
+		WHERE DEL_YN = 'N'
+		AND TOL_NO = #TOL_NO#
+		<isNotEmpty property="TOL_SCD">
+			AND TOL_SCD = #TOL_SCD#
+		</isNotEmpty>
+		<isNotEmpty property="OPEN_SYS_CD">
+			AND OPEN_SYS_CD = #OPEN_SYS_CD#
+		</isNotEmpty>
+    </select>
+    
+    <!-- 주문정보 I/F 업데이트-->
+    <update id="updateOrderInfoIF">
+       /*[sql-systemCargoService.xml][systemCargoService.updateOrderInfoIF][주문정보 I/F 업데이트][2019.02.22][Seungmin] */
+		UPDATE TTMS_OD_TOLEG_HD 
+		SET OPEN_SYS_CD			= #OPEN_SYS_CD#
+			, OPEN_SYS_SCD 		= #OPEN_SYS_SCD#
+			, AP_AMT			= NVL(#AP_AMT#, AP_AMT)
+			, AP_RATE_AMT		= NVL(#AP_RATE_AMT#, AP_RATE_AMT)
+			, AP_RATE_CLS_CD	= NVL(#AP_RATE_CLS_CD#, AP_RATE_CLS_CD)
+			, REMK				= #REMK#
+			, MOD_ID 			= #gv_userId#
+			, MOD_DT 			= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE DEL_YN = 'N'
+		AND TOL_NO = #TOL_NO#
+		<isNotEmpty property="TOL_SCD">
+		AND TOL_SCD = #TOL_SCD#
+		</isNotEmpty>
+    </update> 
+    
+     <!-- 화물맨 주문취소 I/F 업데이트-->
+    <update id="updateOrderCancelIF">
+       /*[sql-systemCargoService.xml][systemCargoService.updateOrderCancelIF][화물맨 주문취소 I/F 업데이트][2019.02.22][Seungmin] */
+		UPDATE TTMS_OD_TOLEG_HD 
+		SET OPEN_SYS_CD			= #OPEN_SYS_CD#
+			, OPEN_SYS_SCD 		= #OPEN_SYS_SCD#
+			, MOD_ID 			= #gv_userId#
+			, MOD_DT 			= TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE DEL_YN = 'N'
+		AND TOL_NO = #TOL_NO#
+		AND OPEN_SYS_CD = 'HMM'
+    </update> 
+    
+    <!-- 공개화물 이력 등록 -->
+    <insert id="insertSysHistory">
+	 /*[sql-systemCargoService.xml][systemCargoService.insertSysHistory][공개화물 이력 등록][2019.02.22][Seungmin] */   
+		INSERT INTO TMDM_IF_SYS_HIST (
+		    SYS_CD
+		    , SEQ_NO
+		    , TOL_NO
+		    , SITE_CD
+		    , DEP_ADDR_CD
+		    , ARR_ADDR_CD
+		    , TON_CD
+		    , CAR_TYPE_CD
+		    , STATUS_CD
+		    , PAY_METHOD_CD
+		    , MOVE_TYPE_CD
+		    , MIX_TYPE_CD
+		    , AR_AMT
+		    , AP_AMT
+		    , ATTR_01
+		    , ATTR_02
+		    , ATTR_03
+		    , ATTR_04
+		    , ATTR_05
+		    , ATTR_06
+		    , ATTR_07
+		    , ATTR_08
+		    , ATTR_09
+		    , ATTR_10
+		    , DEL_YN
+		    , REG_ID
+		    , REG_DT
+		    , MOD_ID
+		    , MOD_DT
+		    , REG_IP
+		    , MOD_IP 
+		) 
+		SELECT 'HMM' AS SYS_CD
+		    ,'HMM' || TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF3') AS SEQ_NO
+		    , TOL_NO
+		    , SITE_CD
+		    , #LOACODE#         AS DEP_ADDR_CD
+		    , #DOWCODE#         AS ARR_ADDR_CD
+		    , #CARTON#          AS TON_CD
+		    , #CARTYPE#         AS CAR_TYPE_CD
+		    , OPEN_SYS_SCD      AS STATUS_CD
+		    , #PAYMENT#         AS PAY_METHOD_CD
+		    , #SATYPE#          AS MOVE_TYPE_CD
+		    , #LOADTYPE#        AS MIX_TYPE_CD
+		    , AMT               AS AR_AMT
+		    , AP_AMT
+		    , ATTR_01
+		    , ATTR_02
+		    , ATTR_03
+		    , ATTR_04
+		    , ATTR_05
+		    , ATTR_06
+		    , ATTR_07
+		    , ATTR_08
+		    , ATTR_09
+		    , ATTR_10
+		    , DEL_YN
+		    , #gv_userId# AS REG_ID
+		    , TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') AS REG_DT
+		    , #gv_userId# AS MOD_ID
+		    , TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') AS MOD_DT
+		    , REG_IP
+		    , MOD_IP 
+		FROM TTMS_OD_TOLEG_HD
+		WHERE DEL_YN = 'N'
+		AND TOL_NO = #TOL_NO#
+		AND TOL_SCD = #TOL_SCD#
+	</insert>
+	
+	<!-- 주문 이력 확인-->
+    <select id="getOrderHistoryCheck" resultClass="Integer">
+    /*[sql-systemCargoService.xml][systemCargoService.getOrderHistoryCheck][주문 이력 확인][2019.02.22][Seungmin] */
+		SELECT COUNT(*) AS CNT
+		FROM TMDM_IF_SYS_HIST
+		WHERE DEL_YN = 'N'
+		AND SYS_CD = #SYS_CD#
+		AND TOL_NO = #TOL_NO#
+    </select>
+    
+    <!-- 화물맨 상/하차지 맵핑 코드 저장.-->
+	<update id="updateStNodeIfInfo">
+	/*[sql-systemCargoService.xml][systemCargoService.updateStNodeIfInfo][화물맨 상/하차지 맵핑 코드 저장][2019.02.22][Seungmin] */
+    	UPDATE TMDM_ST_NODE_IF
+   		SET TPL_ATTR_01 = #HMM_NODE_ID#
+		WHERE DEL_YN = 'N'
+		  AND NATION_CD = 'KR'
+		  AND NODE_CCD = 'SB'
+		  AND NODE_TCD IN ('SL', 'GR')
+		  AND NODE_DESC IS NOT NULL
+		  AND ZIP IS NOT NULL
+		  AND NODE_ID = #NODE_ID#
+    </update>
+    
+    <!-- 공개화물 수정 시 I/F 처리 할 정보 조회.-->
+    <select id="getOrderInterfaceInfo" resultClass="java.util.HashMap">
+    /*[sql-systemCargoService.xml][systemCargoService.getOrderInterfaceInfo][공개화물 수정 시 I/F 처리 할 정보 조회.][2019.02.22][Seungmin] */
+		SELECT A.TOL_NO AS ORDERCODE
+		        , #DEP_NODE_ID# AS DEP_NODE_ID
+		        , #DEP_REQ_DATE# || #DEP_REQ_TIME# AS LOADAY
+		        , CASE WHEN SUBSTR(B.CODE, 2, 6) = '000000' THEN B.SIDO
+		               ELSE TRIM(B.SIDO || ' ' || TRIM(B.GU || ' ' || B.GUN) || ' ' || B.DONG) 
+		        END AS LOACITY
+		        , A.DEP_ADDR_CD AS LOACODE
+		        , B.POIY AS POIX            /*DATA가 반대로 들어가 있음.*/
+		        , B.POIX AS POIY            /*DATA가 반대로 들어가 있음.*/ 
+		        , #ARR_NODE_ID# AS ARR_NODE_ID
+		        , #ARR_REQ_DATE# || #ARR_REQ_TIME# AS DOWDAY
+		        , CASE WHEN SUBSTR(C.CODE, 2, 6) = '000000' THEN C.SIDO
+		               ELSE TRIM(C.SIDO || ' ' || TRIM(C.GU || ' ' || C.GUN) || ' ' || C.DONG) 
+		        END AS DOWCITY
+		        , A.ARR_ADDR_CD AS DOWCODE
+		        , C.POIY AS POIX_OUT        /*DATA가 반대로 들어가 있음.*/
+		        , C.POIX AS POIY_OUT        /*DATA가 반대로 들어가 있음.*/
+		        , A.TON_CD AS CARTON
+		        , A.CAR_TYPE_CD AS CARTYPE
+		        , 'CJ 대한통운' AS NAME
+		        , #AP_AMT# AS PAY
+		        , NVL(#REMK#, '내용 없음') AS INFO
+		        , #REMK# AS ETC
+		        , NVL((SELECT REPLACE(AESDECRYPT (TEL_NO), '-', '')
+		                      FROM TADM_USER_IF
+		                     WHERE USER_ID IN (SELECT EXE_CORP_CD
+		                                         FROM TMDM_SHPR_MNG
+		                                        WHERE CD_TCD = 'SH03')
+		                     AND USER_ID = #gv_userId#), '01000000000') AS PHONE
+		        , #TOT_WT# AS WEIGHT
+		        , #AP_RATE_AMT# AS AP_RATE_AMT
+		FROM TMDM_IF_SYS_HIST A
+		    , TMDM_IF_SYS_ADDR B
+		    , TMDM_IF_SYS_ADDR C
+		WHERE A.SYS_CD 		= 'HMM'
+		AND A.TOL_NO 		= #TOL_NO#
+		AND A.SYS_CD 		= B.SYS_CD
+		AND A.DEP_ADDR_CD 	= B.CODE
+		AND A.SYS_CD 		= C.SYS_CD
+		AND A.ARR_ADDR_CD 	= C.CODE
+		AND ROWNUM 			= 1
+		ORDER BY SEQ_NO DESC
+    </select>
+</sqlMap>

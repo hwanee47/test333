@@ -1,0 +1,732 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="whobMgmtService">
+
+	<select id="selectRcptOrdList" resultClass="java.util.HashMap">
+		/* [sql-whobMgmtService.xml][whobMgmtService.selectRcptOrdList]
+		     [출고관리 할당 조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			0 AS CHK
+			,CENT_CD, CUST_ID, RCPT_YMD, CUST_USE_NO, MPCK_KEY, MPCK_SEQ, GDS_CD, REG_EMP_ID, DATE_FORMAT(REG_DTIME, '%Y-%m-%d %H:%i:%s') AS REG_DTIME, WORK_DV_CD
+			,CENT_CD AS WAREH_CD
+			,(SELECT MAX(W.WAREH_NM) FROM TB_WMS_WAREH_MGMT_MST_C W WHERE W.WAREH_CD = O.CENT_CD) AS WAREH_NM
+			, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(O.GDS_QTY, 0))) AS GDS_QTY
+			, (SELECT MAX(I.ITEM_NM) FROM TB_WMS_ITEM_MGMT_C I WHERE I.ITEM_CD = O.GDS_CD AND I.SHIPPER_ID = O.CUST_ID) AS GDS_NM
+			, (SELECT MAX(C.CUST_REPRE_NM) FROM TB_WMS_CUST_MGMT_C C WHERE C.SHIPPER_ID = O.CUST_ID) AS CUST_NM
+			,MODI_EMP_ID, DATE_FORMAT(MODI_DTIME, '%Y-%m-%d %H:%i:%s') AS MODI_DTIME
+		  FROM TB_WMS_WAREO_ORD_C O
+		 WHERE 1=1
+		   AND O.WORK_DV_CD IN ('20', '30') /*주문확정(20), 할당완료(30)*/
+		<isNotEmpty property="WORK_DV_CD">
+			AND O.WORK_DV_CD = #WORK_DV_CD#
+		</isNotEmpty>   
+		<isNotEmpty property="WAREH_CD">
+			AND O.CENT_CD = #WAREH_CD#
+		</isNotEmpty>   
+		<isNotEmpty property="CUST_USE_NO">
+			AND O.CUST_USE_NO = #CUST_USE_NO#
+		</isNotEmpty>
+		<isNotEmpty property="MPCK_KEY">
+			AND O.MPCK_KEY = #MPCK_KEY#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_CD">
+			AND O.CUST_ID = #CUST_CD#
+		</isNotEmpty>
+		<isNotEmpty property="GDS_CD">
+			AND O.GDS_CD = #GDS_CD#
+		</isNotEmpty>
+		<isNotEmpty property="STA_DT">
+			AND RCPT_YMD BETWEEN #STA_DT# AND #END_DT#
+		</isNotEmpty>
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+			   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<!-- ORDER BY O.CENT_CD, O.CUST_ID, O.RCPT_YMD, O.CUST_USE_NO, CAST(O.MPCK_SEQ AS UNSIGNED) -->
+		ORDER BY MODI_DTIME DESC, O.CENT_CD, O.CUST_ID, O.RCPT_YMD, O.CUST_USE_NO, CAST(O.MPCK_SEQ AS UNSIGNED)
+		
+	</select>
+	
+	<select id="selectWhobStck" resultClass="java.util.HashMap">
+		/* [sql-whobMgmtService.xml][whobMgmtService.selectWhobStck]
+		     [출고관리  할당  재고조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			'' AS CHK
+			,CENT_CD
+			,CUST_CD
+			,GDS_CD
+			,STC_DV_LOT
+			,ZN_CD
+			,LOC_CD
+			,RACK_CD
+			,STC_DV_ID
+			,STC_GRD
+			,STC_TYPE
+			,UNIT
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(STC_QTY, 0))) AS STC_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(USBL_STC, 0))) AS USBL_STC
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(WAREO_RSRV, 0))) AS WAREO_RSRV
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(ALLOC_QTY, 0))) AS ALLOC_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(PICKING_QTY, 0))) AS PICKING_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(HOLDING_QTY, 0))) AS HOLDING_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(CRECT_QTY, 0))) AS CRECT_QTY
+			,ST
+			,DATE_FORMAT(EXPR_DATE, '%Y-%m-%d %H:%i:%s') AS EXPR_DATE
+			,WAREI_YMD
+			,NO_USE_STC_QTY
+			,REG_EMP_ID
+			,DATE_FORMAT(REG_DTIME, '%Y-%m-%d %H:%i:%s') AS REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		  FROM TB_WMS_STC_C
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND CUST_CD = #CUST_CD#
+		   AND GDS_CD = #GDS_CD#
+		   /*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+			<isNotEqual property="gv_userType" compareValue="SUPER">
+				<isNotEqual property="gv_userType" compareValue="ADMIN">
+				   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+				   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+			   	</isNotEqual>
+		   	</isNotEqual>
+		   AND IFNULL(USBL_STC, 0) > 0 /*가용수량이 존재하는 건만 조회*/
+		   <!-- AND EXPR_DATE >= NOW() /* 유통기한이 지난것은 할당 불가. */ -->
+	</select>
+	
+	<select id="selectOrdAllocStc" resultClass="java.util.HashMap">
+		/* [sql-whobMgmtService.xml][whobMgmtService.selectOrdAllocStc]
+		     [출고관리 할당-재고조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT * FROM (
+			SELECT
+				IFNULL((USBL_STC - ORD_QTY), -1) AS QTY
+			  , A.CUST_USE_NO
+			  FROM (
+				SELECT CENT_CD, CUST_ID, GDS_CD, SUM(GDS_QTY) AS ORD_QTY, CUST_USE_NO
+				  FROM TB_WMS_WAREO_ORD_C
+				 WHERE CENT_CD = #CENT_CD#
+				   AND CUST_ID = #CUST_ID#
+				   AND RCPT_YMD = #RCPT_YMD#
+				   AND CUST_USE_NO = #CUST_USE_NO#
+				   /*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+					<isNotEqual property="gv_userType" compareValue="SUPER">
+						<isNotEqual property="gv_userType" compareValue="ADMIN">
+						   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+				  		   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+			  		   	</isNotEqual>
+		  		   	</isNotEqual>
+				 GROUP BY GDS_CD
+				) A
+			  LEFT OUTER JOIN
+				(
+				SELECT CENT_CD, CUST_CD, GDS_CD, SUM(USBL_STC) AS USBL_STC, '' AS CUST_USE_NO
+				  FROM TB_WMS_STC_C S
+				 WHERE CENT_CD = #CENT_CD#
+				   AND CUST_CD = #CUST_ID#
+				   AND GDS_CD IN (SELECT GDS_CD FROM TB_WMS_WAREO_ORD_C WHERE CENT_CD = #CENT_CD# AND CUST_ID = #CUST_ID# AND RCPT_YMD = #RCPT_YMD# AND CUST_USE_NO = #CUST_USE_NO#)
+				   /*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+					<isNotEqual property="gv_userType" compareValue="SUPER">
+						<isNotEqual property="gv_userType" compareValue="ADMIN">
+						   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+				  		   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+			  		   	</isNotEqual>
+		  		   	</isNotEqual>
+		  		   <!-- AND EXPR_DATE >= NOW() /* 유통기한이 지난것은 할당 불가. */ -->
+				 GROUP BY GDS_CD
+				) B
+				ON A.CENT_CD = B.CENT_CD AND A.CUST_ID = B.CUST_CD AND A.GDS_CD = B.GDS_CD
+		) T
+		WHERE T.QTY <![CDATA[<]]> 0
+		
+	</select>
+	
+	<select id="selectOrdAllocStc_selectAlloc" resultClass="java.util.HashMap">
+		/* [sql-whobMgmtService.xml][whobMgmtService.selectOrdAllocStc_selectAlloc]
+		     [출고관리 할당-재고조회(선택할당)]
+		     [KJH 2020.05.14]
+		*/
+		SELECT * FROM (
+			SELECT
+				IFNULL((USBL_STC - ORD_QTY), -1) AS QTY
+			  , A.CUST_USE_NO
+			  FROM (
+				SELECT CENT_CD, CUST_ID, GDS_CD, SUM(GDS_QTY) AS ORD_QTY, CUST_USE_NO
+				  FROM TB_WMS_WAREO_ORD_C
+				 WHERE CENT_CD = #CENT_CD#
+				   AND CUST_ID = #CUST_ID#
+				   AND RCPT_YMD = #RCPT_YMD#
+				   AND CUST_USE_NO = #CUST_USE_NO#
+				   /*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+					<isNotEqual property="gv_userType" compareValue="SUPER">
+						<isNotEqual property="gv_userType" compareValue="ADMIN">
+						   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+				  		   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+			  		   	</isNotEqual>
+		  		   	</isNotEqual>
+				 GROUP BY GDS_CD
+				) A
+			  LEFT OUTER JOIN
+				(
+				SELECT CENT_CD, CUST_CD, GDS_CD, SUM(USBL_STC) AS USBL_STC, '' AS CUST_USE_NO
+				  FROM TB_WMS_STC_C S
+				 WHERE CENT_CD = #CENT_CD#
+				   AND CUST_CD = #CUST_ID#
+				   AND GDS_CD IN (SELECT GDS_CD FROM TB_WMS_WAREO_ORD_C WHERE CENT_CD = #CENT_CD# AND CUST_ID = #CUST_ID# AND RCPT_YMD = #RCPT_YMD# AND CUST_USE_NO = #CUST_USE_NO#)
+				   /*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+					<isNotEqual property="gv_userType" compareValue="SUPER">
+						<isNotEqual property="gv_userType" compareValue="ADMIN">
+						   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+				  		   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+			  		   	</isNotEqual>
+		  		   	</isNotEqual>
+		  		   <!-- AND EXPR_DATE >= NOW() /* 유통기한이 지난것은 할당 불가. */ -->
+		  		   <iterate prepend="AND STC_DV_LOT IN " property="lotList" open="(" close=")" conjunction=",">
+		  		   	#lotList[]#
+		  		   </iterate>
+				 GROUP BY GDS_CD
+				) B
+				ON A.CENT_CD = B.CENT_CD AND A.CUST_ID = B.CUST_CD AND A.GDS_CD = B.GDS_CD
+		) T
+		WHERE T.QTY <![CDATA[<]]> 0
+		
+	</select>
+	
+	<select id="selectAllocStc" resultClass="java.util.HashMap">
+		/* [sql-whobMgmtService.xml][whobMgmtService.selectAllocStc]
+		     [출고관리 할당-로트별 재고조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			CENT_CD, CUST_CD, GDS_CD, STC_DV_LOT, USBL_STC, 0 AS GDS_QTY
+		  FROM TB_WMS_STC_C S
+		 WHERE CENT_CD = #CENT_CD#
+		   AND CUST_CD = #CUST_ID#
+		   AND GDS_CD = #GDS_CD#
+		   <!-- AND EXPR_DATE >= NOW() /* 유통기한이 지난것은 할당 불가. */ -->
+		 ORDER BY EXPR_DATE
+	</select>
+	
+	
+	<select id="selectAllocStc_selectAlloc" resultClass="java.util.HashMap">
+		/* [sql-whobMgmtService.xml][whobMgmtService.selectAllocStc_selectAlloc]
+		     [출고관리 할당-로트별 재고조회(선택할당)]
+		     [KJH 2020.05.14]
+		*/
+		SELECT
+			CENT_CD, CUST_CD, GDS_CD, STC_DV_LOT, USBL_STC, 0 AS GDS_QTY
+		  FROM TB_WMS_STC_C S
+		 WHERE CENT_CD = #CENT_CD#
+		   AND CUST_CD = #CUST_ID#
+		   AND GDS_CD = #GDS_CD#
+		   <!-- AND EXPR_DATE >= NOW() /* 유통기한이 지난것은 할당 불가. */ -->
+		   <iterate prepend="AND STC_DV_LOT IN " property="lotList" open="(" close=")" conjunction=",">
+  		   	#lotList[]#
+  		   </iterate>
+		 ORDER BY EXPR_DATE
+	</select>
+	
+	<update id="updateStcAlloc" >
+		/* [sql-whobMgmtService.xml][whobMgmtService.updateStcAlloc]
+		     [할당-로트별 재고할당]
+		     [KSH 2020.03.12]
+		*/
+		UPDATE TB_WMS_STC_C
+		   SET USBL_STC = USBL_STC - #GDS_QTY#
+		     , ALLOC_QTY = ALLOC_QTY + #GDS_QTY#
+		WHERE CENT_CD = #CENT_CD#
+		  AND CUST_CD = #CUST_CD#
+		  AND GDS_CD = #GDS_CD#
+		  AND STC_DV_LOT = #STC_DV_LOT#
+	</update>
+	
+	<insert id="insertStcMvMgmtAlloc" >
+		/* [sql-whobMgmtService.xml][whobMgmtService.insertStcMvMgmtAlloc]
+		     [출고관리 할당-로트별 재고 트랜잭션]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_WMS_STC_MV_MGMT_C(
+			  SERIAL
+			, OCCR_YMD
+			, TRANSACTION_KEY
+			, CENT_CD
+			, TRANSACTION_TYPE
+			, CUST_CD
+			, GDS_CD
+			, TRANSACTION_QTY
+			, DOC_YMD
+			, DOC_NO
+			, DOC_LN
+			, DOC_ORD_TYPE
+			, ST
+			, USE_YN
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		) VALUES (
+			 (SELECT * FROM (SELECT COUNT(1) + 1 FROM TB_WMS_STC_MV_MGMT_C) SERIAL )
+			, DATE_FORMAT( NOW(), '%Y%m%d')
+			, #CUST_USE_NO#
+			, #CENT_CD#
+			, 'T3'
+			, #CUST_ID#
+			, #GDS_CD#
+			, #GDS_QTY# * -1
+			, DATE_FORMAT( NOW(), '%Y%m%d')
+			, #MPCK_KEY#
+			, #MPCK_SEQ#
+			, 'T3' <!--  T1:입고, T2:출고, T3:할당, T4:피킹, T8:이동, T9:조정 -->
+			, '30' <!-- WORK_DV_CD 00 : 신규,10 : 주문접수,20 : 주문확정,30 : 할당완료,40 : 피킹완료,50 : 출고확정 -->
+			, 'Y'
+			, #gv_userId#
+			, NOW()
+			, #gv_userId#
+			, NOW()
+		)
+	</insert>
+	
+	<update id="updateWhodOrd" >
+		/* [sql-whobMgmtService.xml][whobMgmtService.updateWhodOrd]
+		     [출고관리 할당-주문 상태 Update]
+		     [KSH 2020.03.12]
+		*/
+		UPDATE TB_WMS_WAREO_ORD_C
+		   SET WORK_DV_CD = #WORK_DV_CD#
+		     , MODI_EMP_ID = #gv_userId#
+			 , MODI_DTIME = NOW()
+			 , WAREO_YMD = CASE WHEN #WORK_DV_CD# = '50' THEN (SELECT NOW()) ELSE null END
+			 , WAYBILL_NO = #WAYBILL_NO# 
+		 WHERE CENT_CD = #CENT_CD#
+		   AND CUST_ID = #CUST_ID#
+		   AND RCPT_YMD = #RCPT_YMD#
+		   AND CUST_USE_NO = #CUST_USE_NO#
+		   AND MPCK_KEY = #MPCK_KEY#
+	</update>
+	
+	<select id="selectPickOrdList" resultClass="java.util.HashMap">
+		/* [sql-whobMgmtService.xml][whobMgmtService.selectPickOrdList]
+		     [출고관리 피킹 조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			0 AS CHK
+			,CENT_CD, CUST_ID, RCPT_YMD, CUST_USE_NO, MPCK_KEY, MPCK_SEQ, GDS_CD, REG_EMP_ID, DATE_FORMAT(REG_DTIME, '%Y-%m-%d %H:%i:%s') AS REG_DTIME, WORK_DV_CD
+			,CENT_CD AS WAREH_CD
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(GDS_QTY, 0))) AS GDS_QTY
+			,(SELECT MAX(I.ITEM_NM) FROM TB_WMS_ITEM_MGMT_C I WHERE I.ITEM_CD = O.GDS_CD AND I.SHIPPER_ID = O.CUST_ID) AS GDS_NM
+			,(SELECT MAX(W.WAREH_NM) FROM TB_WMS_WAREH_MGMT_MST_C W WHERE W.WAREH_CD = O.CENT_CD) AS WAREH_NM
+		  FROM TB_WMS_WAREO_ORD_C O
+		WHERE 1=1
+		  AND O.WORK_DV_CD IN ('30', '40') /*할당완료(30), 피킹완료(40)*/
+		<isNotEmpty property="WORK_DV_CD">
+			AND O.WORK_DV_CD = #WORK_DV_CD#
+		</isNotEmpty>    
+		<isNotEmpty property="WAREH_CD">
+			AND O.CENT_CD = #WAREH_CD#
+		</isNotEmpty>  
+		<isNotEmpty property="CUST_USE_NO">
+			AND O.CUST_USE_NO = #CUST_USE_NO#
+		</isNotEmpty>
+		<isNotEmpty property="MPCK_KEY">
+			AND O.MPCK_KEY = #MPCK_KEY#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_ID">
+			AND O.CUST_ID = #CUST_ID#
+		</isNotEmpty>
+		<isNotEmpty property="GDS_CD">
+			AND O.GDS_CD = #GDS_CD#
+		</isNotEmpty>
+		<isNotEmpty property="STA_DT">
+			AND RCPT_YMD BETWEEN #STA_DT# AND #END_DT#
+		</isNotEmpty>
+		ORDER BY O.CENT_CD, O.CUST_ID, O.RCPT_YMD, O.CUST_USE_NO, CAST(O.MPCK_SEQ AS UNSIGNED)
+	</select>
+	
+	<select id="selectPickStc" resultClass="java.util.HashMap">
+		/* [sql-whobMgmtService.xml][whobMgmtService.selectPickStc]
+		     [출고관리 피킹]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			CENT_CD, CUST_CD, GDS_CD, STC_DV_LOT, ALLOC_QTY, 0 AS GDS_QTY
+		  FROM TB_WMS_STC_C S
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND CUST_CD = #CUST_ID#
+		   AND GDS_CD = #GDS_CD#
+	</select>
+	
+	<update id="updateStcPick" >
+		/* [sql-whobMgmtService.xml][whobMgmtService.updateStcPick]
+		     [출고관리 피킹 재고피킹]
+		     [KSH 2020.03.12]
+		*/
+		UPDATE TB_WMS_STC_C
+		   SET ALLOC_QTY = ALLOC_QTY - #GDS_QTY#
+		     , PICKING_QTY = PICKING_QTY + #GDS_QTY#
+		WHERE CENT_CD = #CENT_CD#
+		  AND CUST_CD = #CUST_CD#
+		  AND GDS_CD = #GDS_CD#
+		  AND STC_DV_LOT = #STC_DV_LOT#
+	</update>
+	
+	<insert id="insertStcMvMgmtPick" >
+		/* [sql-whobMgmtService.xml][whobMgmtService.insertStcMvMgmtPick]
+		     [출고관리 피킹 재고 트랜잭션]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_WMS_STC_MV_MGMT_C(
+			  SERIAL
+			, OCCR_YMD
+			, TRANSACTION_KEY
+			, CENT_CD
+			, TRANSACTION_TYPE
+			, CUST_CD
+			, GDS_CD
+			, TRANSACTION_QTY
+			, DOC_YMD
+			, DOC_NO
+			, DOC_LN
+			, DOC_ORD_TYPE
+			, ST
+			, USE_YN
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		) VALUES (
+			 (SELECT * FROM (SELECT COUNT(1) + 1 FROM TB_WMS_STC_MV_MGMT_C) SERIAL )
+			, DATE_FORMAT( NOW(), '%Y%m%d')
+			, #CUST_USE_NO#
+			, #WAREH_CD#
+			, 'T4'
+			, #CUST_ID#
+			, #GDS_CD#
+			, #GDS_QTY# * -1
+			, DATE_FORMAT( NOW(), '%Y%m%d')
+			, #MPCK_KEY#
+			, #MPCK_SEQ#
+			, 'T4' <!--  T1:입고, T2:출고, T3:할당, T4:피킹, T8:이동, T9:조정 -->
+			, '40' <!-- WORK_DV_CD 00 : 신규,10 : 주문접수,20 : 주문확정,30 : 할당완료,40 : 피킹완료,50 : 출고확정 -->
+			, 'Y'
+			, #gv_userId#
+			, NOW()
+			, #gv_userId#
+			, NOW()
+		)
+	</insert>
+	
+	<select id="selectDecisOrd" resultClass="java.util.HashMap">
+		/* [sql-whobMgmtService.xml][whobMgmtService.selectDecisOrd]
+		     [출고관리 출고확정]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			0 AS CHK
+			,CENT_CD AS WAREH_CD
+			,(SELECT MAX(W.WAREH_NM) FROM TB_WMS_WAREH_MGMT_MST_C W WHERE W.WAREH_CD = O.CENT_CD) AS WAREH_NM
+			, (SELECT MAX(I.ITEM_NM) FROM TB_WMS_ITEM_MGMT_C I WHERE I.ITEM_CD = O.GDS_CD AND I.SHIPPER_ID = O.CUST_ID) AS GDS_NM
+			, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(GDS_QTY, 0))) AS GDS_QTY
+			,IFNULL(WAYBILL_NO,'X') AS WAYBILL_NO
+			
+			,CENT_CD			,CUST_ID				,RCPT_YMD				,WAREO_YMD				,CUST_USE_NO
+			,RCPT_DV			,WORK_DV_CD				,REQ_DV_CD				,MPCK_KEY				,MPCK_SEQ
+			,CAL_DV_CD			,FRT_DV_CD				,CNTR_ITEM_CD			,BOX_TYPE_CD			,BOX_QTY
+			,FRT				,CUST_MGMT_DLCM_CD		,SENDR_NM				,SENDR_TEL_NO_1			,SENDR_TEL_NO_2
+			,SENDR_TEL_NO_3		,SENDR_CELL_NO_1		,SENDR_CELL_NO_2		,SENDR_CELL_NO_3		,SENDR_SAFE_NO_1
+			,SENDR_SAFE_NO_2	,SENDR_SAFE_NO_3		,SENDR_ZIP_NO			,SENDR_ADDR				,SENDR_DETAIL_ADDR
+			,RCVR_NM			,RCVR_TEL_NO_1			,RCVR_TEL_NO_2			,RCVR_TEL_NO_3			,RCVR_CELL_NO_1
+			,RCVR_CELL_NO_2		,RCVR_CELL_NO_3			,RCVR_SAFE_NO_1			,RCVR_SAFE_NO_2			,RCVR_SAFE_NO_3
+			,RCVR_ZIP_NO		,RCVR_ADDR				,RCVR_DETAIL_ADDR		,ORDRR_NM				,ORDRR_TEL_NO_1
+			,ORDRR_TEL_NO_2		,ORDRR_TEL_NO_3			,ORDRR_CELL_NO_1		,ORDRR_CELL_NO_2		,ORDRR_CELL_NO_3
+			,ORDRR_SAFE_NO_1	,ORDRR_SAFE_NO_2		,ORDRR_SAFE_NO_3		,ORDRR_ZIP_NO			,ORDRR_ADDR
+			,ORDRR_DETAIL_ADDR	,ORINVC_NO				,ORI_ORD_NO				,PICKUP_EXPCT_YMD
+			,PICKUP_EXPCT_HOUR	,DLV_EXPCT_YMD			,DLV_EXPCT_HOUR			,PRT_ST					,PROD_AMT
+			,REMARK_1			,REMARK_2				,REMARK_3				,COD_YN					,GDS_CD
+			,UNIT_CD			,UNIT_NM				,GDS_AMT
+			,ETC_1				,ETC_2					,ETC_3					,ETC_4					,ETC_5
+			,DLV_DV				,ADDR_ABRV				,DLV_PIDV_NM_CD			,DLV_PIDV_NM_NM			,DLV_EMP_NM
+			,DLV_EMP_SORT_CD	,DEST_CD				,DEST_SUB_CD			,FCHRG_DV				,ADDR_REFINE_IF_YN
+			,ADDR_REFINE_ERR_CD	,ADDR_REFINE_ERR_MSG	,RCPT_ERR_YN			,RCPT_ERR_MSG			,EAI_SND_ST
+			,ERR_MSG			,ORD_GEN_ST				,REG_EMP_ID				,DATE_FORMAT(REG_DTIME, '%Y-%m-%d %H:%i:%s') AS REG_DTIME				,MODI_EMP_ID
+			,MODI_DTIME
+		  FROM TB_WMS_WAREO_ORD_C O
+		 WHERE 1=1
+		   AND O.WORK_DV_CD IN ('40', '50') /*피킹완료(40), 출고확정(50)*/
+		<isNotEmpty property="WORK_DV_CD">
+			AND O.WORK_DV_CD = #WORK_DV_CD#
+		</isNotEmpty> 
+		<isNotEmpty property="WAREH_CD">
+			AND O.CENT_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_USE_NO">
+			AND O.CUST_USE_NO = #CUST_USE_NO#
+		</isNotEmpty>
+		<isNotEmpty property="MPCK_KEY">
+			AND O.MPCK_KEY = #MPCK_KEY#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_ID">
+			AND O.CUST_ID = #CUST_ID#
+		</isNotEmpty>
+		<isNotEmpty property="GDS_CD">
+			AND O.GDS_CD = #GDS_CD#
+		</isNotEmpty>
+		<isNotEmpty property="STA_DT">
+			AND RCPT_YMD BETWEEN #STA_DT# AND #END_DT#
+		</isNotEmpty>
+		ORDER BY O.CENT_CD, O.CUST_ID, O.RCPT_YMD, O.CUST_USE_NO, CAST(O.MPCK_SEQ AS UNSIGNED)
+	</select>
+	
+	<select id="selectDecisStc" resultClass="java.util.HashMap">
+		/* [sql-whobMgmtService.xml][whobMgmtService.selectDecisStc]
+		     [출고관리 출고확정 확정 재고 조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			CENT_CD, CUST_CD, GDS_CD, STC_DV_LOT, PICKING_QTY, 0 AS GDS_QTY
+		  FROM TB_WMS_STC_C S
+		 WHERE CENT_CD = #WAREH_CD#
+		   AND CUST_CD = #CUST_ID#
+		   AND GDS_CD = #GDS_CD#
+	</select>
+	
+	<update id="updateStcDecis" >
+		/* [sql-whobMgmtService.xml][whobMgmtService.updateStcDecis]
+		     [출고관리 출고확정 확정 재고 확정]
+		     [KSH 2020.03.12]
+		*/
+		UPDATE TB_WMS_STC_C
+		   SET PICKING_QTY = PICKING_QTY - #GDS_QTY#
+		     , WAREO_RSRV = WAREO_RSRV + #GDS_QTY#
+		     , STC_QTY = STC_QTY - #GDS_QTY#
+		WHERE CENT_CD = #CENT_CD#
+		  AND CUST_CD = #CUST_CD#
+		  AND GDS_CD = #GDS_CD#
+		  AND STC_DV_LOT = #STC_DV_LOT#
+	</update>
+	
+	<!-- 피킹 재고 트랜잭션 -->
+	<insert id="insertStcMvMgmtDecis" >
+		/* [sql-whobMgmtService.xml][whobMgmtService.insertStcMvMgmtDecis]
+		     [출고관리 출고확정 트렌잭션]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_WMS_STC_MV_MGMT_C(
+			  SERIAL
+			, OCCR_YMD
+			, TRANSACTION_KEY
+			, CENT_CD
+			, TRANSACTION_TYPE
+			, CUST_CD
+			, GDS_CD
+			, TRANSACTION_QTY
+			, DOC_YMD
+			, DOC_NO
+			, DOC_LN
+			, DOC_ORD_TYPE
+			, ST
+			, USE_YN
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		) VALUES (
+			 (SELECT * FROM (SELECT COUNT(1) + 1 FROM TB_WMS_STC_MV_MGMT_C) SERIAL )
+			, DATE_FORMAT( NOW(), '%Y%m%d')
+			, #CUST_USE_NO#
+			, #CENT_CD#
+			, 'T2'
+			, #CUST_ID#
+			, #GDS_CD#
+			, #GDS_QTY# * -1
+			, DATE_FORMAT( NOW(), '%Y%m%d')
+			, #MPCK_KEY#
+			, #MPCK_SEQ#
+			, 'T2' <!--  T1:입고, T2:출고, T3:할당, T4:피킹, T8:이동, T9:조정 -->
+			, '50' <!-- WORK_DV_CD 00 : 신규,10 : 주문접수,20 : 주문확정,30 : 할당완료,40 : 피킹완료,50 : 출고확정 -->
+			, 'Y'
+			, #gv_userId#
+			, NOW()
+			, #gv_userId#
+			, NOW()
+		)
+	</insert>
+	
+	<select id="selectWaybillNo" resultClass="java.util.HashMap">
+		<!-- 운송장번호 생성 룰 : 접수순서(고객ID, 접수일자를 조건으로 MAX+1 )
+		SELECT WAYBILL_NO FROM (
+			SELECT CONCAT('W', #CUST_ID#, #RCPT_YMD#, (SELECT convert(COUNT(1),char) FROM TB_IFST_RSRV_C WHERE CUST_ID = #CUST_ID# AND RCPT_YMD = #RCPT_YMD#)) AS WAYBILL_NO
+		) AS WN -->
+		
+		SELECT LPAD(IFNULL(MAX(WAYBILL_NO)+1,1),12,0) AS WAYBILL_NO,MAX(WAYBILL_NO) FROM TB_IFST_RSRV_C
+		
+	</select>
+	
+	<insert id="insertIfStRsrvDecis">
+		/* [sql-whobMgmtService.xml][whobMgmtService.insertIfStRsrvDecis]
+		     [출고관리 출고확정 택배I/F]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_IFST_RSRV_C (
+			  CUST_ID
+			, RCPT_YMD
+			, CUST_USE_NO <!-- 고객사용번호 -->
+			, RCPT_DV
+			, WORK_DV_CD
+			, REQ_DV_CD
+			, MPCK_KEY
+			, MPCK_SEQ
+			
+			, WAYBILL_NO <!-- 운송장번호 -->
+			, ORINVC_NO
+			
+			, GDS_CD
+			, GDS_NM
+			, GDS_QTY
+			
+			, SENDR_NM			, SENDR_ZIP_NO			, SENDR_ADDR		, SENDR_DETAIL_ADDR
+			, SENDR_TEL_NO_1	, SENDR_TEL_NO_2		, SENDR_TEL_NO_3
+			, SENDR_CELL_NO_1	, SENDR_CELL_NO_2		, SENDR_CELL_NO_3
+			
+			, RCVR_NM			, RCVR_ZIP_NO			, RCVR_ADDR			, RCVR_DETAIL_ADDR
+			, RCVR_TEL_NO_1		, RCVR_TEL_NO_2			, RCVR_TEL_NO_3
+			, RCVR_CELL_NO_1	, RCVR_CELL_NO_2		, RCVR_CELL_NO_3
+			
+			, ORDRR_NM			, ORDRR_ZIP_NO			, ORDRR_ADDR		, ORDRR_DETAIL_ADDR
+			, ORDRR_TEL_NO_1	, ORDRR_TEL_NO_2		, ORDRR_TEL_NO_3
+			, ORDRR_CELL_NO_1	, ORDRR_CELL_NO_2		, ORDRR_CELL_NO_3
+			
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		) VALUES (
+			  #CUST_ID#
+			, #RCPT_YMD#
+			, (SELECT SHP_MALL_SLIP_NO FROM TB_WMS_ORD_MGMT_MST_C WHERE SLIP_NO=#CUST_USE_NO#)
+			, '01' <!-- 접수구분 -->
+			, '01' <!-- 작업구분코드 -->
+			, '03' <!-- WMS출고접수 -->
+			, #MPCK_KEY#
+			, #MPCK_SEQ#
+			
+			, #WAYBILL_NO#
+			, #ORINVC_NO#
+			
+			, #GDS_CD#
+			, #GDS_NM#
+			, #GDS_QTY#
+			
+			, #SENDR_NM#		, #SENDR_ZIP_NO#		, #SENDR_ADDR#		, #SENDR_DETAIL_ADDR#
+			, #SENDR_TEL_NO_1#	, #SENDR_TEL_NO_2#		, #SENDR_TEL_NO_3#
+			, #SENDR_CELL_NO_1#	, #SENDR_CELL_NO_2#		, #SENDR_CELL_NO_3#
+			
+			, #RCVR_NM#			, #RCVR_ZIP_NO#			, #RCVR_ADDR#		, #RCVR_DETAIL_ADDR#
+			, #RCVR_TEL_NO_1#	, #RCVR_TEL_NO_2#		, #RCVR_TEL_NO_3#
+			, #RCVR_CELL_NO_1#	, #RCVR_CELL_NO_2#		, #RCVR_CELL_NO_3#
+			
+			, #ORDRR_NM#		, #ORDRR_ZIP_NO#		, #ORDRR_ADDR#		, #ORDRR_DETAIL_ADDR#
+			, #ORDRR_TEL_NO_1#	, #ORDRR_TEL_NO_2#		, #ORDRR_TEL_NO_3#
+			, #ORDRR_CELL_NO_1#	, #ORDRR_CELL_NO_2#		, #ORDRR_CELL_NO_3#
+			
+			, 'WMS_SYSTEM'
+			, NOW()
+			, 'WMS_SYSTEM'
+			, NOW()
+		)
+	</insert>
+	
+	<insert id="insertIfStRsrvDecis_20200407">
+		/* [sql-whobMgmtService.xml][whobMgmtService.insertIfStRsrvDecis]
+		     [출고관리 출고확정 택배I/F]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_IFST_RSRV_C (
+			  CUST_ID
+			, RCPT_YMD
+			, RCPT_ORDR
+			, ORDR
+			
+			, WAYBILL_NO <!-- 운송장번호 -->
+			, ORINVC_NO
+			, CUST_ORD_NO
+			, CUST_ORD_NO_1
+			
+			, MPCK_NO
+			, MPCK_SEQ
+			
+			, GDS_CD
+			, GDS_NM
+			, GDS_QTY
+			
+			, RCVR_NM			, RCVR_ZIP_NO			, RCVR_ADDR			, RCVR_DETAIL_ADDR
+			, RCVR_TEL_NO_1		, RCVR_TEL_NO_2			, RCVR_TEL_NO_3
+			, RCVR_CELL_NO_1	, RCVR_CELL_NO_2		, RCVR_CELL_NO_3
+			
+			, ORDRR_NM			, ORDRR_ADDR			, ORDRR_DETAIL_ADDR <!-- ORDRR_ZIP_NO 없음 -->
+			, ORDRR_TEL_NO_1	, ORDRR_TEL_NO_2		, ORDRR_TEL_NO_3
+			, ORDRR_CELL_NO_1	, ORDRR_CELL_NO_2		, ORDRR_CELL_NO_3
+			
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		) VALUES (
+			  #CUST_ID#
+			, #RCPT_YMD#
+			, (SELECT * FROM (SELECT COUNT(1) FROM TB_IFST_RSRV_C) AS RCPT_ORDR) <!-- RCPT_ORDR 해당 테이블의 주문별 접수 순서로 해석 -->
+			, #MPCK_SEQ# <!-- ORDR 주문의 품목별 Seq로 해석 -->
+			
+			, #WAYBILL_NO#
+			, #ORINVC_NO#
+			, #CUST_USE_NO#
+			, #SHP_MALL_SLIP_NO#
+			
+			, #MPCK_KEY#
+			, #MPCK_SEQ#
+			
+			, #GDS_CD#
+			, #GDS_NM#
+			, #GDS_QTY#
+			
+			, #RCVR_NM#			, #RCVR_ZIP_NO#			, #RCVR_ADDR#		, #RCVR_DETAIL_ADDR#
+			, #RCVR_TEL_NO_1#	, #RCVR_TEL_NO_2#		, #RCVR_TEL_NO_3#
+			, #RCVR_CELL_NO_1#	, #RCVR_CELL_NO_2#		, #RCVR_CELL_NO_3#
+			
+			, #ORDRR_NM#		, #ORDRR_ADDR#			, #ORDRR_DETAIL_ADDR# <!-- #ORDRR_ZIP_NO# 없음 -->
+			, #ORDRR_TEL_NO_1#	, #ORDRR_TEL_NO_2#		, #ORDRR_TEL_NO_3#
+			, #ORDRR_CELL_NO_1#	, #ORDRR_CELL_NO_2#		, #ORDRR_CELL_NO_3#
+			
+			, 'WMS_SYSTEM'
+			, NOW()
+			, 'WMS_SYSTEM'
+			, NOW()
+		)
+	</insert>
+	
+	
+	<select id="selectWhobOrderInfo" resultClass="java.util.HashMap">
+		/* [sql-whobMgmtService.xml][whobMgmtService.selectWhobOrderInfo]
+		     [출고관리 할당-주문정보조회]
+		     [KJH 2020.05.14]
+		*/
+		SELECT
+			CENT_CD
+			,CUST_ID
+			,RCPT_YMD
+			,CUST_USE_NO
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM GDS_QTY)) AS GDS_QTY
+		FROM
+			TB_WMS_WAREO_ORD_C
+		WHERE
+			CUST_USE_NO = #CUST_USE_NO#
+	</select>
+	
+</sqlMap>

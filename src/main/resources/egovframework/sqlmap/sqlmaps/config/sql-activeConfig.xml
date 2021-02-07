@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="activeConfig">
+	<!-- 시스템 설정 조회 -->
+    <select id="getSysEnv" resultClass="java.util.HashMap">
+    	/* [sql-activeConfig.xml][getSysEnv][시스템 설정 조회][2018.09.13][absentid] */
+		SELECT 
+			 ENV_GRP
+			,ENV_CD
+			,ENV_VAL
+		FROM TADM_SYS_ENV
+    </select>
+</sqlMap>

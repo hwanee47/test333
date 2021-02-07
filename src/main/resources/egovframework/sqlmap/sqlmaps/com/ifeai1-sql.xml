@@ -1,0 +1,1212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ifeai1-sql">
+
+	<!-- 환율정보 인터페이스 Temp 조회 -->
+	<select id="IFEAI1_TMDM_IF_GS_EXR_SELECT"  resultClass="java.util.HashMap">
+        SELECT 
+              PV_EXRATE_CD
+            , PV_COUNTRY_CD1
+            , PV_COMP_CD2
+            , TO_CHAR(PV_EFFECT_DATE,'YYYYMMDD')   AS PV_EFFECT_DATE
+            , PV_REFF_CURR
+            , PV_TARGET_CURR
+            , PV_BASE_AMOUNT
+            , PV_TT_BUY
+            , PV_TT_SELL
+            , PV_CASH_BUY
+            , PV_CASH_SELL
+            , PV_BASIC_RATE
+            , PV_USD_RATE
+            , PV_WEEK_EXCRATE_NY
+            , TO_CHAR(CREATIONDTIME,'YYYYMMDD') AS INS_DATE
+            , TO_CHAR(CREATIONDTIME,'HH24MISS') AS INS_TIME
+            , LASTMODIFICATIONUSRID
+            , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') AS UPD_DATE
+            , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') AS UPD_TIME
+            , EAI_OP
+            , EAI_STATE
+            , TO_CHAR(EAI_DATE,'YYYYMMDD HH24MISS') AS EAI_DATE
+            , EAI_MSG
+        FROM  TMDM_IF_GS_EXR        
+        WHERE INSTANCEID = #INSTANCEID#
+	</select>	
+	
+	<!-- 국가코드 체크 -->
+	<select id="IFEAI1_TMDM_GS_NATION_SELECT"  resultClass="java.util.HashMap">
+        SELECT 
+                NATION_CD
+              , NATION_NM
+        FROM  TMDM_GS_NATION
+        WHERE NATION_CD = #PV_COUNTRY_CD1# 
+          AND DEL_YN    = 'N'
+	</select>	
+	
+	<!-- 법인코드 체크 CM046 -->
+	<select id="IFEAI1_TMDM_MC_CODE_B_SELECT"  resultClass="java.util.HashMap">
+        SELECT 
+                CD
+              , CD_NM
+        FROM  TMDM_MC_CODE_B
+        WHERE CD_TCD = #CD_TCD#
+          AND CD     = #PV_COMP_CD2#
+          AND DEL_YN = 'N'
+          AND ROWNUM = 1
+	</select>	
+
+	<!-- 환율정보 입력 -->
+	<update id="IFEAI1_TMDM_GS_EXR_MERGE">
+		MERGE INTO TMDM_GS_EXR A
+        USING ( 
+            SELECT 
+                    NVL(PV_EXRATE_CD, 'X') AS PV_EXRATE_CD
+                  , NVL(PV_COMP_CD2, 'X')  AS PV_COMP_CD2
+                  , NVL(TO_CHAR(PV_EFFECT_DATE,'YYYYMMDD'),'99991231') AS PV_EFFECT_DATE
+                  , NVL(PV_REFF_CURR, 'X') AS PV_REFF_CURR
+                  , NVL(PV_TARGET_CURR, 'X') AS PV_TARGET_CURR
+                  , PV_BASE_AMOUNT
+                  , PV_TT_BUY
+                  , PV_TT_SELL
+                  , PV_CASH_BUY
+                  , PV_CASH_SELL
+                  , PV_BASIC_RATE
+                  , PV_USD_RATE
+                  , PV_WEEK_EXCRATE_NY
+                  , TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE
+                  , TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME
+                  , NVL(LASTMODIFICATIONUSRID, 'MDM') LASTMODIFICATIONUSRID
+                  , TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE
+                  , TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+            FROM   TMDM_IF_GS_EXR
+            WHERE  INSTANCEID = #INSTANCEID#
+            ) B
+        ON 
+            A.EXR_CD = B.PV_EXRATE_CD 
+            
+        WHEN MATCHED THEN
+          UPDATE SET
+                 A.COMP_ID       = B.PV_COMP_CD2,
+                 A.EXR_APLY_DATE = B.PV_EFFECT_DATE,
+                 A.ORGN_CURR_CD  = B.PV_REFF_CURR, 
+                 A.OBJ_CURR_CD   = B.PV_TARGET_CURR,                  
+                 A.STD_AMT       = B.PV_BASE_AMOUNT, 
+                 A.TT_BUY_RATE   = B.PV_TT_BUY, 
+                 A.TT_SELL_RATE  = B.PV_TT_SELL, 
+                 A.CASH_BUY_RATE = B.PV_CASH_BUY, 
+                 A.CASH_SELL_RATE = B.PV_CASH_SELL,                  
+                 A.BASIC_RATE    = B.PV_BASIC_RATE, 
+                 A.USR_RATE      = B.PV_USD_RATE, 
+                 A.WEEK_EXR_YN   = B.PV_WEEK_EXCRATE_NY, 
+                 A.DEL_YN        = 'N',
+                 A.UPD_DATE      = B.UPD_DATE, 
+                 A.UPD_TIME      = B.UPD_TIME                 
+        WHEN NOT MATCHED THEN
+          INSERT ( A.EXR_CD, A.NATION_CD, A.COMP_ID, A.EXR_APLY_DATE, A.ORGN_CURR_CD,
+                   A.OBJ_CURR_CD, A.STD_AMT, A.TT_BUY_RATE, A.TT_SELL_RATE, A.CASH_BUY_RATE, 
+                   A.CASH_SELL_RATE, A.BASIC_RATE, A.USR_RATE, A.WEEK_EXR_YN, A.DEL_YN, 
+                   A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+          VALUES ( B.PV_EXRATE_CD, 'KR', B.PV_COMP_CD2, B.PV_EFFECT_DATE, B.PV_REFF_CURR, 
+                   B.PV_TARGET_CURR, B.PV_BASE_AMOUNT, B.PV_TT_BUY, B.PV_TT_SELL, B.PV_CASH_BUY, 
+                   B.PV_CASH_SELL, B.PV_BASIC_RATE, B.PV_USD_RATE, B.PV_WEEK_EXCRATE_NY, 'N', 
+                   B.LASTMODIFICATIONUSRID, B.INS_DATE, B.INS_TIME )
+	</update>	
+
+	<!-- 환율 정보 삭제 -->
+	<update id="IFEAI1_TMDM_GS_EXR_DELETE">
+        UPDATE TMDM_GS_EXR
+           SET DEL_YN = 'Y'
+         WHERE EXR_CD = #PV_EXRATE_CD#
+	</update>	
+
+	<!-- 인터페이스 결과 수정(환율) -->
+	<update id="IFEAI1_TMDM_IF_GS_EXR_UPDATE">
+        UPDATE TMDM_IF_GS_EXR
+           SET   EAI_STATE = #EAI_STATE#
+               , EAI_MSG  = #EAI_MSG#
+               , EAI_DATE = current_timestamp
+         WHERE INSTANCEID = #INSTANCEID#
+	</update>	
+	
+	<!-- 월력  -->
+	<!-- 월력정보 인터페이스 Temp 조회 -->
+	<select id="IFEAI1_TMDM_IF_CI_HOLICALENDAR_SELECT"  resultClass="java.util.HashMap">
+		SELECT INSTANCEID, PV_COUNTRY_CD1, PV_COMP_CD1, 
+				PV_CALENDAR_CD, EAI_OP, TO_CHAR(PV_CAL_DATE,'YYYY') AS PV_CAL_DATE
+				,EAI_STATE
+			  ,PV_HOLIDAYTYPE
+		  FROM TMDM_IF_CI_HOLICALENDAR
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>
+		
+	<!-- 휴일구분(HDAY_CLS) 이상유무 체크해서 에러 처리(#CD_TCD# 코드 미확정)  -->
+	
+	<!-- 월력 정보 입력 -->
+	<update id="IFEAI1_TMDM_CI_HOLICALENDAR_MERGE1">
+		MERGE INTO TMDM_CI_HOLICALENDAR A
+		USING ( SELECT 
+						NVL(PV_COMP_CD1,'X') AS PV_COMP_CD1
+						, NVL(PV_CALENDAR_CD,'X') AS PV_CALENDAR_CD
+						, TO_CHAR(PV_CAL_DATE,'YYYY') WORK_CALN_REG_YR,
+		               'CM' WORK_CALN_JOB_TCD,  DECODE(NVL(PV_HOLIDAYTYPE,'2'),'1','N','Y') HOLI_YN, 
+		               PV_WORKTYPE, PV_HOLIDAYTYPE, PV_HOLIDAY_DESCP, 
+		               NVL(TO_CHAR(PV_CAL_DATE,'YYYYMMDD'),'99991231') AS HOLI_STAT_DATE,
+		               NVL(TO_CHAR(PV_CAL_DATE,'YYYYMMDD'),'99991231') AS HOLI_END_DATE,
+		               '0000' WORK_STAT_HM, '2400' WORK_END_HM, 'N' DEL_YN,
+		               NVL(LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+		          FROM TMDM_IF_CI_HOLICALENDAR
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.WORK_CALN_CD = B.PV_COMP_CD1
+		  AND A.HOLI_CD      = B.PV_CALENDAR_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.WORK_CALN_CD      = B.PV_COMP_CD1, 
+		             A.HOLI_CD           = B.PV_CALENDAR_CD, 
+		             A.WORK_CALN_REG_YR  = B.WORK_CALN_REG_YR, 
+		             A.WORK_CALN_JOB_TCD = B.WORK_CALN_JOB_TCD, 
+		             A.HOLI_YN           = B.HOLI_YN, 
+		             A.WORK_YN           = B.PV_WORKTYPE, 
+		             A.HDAY_CLS          = B.PV_HOLIDAYTYPE, 
+		             A.HOLI_DESC         = B.PV_HOLIDAY_DESCP, 
+		             A.HOLI_STAT_DATE    = B.HOLI_STAT_DATE,
+		             A.HOLI_END_DATE     = B.HOLI_END_DATE,
+		             A.WORK_STAT_HM      = B.WORK_STAT_HM, 
+		             A.WORK_END_HM       = B.WORK_END_HM, 
+		             A.DEL_YN            = B.DEL_YN, 
+		             A.UPD_PERSON_ID     = B.UPD_ID, 
+		             A.UPD_DATE          = B.UPD_DATE, 
+		             A.UPD_TIME          = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.WORK_CALN_CD, A.HOLI_CD, A.WORK_CALN_REG_YR, A.WORK_CALN_JOB_TCD,
+		               A.HOLI_YN, A.WORK_YN, A.HDAY_CLS, A.HOLI_DESC,
+		               A.HOLI_STAT_DATE, A.HOLI_END_DATE, A.WORK_STAT_HM, A.WORK_END_HM, 
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.PV_COMP_CD1, B.PV_CALENDAR_CD, B.WORK_CALN_REG_YR,
+		               B.WORK_CALN_JOB_TCD, B.HOLI_YN, B.PV_WORKTYPE,
+		               B.PV_HOLIDAYTYPE, B.PV_HOLIDAY_DESCP, 
+		               B.HOLI_STAT_DATE, B.HOLI_END_DATE,
+		               B.WORK_STAT_HM, B.WORK_END_HM, 
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+
+	</update>	
+	
+	<update id="IFEAI1_TMDM_CI_HOLICALENDAR_MERGE2">
+		MERGE INTO TMDM_CI_WORKCALENDAR A
+		USING ( SELECT 
+						NVL(X.PV_COMP_CD1,'X') AS PV_COMP_CD1, 
+						'G' WORK_CALN_CCD, 
+						Y.CD_NM, 
+						X.PV_COUNTRY_CD1, 
+		               '' CALN_RUL_CD, 
+		               'N' DEL_YN, 
+		               NVL(LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME
+		          FROM TMDM_IF_CI_HOLICALENDAR X, TMDM_MC_CODE_B Y
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           AND Y.CD_TCD = 'CM046'
+		           AND X.PV_COMP_CD1 = Y.CD
+		           AND Y.LANG_CD = 'KO'
+		           AND Y.DEL_YN = 'N' ) B
+		   ON A.WORK_CALN_CD = B.PV_COMP_CD1
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.WORK_CALN_CD   = B.PV_COMP_CD1, 
+		             A.WORK_CALN_CCD  = B.WORK_CALN_CCD,
+		             A.WORK_CALN_DESC = B.CD_NM,
+		             A.NATION_CD      = B.PV_COUNTRY_CD1, 
+		             A.COMP_ID        = B.PV_COMP_CD1, 
+		             A.CALN_RUL_CD    = B.CALN_RUL_CD, 
+		             A.DEL_YN         = B.DEL_YN,  
+		             A.UPD_PERSON_ID  = B.UPD_ID, 
+		             A.UPD_DATE       = B.UPD_DATE, 
+		             A.UPD_TIME       = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.WORK_CALN_CD, A.WORK_CALN_CCD, A.WORK_CALN_DESC, A.NATION_CD, A.COMP_ID, 
+		               A.CALN_RUL_CD, A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.PV_COMP_CD1, B.WORK_CALN_CCD, B.CD_NM, B.PV_COUNTRY_CD1,  B.PV_COMP_CD1, 
+		               B.CALN_RUL_CD, B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+	<!-- 월력 정보 삭제 -->
+	<update id="IFEAI1_TMDM_CI_HOLICALENDAR_UPDATE">
+		UPDATE TMDM_CI_HOLICALENDAR SET 
+			DEL_YN   = 'Y'		
+		WHERE WORK_CALN_CD = #PV_COMP_CD1#
+		  AND HOLI_CD      = #PV_CALENDAR_CD#     
+	</update>
+	
+	
+	<!-- 인터페이스 결과 수정(월력) -->
+	<update id="IFEAI1_TMDM_IF_GS_EXR_UPDATE_CAL">
+		UPDATE TMDM_IF_CI_HOLICALENDAR SET
+			EAI_STATE = #EAI_STATE#
+		   ,EAI_MSG   = #EAI_MSG#
+		   ,EAI_DATE  = current_timestamp
+		 WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<!-- 우편번호 -->
+	<!-- 우편번호 정보 인터페이스 Temp 조회 -->
+	<select id="IFEAI1_TMDM_IF_GS_ZIP_SELECT"  resultClass="java.util.HashMap">
+		SELECT INSTANCEID, PV_ZIP_CD, PV_COUNTRY_CD, EAI_OP, PV_ZIPCODE, EAI_STATE
+		  FROM TMDM_IF_GS_ZIP
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>
+	
+	<!-- 우편번호 정보 입력 -->
+	<update id="IFEAI1_TMDM_GS_ZIP_MERGE">
+		MERGE INTO TMDM_GS_ZIP A
+		USING ( SELECT 
+					   NVL(PV_ZIP_CD,'X') AS PV_ZIP_CD, 
+					   NVL(PV_COUNTRY_CD,'X') AS PV_COUNTRY_CD, 
+					   NVL(PV_ZIPCODE,'X') AS PV_ZIPCODE, 
+					   PV_ADDRLEVEL1,
+		               PV_ADDRLEVEL2, PV_ADDRLEVEL3, PV_ADDRLEVEL4, PV_ADDRLEVEL5,
+		               PV_ADDRLEVEL1_EN, PV_ADDRLEVEL2_EN, PV_ADDRLEVEL3_EN,
+		               PV_ADDRLEVEL4_EN, PV_ADDRLEVEL5_EN, PV_ADDRNO1,
+		               PV_ADDRNO2, PV_ADDRNO3, PV_ADDRNO4, PV_ADDRNO5, PV_BLDGNAME,
+		               PV_KE_AREA_CODE, PV_ADDRESS1, PV_ADDRESS2, PV_ADDRESS1_EN, PV_ADDRESS2_EN, 
+                       PV_FROM_LATI, PV_TO_LATI, PV_FROM_LONGI, PV_TO_LONGI, 'N' DEL_YN,
+		               <!-- DECODE(LASTMODIFICATIONDTIME,NULL,'',LASTMODIFICATIONUSRID) INS_ID,  -->
+		               NVL(LASTMODIFICATIONUSRID, 'MDM') INS_ID,
+		               TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+		               TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME,
+		               PV_ZIP_TYPE
+		          FROM TMDM_IF_GS_ZIP
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.ZIP_CD = B.PV_ZIP_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.NATION_CD = B.PV_COUNTRY_CD,
+		             A.ZIP       = B.PV_ZIPCODE, 
+		             A.LCL_ADDR_STATES = B.PV_ADDRLEVEL1,
+		             A.LCL_ADDR_CUNTY  = B.PV_ADDRLEVEL2, 
+		             A.LCL_ADDR_DONG   = B.PV_ADDRLEVEL3, 
+		             A.LCL_ADDR_RI     = B.PV_ADDRLEVEL4,
+		             <!-- A.LCL_ADDR_ISLAND = B.PV_ADDRLEVEL5,  -->
+		             A.GLBL_ADDR_STATES = B.PV_ADDRLEVEL1_EN, 
+		             A.GLBL_ADDR_CUNTY  = B.PV_ADDRLEVEL2_EN, 
+		             A.GLBL_ADDR_DONG   = B.PV_ADDRLEVEL3_EN, 
+		             A.GLBL_ADDR_RI     = B.PV_ADDRLEVEL4_EN, 
+		             <!-- A.GLBL_ADDR_ISLAND = B.PV_ADDRLEVEL5_EN, -->
+		             A.LCL_MNT_BUNJI       = B.PV_ADDRNO1, 
+		             A.LCL_STAT_MAIN_BUNJI = B.PV_ADDRNO2, 
+		             A.LCL_STAT_SUB_BUNJI  = B.PV_ADDRNO3, 
+		             A.LCL_END_MAIN_BUNJI  = B.PV_ADDRNO4, 
+		             A.LCL_END_SUB_BUNJI   = B.PV_ADDRNO5, 
+		             A.LCL_BUILDING_NM     = B.PV_BLDGNAME,
+		             A.LCL_COURIER_CD      = B.PV_KE_AREA_CODE, 
+		             A.LCL_ADDR1         = B.PV_ADDRESS1, 
+		             A.LCL_ADDR2         = B.PV_ADDRESS1, 
+		             A.GLBL_ADDR1        = B.PV_ADDRESS1_EN, 
+		             A.GLBL_ADDR2        = B.PV_ADDRESS2_EN, 
+                     A.FROM_LAT          = B.PV_FROM_LATI, 
+                     A.TO_LAT            = B.PV_TO_LATI, 
+                     A.FROM_LON          = B.PV_FROM_LONGI, 
+                     A.TO_LON            = B.PV_TO_LONGI,
+		             A.DEL_YN            = B.DEL_YN, 
+		             A.UPD_PERSON_ID     = B.UPD_ID, 
+		             A.UPD_DATE          = B.UPD_DATE, 
+		             A.UPD_TIME          = B.UPD_TIME,
+		             A.ZIP_TYPE            = B.PV_ZIP_TYPE
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.ZIP_CD, A.NATION_CD, A.ZIP, A.LCL_ADDR_STATES,
+		               A.LCL_ADDR_CUNTY, A.LCL_ADDR_DONG, A.LCL_ADDR_RI, A.LCL_ADDR_ISLAND,
+		               A.GLBL_ADDR_STATES, A.GLBL_ADDR_CUNTY, A.GLBL_ADDR_DONG, A.GLBL_ADDR_RI, 
+		               A.GLBL_ADDR_ISLAND, A.LCL_MNT_BUNJI, A.LCL_STAT_MAIN_BUNJI, A.LCL_STAT_SUB_BUNJI, 
+		               A.LCL_END_MAIN_BUNJI, A.LCL_END_SUB_BUNJI, A.LCL_BUILDING_NM, A.LCL_COURIER_CD, 
+		               A.LCL_ADDR1, A.LCL_ADDR2, A.GLBL_ADDR1, A.GLBL_ADDR2, 
+		               A.FROM_LAT, A.TO_LAT, A.FROM_LON, A.TO_LON, 
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME, A.ZIP_TYPE )
+		      VALUES ( B.PV_ZIP_CD, B.PV_COUNTRY_CD, B.PV_ZIPCODE, B.PV_ADDRLEVEL1,
+		               B.PV_ADDRLEVEL2, B.PV_ADDRLEVEL3, B.PV_ADDRLEVEL4, B.PV_ADDRLEVEL5,
+		               B.PV_ADDRLEVEL1_EN, B.PV_ADDRLEVEL2_EN, B.PV_ADDRLEVEL3_EN, B.PV_ADDRLEVEL4_EN, 
+		               B.PV_ADDRLEVEL5_EN, B.PV_ADDRNO1, B.PV_ADDRNO2, B.PV_ADDRNO3, 
+		               B.PV_ADDRNO4, B.PV_ADDRNO5, B.PV_BLDGNAME, B.PV_KE_AREA_CODE, 
+		               B.PV_ADDRESS1, B.PV_ADDRESS2, B.PV_ADDRESS1_EN, B.PV_ADDRESS2_EN,
+		               B.PV_FROM_LATI, B.PV_TO_LATI, B.PV_FROM_LONGI, B.PV_TO_LONGI,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME, B.PV_ZIP_TYPE )		
+	</update>
+	
+	<!-- 우편번호 정보 삭제 -->
+	<update id="IFEAI1_TMDM_GS_ZIP_UPDATE">
+		UPDATE TMDM_GS_ZIP SET 
+			DEL_YN   = 'Y'
+		WHERE ZIP_CD = #PV_ZIP_CD#
+	</update>
+	
+	<!-- 인터페이스 결과 수정(우편번호) -->
+	<update id="IFEAI1_TMDM_IF_GS_EXR_UPDATE_ZIP">
+		UPDATE TMDM_IF_GS_ZIP SET
+			EAI_STATE = #EAI_STATE#
+		   ,EAI_MSG   = #EAI_MSG#
+		   ,EAI_DATE  = current_timestamp
+		 WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	<!-- 공통코드 -->
+	<!-- 공통코드  목록정보 인터페이스  Temp 조회-->
+	<select id="IFEAI1_TMDM_IF_MC_CODE_H_SELECT"  resultClass="java.util.HashMap">		
+		SELECT INSTANCEID, PV_CODEGROUP_CD, EAI_OP, EAI_STATE, PV_STATUS,
+		       CASE WHEN PV_IFTARGET LIKE '%AP020%' THEN '1' ELSE '0' END PV_IFCHK
+		  FROM TMDM_IF_MC_CODE_H
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>
+	<!-- 공통코드 Mapping 정보 조회 -->
+	<select id="IFEAI1_TMDM_MC_CODE_MPG_SELECT"  resultClass="java.util.HashMap">
+		SELECT CD_TCD
+		  FROM TMDM_MC_CODE_H
+		 WHERE MPG_CD_TCD = #PV_CODEGROUP_CD#
+		   AND ROWNUM = 1
+	</select>
+	<!-- 공통 코드 CD_TCD 생성 -->
+	<select id="IFEAI1_TMDM_MC_CODE_CD_TCD"  resultClass="String">
+		SELECT 'CM'||LPAD(MAX(SUBSTR(CD_TCD,3,3))+1,3,'0')   
+          FROM TMDM_MC_CODE_H
+   		 WHERE CD_TCD LIKE 'CM%' 
+   		   AND OWN_SYS_CD = 'MDM'
+	</select>
+	<!-- 공통코드 정보 입력 -->
+	<update id="IFEAI1_TMDM_MC_CODE_H_MERGE">
+		MERGE INTO TMDM_MC_CODE_H A
+		USING ( SELECT #CD_TCD# AS CD_TCD, PV_CODEGROUP_NM, PV_MDM_ID, 'MDM' AS OWN_SYS_CD,
+		               'N' AS DEL_YN, PV_CODEGROUP_CD,
+		               NVL(LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               SUBSTR(CREATIONDTIME, 0, 8) INS_DATE, 
+		               SUBSTR(CREATIONDTIME, 9, 6) INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME
+		          FROM TMDM_IF_MC_CODE_H
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON (A.CD_TCD = #CD_TCD#)
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.CD_TCD, A.CD_TYP_NM, A.ENG_CD_TYP_NM, A.OWN_SYS_CD, A.MPG_CD_TCD,
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( #CD_TCD# , B.PV_CODEGROUP_NM, B.PV_MDM_ID, B.OWN_SYS_CD, B.PV_CODEGROUP_CD,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+	
+	<!-- 공통코드 정보 삭제 -->
+	<update id="IFEAI1_TMDM_MC_CODE_H_UPDATE">
+		UPDATE TMDM_MC_CODE_H
+		   SET DEL_YN   = 'Y'
+		WHERE CD_TCD = #CD_TCD#
+	</update>
+	
+	<!-- 인터페이스 결과 수정(공통코드) -->
+	<update id="IFEAI1_TMDM_IF_MC_CODE_H_UPDATE">
+		UPDATE TMDM_IF_MC_CODE_H SET
+			EAI_STATE = #EAI_STATE#
+		   ,EAI_MSG   = #EAI_MSG#
+		   ,EAI_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		 WHERE INSTANCEID = #INSTANCEID#
+	</update>
+	
+	<!-- 공통코드 수신 -->
+	<!-- 공통코드  목록정보 인터페이스  Temp 조회-->
+	<select id="IFEAI1_TMDM_IF_MC_CODE_M_SELECT"  resultClass="java.util.HashMap">				
+		SELECT INSTANCEID, EAI_STATE, PV_CODE, PV_CODE_GROUP_CD, PV_CTL_1, EAI_OP, PV_STATUS
+		  FROM TMDM_IF_MC_CODE_M
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>
+
+	<!-- 공통코드명 공백 체크  조회 -->
+	<select id="IFEAI2_TMDM_IF_MC_CODE_B_EMP_SELECT"  resultClass="java.lang.Integer">
+		SELECT COUNT(*) AS CNT_EMP
+		  FROM TMDM_IF_MC_CODE_B
+		 WHERE INSTANCEID = #INSTANCEID#
+		   AND PV_NAME IS NULL	
+	</select>	
+	
+	<!-- 공통코드 Mapping 정보 조회 -->
+	<select id="IFEAI1_TMDM_IF_MC_CODE_MPG_SELECT"  resultClass="java.util.HashMap">
+		SELECT CD_TCD
+		  FROM TMDM_MC_CODE_H
+		 WHERE MPG_CD_TCD = #PV_CODE_GROUP_CD#
+		   AND ROWNUM = 1
+	</select>
+	
+	<!-- 공통코드 Mapping 정보 입력 -->
+	<!-- 코스트센터는 temp 참조8번의 값을 참조5번으로 2013.04.19 -->
+	<update id="IAEAI1_TMDM_MC_CODE_M_MERGE">
+		MERGE INTO TMDM_MC_CODE_M A
+		USING ( SELECT PV_SRC_CODE_CD, PV_CODE_GROUP_CD, 
+		               PV_CTL_1, PV_CTL_2, PV_CTL_3, PV_CTL_4, DECODE(#PV_CODE_GROUP_CD#, 'RC00355',PV_CTL_8,PV_CTL_5) PV_CTL_5,
+		               'N' DEL_YN,
+		               NVL(LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               SUBSTR(CREATIONDTIME, 0, 8) INS_DATE, 
+		               SUBSTR(CREATIONDTIME, 9, 6) INS_TIME,
+		               LASTMODIFICATIONUSRID UPD_ID, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 0, 8) UPD_DATE, 
+		               SUBSTR(LASTMODIFICATIONDTIME, 9, 6) UPD_TIME, 
+		               PV_CTL_6
+		          FROM TMDM_IF_MC_CODE_M
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON (A.CD_TCD = #CD_TCD#
+		  AND NVL(A.MPG_CD, A.CD) = B.PV_SRC_CODE_CD)
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.REF_1  = B.PV_CTL_1, 
+		             A.REF_2  = B.PV_CTL_2, 
+		             A.REF_3  = B.PV_CTL_3,
+		             A.REF_4  = SUBSTR(B.PV_CTL_4,0,50),
+		             A.REF_5  = B.PV_CTL_5,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME,
+		             A.REF_6 = B.PV_CTL_6
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.CD_TCD, A.CD, A.CD_ORDB, COMN_CD_YN, 
+		               A.DISP_KCT, A.DISP_KCS, A.DISP_KBL, A.DISP_KIL, A.DISP_ETC, 
+		               A.REF_1, A.REF_2, A.REF_3, A.REF_4, A.REF_5, A.MPG_CD,
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME, A.REF_6 )
+		      VALUES ( #CD_TCD#,
+		               B.PV_SRC_CODE_CD, (SELECT NVL(MAX(CD_ORDB),0) + 1 FROM TMDM_MC_CODE_M
+		               		  		 		WHERE CD_TCD = #CD_TCD#
+		               				 	)		               
+		               , 'Y',
+		               '0', '0', '0', '0', '0',
+		               B.PV_CTL_1, B.PV_CTL_2, B.PV_CTL_3, SUBSTR(B.PV_CTL_4,0,50), B.PV_CTL_5, '',
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME, B.PV_CTL_6 )
+	</update>	
+	<!-- 공통코드 Mapping 정보 입력 -->
+	<update id="IAEAI1_TMDM_MC_CODE_B_MERGE">
+		MERGE INTO TMDM_MC_CODE_B A
+		USING ( SELECT X.PV_SRC_CODE_CD, X.LANG, X.PV_NAME, X.PV_DESC,
+		               Y.CD, 'N' DEL_YN,
+		               'MDM' INS_ID, 
+		               SUBSTR(X.EAI_DATE, 0, 8) INS_DATE, 
+		               SUBSTR(X.EAI_DATE, 9, 6) INS_TIME,
+		               'MDM' UPD_ID, 
+		               SUBSTR(X.EAI_DATE, 0, 8) UPD_DATE, 
+		               SUBSTR(X.EAI_DATE, 9, 6) UPD_TIME 
+		          FROM TMDM_IF_MC_CODE_B X, TMDM_MC_CODE_M Y
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           AND Y.CD_TCD     = #CD_TCD#
+		           AND Y.CD         = X.PV_SRC_CODE_CD
+		           ) B
+		   ON (A.CD_TCD  = #CD_TCD#
+		  AND A.CD      = B.PV_SRC_CODE_CD
+		  AND A.LANG_CD = B.LANG)
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.CD_NM         = B.PV_NAME,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME,
+		             A.CD_DESC         = B.PV_DESC
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.CD_TCD, A.CD, A.LANG_CD, A.CD_NM, A.CD_DESC, 
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( #CD_TCD#,
+		               B.PV_SRC_CODE_CD, B.LANG, B.PV_NAME, B.PV_DESC,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+	<!-- 공통코드 목록 정보 삭제 -->
+	<update id="IAEAI1_TMDM_MC_COD_H_UPDATE">
+		UPDATE TMDM_MC_CODE_H SET
+			DEL_YN = 'Y'
+		WHERE CD_TCD = #CD_TCD#
+	</update>
+	<!-- 공통코드 세부 정보 삭제 -->
+	<update id="IAEAI1_TMDM_MC_COD_M_UPDATE">
+		UPDATE TMDM_MC_CODE_M A SET
+			A.DEL_YN = 'Y'
+		WHERE A.CD_TCD = #CD_TCD#
+		  AND EXISTS
+		     ( SELECT * FROM TMDM_IF_MC_CODE_M
+		        WHERE PV_SRC_CODE_CD = A.CD
+		          AND INSTANCEID     = #INSTANCEID#)
+	</update>	
+	<!-- 공통코드 다국어 정보 삭제 -->
+	<update id="IAEAI1_TMDM_MC_COD_B_UPDATE">
+		UPDATE TMDM_MC_CODE_B A SET
+			A.DEL_YN = 'Y'
+		WHERE A.CD_TCD = #CD_TCD#
+		  AND EXISTS
+		     ( SELECT * FROM TMDM_IF_MC_CODE_M
+		        WHERE PV_SRC_CODE_CD = A.CD
+		          AND INSTANCEID     = #INSTANCEID#)
+	</update>	
+	<!-- 운송사 정보 입력 -->
+	<update id = "IAEAI1_TMDM_GS_CARR_MERGE">
+		MERGE INTO TMDM_GS_CARR A
+		USING ( SELECT X.PV_SRC_CODE_CD, X.PV_NAMEKO, X.PV_DESCKO, 
+		               X.PV_CTL_1, X.PV_CTL_2, X.PV_CTL_3, X.PV_CTL_4, NVL(X.PV_CTL_10,'N') PV_CTL_10, X.PV_CTL_11,
+		               X.PV_CTL_5, X.PV_CTL_6, X.PV_CTL_7, X.PV_CTL_8, X.PV_CTL_9,
+		               'N' DEL_YN,
+		               NVL(X.LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME,
+		               X.LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') UPD_DATE, 
+		               '' UPD_TIME 
+		          FROM TMDM_IF_MC_CODE_M X
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           ) B
+		   ON A.CARR_TCD    = B.PV_CTL_1
+		  AND A.CARR_REP_CD = B.PV_SRC_CODE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.CARR_NM   = B.PV_NAMEKO,
+		             A.CARR_DESC = B.PV_DESCKO,
+		             A.CARR_ID   = B.PV_CTL_11, 
+		             A.ICAO_CD   = B.PV_CTL_3,
+		             A.NATION_CD = B.PV_CTL_4,
+		             A.SCAC      = B.PV_CTL_2,
+		             A.VASS_AGENT_YN  = B.PV_CTL_10,
+		             A.DEL_YN         = B.DEL_YN, 
+		             A.UPD_PERSON_ID  = B.UPD_ID, 
+		             A.UPD_DATE       = B.UPD_DATE, 
+		             A.UPD_TIME       = B.UPD_TIME,
+		             A.CLEAR_CLS      = B.PV_CTL_5,
+                     A.VAT_INCLD_YN   = B.PV_CTL_6,
+                     A.CLEAR_MATHD    = B.PV_CTL_7,
+                     A.IATA_5INCLD_YN = B.PV_CTL_8,
+                     A.CASS_YN        = B.PV_CTL_9
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.CARR_TCD, A.CARR_REP_CD, A.CARR_NM, A.CARR_DESC, A.CARR_ID, 
+		               A.ICAO_CD, A.NATION_CD, A.SCAC, A.VASS_AGENT_YN,
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME,
+		               A.CLEAR_CLS, A.VAT_INCLD_YN, A.CLEAR_MATHD, A.IATA_5INCLD_YN, A.CASS_YN )
+		      VALUES ( B.PV_CTL_1, B.PV_SRC_CODE_CD, B.PV_NAMEKO, B.PV_DESCKO, B.PV_CTL_11,
+		               B.PV_CTL_3, B.PV_CTL_4, B.PV_CTL_2, B.PV_CTL_10,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME,
+		               B.PV_CTL_5, B.PV_CTL_6, B.PV_CTL_7, B.PV_CTL_8, B.PV_CTL_9 )
+	</update>
+	<!-- 운송사정보 삭제 -->
+	<update id= "IAEAI1_TMDM_GS_CARR_UPDATE">
+		UPDATE TMDM_GS_CARR A
+		   SET A.DEL_YN = 'Y'
+		 WHERE EXISTS
+		     ( SELECT * FROM TMDM_IF_MC_CODE_M
+		        WHERE PV_CTL_1       = A.CARR_TCD
+		          AND PV_SRC_CODE_CD = A.CARR_REP_CD
+		          AND INSTANCEID     = #INSTANCEID#)
+	</update>
+	<!-- 통화 정보 입력 -->
+	<update id = "IAEAI1_TMDM_GS_CURR_MERGE">
+		MERGE INTO TMDM_GS_CURR A
+		USING ( SELECT X.PV_SRC_CODE_CD, X.PV_NAMEKO, X.PV_DESCKO, 
+		               X.PV_CTL_1, X.PV_CTL_2, X.PV_CTL_3, X.PV_CTL_4, X.PV_CTL_5,
+		               'N' DEL_YN,
+		               NVL(X.LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME,
+		               X.LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') UPD_DATE, 
+		               '' UPD_TIME 
+		          FROM TMDM_IF_MC_CODE_M X
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           ) B
+		   ON A.CURR_CD    = B.PV_SRC_CODE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.CURR_NM   = B.PV_NAMEKO,
+		             A.CURR_DESC = B.PV_DESCKO,
+		             A.CURR_ORDB = B.PV_CTL_2,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.CURR_CD, A.CURR_NM, A.CURR_DESC, A.CURR_EXPR_DATE, A.CURR_ORDB, 
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.PV_SRC_CODE_CD, B.PV_NAMEKO, B.PV_DESCKO, '99991231', B.PV_CTL_2,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>	
+	<!-- 통화 정보 삭제 -->
+	<update id = "IAEAI1_TMDM_GS_CURR_UPDATE">
+		UPDATE TMDM_GS_CURR A
+		   SET A.DEL_YN = 'Y'
+		 WHERE EXISTS
+		     ( SELECT * FROM TMDM_IF_MC_CODE_M
+		        WHERE PV_SRC_CODE_CD = A.CURR_CD
+		          AND INSTANCEID     = #INSTANCEID#)
+	</update>	
+	<!-- 언어정보 입력 -->
+	<update id = "IAEAI1_TMDM_GS_LANG_MERGE">
+		MERGE INTO TMDM_GS_LANG A
+		USING ( SELECT X.PV_SRC_CODE_CD, X.PV_NAMEKO, X.PV_DESCKO, 
+		               X.PV_CTL_1, X.PV_CTL_2, X.PV_CTL_3, X.PV_CTL_4, X.PV_CTL_5,
+		               'N' DEL_YN,
+		               NVL(X.LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME,
+		               X.LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') UPD_DATE, 
+		               '' UPD_TIME 
+		          FROM TMDM_IF_MC_CODE_M X
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           ) B
+		   ON A.LANG_CD    = B.PV_SRC_CODE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.LANG_NM   = B.PV_NAMEKO,
+		             A.LANG_DESC = B.PV_DESCKO,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.LANG_CD, A.LANG_NM, A.LANG_DESC,
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.PV_SRC_CODE_CD, B.PV_NAMEKO, B.PV_DESCKO,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+	<!-- 언어정보 삭제 -->
+	<update id = "IAEAI1_TMDM_GS_LANG_UPDATE">
+		UPDATE TMDM_GS_LANG A
+		   SET A.DEL_YN = 'Y'
+		 WHERE EXISTS
+		     ( SELECT * FROM TMDM_IF_MC_CODE_M
+		        WHERE PV_SRC_CODE_CD = A.LANG_CD
+		          AND INSTANCEID     = #INSTANCEID#)
+	</update>
+	<!-- 국가 정보 입력 -->
+	<update id = "IAEAI1_TMDM_GS_NATION_MERGE">
+		MERGE INTO TMDM_GS_NATION A
+		USING ( SELECT X.PV_SRC_CODE_CD, X.PV_NAMEKO, X.PV_NAMEEN, 
+		               X.PV_CTL_1, X.PV_CTL_2, X.PV_CTL_3, X.PV_CTL_4, X.PV_CTL_5,
+		               'N' DEL_YN,
+		               NVL(X.LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME,
+		               X.LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') UPD_DATE, 
+		               '' UPD_TIME 
+		          FROM TMDM_IF_MC_CODE_M X
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           ) B
+		   ON A.NATION_CD    = B.PV_SRC_CODE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.NATION_NM   = B.PV_NAMEEN,
+		             A.NATION_DESC = B.PV_NAMEKO,
+		             A.OFFICL_LANG_CD = B.PV_CTL_3,
+		             A.DF_CURR_CD     = B.PV_CTL_4,
+		             A.NATION_NO      = B.PV_CTL_5,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.NATION_CD, A.NATION_NM, A.NATION_DESC, A.OFFICL_LANG_CD, A.DF_CURR_CD,
+		               A.NATION_NO, A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.PV_SRC_CODE_CD, B.PV_NAMEKO, B.PV_NAMEEN, B.PV_CTL_3, B.PV_CTL_4,
+		               B.PV_CTL_5, B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+	<!-- 국가 정보 삭제 -->
+	<update id = "IAEAI1_TMDM_GS_NATION_UPDATE">
+		UPDATE TMDM_GS_NATION A
+		   SET A.DEL_YN = 'Y'
+		 		 WHERE EXISTS
+		     ( SELECT * FROM TMDM_IF_MC_CODE_M
+		        WHERE PV_SRC_CODE_CD = A.NATION_CD
+		          AND INSTANCEID     = #INSTANCEID#)
+	</update>
+	<!-- 주도코드 정보 입력 -->
+	<update id = "IAEAI1_TMDM_GS_STATE_PRV_MERGE">
+		MERGE INTO TMDM_GS_STATEPRV A
+		USING ( SELECT X.PV_SRC_CODE_CD, X.PV_NAMEKO, X.PV_DESCKO, 
+		               X.PV_CTL_1, X.PV_CTL_2, X.PV_CTL_3, X.PV_CTL_4, X.PV_CTL_5,
+		               'N' DEL_YN,
+		               NVL(X.LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME,
+		               X.LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') UPD_DATE, 
+		               '' UPD_TIME 
+		          FROM TMDM_IF_MC_CODE_M X
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           ) B
+		   ON A.NATION_CD    = B.PV_CTL_1
+		  AND A.STATE_PRV_CD = B.PV_SRC_CODE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.STATE_PRV_NM_1 = B.PV_NAMEKO,
+		             A.STATE_PRV_DESC = B.PV_DESCKO,
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.NATION_CD, A.STATE_PRV_CD, A.STATE_PRV_NM_1, A.STATE_PRV_DESC, UNLO_SUB_DIV_CD,
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.PV_CTL_1, B.PV_SRC_CODE_CD, B.PV_NAMEKO, B.PV_DESCKO, 'NA',
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+	<!-- 주도코드 정보 삭제 -->
+	<update id = "IAEAI1_TMDM_GS_STATE_PRV_UPDATE">
+		UPDATE TMDM_GS_STATEPRV A
+		   SET A.DEL_YN = 'Y'
+		 WHERE EXISTS
+		     ( SELECT * FROM TMDM_IF_MC_CODE_M
+		        WHERE PV_CTL_1       = A.NATION_CD
+		          AND PV_SRC_CODE_CD = A.STATE_PRV_CD
+		          AND INSTANCEID     = #INSTANCEID#)
+	</update>
+	<!-- TIME ZONE 정보 입력 -->
+	<update id = "IFEAI1_TMDM_GS_TZ_MERGE">
+		MERGE INTO TMDM_GS_TZ A
+		USING ( SELECT X.PV_SRC_CODE_CD, X.PV_NAMEKO, X.PV_DESCKO, 
+		               X.PV_CTL_1, X.PV_CTL_2, X.PV_CTL_3, X.PV_CTL_4, X.PV_CTL_5,
+		               'N' DEL_YN,
+		               NVL(X.LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME,
+		               X.LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') UPD_DATE, 
+		               '' UPD_TIME 
+		          FROM TMDM_IF_MC_CODE_M X
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           ) B
+		   ON A.TZ_CD    = B.PV_SRC_CODE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.TZ_NM   = B.PV_NAMEKO,
+		             A.TZ_DESC = B.PV_DESCKO,
+		             A.DEL_YN        = B.DEL_YN,    
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.TZ_CD, A.TZ_NM, A.TZ_DESC,
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.PV_SRC_CODE_CD, B.PV_NAMEKO, B.PV_DESCKO,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+	<!-- TIME ZONE 삭제 -->
+	<update id = "IFEAI1_TMDM_GS_TZ_UPDATE">
+		UPDATE TMDM_GS_TZ A
+		   SET A.DEL_YN = 'Y'
+	     WHERE EXISTS
+		     ( SELECT * FROM TMDM_IF_MC_CODE_M
+		        WHERE PV_SRC_CODE_CD = A.TZ_CD
+		          AND INSTANCEID     = #INSTANCEID#)
+	</update>	
+	<!-- UOM 정보 입력 -->
+	<update id = "IFEAI1_TMDM_GS_UOM_MERGE">
+		MERGE INTO TMDM_GS_UOM A
+		USING ( SELECT X.PV_SRC_CODE_CD, X.PV_NAMEKO, X.PV_DESCKO, X.PV_NAMEEN,
+		               X.PV_CTL_1, X.PV_CTL_2, X.PV_CTL_3, X.PV_CTL_4, X.PV_CTL_5,
+		               'N' DEL_YN,
+		               NVL(X.LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME,
+		               X.LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') UPD_DATE, 
+		               '' UPD_TIME 
+		          FROM TMDM_IF_MC_CODE_M X
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           ) B
+		   ON A.UOM_CD    = B.PV_SRC_CODE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.UOM_NM   = B.PV_NAMEKO,
+		             A.UOM_DESC = B.PV_CTL_3,
+		             A.UOM_TCD  = B.PV_CTL_1,
+		             A.COMML_FMT_UOM_CD = B.PV_CTL_2,
+		             A.TECH_FMT_UOM_CD = B.PV_NAMEEN,
+		             A.DEL_YN        = B.DEL_YN,    
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.UOM_CD, A.UOM_NM, A.UOM_DESC, A.UOM_TCD, A.UOM_CCD,
+		               A.COMML_FMT_UOM_CD, A.TECH_FMT_UOM_CD,
+		               A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.PV_SRC_CODE_CD, B.PV_NAMEKO, B.PV_CTL_3, B.PV_CTL_1, '00',
+		               B.PV_CTL_2, B.PV_NAMEEN,
+		               B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+	<!-- UOM 삭제 -->
+	<update id = "IFEAI1_TMDM_GS_UOM_UPDATE">
+		UPDATE TMDM_GS_UOM A
+		   SET A.DEL_YN = 'Y'
+		 WHERE EXISTS
+		     ( SELECT * FROM TMDM_IF_MC_CODE_M
+		        WHERE PV_SRC_CODE_CD = A.UOM_CD
+		          AND INSTANCEID     = #INSTANCEID#)
+	</update>	
+	<!-- 대한통운 집계 정보 입력 -->
+	<update id = "IFEAI1_TMDM_IT_ITEM_TYPE_GRP_MERGE">
+		MERGE INTO TMDM_IT_ITEM_TYPE_GRP A
+		USING ( SELECT X.PV_SRC_CODE_CD, X.PV_NAMEKO, X.PV_DESCKO, X.PV_NAMEEN, NVL(X.PV_PARENT_CODE_ID,'*') PV_PARENT_CODE_ID,
+		               X.PV_CTL_1, X.PV_CTL_2, X.PV_CTL_3, X.PV_CTL_4, X.PV_CTL_5,
+                       ( SELECT NVL(MAX(ITEM_TYP_SEQ_NO),0)+1 
+                           FROM TMDM_IT_ITEM_TYPE_GRP
+                          WHERE SHPR_ID = '10069897' AND ITEM_TYP_CCD = #P_ITEM_TYP_CCD# ) ITEM_TYP_SEQ_NO,
+                       NVL((SELECT DECODE(X.PV_PARENT_CODE_ID,'*',0,HRCHY_STEP_CD)+1 
+                          FROM TMDM_IT_ITEM_TYPE_GRP 
+                         WHERE SHPR_ID = '10069897' 
+                           AND ITEM_TYP_CCD = #P_ITEM_TYP_CCD#
+                           AND SHPR_ITEM_TYP_CD = DECODE(X.PV_PARENT_CODE_ID,'*',X.PV_SRC_CODE_CD,X.PV_PARENT_CODE_ID)),1) HRCHY_CD,
+		               'N' DEL_YN,
+		               NVL(X.LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME,
+		               'MDM' UPD_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') UPD_DATE, 
+		               '' UPD_TIME 
+		          FROM TMDM_IF_MC_CODE_M X
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           ) B
+		   ON A.SHPR_ID          = '10069897'
+          AND A.ITEM_TYP_CCD     = #P_ITEM_TYP_CCD#
+          AND A.SHPR_ITEM_TYP_CD = B.PV_SRC_CODE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.SHPR_ITEM_TYP_NM = B.PV_NAMEKO,
+		             A.PRNT_ITEM_TYP_CD = B.PV_PARENT_CODE_ID,
+		             A.DEL_YN           = B.DEL_YN,     
+		             A.UPD_PERSON_ID    = B.UPD_ID, 
+		             A.UPD_DATE         = B.UPD_DATE, 
+		             A.UPD_TIME         = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.SHPR_ID, A.ITEM_TYP_CCD, A.ITEM_TYP_SEQ_NO, A.SHPR_ITEM_TYP_CD, A.SHPR_ITEM_TYP_NM, 
+                   A.HRCHY_STEP_CD, A.PRNT_ITEM_TYP_CD, A.ITEM_TYP_ORDB, A.FINAL_HRCHY_YN, A.DEL_YN, 
+                   A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( '10069897', #P_ITEM_TYP_CCD#, B.ITEM_TYP_SEQ_NO, B.PV_SRC_CODE_CD, B.PV_NAMEKO, 
+                   B.HRCHY_CD, B.PV_PARENT_CODE_ID, B.ITEM_TYP_SEQ_NO, 'Y', B.DEL_YN,
+		               B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>
+	<!-- 대한통운 집계 정보 계층 UPDATE입력 -->
+	<update id = "IFEAI1_TMDM_IT_ITEM_TYPE_GRP_HRCHY_UPDATE">
+		UPDATE TMDM_IT_ITEM_TYPE_GRP A
+		   SET A.HRCHY_STEP_CD =
+				(NVL((SELECT DECODE(A.PRNT_ITEM_TYP_CD,'*',0,HRCHY_STEP_CD)+1 HRCHY_CD
+      	        	    FROM TMDM_IT_ITEM_TYPE_GRP 
+                       WHERE SHPR_ID = A.SHPR_ID 
+                         AND ITEM_TYP_CCD = A.ITEM_TYP_CCD
+                         AND SHPR_ITEM_TYP_CD = DECODE(A.PRNT_ITEM_TYP_CD,'*',A.SHPR_ITEM_TYP_CD,A.PRNT_ITEM_TYP_CD)),1)), 
+               A.FINAL_HRCHY_YN =
+                (SELECT DECODE(COUNT(*),0,'Y','N')
+                   FROM TMDM_IT_ITEM_TYPE_GRP
+                  WHERE SHPR_ID      = A.SHPR_ID
+                    AND ITEM_TYP_CCD = A.ITEM_TYP_CCD
+                    AND PRNT_ITEM_TYP_CD = A.SHPR_ITEM_TYP_CD)
+         WHERE A.SHPR_ID = '10069897'
+           AND A.ITEM_TYP_CCD = #P_ITEM_TYP_CCD#
+	</update>	
+	<!-- 대한통운 집계 정보 삭제 -->
+	<update id = "IFEAI1_TMDM_IT_ITEM_TYPE_GRP_UPDATE">
+		UPDATE TMDM_IT_ITEM_TYPE_GRP A
+		   SET A.DEL_YN = 'Y'
+		 WHERE A.SHPR_ID = '10069897'
+		   AND A.ITEM_TYP_CCD = #P_ITEM_TYP_CCD#
+		   AND EXISTS
+		     ( SELECT * FROM TMDM_IF_MC_CODE_M
+		        WHERE PV_SRC_CODE_CD = A.SHPR_ITEM_TYP_CD
+		          AND INSTANCEID     = #INSTANCEID#)
+	</update>	
+	<!-- 대한통운 위험물 정보 입력 -->
+	<update id = "IFEAI1_TMDM_IT_IMDG_UN_NO_MERGE">
+		MERGE INTO TMDM_IT_IMDG_UN_NO A
+		USING ( SELECT X.PV_SRC_CODE_CD, X.PV_NAMEEN, X.PV_NAMEKO,
+		               X.PV_CTL_1, X.PV_CTL_2, X.PV_CTL_3, X.PV_CTL_4, X.PV_CTL_5,
+		               'N' DEL_YN,
+		               NVL(X.LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME,
+		               X.LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') UPD_DATE, 
+		               '' UPD_TIME 
+		          FROM TMDM_IF_MC_CODE_M X
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           ) B
+		   ON A.IMDG_UN_NO    = B.PV_SRC_CODE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.IMDG_NM        = B.PV_NAMEEN,
+                     A.IMDG_NM_KO     = B.PV_NAMEKO,
+                     A.IMDG_CTGRY_VAL = B.PV_CTL_2,
+                     A.IMDG_GRD       = B.PV_CTL_4,
+		             A.UN_NO          = B.PV_CTL_1,
+		             A.DEL_YN         = B.DEL_YN,    
+		             A.UPD_PERSON_ID  = B.UPD_ID, 
+		             A.UPD_DATE       = B.UPD_DATE, 
+		             A.UPD_TIME       = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.IMDG_UN_NO, A.IMDG_NM, A.IMDG_NM_KO, A.IMDG_CTGRY_VAL, A.IMDG_GRD, 
+                   A.UN_NO, A.DEL_YN, A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.PV_SRC_CODE_CD, B.PV_NAMEEN, B.PV_NAMEKO, B.PV_CTL_2, B.PV_CTL_4,
+		               B.PV_CTL_1, B.DEL_YN, B.INS_ID, B.INS_DATE, B.INS_TIME )
+	</update>	
+	<!-- 대한통운 위험물 정보 삭제 -->
+	<update id = "IFEAI1_TMDM_IT_IMDG_UN_NO_UPDATE">
+		UPDATE TMDM_IT_IMDG_UN_NO A
+		   SET A.DEL_YN = 'Y'
+         WHERE EXISTS
+             ( SELECT * FROM TMDM_IF_MC_CODE_M
+                WHERE PV_SRC_CODE_CD = A.IMDG_UN_NO
+		          AND INSTANCEID     = #INSTANCEID#)
+	</update>
+	<!-- 대한통운 사업장 정보 입력 -->
+	<update id = "IFEAI1_TMDM_BIZ_PLACE_MERGE">
+		MERGE INTO TMDM_BIZ_PLACE A
+		USING ( SELECT X.PV_SRC_CODE_CD, X.PV_NAMEEN, X.PV_NAMEKO,
+		               X.PV_CTL_1, X.PV_CTL_2, X.PV_CTL_3, X.PV_CTL_4, X.PV_CTL_5,
+		               X.PV_CTL_6, X.PV_CTL_7, TO_CHAR(X.EAI_DATE,'YYYYMMDD') EFF_DATE, '' SHDWN_DATE,
+		               'N' DEL_YN,
+		               NVL(X.LASTMODIFICATIONUSRID, 'MDM') INS_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') INS_DATE, 
+		               TO_CHAR(X.EAI_DATE,'HH24MISS') INS_TIME,
+		               X.LASTMODIFICATIONUSRID UPD_ID, 
+		               TO_CHAR(X.EAI_DATE,'YYYYMMDD') UPD_DATE, 
+		               '' UPD_TIME 
+		          FROM TMDM_IF_MC_CODE_M X
+		         WHERE X.INSTANCEID = #INSTANCEID#
+		           ) B
+		   ON A.POB_CD    = B.PV_SRC_CODE_CD
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.POB_NM         = B.PV_NAMEKO,
+                 	 A.BUSI_NO        = B.PV_CTL_7,
+                 	 A.PRSNT_NM       = B.PV_CTL_3,
+		             A.CORP_NO        = B.PV_CTL_6,
+		             A.CAT_BUSI       = B.PV_CTL_4,
+		             A.LOC            = B.PV_CTL_2,                 
+		             A.DEL_YN         = B.DEL_YN,     
+		             A.UPD_PERSON_ID  = B.UPD_ID, 
+		             A.UPD_DATE       = B.UPD_DATE, 
+		             A.UPD_TIME       = B.UPD_TIME,
+                     A.BIZCOND        = B.PV_CTL_5
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.POB_CD, A.POB_NM, A.BUSI_NO, A.PRSNT_NM, A.CORP_NO, 
+    	               A.CAT_BUSI, A.LOC, A.EFF_DATE, A.SHDWN_DATE, A.DEL_YN, 
+        	           A.INS_PERSON_ID, A.INS_DATE, A.INS_TIME, A.BIZCOND
+                 )
+		      VALUES ( B.PV_SRC_CODE_CD, B.PV_NAMEKO, B.PV_CTL_7, B.PV_CTL_3, B.PV_CTL_6,
+		               B.PV_CTL_4,  B.PV_CTL_2, B.EFF_DATE, B.SHDWN_DATE, B.DEL_YN, 
+	                   B.INS_ID, B.INS_DATE, B.INS_TIME, B.PV_CTL_5
+                  )
+	</update>	
+	<!-- 대한통운 사업장 정보 삭제 -->
+	<update id = "IFEAI1_TMDM_BIZ_PLACE_UPDATE">
+		UPDATE TMDM_BIZ_PLACE A
+		   SET A.DEL_YN = 'Y'
+         WHERE EXISTS
+             ( SELECT * FROM TMDM_IF_MC_CODE_M
+                WHERE PV_SRC_CODE_CD = A.POB_CD
+		          AND INSTANCEID     = #INSTANCEID#)
+	</update>
+	<!-- 인터페이스 결과 수정 -->
+	<update id = "IAEAI1_TMDM_IF_MC_CODE_M_UPDATE">
+		UPDATE TMDM_IF_MC_CODE_M
+			SET EAI_STATE = #EAI_STATE#
+			   ,EAI_MSG   = #EAI_MSG#
+			   ,EAI_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE INSTANCEID  = #INSTANCEID#
+	</update>
+	<!-- 인터페이스 결과 수정 -->
+	<update id = "IAEAI1_TMDM_IF_MC_CODE_B_UPDATE">
+		UPDATE TMDM_IF_MC_CODE_B
+			SET EAI_STATE = #EAI_STATE#
+			   ,EAI_MSG   = #EAI_MSG#
+			   ,EAI_DATE  = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE INSTANCEID  = #INSTANCEID#
+	</update>
+	
+	<!-- 선박 정보 인터페이스 조회 -->
+	<select id="IFEAI1_TMDM_IF_GS_VSL_SELECT"  resultClass="java.util.HashMap">	
+		SELECT INSTANCEID , EAI_STATE , EAI_OP , PV_CODE
+			 , PV_CARR_CD , PV_VSL_CLS , PV_COUNTRY1, STATUS
+ 		  FROM TMDM_IF_GS_VSL
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>
+	
+	<!-- 선박구분 이상유무 체크 후 에러 처리-->
+	<select id="IFEAI1_TMDM_MC_CODE_B_VSL_SELECT"  resultClass="java.util.HashMap">	
+		SELECT CD, CD_NM 
+		  FROM TMDM_MC_CODE_B
+		 WHERE CD_TCD = 'VSL_CCD'
+		   AND CD     = #PV_VSL_CLS#
+		   AND ROWNUM = 1
+	</select>
+	<!-- 국가정보 이상유무 체크후 에러 처리-->
+	<select id="IFEAI1_TMDM_GS_NATION_VSL_SELECT"  resultClass="java.util.HashMap">	
+		SELECT  NATION_CD
+              , NATION_NM
+        FROM  TMDM_GS_NATION
+        WHERE NATION_CD = #PV_COUNTRY1#
+          AND DEL_YN    = 'N'
+	</select>
+	<!-- 선사정보 이상유무 체크 후 에러 처리 -->
+	<select id="IFEAI1_TMDM_GS_CARR_SELECT"  resultClass="java.util.HashMap">	
+		SELECT CARR_REP_CD
+		  FROM TMDM_GS_CARR
+		 WHERE CARR_TCD    = 'SHIP'
+		   AND CARR_REP_CD = #PV_CARR_CD#
+	</select>
+	<!-- 선박 정보 입력 -->
+	<update id = "IFEAI1_TMDM_GS_VSL_MERGE">
+		MERGE INTO TMDM_GS_VSL A
+		USING ( SELECT  PV_CODE, PV_NAME_KO, PV_DESCRIP, PV_SHIP_SHORT_NM, PV_CARR_CD, 
+		                PV_VSL_CLS, PV_COUNTRY1, PV_VSL_CALL_CD, PV_LOA, PV_DWT, 
+		                PV_HOLD_CNT, PV_TWIN_DECK_YN, PV_WIDTH, PV_TOT_TON, PV_NET_TON, 
+		                PV_LOAD_TEU, PV_HATCH_TYPE, PV_HATCH_NUM, PV_SEABOAT_YN, PV_DRAFT, 
+		                PV_REMKS, 'N' DEL_YN,
+		                LASTMODIFICATIONUSRID INS_ID, 
+		                TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+		                TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+		                LASTMODIFICATIONUSRID UPD_ID, 
+		                TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+		                TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME 
+		          FROM TMDM_IF_GS_VSL
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.VSL_CD = B.PV_CODE
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.VSL_CD        = B.PV_CODE, 
+		             A.VSL_NM        = B.PV_NAME_KO, 
+		             A.VSL_DESC      = B.PV_DESCRIP, 
+		             A.VSL_ABBR      = B.PV_SHIP_SHORT_NM, 
+		             A.LINE_CD       = B.PV_CARR_CD, 
+		             A.VSL_CCD       = B.PV_VSL_CLS, 
+		             A.NATION_CD     = B.PV_COUNTRY1, 
+		             A.VSL_CALL_CD   = B.PV_VSL_CALL_CD, 
+		             A.LOA           = B.PV_LOA, 
+		             A.DWT           = B.PV_DWT, 
+		             A.HOLD_CNT      = B.PV_HOLD_CNT, 
+		             A.TWIN_DECK_YN  = B.PV_TWIN_DECK_YN, 
+		             A.ALL_WIDTH     = B.PV_WIDTH, 
+		             A.TOT_RTON      = B.PV_TOT_TON, 
+		             A.REAL_TON      = B.PV_NET_TON,
+		             A.LOAD_TON_TEU  = B.PV_LOAD_TEU, 
+		             A.HATCH_TYPE    = B.PV_HATCH_TYPE, 
+		             A.HATCH_NO      = B.PV_HATCH_NUM, 
+		             A.OUTWARD_YN    = B.PV_SEABOAT_YN, 
+		             A.DRAFT         = B.PV_DRAFT, 
+		             A.REM           = B.PV_REMKS, 
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.VSL_CD, A.VSL_NM, A.VSL_DESC, A.VSL_ABBR, A.LINE_CD, 
+		               A.VSL_CCD, A.NATION_CD, A.VSL_CALL_CD, A.LOA, A.DWT, 
+		               A.HOLD_CNT, A.TWIN_DECK_YN, A.ALL_WIDTH, A.TOT_RTON, A.REAL_TON, 
+		               A.LOAD_TON_TEU, A.HATCH_TYPE, A.HATCH_NO, A.OUTWARD_YN, A.DRAFT, 
+		               A.REM, A.DEL_YN, A.INS_PERSON_ID, 
+		               A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.PV_CODE, B.PV_NAME_KO, B.PV_DESCRIP, B.PV_SHIP_SHORT_NM, B.PV_CARR_CD, 
+		               B.PV_VSL_CLS, B.PV_COUNTRY1, B.PV_VSL_CALL_CD, B.PV_LOA, B.PV_DWT, 
+		               B.PV_HOLD_CNT, B.PV_TWIN_DECK_YN, B.PV_WIDTH, B.PV_TOT_TON, B.PV_NET_TON, 
+		               B.PV_LOAD_TEU, B.PV_HATCH_TYPE, B.PV_HATCH_NUM, B.PV_SEABOAT_YN, B.PV_DRAFT, 
+		               B.PV_REMKS, B.DEL_YN, B.INS_ID, 
+		               B.INS_DATE, B.INS_TIME )
+	</update>
+	<!-- 선박정보 삭제 -->
+	<update id = "IFEAI1_TMDM_GS_VSL_DELETE">
+		UPDATE TMDM_GS_VSL
+		   SET DEL_YN = 'Y'
+		 WHERE VSL_CD = #PV_CODE#
+	</update>	
+	<!-- 인터페이스 결과 수정 -->
+	<update id = "IFEAI1_TMDM_IF_GS_VSL_UPDATE">
+		UPDATE TMDM_IF_GS_VSL
+		   SET EAI_STATE   = #EAI_STATE#
+		     , EAI_MSG     = #EAI_MSG#
+		     , EAI_DATE    = current_timestamp
+		  WHERE INSTANCEID = #INSTANCEID# 
+	</update>
+	<!-- 인터페이스 결과 수정 -->
+	<update id = "IFEAI1_TMDM_IF_GS_VSL_NM_UPDATE">
+		UPDATE TMDM_IF_GS_VSL_NM
+		   SET EAI_STATE   = #EAI_STATE#
+		     , EAI_MSG     = #EAI_MSG#
+		     , EAI_DATE    = current_timestamp
+		  WHERE INSTANCEID = #INSTANCEID# 
+	</update>
+	
+	<!-- 선박장비 정보 인터페이스 조회 -->
+	<select id="IFEAI1_TMDM_IF_GS_VSL_EQP_SELECT"  resultClass="java.util.HashMap">	
+		SELECT INSTANCEID , EAI_STATE , EAI_OP , PV_CODE
+		    , PV_SHIP_CD  , PV_EQUIP_CATE , STATUS
+ 		  FROM TMDM_IF_GS_VSL_EQP
+		 WHERE INSTANCEID = #INSTANCEID#
+	</select>
+	
+	<!-- 차량장비종류 코드 이상유무 체크 후 에러 처리-->
+	<select id="IFEAI1_TMDM_MC_CODE_B_VSL_EQP_SELECT"  resultClass="java.util.HashMap">	
+		SELECT CD, CD_NM 
+		  FROM TMDM_MC_CODE_B
+		 WHERE CD_TCD = 'CM038'
+		   AND CD     = #PV_EQUIP_CATE#
+		   AND ROWNUM = 1
+	</select>
+	<!-- 선박정보 이상유무 체크후 에러 처리-->
+	<select id="IFEAI1_TMDM_GS_VSL_CHECK"  resultClass="java.util.HashMap">	
+		SELECT VSL_CD
+		  FROM TMDM_GS_VSL
+		 WHERE VSL_CD = #PV_SHIP_CD#
+	</select>
+	<!-- 선박장비 정보 입력 -->
+	<update id = "IFEAI1_TMDM_GS_VSL_EQP_MERGE">
+		MERGE INTO TMDM_GS_VSL_EQP A
+		USING ( SELECT  PV_CODE, PV_SHIP_CD, PV_SEQ1, PV_EQUIP_CATE, PV_NORM, PV_QTY, PV_REMKS, 
+		                'N' DEL_YN,
+		                LASTMODIFICATIONUSRID INS_ID, 
+		                TO_CHAR(CREATIONDTIME,'YYYYMMDD') INS_DATE, 
+		                TO_CHAR(CREATIONDTIME,'HH24MISS') INS_TIME,
+		                LASTMODIFICATIONUSRID UPD_ID, 
+		                TO_CHAR(LASTMODIFICATIONDTIME,'YYYYMMDD') UPD_DATE, 
+		                TO_CHAR(LASTMODIFICATIONDTIME,'HH24MISS') UPD_TIME 
+		          FROM TMDM_IF_GS_VSL_EQP
+		         WHERE INSTANCEID = #INSTANCEID# ) B
+		   ON A.VSL_EQP_CD = B.PV_CODE
+		 WHEN MATCHED THEN
+		      UPDATE
+		         SET A.VSL_EQP_CD    = B.PV_CODE, 
+		             A.VSL_CD        = B.PV_SHIP_CD, 
+		             A.SEQ           = B.PV_SEQ1, 
+		             A.EQO_KND_NM   = B.PV_EQUIP_CATE, 
+		             A.SPEC          = B.PV_NORM, 
+		             A.QTY           = B.PV_QTY, 
+		             A.REM           = B.PV_REMKS, 
+		             A.DEL_YN        = B.DEL_YN, 
+		             A.UPD_PERSON_ID = B.UPD_ID, 
+		             A.UPD_DATE      = B.UPD_DATE, 
+		             A.UPD_TIME      = B.UPD_TIME
+		 WHEN NOT MATCHED THEN
+		      INSERT ( A.VSL_EQP_CD, A.VSL_CD, A.SEQ, A.EQO_KND_NM, A.SPEC, A.QTY, A.REM, 
+		               A.DEL_YN, A.INS_PERSON_ID, 
+		               A.INS_DATE, A.INS_TIME )
+		      VALUES ( B.PV_CODE, B.PV_SHIP_CD, B.PV_SEQ1, B.PV_EQUIP_CATE, B.PV_NORM, B.PV_QTY, B.PV_REMKS, 
+		               B.DEL_YN, B.INS_ID, 
+		               B.INS_DATE, B.INS_TIME )
+	</update>
+	<!-- 선박장비 정보 삭제 -->
+	<update id = "IFEAI1_TMDM_GS_VSL_EQP_DELETE">
+		UPDATE TMDM_GS_VSL_EQP
+		   SET DEL_YN = 'Y'
+		 WHERE VSL_EQP_CD = #PV_CODE#
+	</update>	
+	<!-- 인터페이스 결과 수정 -->
+	<update id = "IFEAI1_TMDM_IF_GS_VSL_EQP_UPDATE">
+		UPDATE TMDM_IF_GS_VSL_EQP
+		   SET EAI_STATE = #EAI_STATE#
+		     , EAI_MSG   = #EAI_MSG#
+		     , EAI_DATE  = current_timestamp
+		  WHERE INSTANCEID = #INSTANCEID#
+	</update>	
+</sqlMap>

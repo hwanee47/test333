@@ -1,0 +1,38 @@
+<h2 class="az-content-title mg-b-20 tx-bold">고객사 관리</h2>
+<p class="mg-b-20">
+고객사관리 화면은 [시스템구분]과 관계없이 하나로 운영합니다.<br>
+배송시스템의 경우 고객사를 등록한뒤 "고객사상세관리" 화면에서 발송고객과 계약관리를 합니다.
+</p>
+
+<div id="rgb-content1">
+	<div class="az-content-label mg-b-5">1. 항목설명</div>
+	<div class="table">
+       <table class="table az-table-reference">
+         <thead>
+           <tr>
+             <th class="wd-20p">항목</th>
+             <th class="wd-70p">설명</th>
+           </tr>
+         </thead>
+         <tbody>
+           <tr>
+             <td><code>[고객사코드]</code></td>
+             <td>
+             	자동 채번  → 'B' + 시퀀스(7자리, MAX+1)
+             </td>
+           </tr>
+           <tr>
+             <td><code>[고객사구분]</code></td>
+             <td>
+             	공통고객, 창고고객, 배송고객이 존재하며 로그인계정의 [시스템구분]에 따라 [고객사구분]이 필터링.<br><br>
+             	ex) <br>
+				1) 로그인계정의 시스템구분이 GWDS인경우 [고객사구분]= 공통고객, 창고고객, 배송고객<br>
+				2) 로그인계정의 시스템구분이 GWMS인경우 [고객사구분] = 창고고객<br>
+				3) 로그인계정의 시스템구분이 GDS인경우 [고객사구분] = 배송고객
+             	
+             </td>
+           </tr>
+         </tbody>
+       </table>
+     </div><!-- table-responsive -->
+</div>

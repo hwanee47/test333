@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Meta -->
+    <meta name="description" content="Responsive Bootstrap 4 Dashboard Template">
+    <meta name="author" content="BootstrapDash">
+
+    <title>RGB 솔루션 GWDS 사용자 가이드</title>
+
+	<link rel="shortcut icon" href="#">
+
+    <!-- vendor css -->
+    <!-- <link href="../../lib/ionicons/css/ionicons.min.css" rel="stylesheet">
+ -->
+    <!-- azia CSS -->
+    <link rel="stylesheet" href="../../css/azia.css">
+
+  </head>
+  <body class="az-body az-body-sidebar">
+
+    <div class="az-sidebar">
+      <div class="az-sidebar-header">
+        <a href="./guide.html" class="az-logo">RGB SOLUTION</a>
+      </div><!-- az-sidebar-header -->
+      <div class="az-sidebar-loggedin">
+        <div class="az-img-user online"><img src="../../img/ic_launcher.png" alt=""></div>
+        <div class="media-body">
+          <h6>Development Team</h6>
+          <span>Premium Member</span>
+        </div><!-- media-body -->
+      </div><!-- az-sidebar-loggedin -->
+      <div class="az-sidebar-body" style="position: sticky; top:0;">
+        <ul class="nav">
+          <li class="nav-label">시스템 가이드</li>
+          <li class="nav-item active show">
+            <a href="./system1.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>권한별 메뉴관리</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-system1-content1" class="nav-sub-link rgb-menu-content">1. 신규 권한 생성하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-system1-content2" class="nav-sub-link rgb-menu-content">2. 생성된 권한에 메뉴 부여하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-system1-content3" class="nav-sub-link rgb-menu-content">3. 부여된 메뉴 제거하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-system1-content4" class="nav-sub-link rgb-menu-content">4. 조회하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-system1-content5" class="nav-sub-link rgb-menu-content">5. 사용안함 처리하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-system1-content6" class="nav-sub-link rgb-menu-content">6. 삭제하기</a></li>
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./system2.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>권한별 버튼관리</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-system2-content1" class="nav-sub-link rgb-menu-content">1. 조회하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-system2-content2" class="nav-sub-link rgb-menu-content">2. 버튼권한 설정하기</a></li>
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item">
+            <a href="#" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>공지사항 관리(준비중)</strong></a>
+            <ul class="nav-sub">
+              
+              
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-label">기준정보 가이드</li>
+          <li class="nav-item active">
+            <a href="./baim1.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>고객사 관리</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-baim1-content1" class="nav-sub-link rgb-menu-content">1. 신규 고객사 생성하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim1-content2" class="nav-sub-link rgb-menu-content">2. 조회하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim1-content3" class="nav-sub-link rgb-menu-content">3. 삭제하기</a></li>
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./baim2.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>고객사 상세관리</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-baim2-content1" class="nav-sub-link rgb-menu-content">1. 조회하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim2-content2" class="nav-sub-link rgb-menu-content">2. 거래구분 저장하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim2-content3" class="nav-sub-link rgb-menu-content">3. 발송고객 등록하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim2-content4" class="nav-sub-link rgb-menu-content">4. 계약 등록하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim2-content5" class="nav-sub-link rgb-menu-content">5. 계약품목 등록하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim2-content6" class="nav-sub-link rgb-menu-content">6. 계약단가 등록하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim2-content7" class="nav-sub-link rgb-menu-content">7. 계약 갱신하기</a></li>
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./baim3.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>점소 관리</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-baim3-content1" class="nav-sub-link rgb-menu-content">1. 신규 점소 생성하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim3-content2" class="nav-sub-link rgb-menu-content">2. 조회하기</a></li>
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./baim4.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>창고 관리</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-baim4-content1" class="nav-sub-link rgb-menu-content">1. 신규 창고 생성하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim4-content2" class="nav-sub-link rgb-menu-content">2. 조회하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim4-content3" class="nav-sub-link rgb-menu-content">3. 삭제하기</a></li>
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./baim5.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>존/로케이션/랙 관리</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-baim5-content1" class="nav-sub-link rgb-menu-content">1. 신규 존/로케이션/랙 생성하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim5-content2" class="nav-sub-link rgb-menu-content">2. 조회하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim5-content3" class="nav-sub-link rgb-menu-content">3. 삭제하기</a></li>
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./baim6.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>품목그룹 관리</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-baim6-content1" class="nav-sub-link rgb-menu-content">1. 신규 품목그룹 생성하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim6-content2" class="nav-sub-link rgb-menu-content">2. 조회하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim6-content3" class="nav-sub-link rgb-menu-content">3. 삭제하기</a></li>
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./baim7.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>품목 관리</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-baim7-content1" class="nav-sub-link rgb-menu-content">1. 신규 품목 생성하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim7-content2" class="nav-sub-link rgb-menu-content">2. 조회하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim7-content3" class="nav-sub-link rgb-menu-content">3. 삭제하기</a></li>
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./baim8.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>사용자 관리</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-baim8-content1" class="nav-sub-link rgb-menu-content">1. 신규 사용자 생성하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim8-content2" class="nav-sub-link rgb-menu-content">2. 사용자 권한관리 (메뉴)</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim8-content3" class="nav-sub-link rgb-menu-content">3. 사용자 권한관리 (창고)</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim8-content4" class="nav-sub-link rgb-menu-content">4. 사용자 권한관리 (창고고객)</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim8-content5" class="nav-sub-link rgb-menu-content">5. 삭제하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim8-content6" class="nav-sub-link rgb-menu-content">6. 비밀번호 초기화하기</a></li>
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./baim9.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>집배구역 관리</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-baim9-content1" class="nav-sub-link rgb-menu-content">1. 조회하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-baim9-content2" class="nav-sub-link rgb-menu-content">2. 집배정보 설정하기</a></li>
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-label">입고 가이드</li>
+          <li class="nav-item active">
+            <a href="./whib1.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>입고예정</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-whib1-content1" class="nav-sub-link rgb-menu-content">1. 입고예정정보 생성하기(직접입력)</a></li>
+              <li class="nav-sub-item"><a href="#rgb-whib1-content2" class="nav-sub-link rgb-menu-content">2. 입고예정정보 생성하기(엑셀업로드)</a></li>
+              
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./whib2.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>입고확정</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-whib2-content1" class="nav-sub-link rgb-menu-content">1. 조회하기</a></li>
+              <li class="nav-sub-item"><a href="#rgb-whib2-content2" class="nav-sub-link rgb-menu-content">2. 확정하기</a></li>
+              
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-label">재고 가이드</li>
+          <li class="nav-item active">
+            <a href="./stck1.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>재고조회</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-stck1-content1" class="nav-sub-link rgb-menu-content">1. 조회하기</a></li>
+              
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./stck2.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>재고수량조정</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-stck2-content1" class="nav-sub-link rgb-menu-content">1. 수량조정하기</a></li>
+              
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./stck3.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>재고이동(창고)</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-stck3-content1" class="nav-sub-link rgb-menu-content">1. 재고이동하기</a></li>
+              
+            </ul>
+          </li><!-- nav-item -->
+          <li class="nav-item active">
+            <a href="./stck4.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>입출고내역</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-stck4-content1" class="nav-sub-link rgb-menu-content">1. 조회하기</a></li>
+              
+            </ul>
+          </li><!-- nav-item -->
+          
+          <li class="nav-label">출고 가이드</li>
+          <li class="nav-item active">
+            <a href="./whob1.html" class="nav-link with-sub rgb-menu-title"><i class="typcn typcn-clipboard"></i><strong>출고주문접수</strong></a>
+            <ul class="nav-sub">
+              <li class="nav-sub-item"><a href="#rgb-whob1-content1" class="nav-sub-link rgb-menu-content">1. 주문접수정보 생성하기(직접입력)</a></li>
+              <li class="nav-sub-item"><a href="#rgb-whob1-content2" class="nav-sub-link rgb-menu-content">2. 주문접수정보 생성하기(엑셀업로드)</a></li>
+              
+            </ul>
+          </li><!-- nav-item -->
+        </ul><!-- nav -->
+      </div><!-- az-sidebar-body -->
+    </div><!-- az-sidebar -->
+
+    <div class="az-content az-content-dashboard-two">
+      <div class="az-header" style="position: sticky; top: 0; z-index: 2;">
+        <div class="container-fluid">
+          <div class="az-header-left">
+            <a href="" id="azSidebarToggle" class="az-header-menu-icon"><span></span></a>
+          </div><!-- az-header-left -->
+          
+        </div><!-- container -->
+      </div><!-- az-header -->
+      <div class="az-content-body">
+        <div class="mg-t-25" id="rgb-contents">
+        	
+        </div>
+      </div><!-- az-content-body -->
+      <div class="az-footer ht-40">
+        <div class="container-fluid pd-t-0-f ht-100p">
+          <span>&copy; 2020 RGB SOLUTION ALL RIGHTS RESERVED.</span>
+        </div><!-- container -->
+      </div><!-- az-footer -->
+    </div><!-- az-content -->
+
+
+    <script src="../../lib/jquery/jquery.min.js"></script>
+    <script src="../../lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- <script src="../../lib/ionicons/ionicons.js"></script>
+     -->
+    
+
+    <script src="../../js/azia.js"></script>
+    <script>
+      $(function(){
+        'use strict'
+
+        $('.az-sidebar .with-sub').on('click', function(e){
+          e.preventDefault();
+          $(this).parent().toggleClass('show');
+          $(this).parent().siblings().removeClass('show');
+        })
+
+        $(document).on('click touchstart', function(e){
+          e.stopPropagation();
+
+          // closing of sidebar menu when clicking outside of it
+          if(!$(e.target).closest('.az-header-menu-icon').length) {
+            var sidebarTarg = $(e.target).closest('.az-sidebar').length;
+            if(!sidebarTarg) {
+              $('body').removeClass('az-sidebar-show');
+            }
+          }
+        });
+
+
+        $('#azSidebarToggle').on('click', function(e){
+          e.preventDefault();
+
+          if(window.matchMedia('(min-width: 992px)').matches) {
+            $('body').toggleClass('az-sidebar-hide');
+          } else {
+            $('body').toggleClass('az-sidebar-show');
+          }
+        });
+
+        
+        // 메뉴 서브 타이틀 클릭시 내용 로드 하고 스크롤 이동.
+        $('.rgb-menu-content').on('click', function(e){
+
+        	var hrefValue = $(this).parents('ul').prev().attr('href');
+        	var target = $(this).attr('href');
+        	//
+        	//
+        	$('#rgb-contents').load(hrefValue, "", function(){
+        		
+        		// 로드하고 스크롤 빠르게 처리하면 offsetTop값이 로드하기전을 참고해서 0.1초 뒤 스크롤 처리함. 
+        		setTimeout(function() {
+        			 $('html, body').animate({
+                       scrollTop: $(''+target).offset().top-85
+                     }, 500);
+       	
+        		}, 100);
+              
+        	});
+        	
+        	e.preventDefault();
+    
+        });
+        
+        
+        // 초기 화면 home
+        //$('#rgb-contents').load("./history.html");
+      });
+    </script>
+  </body>
+</html>

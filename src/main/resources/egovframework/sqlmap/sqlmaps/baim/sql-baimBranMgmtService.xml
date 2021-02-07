@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimBranMgmtService">
+	
+	<select id="getBranInfo" resultClass="java.util.HashMap">
+		/** [sql-baimBranMgmtService.xml][baimBranMgmtService.getBranInfo]
+		 *  [점소 정보 조회]
+		 *  [KimJinHwan 2020.02.10]
+		 **/
+		SELECT  
+		    TBBMC.BRAN_CD,
+		    TBBMC.BRAN_NM,
+		    TBBMC.BRAN_ABRV_NM,
+		    TBBMC.OPR_UP_BRAN_CD,
+		    (SELECT A.BRAN_NM FROM TB_BAIM_BRAN_MGT_C A WHERE A.BRAN_CD = TBBMC.OPR_UP_BRAN_CD) AS OPR_UP_BRAN_NM,
+		    TBBMC.MGMT_UP_BRAN_CD,
+		    (SELECT A.BRAN_NM FROM TB_BAIM_BRAN_MGT_C A WHERE A.BRAN_CD = TBBMC.MGMT_UP_BRAN_CD) AS MGMT_UP_BRAN_NM,
+		    TBBMC.BRAN_OPR_NO,
+		    TBBMC.BRAN_MGMT_NO,
+		    TBBMC.ENTRP_REG_NO,
+		    TBBMC.REPRE_NM,
+		    TBBMC.ZIP_NO,
+		    TBBMC.ADDR,
+		    FC_AES_DECRYPT(TBBMC.DETAIL_ADDR) AS DETAIL_ADDR,
+		    TBBMC.BRAN_ZIP_NO,
+		    TBBMC.BRAN_ADDR,
+		    FC_AES_DECRYPT(TBBMC.BRAN_DETAIL_ADDR) AS BRAN_DETAIL_ADDR,
+		    TBBMC.TEL_NO_1,
+		    TBBMC.TEL_NO_2,
+		    FC_AES_DECRYPT(TBBMC.TEL_NO_3) AS TEL_NO_3,
+		    TBBMC.FAX_NO_1,
+		    TBBMC.FAX_NO_2,
+		    FC_AES_DECRYPT(TBBMC.FAX_NO_3) AS FAX_NO_3,
+		    TBBMC.REPRE_TEL_NO_1,
+		    TBBMC.REPRE_TEL_NO_2,
+		    FC_AES_DECRYPT(TBBMC.REPRE_TEL_NO_3) AS REPRE_TEL_NO_3,
+		    TBBMC.SALE_START_YMD,
+		    TBBMC.SALE_END_YMD,
+		    TBBMC.PIDV_FAIL_YMD_FR,
+		    TBBMC.PIDV_FAIL_YMD_TO,
+		    TBBMC.SALE_MGMT_EMP AS SALE_MGMT_EMP_NO,
+		    (SELECT A.EMP_NM FROM TB_BAIM_EMP_MGT_C A WHERE A.EMP_NO = TBBMC.SALE_MGMT_EMP) AS SALE_MGMT_EMP_NM,
+		    TBBMC.REPRE_DLV_EMP_NO,
+		    (SELECT A.EMP_NM FROM TB_BAIM_EMP_MGT_C A WHERE A.EMP_NO = TBBMC.REPRE_DLV_EMP_NO) AS REPRE_DLV_EMP_NM,
+		    TBBMC.CAUTION,
+		    TBBMC.BRAN_DV,
+		    TBBMC.OWNR_DV,
+		    TBBMC.TRUST_DV,
+		    TBBMC.CP_DV,
+		    TBBMC.BZCON_NM,
+		    TBBMC.ITEM_NM,
+		    TBBMC.BRAN_DUTY_DV,
+		    TBBMC.BRAN_ST,
+		    TBBMC.TNR_ZN_DV AS ZN_DV,
+		    TBBMC.REPRE_SORT_CD
+		FROM 
+		    TB_BAIM_BRAN_MGT_C TBBMC
+		WHERE
+			1=1
+		<isNotEmpty property="BRAN_CD">
+		AND TBBMC.BRAN_CD = #BRAN_CD#
+		</isNotEmpty>
+		    
+	</select>
+	
+	<select id="getBranInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimBranMgmtService.xml][baimBranMgmtService.getBranInfoList]
+		 *  [점소 정보 리스트 조회(로그인계정의 점소포함 및 하위점소 조회)]
+		 *  [KimJinHwan 2020.02.10]
+		 **/
+		WITH RECURSIVE BRAN_CTE(BRAN_CD, OPR_UP_BRAN_CD, MGMT_UP_BRAN_CD) AS (
+			  SELECT 
+			    BRAN_CD
+			    ,OPR_UP_BRAN_CD
+			    ,MGMT_UP_BRAN_CD
+			  FROM 
+			    TB_BAIM_BRAN_MGT_C 
+			  WHERE
+			  	USE_YN = 'Y'
+			  /*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 등록된 점소를 기준으로 하위점소까지 조회*/
+			  <isNotEqual property="gv_userType" compareValue="SUPER">
+			  	<isNotEqual property="gv_userType" compareValue="ADMIN">
+			    	AND BRAN_CD = (SELECT BRAN_CD FROM TB_BAIM_EMP_MGT_C WHERE EMP_NO = #gv_userId#)
+			    </isNotEqual>
+			  </isNotEqual>
+			  
+			  
+			  UNION ALL
+			  
+			  SELECT
+			    A.BRAN_CD
+			    ,A.OPR_UP_BRAN_CD
+			    ,A.MGMT_UP_BRAN_CD
+			  FROM
+			    TB_BAIM_BRAN_MGT_C A
+			  INNER JOIN BRAN_CTE B ON A.OPR_UP_BRAN_CD = B.BRAN_CD
+			  WHERE
+			    USE_YN = 'Y'
+		)
+		
+		SELECT 
+			TBBMC.BRAN_CD,
+		    TBBMC.BRAN_NM,
+		    TBBMC.BRAN_ABRV_NM,
+		    TBBMC.BRAN_DV,
+		    TBBMC.BRAN_ST,
+		    TBBMC.SALE_END_YMD,
+		    TBBMC.CP_DV,
+		    TBBMC.BRAN_OPR_NO,
+		    TBBMC.BRAN_MGMT_NO,
+		    TBBMC.OPR_UP_BRAN_CD,
+		    TBBMC.MGMT_UP_BRAN_CD
+		FROM
+			TB_BAIM_BRAN_MGT_C TBBMC
+		WHERE
+			USE_YN = 'Y'
+	  	AND TBBMC.BRAN_CD IN (SELECT BRAN_CD FROM BRAN_CTE)
+	  	<isNotEmpty property="BRAN_CD">
+		AND TBBMC.BRAN_CD = #BRAN_CD#
+	  	</isNotEmpty>
+	  	<isNotEmpty property="BRAN_NM">
+		AND TBBMC.BRAN_NM LIKE CONCAT('%',#BRAN_NM#,'%')
+		</isNotEmpty>
+		<isNotEmpty property="BRAN_DV">
+		AND TBBMC.BRAN_DV = #BRAN_DV#
+		</isNotEmpty>
+		<isNotEmpty property="CP_DV">
+		AND TBBMC.CP_DV = #CP_DV#
+		</isNotEmpty>
+	</select>
+	
+	
+	<select id="getBranInfoTreeList" resultClass="java.util.HashMap">
+		/** [sql-baimBranMgmtService.xml][baimBranMgmtService.getBranInfoTreeList]
+		 *  [점소 정보 리스트 조회(트리형태)]
+		 *  [KimJinHwan 2020.07.23]
+		 **/
+		WITH RECURSIVE BRAN_CTE(LEVEL, BRAN_CD, OPR_UP_BRAN_CD, MGMT_UP_BRAN_CD, CUSTOM_SORT) AS (
+			  SELECT
+			  	1 AS LEVEL
+			  	,BRAN_CD
+			    ,OPR_UP_BRAN_CD
+			    ,MGMT_UP_BRAN_CD
+			    ,CONCAT(IFNULL(OPR_UP_BRAN_CD,''),BRAN_CD) AS CUSTOM_SORT
+			  FROM 
+			    TB_BAIM_BRAN_MGT_C 
+			  WHERE
+			  	USE_YN = 'Y'
+			  <isEmpty property="BRAN_CD">
+			  	<isEmpty property="BRAN_NM">
+			  	AND (BRAN_DV = '01' OR IFNULL(OPR_UP_BRAN_CD,'')='') /*본사부터 시작*/
+			  	</isEmpty>
+			  </isEmpty>
+			  <isNotEmpty property="BRAN_CD">
+			  AND BRAN_CD = #BRAN_CD#
+			  </isNotEmpty>
+			  <isNotEmpty property="BRAN_NM">
+			  AND BRAN_NM LIKE CONCAT('%',#BRAN_NM#,'%')
+			  </isNotEmpty>
+			  
+			  UNION ALL
+			  
+			  SELECT
+			  	LEVEL+1
+			  	,A.BRAN_CD
+			    ,A.OPR_UP_BRAN_CD
+			    ,A.MGMT_UP_BRAN_CD
+			    ,CONCAT(CUSTOM_SORT, ',', IFNULL(A.OPR_UP_BRAN_CD,''), A.BRAN_CD, ',')
+			  FROM
+			    TB_BAIM_BRAN_MGT_C A
+			  INNER JOIN BRAN_CTE B ON A.OPR_UP_BRAN_CD = B.BRAN_CD
+			  WHERE
+			    USE_YN = 'Y'
+		)
+		
+		SELECT 
+			BC.LEVEL,
+			BC.CUSTOM_SORT,
+			TBBMC.BRAN_CD,
+		    TBBMC.BRAN_NM,
+		    TBBMC.BRAN_DV,
+		    CONCAT(TBBMC.ADDR, ' ', FC_AES_DECRYPT(TBBMC.DETAIL_ADDR)) AS FULL_ADDR,
+		    TBBMC.REPRE_NM,
+		    CONCAT(TBBMC.REPRE_TEL_NO_1, '-', TBBMC.REPRE_TEL_NO_2, '-', FC_AES_DECRYPT(TBBMC.REPRE_TEL_NO_3)) AS REPRE_TEL_NO, 
+		    IFNULL(TBBMC.SALE_START_YMD,'') AS SALE_START_YMD,
+		    IFNULL(TBBMC.SALE_END_YMD,'') AS SALE_END_YMD,
+		    TBBMC.BRAN_ST
+		FROM
+			TB_BAIM_BRAN_MGT_C TBBMC
+			,(
+				SELECT
+					BRAN_CD
+					,MAX(LEVEL) AS LEVEL
+					,MAX(CUSTOM_SORT) AS CUSTOM_SORT
+				FROM
+					BRAN_CTE
+				GROUP BY BRAN_CD
+			) BC
+		WHERE
+			TBBMC.BRAN_CD = BC.BRAN_CD
+		AND TBBMC.USE_YN = 'Y'
+	  	ORDER BY CUSTOM_SORT
+	</select>
+	
+	
+	<select id="getBranInfoList_20200618" resultClass="java.util.HashMap">
+		/** [sql-baimBranMgmtService.xml][baimBranMgmtService.getBranInfoList]
+		 *  [점소 정보 리스트 조회]
+		 *  [KimJinHwan 2020.02.10]
+		 **/
+		SELECT 
+			TBBMC.BRAN_CD,
+		    TBBMC.BRAN_NM,
+		    TBBMC.BRAN_ABRV_NM,
+		    TBBMC.BRAN_DV,
+		    TBBMC.BRAN_ST,
+		    TBBMC.SALE_END_YMD,
+		    TBBMC.CP_DV,
+		    TBBMC.BRAN_OPR_NO,
+		    TBBMC.BRAN_MGMT_NO,
+		    TBBMC.OPR_UP_BRAN_CD,
+		    TBBMC.MGMT_UP_BRAN_CD
+		FROM
+			TB_BAIM_BRAN_MGT_C TBBMC
+		WHERE
+			USE_YN = 'Y'
+		<isNotEmpty property="BRAN_CD">
+		AND TBBMC.BRAN_CD = #BRAN_CD#
+		</isNotEmpty>
+		<isNotEmpty property="BRAN_NM">
+		AND TBBMC.BRAN_NM LIKE CONCAT('%',#BRAN_NM#,'%')
+		</isNotEmpty>
+		<isNotEmpty property="BRAN_DV">
+		AND TBBMC.BRAN_DV = #BRAN_DV#
+		</isNotEmpty>
+		<isNotEmpty property="CP_DV">
+		AND TBBMC.CP_DV = #CP_DV#
+		</isNotEmpty>
+	</select>
+	
+	
+	<insert id="insertBranInfo">
+		/** [sql-baimBranMgmtService.xml][baimBranMgmtService.insertBranInfo]
+		 *  [점소 정보 추가]
+		 *  [KimJinHwan 2020.02.12]
+		 **/
+		 INSERT INTO TB_BAIM_BRAN_MGT_C
+		 (
+		 	BRAN_CD
+		 	,BRAN_NM
+		 	,BRAN_ABRV_NM
+		 	,OPR_UP_BRAN_CD
+		 	,MGMT_UP_BRAN_CD
+		 	,BRAN_OPR_NO
+		 	,BRAN_MGMT_NO
+		 	,ENTRP_REG_NO
+		 	,REPRE_NM
+		 	,ZIP_NO
+		 	,ADDR
+		 	,DETAIL_ADDR
+		 	,BRAN_ZIP_NO
+		 	,BRAN_ADDR
+		 	,BRAN_DETAIL_ADDR
+		 	,TEL_NO_1
+		 	,TEL_NO_2
+		 	,TEL_NO_3
+		 	,FAX_NO_1
+		 	,FAX_NO_2
+		 	,FAX_NO_3
+		 	,REPRE_TEL_NO_1
+		 	,REPRE_TEL_NO_2
+		 	,REPRE_TEL_NO_3
+		 	,SALE_START_YMD
+		 	,SALE_END_YMD
+		 	,PIDV_FAIL_YMD_FR
+		 	,PIDV_FAIL_YMD_TO
+		 	,TRUNK_ABRV
+		 	,SALE_MGMT_EMP
+		 	,REPRE_DLV_EMP_NO
+		 	,CAUTION
+		 	,BRAN_DV
+		 	,OWNR_DV
+		 	,TRUST_DV
+		 	,CP_DV
+		 	,BZCON_NM
+		 	,ITEM_NM
+		 	,BRAN_DUTY_DV
+		 	,TM_DV
+		 	,BRAN_ST
+		 	,PMON_BAL
+		 	,OLD_BRAN_CD
+		 	,USE_YN
+		 	,TNR_ZN_DV
+		 	,REPRE_SORT_CD
+		 	,REG_EMP_ID
+		 	,REG_DTIME
+		 	,MODI_EMP_ID
+		 	,MODI_DTIME
+		 )
+		 VALUES
+		 (
+		 	#BRAN_CD#			/*점소코드*/
+		 	,#BRAN_NM#			/*점소명*/
+		 	,#BRAN_ABRV_NM#		/*점소약칭명*/
+		 	,#OPR_UP_BRAN_CD#	/*운영상위점소코드(터미널)*/
+		 	,#OPR_UP_BRAN_CD#	/*관리상위점소코드(지점)*/
+		 	,''					/*점소운영번호*/
+		 	,''					/*점소관리번호*/
+		 	,#ENTRP_REG_NO#		/*사업자등록번호*/
+		 	,#REPRE_NM#			/*대표자명*/
+		 	,#ZIP_NO#			/*우편번호*/
+		 	,#ADDR#				/*주소*/
+		 	,FC_AES_ENCRYPT(#DETAIL_ADDR#)	/*상세주소*/
+		 	,#BRAN_ZIP_NO#		/*점소우편번호*/
+		 	,#BRAN_ADDR#		/*점소주소*/
+		 	,FC_AES_ENCRYPT(#BRAN_DETAIL_ADDR#)	/*점소상세주소*/
+		 	,#TEL_NO_1#			/*전화번호1*/
+		 	,#TEL_NO_2#			/*전화번호2*/
+		 	,FC_AES_ENCRYPT(#TEL_NO_3#)			/*전화번호3*/
+		 	,#FAX_NO_1#			/*팩스번호1*/
+		 	,#FAX_NO_2#			/*팩스번호2*/
+		 	,FC_AES_ENCRYPT(#FAX_NO_3#)			/*팩스번호3*/
+		 	,#REPRE_TEL_NO_1#	/*대표자전화번호1*/
+		 	,#REPRE_TEL_NO_2#	/*대표자전화번호2*/
+		 	,FC_AES_ENCRYPT(#REPRE_TEL_NO_3#)	/*대표자전화번호3*/
+		 	,#SALE_START_YMD#	/*영업개시일자*/
+		 	,#SALE_END_YMD#		/*영업종료일자*/
+		 	,#PIDV_FAIL_YMD_FR#	/*집배불가일자FROM*/
+		 	,#PIDV_FAIL_YMD_TO#	/*집배불가일자TO*/
+		 	,''					/*간선이니셜*/
+		 	,#SALE_MGMT_EMP_NO#	/*영업관장사원*/
+		 	,#REPRE_DLV_EMP_NO#	/*대표SM사원번호*/
+		 	,#CAUTION#			/*특이사항*/
+		 	,#BRAN_DV#			/*점소구분*/
+		 	,#OWNR_DV#			/*소유자구분*/
+		 	,#TRUST_DV#			/*위탁구분*/
+		 	,#CP_DV#			/*회사구분*/
+		 	,#BZCON_NM#			/*업태명*/
+		 	,#ITEM_NM#			/*종목명*/
+		 	,#BRAN_DUTY_DV#		/*점소업무구분*/
+		 	,''					/*터미널구분*/
+		 	,#BRAN_ST#			/*점소상태*/
+		 	,0					/*전월잔고*/
+		 	,''					/*구점소코드*/
+		 	,'Y'				/*사용여부*/
+		 	,#ZN_DV#			/*차량권역구분*/
+		 	,#REPRE_SORT_CD#	/*대표분류코드*/
+		 	,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		 )
+	</insert>
+	
+	
+	<update id="updateBranInfo">
+		/** [sql-baimBranMgmtService.xml][baimBranMgmtService.updateBranInfo]
+		 *  [점소 정보 수정]
+		 *  [KimJinHwan 2020.02.12]
+		 **/
+		UPDATE TB_BAIM_BRAN_MGT_C
+		SET
+			BRAN_NM				= #BRAN_NM#
+		 	,BRAN_ABRV_NM 		= #BRAN_ABRV_NM#
+		 	,OPR_UP_BRAN_CD		= #OPR_UP_BRAN_CD#
+		 	,MGMT_UP_BRAN_CD	= #OPR_UP_BRAN_CD#
+		 	,BRAN_OPR_NO		= ''
+		 	,BRAN_MGMT_NO		= ''
+		 	,ENTRP_REG_NO		= #ENTRP_REG_NO#
+		 	,REPRE_NM			= #REPRE_NM#
+		 	,ZIP_NO				= #ZIP_NO#
+		 	,ADDR				= #ADDR# 
+		 	,DETAIL_ADDR		= FC_AES_ENCRYPT(#DETAIL_ADDR#)
+		 	,BRAN_ZIP_NO		= #BRAN_ZIP_NO#
+		 	,BRAN_ADDR			= #BRAN_ADDR#
+		 	,BRAN_DETAIL_ADDR	= FC_AES_ENCRYPT(#BRAN_DETAIL_ADDR#)
+		 	,TEL_NO_1			= #TEL_NO_1#
+		 	,TEL_NO_2			= #TEL_NO_2#
+		 	,TEL_NO_3			= FC_AES_ENCRYPT(#TEL_NO_3#)
+		 	,FAX_NO_1			= #FAX_NO_1#
+		 	,FAX_NO_2			= #FAX_NO_2#
+		 	,FAX_NO_3			= FC_AES_ENCRYPT(#FAX_NO_3#)
+		 	,REPRE_TEL_NO_1		= #REPRE_TEL_NO_1#
+		 	,REPRE_TEL_NO_2		= #REPRE_TEL_NO_2#
+		 	,REPRE_TEL_NO_3		= FC_AES_ENCRYPT(#REPRE_TEL_NO_3#)
+		 	,SALE_START_YMD		= #SALE_START_YMD#
+		 	,SALE_END_YMD		= #SALE_END_YMD#
+		 	,PIDV_FAIL_YMD_FR	= #PIDV_FAIL_YMD_FR#
+		 	,PIDV_FAIL_YMD_TO	= #PIDV_FAIL_YMD_TO#
+		 	,TRUNK_ABRV			= #TRUNK_ABRV#
+		 	,SALE_MGMT_EMP		= #SALE_MGMT_EMP_NO#
+		 	,REPRE_DLV_EMP_NO	= #REPRE_DLV_EMP_NO#
+		 	,CAUTION			= #CAUTION#
+		 	,BRAN_DV			= #BRAN_DV#
+		 	,OWNR_DV			= #OWNR_DV#
+		 	,TRUST_DV			= #TRUST_DV#
+		 	,CP_DV				= #CP_DV#
+		 	,BZCON_NM			= #BZCON_NM#
+		 	,ITEM_NM			= #ITEM_NM#
+		 	,BRAN_DUTY_DV		= #BRAN_DUTY_DV#
+		 	,BRAN_ST			= #BRAN_ST#
+		 	,TNR_ZN_DV			= #ZN_DV#
+			,MODI_EMP_ID 		= #gv_userId#
+		 	,MODI_DTIME 		= NOW()
+		WHERE
+			BRAN_CD = #BRAN_CD#
+	</update>
+</sqlMap>

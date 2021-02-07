@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimItemPerCntrUpriceMgmtService">
+	
+	<select id="checkDup" resultClass="int">
+		/** [sql-baimItemPerCntrUpriceMgmtService.xml][baimItemPerCntrUpriceMgmtService.checkDup]
+		 *  [단가  등록 중복체크]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+		 SELECT
+		 	COUNT(*)
+		 FROM
+		 	TB_BAIM_ITEM_PER_CNTR_UPRICE_C
+		 WHERE
+		 	CUST_ID = #CUST_ID#
+		 AND CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD# 
+		 AND CNTR_START_YMD	= #CNTR_START_YMD#
+		 AND CNTR_ITEM_CD = #CNTR_ITEM_CD#	
+	</select>
+	
+	<select id="getItemPerCntrUpriceInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimItemPerCntrUpriceMgmtService.xml][baimItemPerCntrUpriceMgmtService.getItemPerCntrUpriceInfoList]
+		 *  [단가  등록 정보 조회]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+		SELECT
+		    A.CUST_ID,
+		    A.CUST_MGMT_DLCM_CD,
+		    A.CNTR_START_YMD,
+		    A.DLV_GDS_CD,
+		    A.ZN_DV,
+		    A.SEND_DV,
+		    A.FRT_DV,
+		    A.CNTR_ITEM_CD,
+		    C.CNTR_ITEM_NM,
+		    A.FRT_CALC_DV,
+		    A.FRT_FR,
+		    A.FRT_TO,
+		    A.UPRICE_FXRAT,
+		    A.FCHRG_DV,
+		    A.BRAN_CD,
+		    B.BRAN_NM,
+		    A.UPRICE,
+		    A.AIR_RATE_UPRICE
+		FROM
+		    TB_BAIM_ITEM_PER_CNTR_UPRICE_C A
+		    LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C B ON (A.BRAN_CD=B.BRAN_CD)
+		    LEFT OUTER JOIN TB_BAIM_CNTR_ITEM_C C ON (A.CUST_ID=C.CUST_ID AND A.CUST_MGMT_DLCM_CD=C.CUST_MGMT_DLCM_CD AND A.CNTR_START_YMD=C.CNTR_START_YMD AND A.CNTR_ITEM_CD=C.CNTR_ITEM_CD)
+		WHERE
+		    A.DEL_YN = 'N'
+		AND A.CUST_ID = #CUST_ID#
+		AND A.CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		AND A.CNTR_START_YMD = #CNTR_START_YMD#
+	</select>
+	
+	<insert id="insertItemPerCntrUpriceInfo">
+		/** [sql-baimItemPerCntrUpriceMgmtService.xml][baimItemPerCntrUpriceMgmtService.insertItemPerCntrUpriceInfo]
+		 *  [품목별 단가 저장]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+		INSERT INTO TB_BAIM_ITEM_PER_CNTR_UPRICE_C
+		(
+			CUST_ID
+			,CUST_MGMT_DLCM_CD
+			,CNTR_START_YMD
+			,DLV_GDS_CD
+			,DATA_DV_CD
+			,ZN_DV
+			,SEND_DV
+			,FRT_DV
+			,CNTR_ITEM_CD
+			,BOX_TYPE_CD
+			,FRT_CALC_DV
+			,FRT_FR
+			,FRT_TO
+			,UPRICE_FXRAT
+			,FCHRG_DV
+			,BRAN_CD
+			,UPRICE
+			,AIR_RATE_UPRICE
+			,HANDLE_FRT
+			,INSTALL_CHRG
+			,DEL_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#CUST_ID#
+			,#CUST_MGMT_DLCM_CD#
+			,#CNTR_START_YMD#
+			,#DLV_GDS_CD#
+			,''
+			,#ZN_DV#
+			,#SEND_DV#
+			,#FRT_DV#
+			,#CNTR_ITEM_CD#
+			,''
+			,#FRT_CALC_DV#
+			,#FRT_FR#
+			,#FRT_TO#
+			,#UPRICE_FXRAT#
+			,#FCHRG_DV#
+			,#BRAN_CD#
+			,#UPRICE#
+			,#AIR_RATE_UPRICE#
+			,0
+			,0
+			,'N'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+	</insert>
+	
+	<update id="updateItemPerCntrUpriceInfo">
+		/** [sql-baimItemPerCntrUpriceMgmtService.xml][baimItemPerCntrUpriceMgmtService.updateItemPerCntrUpriceInfo]
+		 *  [품목별 단가 수정]
+		 *  [KimJinHwan 2020.02.17]
+		 **/
+		 UPDATE TB_BAIM_ITEM_PER_CNTR_UPRICE_C
+		 SET
+			DLV_GDS_CD = #DLV_GDS_CD#
+			,ZN_DV = #ZN_DV#
+			,SEND_DV = #SEND_DV#
+			,FRT_DV = #FRT_DV#
+			
+			,FRT_CALC_DV = #FRT_CALC_DV#
+			,FRT_FR = #FRT_FR#
+			,FRT_TO = #FRT_TO#
+			,UPRICE_FXRAT = #UPRICE_FXRAT#
+			,FCHRG_DV = #FCHRG_DV#
+			,BRAN_CD = #BRAN_CD#
+			,UPRICE = #UPRICE#
+			,AIR_RATE_UPRICE = #AIR_RATE_UPRICE#
+		 	,MODI_EMP_ID	= #gv_userId#
+			,MODI_DTIME = NOW()
+		 WHERE
+		 	 CUST_ID			= #CUST_ID#
+		 AND CUST_MGMT_DLCM_CD	= #CUST_MGMT_DLCM_CD#
+		 AND CNTR_START_YMD		= #CNTR_START_YMD#
+		 AND CNTR_ITEM_CD		= #CNTR_ITEM_CD#
+	</update>
+	
+	
+</sqlMap>

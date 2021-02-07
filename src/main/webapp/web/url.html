@@ -1,0 +1,481 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>WebGuides</title>
+<style type="text/css">
+<!--
+body {font-size:0.75em; font-family:맑은 고딕, Dotum, AppleGothic, sans-seerif; color:#000;}
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td {padding:0; margin:0;}
+ol, ul, li {list-style:none; list-style-position:outside;}
+h1, h2, h3, h4, h5, h6 {font-weight:normal;font-size:100%;}
+form, fieldset, img {border:0;}
+address, caption, em {font-weight:normal; font-style:normal;}
+a:link, a:active, a:visited, a{color:#000;}
+a:hover{color:#0f7fff; }
+*html .png24 {tmp:expression(setPng24(this));}
+
+/* 숨김영역 */
+.skip{display:block; height:1px; width:1px; margin:0 -1px -1px 0; padding:0; overflow:hidden; font-size:0; line-height:0;}
+.skip:hover,
+.skip:active,
+.skip:focus{width:100%; height:auto; margin:0; padding:5px 0; text-indent:10px; font-weight:bold; font-size:12px; color:#333; font-family:Tahoma; line-height:1; text-decoration:none !important;}
+
+.go_to_top{display:block; height:1px; width:1px; margin:0 -1px -1px 0; padding:0; overflow:hidden; font-size:0; line-height:0;}
+.go_to_top:hover,
+.go_to_top:active,
+.go_to_top:focus{width:100%; height:auto; margin:0; padding:5px 0; text-indent:10px; font-weight:bold; font-size:12px; color:#333; font-family:Tahoma; line-height:1; text-decoration:none !important;}
+
+/* etc */
+.fr{float:right;}
+.fl{float:left;}
+.txtl{text-align:left;}
+.txtr{text-align:right;}
+.txtc{text-align:center; margin:auto;}
+.clear{clear:both;}
+.imgver{vertical-align:middle;}
+.txtb{font-weight:bold;}
+.line16p{line-height:160%;}
+
+.pb10{padding-bottom:10px;}
+.pb20{padding-bottom:20px;}
+
+.pt10{padding-top:10px;}
+.pt20{padding-top:20px;}
+
+.p15{padding:15px;}
+
+/* layout */
+#container{float:left; width:100%;}
+#header{/*width:1324px;*/ border-bottom:1px solid #ccc;  margin-bottom:3px;}
+#header h1{padding:10px; font-size:20px; font-weight:bold;color:#2354aa;}
+#header h1 a{font-size:20px; font-weight:bold;color:#2354aa;}
+#body{/*float:left; width:1324px;*/ padding: 0 0 0 0;}
+#content{position:relative; /*float:left; width:1104px;*/ padding:0 30px;}
+#content h2{padding:10px 0 5px 18px; font-size:15px; font-weight:bold; border-bottom:1px solid #ccc; background:url(http://whdkfk.mireene.com/WebGuides/images/blic1.gif) no-repeat left 12px;}
+
+/* 레프트메뉴 */
+.sMenu{position:relative; float:left; width:200px; font-size:12px; font-family:Tahoma, Geneva, sans-serif; line-height:normal; display:none;}
+.sMenu ul{ margin:0; padding:0; list-style:none;}
+.sMenu li{ position:relative; margin:0 0 -1px 0; vertical-align:top; *zoom:1;}
+.sMenu li a{ display:block; position:relative; padding:8px 10px; text-decoration:none; color:#666; font-weight:bold; background:#fafafa; border:1px solid #eee; *zoom:1;}
+.sMenu li a .i{ position:absolute; top:50%; left:100%; margin:-4px 0 0 -16px; width:8px; height:8px; color:#ccc; background:url(http://whdkfk.mireene.com/WebGuides/images/iconSub_left.gif) no-repeat left top;}
+
+.sMenu li ul{ padding:5px 0; background:#fff;}
+.sMenu li li{ margin:0;}
+.sMenu li li a{ font-weight:normal; background:#fff; padding:5px 10px; border:0;}
+.sMenu li li a span{color:#666;}
+.sMenu li li a:hover span{color:#13b200;}
+/*
+.sMenu ul { border-top:1px solid #eee; border-left:1px solid #eee; border-right:1px solid #eee; background:#fafafa;}
+.sMenu ul li { border-bottom:1px solid #eee;}
+.sMenu ul li a{display:block; padding:10px; color:#666;}
+.sMenu ul li a:hover{ color:#000; }
+
+#sMenu { position:fixed; _position:absolute; _z-index:-1; left:0; top:50px; width:200px; height:300px;}
+*/
+/* 본문 */
+ul.notice{position:absolute; right:0; top:10px; font-size:11px;}
+ul.notice li{display:inline; padding-left:10px;}
+ul.notice li strong{color:#ff0000;}
+
+ol.index{margin-top:10px; padding:15px; margin-bottom:20px; background:#efefef;}
+ol.index li{padding-bottom:10px; list-style:decimal; list-style-position:inside;}
+ol.index li a{text-decoration:none;}
+
+dl.noBreak{margin:0;overflow:hidden;}
+dl.noBreak dt{float:left; margin:0 5px 0 0; font-weight:bold;}
+dl.noBreak dd{margin:0 0 3px 0;}
+
+.table1{border-collapse:collapse; border-left:1px solid #CCCCCC; border-top:1px solid #CCCCCC;}
+.table1 th{padding:7px 0 7px 10px; background:#F4F4F4; border-bottom:1px solid #CCCCCC; border-right:1px solid #CCCCCC;}
+.table1 td{padding:7px 0 7px 10px; border-bottom:1px solid #CCCCCC; border-right:1px solid #CCCCCC;}
+
+.table2{border-collapse:collapse; width:500px; border-left:1px solid #CCCCCC; border-top:1px solid #CCCCCC;}
+.table2 th{padding:7px 0 7px 10px; font-weight:normal; background:#F4F4F4; border-bottom:1px solid #CCCCCC; border-right:1px solid #CCCCCC;}
+.table2 th.bg1{background:#FAFABF; font-weight:bold;}
+.table2 td{padding:7px 0 7px 10px; border-bottom:1px solid #CCCCCC; border-right:1px solid #CCCCCC;}
+.table2 td strong{color:#FF0000;}
+
+/* 리스트 */
+h3.title1{font-size:15px; font-weight:bold;}
+h4.title1{font-size:12px; padding-bottom:6px; font-weight:bold; color:green;}
+ul.list li{display:inline; font-size:11px; padding:0 10px 6px 0; color:#666; line-height:160%;}
+ul.list1 li{padding:0; color:#666;}
+div.section{padding:10px; line-height:160%;}
+div.section ul li{padding-left:10px; margin-bottom:10px; background:url(http://whdkfk.mireene.com/WebGuides/images/blic2.gif) no-repeat left 5px;}
+div.section ul li sup{color:#919191;}
+div.section ul li em{color:#FF0000;}
+div.section ul strong{color:#ff0000;}
+div.section dl dt{font-weight:bold;}
+dl.dlList dt{font-weight:bold;}
+dl.dlList dd{padding:0 0 20px 20px;}
+p.code_manual{margin-bottom:20px; padding:15px; margin-top:5px; border:3px solid #7CBC50;}
+p.code_manual strong{color:#ff0000;}
+
+div.hbx ol{padding:10px 0 0 10px;}
+div.hbx ol li{padding-bottom:10px; list-style:decimal; list-style-position:inside;}
+div.hbx ol li ol{padding:5px 0 0 20px;}
+div.hbx ol li ol li{padding-bottom:5px;}
+div.hbx ol li ol li em{color:#FF0000;}
+
+/* box */
+div.box1{margin:5px 10px 0 10px; padding:13px; line-height:160%; background:#F9F9F9;}
+div.code_manual{position:relative; padding:1em; border:3px solid #7CBC50; margin:0 0 1em 0; overflow:auto; }
+div.preview{position:relative; padding:1em; border:3px solid #7CBC50; margin:0 0 1em 0; overflow:auto; }
+div.preview strong{color:#ff0000;}
+.box2{margin:5px 0 20px 0; padding:15px; line-height:160%; background:#F9F9F9;}
+
+/* 게시판 */
+h3.titleLink2 a{display:block; padding:7px 0 7px 10px; font-size:13px; margin-top:10px; font-weight:bold; color:blue; background:#f1f1f1;}
+h3.titleLink1 a{display:block; padding:10px 0 10px 10px; font-size:15px; margin-top:10px; font-weight:bold; color:white; background:#777777;}
+h3.titleLink{padding:20px 0 10px 0; font-size:15px; font-weight:bold; color:#5c5cdc;}
+.boardListForm{ margin:0; font-size:11px; line-height:normal;}
+.boardListForm *{ margin:0; padding:0;}
+.boardListForm fieldset{ border:0; position:relative; clear:both;}
+.boardListForm fieldset:after{ content:""; display:block; float:none; clear:both;}
+.boardListForm legend{ position:absolute; width:0; height:0; overflow:hidden; font:0/0 Sans-serif; visibility:hidden;}
+.boardListForm em,
+.boardListForm strong{ font-style:normal; color:#ff6600;}
+.boardListForm a{ text-decoration:none; color:#000;} 
+.boardListForm a:hover,
+.boardListForm a:active,
+.boardListForm a:focus{ text-decoration:underline;}
+
+.boardList{border:0; border-top:1px solid #ddd; border-bottom:1px solid #ddd; border-left:1px solid #eee; width:100%; font-family:맑은 고딕; border-collapse:collapse;font-size:12px;}
+.boardList tr.bg1{background:pink;}
+.boardList tr.bg2{background:#eefcff;}
+.boardList tr.bg3{background:#e7ffee;}
+.boardList tr.ebg{background:#dbdbdb;}
+.boardList th{border:0; border-right:1px solid #eee; padding:7px; white-space:nowrap; text-align:center; color:#333; line-height:normal; background:#F2F2F2;}
+.boardList td{border:0; border-top:1px solid #eee; border-right:1px solid #eee; padding:6px; white-space:nowrap; text-align:left; color:#666; line-height:normal;}
+.boardList tr.line{border:0; border-bottom:2px solid #ddd;}
+-->
+</style>
+</head>
+<body>
+<div id="container">
+	<!-- Skip To Content -->
+	<a href="#content" class="skip">&raquo; 메뉴 건너 뛰기</a>
+	<!-- //Skip To Content -->
+
+	<!-- header -->
+	<div id="header">
+		<h1>CJ 화물정보망</h1>
+	</div>
+	<!-- //header -->
+
+	<!-- body -->
+	<div id="body">
+		<!-- 레프트 메뉴 -->
+		<div id="sMenu" class="sMenu">
+			<ul>
+				<li><a href="index.html"><span>HTML 작업링크</span></a></li>
+				<!--
+				<li><a href="#menu100"><span>메인</span></a></li>
+				<li><a href="#menu101"><span>제품정보</span></a></li>
+				<li><a href="#menu102"><span>기업정보</span></a></li>
+				<li><a href="#menu103"><span>투자정보</span></a></li>
+				<li><a href="#menu104"><span>지속가능경영</span></a></li>
+				<li><a href="#menu104"><span>뉴스/공지</span></a></li>
+				-->
+			</ul>
+		</div>
+		<!-- //레프트 메뉴 -->
+
+		<!-- content -->
+		<div id="content">
+			<h2>HTML 작업링크</h2><br/><br/>
+
+			<h3 class="titleLink" >::: 메인 Type A:::</h3>
+			<form action="" method="post" class="boardListForm">
+				<fieldset>
+					<legend>국문</legend>
+					<table border="1" cellspacing="0" class="boardList" summary="List of Articles">
+						<colgroup>
+							<col width="170" />
+							<col width="200" />
+							<col width="200" />
+							<col width="125" />
+							<col width="180" />
+							<col width="" />
+						</colgroup>
+						<thead>
+							<tr>
+							<th scope="col">1Depth</th>
+							<th scope="col">2Depth</th>
+							<th scope="col">3Depth</th>
+							<th scope="col">4Depth</th>
+							<th scope="col">URL</th>
+							<th scope="col">메모1</th>
+							</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td>MAIN</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td><a href="html/main.html" target="_blank">main.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>모바일 랜딩</td>
+							<td></td>
+							<td></td>
+							<td><a href="html/main_mob.html" target="_blank">main_mob.html</a></td>
+							<td></td>
+						</tr>
+						</tbody>
+					</table>
+				</fieldset>
+			</form>
+
+			<h3 class="titleLink" >::: 서브 :::</h3>
+			<form action="" method="post" class="boardListForm">
+				<fieldset>
+					<legend>국문</legend>
+					<table border="1" cellspacing="0" class="boardList" summary="List of Articles">
+						<colgroup>
+							<col width="170" />
+							<col width="200" />
+							<col width="200" />
+							<col width="125" />
+							<col width="180" />
+							<col width="" />
+						</colgroup>
+						<thead>
+							<tr>
+							<th scope="col">1Depth</th>
+							<th scope="col">2Depth</th>
+							<th scope="col">3Depth</th>
+							<th scope="col">4Depth</th>
+							<th scope="col">URL</th>
+							<th scope="col">메모1</th>
+							</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td>사업소개</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td><a href="html/sub01.html" target="_blank">sub01.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>APP 이용안내</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td><a href="html/sub02.html" target="_blank">sub02.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>고객지원</td>
+							<td>FAQ</td>
+							<td></td>
+							<td></td>
+							<td><a href="html/sub03_01.html" target="_blank">sub03_01.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>전국지사안내</td>
+							<td></td>
+							<td></td>
+							<td><a href="html/sub03_02_list.html" target="_blank">sub03_02_list.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>공지사항</td>
+							<td>list</td>
+							<td></td>
+							<td><a href="html/sub03_03_list.html" target="_blank">sub03_03_list.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>view</td>
+							<td></td>
+							<td><a href="html/sub03_03_view.html" target="_blank">sub03_03_view.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>etc</td>
+							<td>회원가입</td>
+							<td>화주</td>
+							<td></td>
+							<td><a href="html/join01_01.html" target="_blank">join01_01.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>주선가맹점</td>
+							<td></td>
+							<td><a href="html/join01_02.html" target="_blank">join01_02.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>운송가맹점</td>
+							<td></td>
+							<td><a href="html/join01_03.html" target="_blank">join01_03.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>차주</td>
+							<td></td>
+							<td><a href="html/join01_04.html" target="_blank">join01_04.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>약관동의</td>
+							<td></td>
+							<td><a href="html/join02_01.html" target="_blank">join02_01.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>정보입력</td>
+							<td></td>
+							<td><a href="html/join02_02.html" target="_blank">join02_02.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td>차량회원</td>
+							<td><a href="html/join02_022.html" target="_blank">join02_022.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>가입신청완료</td>
+							<td></td>
+							<td><a href="html/join02_03.html" target="_blank">join02_03.html</a></td>
+							<td></td>
+						</tr>
+						<!-- <tr>
+							<td></td>
+							<td></td>
+							<td>약관동의</td>
+							<td></td>
+							<td><a href="html/join02_01.html" target="_blank">join02_01.html</a></td>
+							<td></td>
+						</tr> -->
+						<tr>
+							<td></td>
+							<td>로그인</td>
+							<td>로그인</td>
+							<td></td>
+							<td><a href="html/login01.html" target="_blank">login01.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>아이디 찾기</td>
+							<td></td>
+							<td><a href="html/login02.html" target="_blank">login02.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>비밀번호 찾기</td>
+							<td></td>
+							<td><a href="html/login03.html" target="_blank">login03.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+							<td>보안코드</td>
+							<td></td>
+							<td><a href="html/login04.html" target="_blank">login04.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>footer</td>
+							<td>CJ대한통운</td>
+							<td></td>
+							<td></td>
+							<td><a href="html/ft01.html" target="_blank">ft01.html</a></td>
+							<td>링크</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>법적고지</td>
+							<td></td>
+							<td></td>
+							<td><a href="html/ft02.html" target="_blank">ft02.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>이용약관</td>
+							<td></td>
+							<td></td>
+							<td><a href="html/ft03.html" target="_blank">ft03.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>이메일 무단수집거부</td>
+							<td></td>
+							<td></td>
+							<td><a href="html/ft04.html" target="_blank">ft04.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>위치기반 서비스 이용약관</td>
+							<td></td>
+							<td></td>
+							<td><a href="html/ft05.html" target="_blank">ft05.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>개인정보처리방침</td>
+							<td></td>
+							<td></td>
+							<td><a href="html/ft06.html" target="_blank">ft06.html</a></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>etc</td>
+							<td>404에러</td>
+							<td></td>
+							<td></td>
+							<td><a href="html/error01.html" target="_blank">error01.html</a></td>
+							<td></td>
+						</tr>
+						</tbody>
+					</table>
+				</fieldset>
+			</form>
+
+			<br/><br/><br/>
+
+		</div>
+		<!-- //content -->
+	</div>	
+	<!-- //body -->
+</div>
+</body>
+</html>

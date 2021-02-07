@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimZLRMgmtService">
+	
+	
+	<select id="checkDupZn" resultClass="int">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.checkDupZn]
+		 *  [존 중복 조회]
+		 *  [KimJinHwan 2020.03.05]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_WMS_ZN_MST_C
+		WHERE
+			WAREH_CD = #WAREH_CD#
+		AND ZN_CD = #ZN_CD#
+	</select>
+	
+	<select id="checkDupLoc" resultClass="int">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.checkDupLoc]
+		 *  [로케이션 중복 조회]
+		 *  [KimJinHwan 2020.03.05]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_WMS_LOC_MGMT_C
+		WHERE
+			WAREH_CD = #WAREH_CD#
+		AND ZN_CD = #ZN_CD#
+		AND LOC_CD = #LOC_CD#
+	</select>
+	
+	<select id="checkDupRack" resultClass="int">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.checkDupRack]
+		 *  [랙 중복 조회]
+		 *  [KimJinHwan 2020.03.05]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_WMS_RACK_MGMT_C
+		WHERE
+			WAREH_CD = #WAREH_CD#
+		AND ZN_CD = #ZN_CD#
+		AND LOC_CD = #LOC_CD#
+		AND RACK_CD = #RACK_CD#
+	</select>
+	
+	
+	<select id="getZnList" resultClass="java.util.HashMap">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.getZnList]
+		 *  [존목록 조회]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		SELECT
+			'' AS CHK
+			,A.WAREH_CD
+			,B.WAREH_NM
+			,A.ZN_CD
+			,A.REMARK
+			,A.USE_YN
+		FROM
+			TB_WMS_ZN_MST_C A
+			,TB_WMS_WAREH_MGMT_MST_C B
+		WHERE
+			B.WAREH_CD = A.WAREH_CD
+		<isNotEmpty property="WAREH_CD">
+		AND B.WAREH_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="WAREH_NM">
+		AND B.WAREH_NM LIKE CONCAT('%', #WAREH_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="ZN_CD">
+		AND A.ZN_CD = #ZN_CD#
+		</isNotEmpty>
+		<isNotEmpty property="USE_YN">
+		AND A.USE_YN = #USE_YN#
+		</isNotEmpty>
+	</select>
+	
+	<select id="getZnListPop" resultClass="java.util.HashMap">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.getZnListPop]
+		 *  [존목록 조회(팝업)]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		SELECT
+			'' AS CHK
+			,A.WAREH_CD
+			,B.WAREH_NM
+			,A.ZN_CD
+			,A.REMARK
+		FROM
+			TB_WMS_ZN_MST_C A
+			,TB_WMS_WAREH_MGMT_MST_C B
+		WHERE
+			B.WAREH_CD = A.WAREH_CD
+		<!-- 사용자 창고권한 -->
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+				AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C B WHERE B.WAREH_CD = A.WAREH_CD AND USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="WAREH_CD">
+		AND B.WAREH_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="WAREH_NM">
+		AND B.WAREH_NM LIKE CONCAT('%', #WAREH_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="ZN_CD">
+		AND A.ZN_CD LIKE CONCAT('%', #ZN_CD#, '%')
+		</isNotEmpty>
+		ORDER BY WAREH_CD, ZN_CD
+	</select>
+	
+	<select id="getLocList" resultClass="java.util.HashMap">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.getLocList]
+		 *  [로케이션목록 조회]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		SELECT
+			'' AS CHK
+			,A.WAREH_CD
+			,A.ZN_CD
+			,A.LOC_CD
+			,A.REMARK
+			,A.USE_YN
+		FROM
+			TB_WMS_LOC_MGMT_C A
+		WHERE
+			1=1
+		AND WAREH_CD = #WAREH_CD#
+		AND ZN_CD = #ZN_CD#
+		<isNotEmpty property="USE_YN">
+		AND A.USE_YN = #USE_YN#
+		</isNotEmpty>
+	</select>
+	
+	
+	<select id="getLocListPop" resultClass="java.util.HashMap">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.getLocListPop]
+		 *  [로케이션목록 조회(팝업)]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		SELECT
+			'' AS CHK
+			,A.WAREH_CD
+			,B.WAREH_NM
+			,A.ZN_CD
+			,A.LOC_CD
+			,A.REMARK
+			,A.USE_YN
+		FROM
+			TB_WMS_LOC_MGMT_C A
+			,TB_WMS_WAREH_MGMT_MST_C B
+		WHERE
+			B.WAREH_CD = A.WAREH_CD
+		<!-- 사용자 창고권한 -->
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+				AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C C WHERE C.WAREH_CD = A.WAREH_CD AND USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="WAREH_CD">
+		AND B.WAREH_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="WAREH_NM">
+		AND B.WAREH_NM LIKE CONCAT('%', #WAREH_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="ZN_CD">
+		AND A.ZN_CD LIKE CONCAT('%', #ZN_CD#, '%') 
+		</isNotEmpty>
+		<isNotEmpty property="LOC_CD">
+		AND A.LOC_CD LIKE CONCAT('%', #LOC_CD#, '%')  
+		</isNotEmpty>
+		<isNotEmpty property="USE_YN">
+		AND A.USE_YN = #USE_YN#
+		</isNotEmpty>
+		ORDER BY WAREH_CD, ZN_CD, LOC_CD
+	</select>
+	
+	
+	<select id="getRackList" resultClass="java.util.HashMap">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.getRackList]
+		 *  [랙목록 조회]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		SELECT
+			'' AS CHK
+			,A.WAREH_CD
+			,A.ZN_CD
+			,A.LOC_CD
+			,A.RACK_CD
+			,A.REMARK
+			,A.USE_YN
+		FROM
+			TB_WMS_RACK_MGMT_C A
+		WHERE
+			1=1
+		AND A.WAREH_CD = #WAREH_CD#
+		AND A.ZN_CD = #ZN_CD#
+		AND A.LOC_CD = #LOC_CD#
+		<isNotEmpty property="USE_YN">
+		AND A.USE_YN = #USE_YN#
+		</isNotEmpty>
+	</select>
+	
+	<select id="getRackListPop" resultClass="java.util.HashMap">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.getRackListPop]
+		 *  [랙목록 조회(팝업)]
+		 *  [KimJinHwan 2020.03.05]
+		 **/
+		SELECT
+			'' AS CHK
+			,A.WAREH_CD
+			,B.WAREH_NM
+			,A.ZN_CD
+			,A.LOC_CD
+			,A.RACK_CD
+			,A.REMARK
+			,A.USE_YN
+		FROM
+			TB_WMS_RACK_MGMT_C A
+			,TB_WMS_WAREH_MGMT_MST_C B
+		WHERE
+			B.WAREH_CD = A.WAREH_CD
+		<!-- 사용자 창고권한 -->
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+				AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C C WHERE C.WAREH_CD = A.WAREH_CD AND USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="WAREH_CD">
+		AND B.WAREH_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="WAREH_NM">
+		AND B.WAREH_NM LIKE CONCAT('%', #WAREH_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="ZN_CD">
+		AND A.ZN_CD LIKE CONCAT('%', #ZN_CD#, '%') 
+		</isNotEmpty>
+		<isNotEmpty property="LOC_CD">
+		AND A.LOC_CD LIKE CONCAT('%', #LOC_CD#, '%') 
+		</isNotEmpty>
+		<isNotEmpty property="RACK_CD">
+		AND A.RACK_CD LIKE CONCAT('%', #RACK_CD#, '%') 
+		</isNotEmpty>
+		<isNotEmpty property="USE_YN">
+		AND A.USE_YN = #USE_YN#
+		</isNotEmpty>
+		ORDER BY WAREH_CD, ZN_CD, LOC_CD, RACK_CD 
+	</select>
+	
+	<insert id="insertZoneInfo">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.insertZoneInfo]
+		 *  [존정보 추가]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		INSERT INTO TB_WMS_ZN_MST_C
+		(
+			WAREH_CD
+			,ZN_CD
+			,REMARK
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#WAREH_CD#
+			,#ZN_CD#
+			,#REMARK#
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)		
+	</insert>
+	
+	<insert id="insertLocInfo">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.insertLocInfo]
+		 *  [로케이션정보 추가]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		INSERT INTO TB_WMS_LOC_MGMT_C
+		(
+			WAREH_CD
+			,ZN_CD
+			,LOC_CD
+			,REMARK
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#WAREH_CD#
+			,#ZN_CD#
+			,#LOC_CD#
+			,#REMARK#
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)		
+	</insert>
+	
+	<insert id="insertRackInfo">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.insertRackInfo]
+		 *  [랙정보 추가]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		INSERT INTO TB_WMS_RACK_MGMT_C
+		(
+			WAREH_CD
+			,ZN_CD
+			,LOC_CD
+			,RACK_CD
+			,REMARK
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#WAREH_CD#
+			,#ZN_CD#
+			,#LOC_CD#
+			,#RACK_CD#
+			,#REMARK#
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)		
+	</insert>
+
+
+	<update id="updateZoneInfo">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.updateZoneInfo]
+		 *  [존정보 수정]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		UPDATE TB_WMS_ZN_MST_C
+		SET
+			REMARK = #REMARK#
+			,USE_YN = #USE_YN#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			WAREH_CD = #WAREH_CD#
+		AND ZN_CD = #ZN_CD#
+	</update>
+
+	<update id="updateLocInfo">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.updateLocInfo]
+		 *  [로케이션정보 수정]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		UPDATE TB_WMS_LOC_MGMT_C
+		SET
+			REMARK = #REMARK#
+			,USE_YN = #USE_YN#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			WAREH_CD = #WAREH_CD#
+		AND ZN_CD = #ZN_CD#
+		AND LOC_CD = #LOC_CD#
+	</update>
+
+	<update id="updateRackInfo">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.updateRackInfo]
+		 *  [랙정보 수정]
+		 *  [KimJinHwan 2020.03.04]
+		 **/
+		UPDATE TB_WMS_RACK_MGMT_C
+		SET
+			REMARK = #REMARK#
+			,USE_YN = #USE_YN#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			WAREH_CD = #WAREH_CD#
+		AND ZN_CD = #ZN_CD#
+		AND LOC_CD = #LOC_CD#
+		AND RACK_CD = #RACK_CD#
+	</update>
+	
+	
+	<delete id="deleteZnList">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.deleteZnList]
+		 *  [존 삭제]
+		 *  [KimJinHwan 2020.03.05]
+		 **/
+		DELETE FROM TB_WMS_ZN_MST_C
+		WHERE
+			WAREH_CD = #WAREH_CD#
+		AND ZN_CD = #ZN_CD#
+	</delete>
+	
+	<delete id="deleteLocList">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.deleteLocList]
+		 *  [로케이션 삭제]
+		 *  [KimJinHwan 2020.03.05]
+		 **/
+		DELETE FROM TB_WMS_LOC_MGMT_C
+		WHERE
+			WAREH_CD = #WAREH_CD#
+		AND ZN_CD = #ZN_CD#
+		<isNotEmpty property="LOC_CD">
+		AND LOC_CD = #LOC_CD#		
+		</isNotEmpty>
+	</delete>
+	
+	<delete id="deleteRackList">
+		/** [sql-baimZLRMgmtService.xml][baimZLRMgmtService.deleteRackList]
+		 *  [랙 삭제]
+		 *  [KimJinHwan 2020.03.05]
+		 **/
+		DELETE FROM TB_WMS_RACK_MGMT_C
+		WHERE
+			WAREH_CD = #WAREH_CD#
+		AND ZN_CD = #ZN_CD#
+		<isNotEmpty property="LOC_CD">
+		AND LOC_CD = #LOC_CD#
+		</isNotEmpty>
+		<isNotEmpty property="RACK_CD">
+		AND RACK_CD = #RACK_CD#
+		</isNotEmpty>
+	</delete>
+	
+</sqlMap>

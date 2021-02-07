@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+    <settings 
+ 			useStatementNamespaces="true"
+   			cacheModelsEnabled="true"
+   			enhancementEnabled="true"
+   			lazyLoadingEnabled="false"
+   			forceMultipleResultSetSupport="false"
+   			maxRequests="2048"
+   			maxSessions="2048"
+   			maxTransactions="2048" />    
+	<sqlMap resource="egovframework/sqlmap/sqlmaps/dummy.xml"/>
+</sqlMapConfig>

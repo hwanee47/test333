@@ -1,0 +1,699 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rcptpayMgmtService">
+	
+	<select id="selectRcptpayByHour" resultClass="java.util.HashMap">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.selectRcptpayByHour]
+		     [시간별 재고수불 조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			DATE_FORMAT(CONCAT(H.WORK_YMDH,'0000'),'%Y-%m-%d %H시') AS WORK_YMDH
+			, H.WAREH_CD
+			, (SELECT MAX(W.WAREH_NM) FROM TB_WMS_WAREH_MGMT_MST_C W WHERE W.WAREH_CD = H.WAREH_CD) AS WRAEH_NM
+			, H.CUST_ID
+			, (SELECT MAX(C.CUST_REPRE_NM) FROM TB_WMS_CUST_MGMT_C C WHERE C.SHIPPER_ID = H.CUST_ID) AS CUST_NM
+			, H.ITEM_CD
+			, (SELECT MAX(I.ITEM_NM) FROM TB_WMS_ITEM_MGMT_C I WHERE I.ITEM_CD = H.ITEM_CD AND I.SHIPPER_ID = H.CUST_ID) AS ITEM_NM
+			, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(H.STC_QTY,0))) AS STC_QTY
+			, (SELECT NVL(TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(IB.DECIS_QTY),0))), 0) FROM TB_WMS_WAREI_C IB WHERE IB.CENT_CD = H.WAREH_CD AND IB.CUST_CD = H.CUST_ID AND IB.GDS_CD = H.ITEM_CD AND IB.ST = '2'
+				  AND DATE_FORMAT(IB.MODI_DTIME,'%Y%m%d%H') = DATE_FORMAT(STR_TO_DATE(H.WORK_YMDH,'%Y%m%d%H'),'%Y%m%d%H')) AS WAREI_QTY
+			, (SELECT NVL(TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(OB.GDS_QTY),0))), 0) FROM TB_WMS_WAREO_ORD_C OB WHERE OB.CENT_CD = H.WAREH_CD AND OB.CUST_ID = H.CUST_ID AND OB.GDS_CD = H.ITEM_CD AND OB.WORK_DV_CD = '50'
+				  AND DATE_FORMAT(OB.MODI_DTIME,'%Y%m%d%H') = DATE_FORMAT(STR_TO_DATE(H.WORK_YMDH,'%Y%m%d%H'),'%Y%m%d%H')) AS WAREO_QTY
+			, (SELECT NVL(TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(TRANSACTION_QTY),0))),0) AS TRANSACTION_QTY FROM TB_WMS_STC_MV_MGMT_C IH WHERE IH.CENT_CD = H.WAREH_CD AND IH.CUST_CD = H.CUST_ID AND IH.GDS_CD = H.ITEM_CD AND TRANSACTION_TYPE IN ('T6', 'T7', 'T8', 'T9', 'T10', 'T11') 
+				  AND DATE_FORMAT(IH.MODI_DTIME,'%Y%m%d%H') = DATE_FORMAT(STR_TO_DATE(H.WORK_YMDH,'%Y%m%d%H'),'%Y%m%d%H')) AS TRANSACTION_QTY
+			, H.REG_EMP_ID
+			, DATE_FORMAT(H.REG_DTIME, '%Y-%m-%d %H:%i:%s') AS REG_DTIME
+			, H.MODI_EMP_ID
+			, DATE_FORMAT(H.MODI_DTIME, '%Y-%m-%d %H:%i:%s') AS MODI_DTIME
+		  FROM TB_WMS_STC_RCPTPAY_HOUR_C H
+		 WHERE 1=1
+		 /*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+			   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+		   </isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="WAREH_CD">
+			AND H.WAREH_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_ID">
+			AND H.CUST_ID = #CUST_ID#
+		</isNotEmpty>
+		<isNotEmpty property="GDS_CD">
+			AND H.ITEM_CD = #GDS_CD#
+		</isNotEmpty>
+		<isNotEmpty property="STA_DT">
+			AND STR_TO_DATE(H.WORK_YMDH, '%Y%m%d%H') BETWEEN STR_TO_DATE(CONCAT(#STA_DT#,#STA_TM#), '%Y%m%d%H') AND STR_TO_DATE(CONCAT(#END_DT#,#END_TM#), '%Y%m%d%H')
+		</isNotEmpty>
+	</select>
+	
+	<select id="selectRcptpayByHour_20200408" resultClass="java.util.HashMap">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.selectRcptpayByHour]
+		     [시간별 재고수불 조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			DATE_FORMAT(CONCAT(H.WORK_YMDH,'0000'),'%Y-%m-%d %H시') AS WORK_YMDH
+			, H.WAREH_CD
+			, (SELECT MAX(W.WAREH_NM) FROM TB_WMS_WAREH_MGMT_MST_C W WHERE W.WAREH_CD = H.WAREH_CD) AS WRAEH_NM
+			, H.CUST_ID
+			, (SELECT MAX(C.CUST_REPRE_NM) FROM TB_WMS_CUST_MGMT_C C WHERE C.SHIPPER_ID = H.CUST_ID) AS CUST_NM
+			, H.ITEM_CD
+			, (SELECT MAX(I.ITEM_NM) FROM TB_WMS_ITEM_MGMT_C I WHERE I.ITEM_CD = H.ITEM_CD AND I.SHIPPER_ID = H.CUST_ID) AS ITEM_NM
+			, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(H.STC_QTY,0))) AS STC_QTY
+			, (SELECT NVL(TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(IB.DECIS_QTY),0))), 0) FROM TB_WMS_WAREI_C IB WHERE IB.CENT_CD = H.WAREH_CD AND IB.CUST_CD = H.CUST_ID AND IB.GDS_CD = H.ITEM_CD AND IB.ST = '2'
+				  AND DATE_FORMAT(IB.MODI_DTIME,'%Y%m%d%H') BETWEEN DATE_FORMAT(DATE_ADD(STR_TO_DATE(H.WORK_YMDH,'%Y%m%d%H'), INTERVAL -1 HOUR),'%Y%m%d%H') AND DATE_FORMAT(STR_TO_DATE(H.WORK_YMDH,'%Y%m%d%H'),'%Y%m%d%H') ) AS WAREI_QTY
+			, (SELECT NVL(TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(OB.GDS_QTY),0))), 0) FROM TB_WMS_WAREO_ORD_C OB WHERE OB.CENT_CD = H.WAREH_CD AND OB.CUST_ID = H.CUST_ID AND OB.GDS_CD = H.ITEM_CD AND OB.WORK_DV_CD = '50'
+				  AND DATE_FORMAT(OB.MODI_DTIME,'%Y%m%d%H') BETWEEN DATE_FORMAT(DATE_ADD(STR_TO_DATE(H.WORK_YMDH,'%Y%m%d%H'), INTERVAL -1 HOUR),'%Y%m%d%H') AND DATE_FORMAT(STR_TO_DATE(H.WORK_YMDH,'%Y%m%d%H'),'%Y%m%d%H') ) AS WAREO_QTY
+			, (SELECT NVL(TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(TRANSACTION_QTY),0))),0) AS TRANSACTION_QTY FROM TB_WMS_STC_MV_MGMT_C IH WHERE IH.CENT_CD = H.WAREH_CD AND IH.CUST_CD = H.CUST_ID AND IH.GDS_CD = H.ITEM_CD AND TRANSACTION_TYPE IN ('T6', 'T7', 'T8', 'T9', 'T10', 'T11') 
+				  AND DATE_FORMAT(IH.MODI_DTIME,'%Y%m%d%H') BETWEEN DATE_FORMAT(DATE_ADD(STR_TO_DATE(H.WORK_YMDH,'%Y%m%d%H'), INTERVAL -1 HOUR),'%Y%m%d%H') AND DATE_FORMAT(STR_TO_DATE(H.WORK_YMDH,'%Y%m%d%H'),'%Y%m%d%H') ) AS TRANSACTION_QTY
+			, H.REG_EMP_ID
+			, DATE_FORMAT(H.REG_DTIME, '%Y-%m-%d %H:%i:%s') AS REG_DTIME
+			, H.MODI_EMP_ID
+			, DATE_FORMAT(H.MODI_DTIME, '%Y-%m-%d %H:%i:%s') AS MODI_DTIME
+		  FROM TB_WMS_STC_RCPTPAY_HOUR_C H
+		 WHERE 1=1
+		 /*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+			   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="WAREH_CD">
+			AND H.WAREH_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_ID">
+			AND H.CUST_ID = #CUST_ID#
+		</isNotEmpty>
+		<isNotEmpty property="GDS_CD">
+			AND H.ITEM_CD = #GDS_CD#
+		</isNotEmpty>
+		<isNotEmpty property="STA_DT">
+			AND STR_TO_DATE(H.WORK_YMDH, '%Y%m%d%H') BETWEEN STR_TO_DATE(CONCAT(#STA_DT#,#STA_TM#), '%Y%m%d%H') AND STR_TO_DATE(CONCAT(#END_DT#,#END_TM#), '%Y%m%d%H')
+		</isNotEmpty>
+	</select>
+	
+	<select id="selectStcHour" resultClass="java.util.HashMap">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.selectStcHour]
+		     [시간별 수불 저장]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			 (SELECT DATE_FORMAT(NOW(),'%Y%m%d%H')) AS WORK_YMDH
+			, CENT_CD AS WAREH_CD
+			, CUST_CD AS CUST_ID
+			, GDS_CD AS ITEM_CD
+			, SUM(STC_QTY) AS STC_QTY
+			, '' AS REF01 ,'' AS REF02 ,'' AS REF03 ,'' AS REF04 ,'' AS REF05
+			, '' AS REF06 ,'' AS REF07 ,'' AS REF08 ,'' AS REF09 ,'' AS REF10
+			, #gv_userId# as gv_userId
+		  FROM TB_WMS_STC_C
+		 WHERE 1=1
+		 /*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		 <isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+			   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+			</isNotEqual>
+		 </isNotEqual>
+		 GROUP BY CENT_CD, CUST_CD, GDS_CD
+	</select>
+	
+	<insert id="saveRcptpayByHour">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.saveRcptpayByHour]
+		     [시간별 수불 저장]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_WMS_STC_RCPTPAY_HOUR_C (
+			  WORK_YMDH
+			, WAREH_CD
+			, CUST_ID
+			, ITEM_CD
+			, STC_QTY
+			, REF01 ,REF02 ,REF03 ,REF04 ,REF05
+			, REF06 ,REF07 ,REF08 ,REF09 ,REF10
+			, DEL_YN
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		) VALUES (
+			  #WORK_YMDH#
+			, #WAREH_CD#
+			, #CUST_ID#
+			, #ITEM_CD#
+			, #STC_QTY#
+			, #REF01# ,#REF02# ,#REF03# ,#REF04# ,#REF05#
+			, #REF06# ,#REF07# ,#REF08# ,#REF09# ,#REF10#
+			, 'N'
+			, #gv_userId#
+			, NOW()
+			, #gv_userId#
+			, NOW()
+		)
+		ON DUPLICATE KEY UPDATE
+			  WORK_YMDH   = #WORK_YMDH#
+			, WAREH_CD    = #WAREH_CD#
+			, CUST_ID     = #CUST_ID#
+			, ITEM_CD     = #ITEM_CD#
+			, STC_QTY     = #STC_QTY#
+			, REF01 = #REF01# , REF02 = #REF02# , REF03 = #REF03# , REF04 = #REF04# , REF05 = #REF05#
+			, REF06 = #REF06# , REF07 = #REF07# , REF08 = #REF08# , REF09 = #REF09# , REF10 = #REF10#
+			, DEL_YN      = 'N'
+			, MODI_EMP_ID = #gv_userId#
+			, MODI_DTIME  = NOW()
+	</insert>
+	
+	<select id="selectRcptpayByDaySum" resultClass="java.util.HashMap">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.selectRcptpayByDaySum]
+		     [일일 재고수불 요약 조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			GR_NO, WAREH_CD, CUST_ID, ITEM_CD
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(PDAY_QTY),0))) AS PDAY_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(WAREI_QTY),0))) AS WAREI_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(WAREO_QTY),0))) AS WAREO_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(WMS_QTY),0))) AS WMS_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(TRANSACTION_QTY),0))) AS TRANSACTION_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(PDAY_QTY) + SUM(WAREI_QTY) - SUM(WAREO_QTY) + SUM(TRANSACTION_QTY),0))) AS SUM_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(PDAY_QTY) + SUM(WAREI_QTY) - SUM(WAREO_QTY) + SUM(TRANSACTION_QTY) - SUM(WMS_QTY),0))) AS GAP_QTY
+		FROM (
+			SELECT * FROM
+			(SELECT 1 AS GR_NO, Y.WAREH_CD, Y.CUST_ID, Y.ITEM_CD
+				, NVL(SUM(Y.STC_QTY),0) AS PDAY_QTY, 0 AS WAREI_QTY, 0 AS WAREO_QTY, 0 AS WMS_QTY, 0 AS TRANSACTION_QTY
+				FROM TB_WMS_STC_RCPTPAY_DAY_C Y
+				WHERE DATE_FORMAT(Y.WORK_YMD, '%Y%m%d') = DATE_ADD(STR_TO_DATE(#STA_DT#, '%Y%m%d'), INTERVAL -1 DAY)
+				/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+				<isNotEqual property="gv_userType" compareValue="SUPER">
+					<isNotEqual property="gv_userType" compareValue="ADMIN">
+					  AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+			  		  AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+			  		</isNotEqual>
+		  		</isNotEqual>
+				GROUP BY WAREH_CD, CUST_ID, ITEM_CD
+			) T_DY <!-- 전일 수불 수량 -->
+			
+			UNION ALL
+			
+			SELECT * FROM
+				(SELECT 1 AS GR_NO, IB.CENT_CD AS WAREH_CD, IB.CUST_CD AS CUST_ID, IB.GDS_CD AS ITEM_CD 
+				,0 AS PDAY_QTY, NVL(SUM(IB.DECIS_QTY), 0) AS WAREI_QTY, 0 AS WAREO_QTY, 0 AS WMS_QTY, 0 AS TRANSACTION_QTY
+				FROM TB_WMS_WAREI_C IB
+				WHERE IB.ST = '2'
+				  AND DATE_FORMAT(WAREI_EXPCT_YMD,'%Y%m%d') BETWEEN STR_TO_DATE(#STA_DT#, '%Y%m%d') AND STR_TO_DATE(#END_DT#, '%Y%m%d')
+				/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+				<isNotEqual property="gv_userType" compareValue="SUPER">
+					<isNotEqual property="gv_userType" compareValue="ADMIN">
+					  AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+			  		  AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+			  		</isNotEqual>
+		  		</isNotEqual>
+				GROUP BY IB.CENT_CD, IB.CUST_CD, IB.GDS_CD
+			) T_IN <!-- 입고 수량 -->
+			
+			UNION ALL
+			
+			SELECT * FROM
+				(SELECT 1 AS GR_NO, OB.CENT_CD AS WAREH_CD, OB.CUST_ID, OB.GDS_CD AS ITEM_CD
+				,0 AS PDAY_QTY, 0 AS WAREI_QTY, NVL(SUM(OB.GDS_QTY), 0) AS WAREO_QTY, 0 AS WMS_QTY, 0 AS TRANSACTION_QTY
+				FROM TB_WMS_WAREO_ORD_C OB
+				WHERE OB.WORK_DV_CD = '50'
+				  AND DATE_FORMAT(OB.WAREO_YMD,'%Y%m%d') BETWEEN STR_TO_DATE(#STA_DT#, '%Y%m%d') AND STR_TO_DATE(#END_DT#, '%Y%m%d')
+				/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+				<isNotEqual property="gv_userType" compareValue="SUPER">
+					<isNotEqual property="gv_userType" compareValue="ADMIN">
+					  AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+			  		  AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+			  		</isNotEqual>
+		  		</isNotEqual>
+				GROUP BY OB.CENT_CD, OB.CUST_ID, OB.GDS_CD
+			) T_OT <!-- 출고 수량 -->
+			
+			UNION ALL
+			
+			SELECT * FROM 
+				(SELECT 1 AS GR_NO, CENT_CD AS WAREH_CD, CUST_CD AS CUST_ID, GDS_CD AS ITEM_CD
+				,0 AS PDAY_QTY, 0 AS WAREI_QTY, 0 AS WAREO_QTY, SUM(STC_QTY) AS WMS_QTY, 0 AS TRANSACTION_QTY
+				from TB_WMS_STC_C
+			   WHERE 1=1
+			   	AND DATE_FORMAT(WAREI_YMD,'%Y%m%d') BETWEEN STR_TO_DATE(#STA_DT#, '%Y%m%d') AND STR_TO_DATE(#END_DT#, '%Y%m%d')
+			   /*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+				<isNotEqual property="gv_userType" compareValue="SUPER">
+					<isNotEqual property="gv_userType" compareValue="ADMIN">
+					 AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+			  		 AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+			  		</isNotEqual>
+		  		</isNotEqual>
+				GROUP BY CENT_CD, CUST_CD, GDS_CD
+			) T_IV <!-- WMS 재고 -->
+			
+			UNION ALL
+			
+			SELECT * FROM
+				(SELECT 1 AS GR_NO, CENT_CD AS WAREH_CD, CUST_CD AS CUST_ID, GDS_CD AS ITEM_CD
+				,0 AS PDAY_QTY, 0 AS WAREI_QTY, 0 AS WAREO_QTY, 0 AS WMS_QTY, SUM(TRANSACTION_QTY) AS TRANSACTION_QTY
+				 FROM TB_WMS_STC_MV_MGMT_C IH
+				WHERE 1=1
+				  AND STR_TO_DATE(IH.OCCR_YMD,'%Y%m%d') BETWEEN STR_TO_DATE(#STA_DT#, '%Y%m%d') AND STR_TO_DATE(#END_DT#, '%Y%m%d')
+				  AND TRANSACTION_TYPE IN ('T6', 'T7', 'T8', 'T9', 'T10', 'T11')
+				/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+				<isNotEqual property="gv_userType" compareValue="SUPER">
+					<isNotEqual property="gv_userType" compareValue="ADMIN">
+					  AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+					  AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+					</isNotEqual>
+				</isNotEqual>
+				GROUP BY CENT_CD, CUST_CD, GDS_CD
+			) T_IH <!-- 재고 HISTORY :: 조정 수량 -->
+		) A
+		WHERE 1=1
+			<isNotEmpty property="WAREH_CD">
+				AND WAREH_CD = #WAREH_CD#
+			</isNotEmpty>
+			<isNotEmpty property="CUST_ID">
+				AND CUST_ID = #CUST_ID#
+			</isNotEmpty>
+			<isNotEmpty property="GDS_CD">
+				AND ITEM_CD = #GDS_CD#
+			</isNotEmpty>
+		GROUP BY GR_NO
+			<isNotEmpty property="WAREH_CD">
+				,WAREH_CD
+			</isNotEmpty>
+			<isNotEmpty property="CUST_ID">
+				,CUST_ID
+			</isNotEmpty>
+			<isNotEmpty property="GDS_CD">
+				,ITEM_CD
+			</isNotEmpty>
+		
+	</select>
+	
+	<select id="selectRcptpayByDay" resultClass="java.util.HashMap">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.selectRcptpayByDay]
+		     [일일 재고수불 조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			  D.WORK_YMD
+			, D.WAREH_CD
+			, (SELECT MAX(W.WAREH_NM) FROM TB_WMS_WAREH_MGMT_MST_C W WHERE W.WAREH_CD = D.WAREH_CD) AS WRAEH_NM
+			, D.CUST_ID
+			, (SELECT MAX(C.CUST_REPRE_NM) FROM TB_WMS_CUST_MGMT_C C WHERE C.SHIPPER_ID = D.CUST_ID) AS CUST_NM
+			, D.ITEM_CD
+			, (SELECT MAX(I.ITEM_NM) FROM TB_WMS_ITEM_MGMT_C I WHERE I.ITEM_CD = D.ITEM_CD AND I.SHIPPER_ID = D.CUST_ID) AS ITEM_NM
+			, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(D.STC_QTY,0))) AS STC_QTY
+			, (SELECT NVL(TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(IB.DECIS_QTY),0))), 0) FROM TB_WMS_WAREI_C IB WHERE IB.CENT_CD = D.WAREH_CD AND IB.CUST_CD = D.CUST_ID AND IB.GDS_CD = D.ITEM_CD AND IB.ST = '2'
+				  AND DATE_FORMAT(IB.WAREI_EXPCT_YMD, '%Y%m%d') = DATE_FORMAT(D.WORK_YMD, '%Y%m%d')) AS WAREI_QTY
+			, (SELECT NVL(TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(OB.GDS_QTY),0))), 0) FROM TB_WMS_WAREO_ORD_C OB WHERE OB.CENT_CD = D.WAREH_CD AND OB.CUST_ID = D.CUST_ID AND OB.GDS_CD = D.ITEM_CD AND OB.WORK_DV_CD = '50'
+				  AND DATE_FORMAT(OB.WAREO_YMD, '%Y%m%d') = DATE_FORMAT(D.WORK_YMD, '%Y%m%d')) AS WAREO_QTY
+			, (SELECT NVL(TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(IH.TRANSACTION_QTY),0))), 0) FROM TB_WMS_STC_MV_MGMT_C IH WHERE IH.CENT_CD = D.WAREH_CD AND IH.CUST_CD = D.CUST_ID AND IH.GDS_CD = D.ITEM_CD AND TRANSACTION_TYPE IN ('T6', 'T7', 'T8', 'T9', 'T10', 'T11')
+				  AND DATE_FORMAT(IH.OCCR_YMD, '%Y%m%d') = DATE_FORMAT(D.WORK_YMD, '%Y%m%d')) AS TRANSACTION_QTY
+			, D.REG_EMP_ID
+			, DATE_FORMAT(D.REG_DTIME, '%Y-%m-%d %H:%i:%s') AS REG_DTIME
+			, D.MODI_EMP_ID
+			, DATE_FORMAT(D.MODI_DTIME, '%Y-%m-%d %H:%i:%s') AS MODI_DTIME 
+		  FROM TB_WMS_STC_RCPTPAY_DAY_C D
+		 WHERE 1=1
+		   AND STR_TO_DATE(D.WORK_YMD, '%Y%m%d') BETWEEN STR_TO_DATE(#STA_DT#, '%Y%m%d') AND STR_TO_DATE(#END_DT#, '%Y%m%d')
+		 /*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+			   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+		   </isNotEqual>
+		</isNotEqual>
+		<isNotEmpty property="WAREH_CD">
+			AND D.WAREH_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_ID">
+			AND D.CUST_ID = #CUST_ID#
+		</isNotEmpty>
+		<isNotEmpty property="GDS_CD">
+			AND D.ITEM_CD = #GDS_CD#
+		</isNotEmpty>
+	</select>
+	
+	<select id="selectStcDay" resultClass="java.util.HashMap">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.selectStcDay]
+		     [일일 수불 저장]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			#STD_YMD# AS WORK_YMD
+			,Z.CENT_CD AS WAREH_CD
+			,Z.CUST_CD AS CUST_ID
+			,Z.GDS_CD AS ITEM_CD
+			,(IFNULL(Z.WAREI_QTY,0) - IFNULL(Z.WAREO_QTY,0) + IFNULL(Z.MEDIATE_QTY,0)) AS STC_QTY
+			, '' AS REF01 ,'' AS REF02 ,'' AS REF03 ,'' AS REF04 ,'' AS REF05
+			, '' AS REF06 ,'' AS REF07 ,'' AS REF08 ,'' AS REF09 ,'' AS REF10
+			, #gv_userId# as gv_userId
+		FROM
+		(
+			SELECT
+				TWSMMC.CENT_CD 
+				,TWSMMC.CUST_CD
+				,TWSMMC.GDS_CD
+				,SUM(
+					CASE WHEN TWSMMC.TRANSACTION_TYPE='T1' OR TWSMMC.TRANSACTION_TYPE='T5' OR TWSMMC.TRANSACTION_TYPE='T12' THEN IFNULL(TWSMMC.TRANSACTION_QTY,0) END
+				) AS WAREI_QTY
+				,SUM(
+					CASE WHEN TWSMMC.TRANSACTION_TYPE='T2' THEN IFNULL(TWSMMC.TRANSACTION_QTY,0) END
+				) AS WAREO_QTY
+				,SUM(
+				  	CASE WHEN TWSMMC.TRANSACTION_TYPE='T6' OR TWSMMC.TRANSACTION_TYPE='T7' OR TWSMMC.TRANSACTION_TYPE='T8' OR TWSMMC.TRANSACTION_TYPE='T9' OR TWSMMC.TRANSACTION_TYPE='T10' OR TWSMMC.TRANSACTION_TYPE='T11' THEN IFNULL(TWSMMC.TRANSACTION_QTY,0) END
+				) AS MEDIATE_QTY
+			FROM
+				TB_WMS_STC_MV_MGMT_C TWSMMC
+			WHERE 1=1
+			<isNotEqual property="gv_userType" compareValue="SUPER">
+				<isNotEqual property="gv_userType" compareValue="ADMIN">
+				/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+				   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+				   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+				</isNotEqual>
+		 	</isNotEqual>
+			AND TWSMMC.DOC_YMD <![CDATA[<=]]> #STD_YMD#
+			GROUP BY TWSMMC.CENT_CD, TWSMMC.CUST_CD, TWSMMC.GDS_CD
+		) Z
+
+
+	</select>
+	
+	<select id="selectStcDay_20200814" resultClass="java.util.HashMap">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.selectStcDay]
+		     [일일 수불 저장]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			 (SELECT DATE_FORMAT(NOW(),'%Y%m%d')) AS WORK_YMD
+			, CENT_CD AS WAREH_CD
+			, CUST_CD AS CUST_ID
+			, GDS_CD AS ITEM_CD
+			, SUM(STC_QTY) AS STC_QTY
+			, '' AS REF01 ,'' AS REF02 ,'' AS REF03 ,'' AS REF04 ,'' AS REF05
+			, '' AS REF06 ,'' AS REF07 ,'' AS REF08 ,'' AS REF09 ,'' AS REF10
+			, #gv_userId# as gv_userId
+		  FROM TB_WMS_STC_C
+		 WHERE 1=1
+		 	/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+			<isNotEqual property="gv_userType" compareValue="SUPER">
+				<isNotEqual property="gv_userType" compareValue="ADMIN">
+				   AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+				   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+				</isNotEqual>
+		 	</isNotEqual>
+		 GROUP BY CENT_CD, CUST_CD, GDS_CD
+	</select>
+	
+	<insert id="saveRcptpayByDay">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.saveRcptpayByDay]
+		     [일일 수불 저장]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_WMS_STC_RCPTPAY_DAY_C (
+			  WORK_YMD
+			, WAREH_CD
+			, CUST_ID
+			, ITEM_CD
+			, STC_QTY
+			, REF01 ,REF02 ,REF03 ,REF04 ,REF05
+			, REF06 ,REF07 ,REF08 ,REF09 ,REF10
+			, DEL_YN
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		) VALUES (
+			  #WORK_YMD#
+			, #WAREH_CD#
+			, #CUST_ID#
+			, #ITEM_CD#
+			, #STC_QTY#
+			, #REF01# ,#REF02# ,#REF03# ,#REF04# ,#REF05#
+			, #REF06# ,#REF07# ,#REF08# ,#REF09# ,#REF10#
+			, #DEL_YN#
+			, #gv_userId#
+			, NOW()
+			, #gv_userId#
+			, NOW()
+		)
+		ON DUPLICATE KEY UPDATE
+			  WORK_YMD   = #WORK_YMD#
+			, WAREH_CD    = #WAREH_CD#
+			, CUST_ID     = #CUST_ID#
+			, ITEM_CD     = #ITEM_CD#
+			, STC_QTY     = #STC_QTY#
+			, REF01 = #REF01# , REF02 = #REF02# , REF03 = #REF03# , REF04 = #REF04# , REF05 = #REF05#
+			, REF06 = #REF06# , REF07 = #REF07# , REF08 = #REF08# , REF09 = #REF09# , REF10 = #REF10#
+			, DEL_YN      = 'N'
+			, MODI_EMP_ID = #gv_userId#
+			, MODI_DTIME  = NOW()
+	</insert>
+	
+	<select id="selectRcptpayByMonSum" resultClass="java.util.HashMap">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.selectRcptpayByMonSum]
+		     [월별 재고수불 요약 조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			GR_NO, WAREH_CD, CUST_ID, ITEM_CD
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(PDAY_QTY),0))) AS PDAY_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(WAREI_QTY),0))) AS WAREI_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(WAREO_QTY),0))) AS WAREO_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(WMS_QTY),0))) AS WMS_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(TRANSACTION_QTY),0))) AS TRANSACTION_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(PDAY_QTY) + SUM(WAREI_QTY) - SUM(WAREO_QTY) + SUM(TRANSACTION_QTY),0))) AS SUM_QTY
+			,TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(PDAY_QTY) + SUM(WAREI_QTY) - SUM(WAREO_QTY) + SUM(TRANSACTION_QTY) - SUM(WMS_QTY),0))) AS GAP_QTY
+		FROM (
+			SELECT * FROM
+				(SELECT 1 AS GR_NO, Y.WAREH_CD, Y.CUST_ID, Y.ITEM_CD
+				, NVL(SUM(Y.STC_QTY),0) AS PDAY_QTY, 0 AS WAREI_QTY, 0 AS WAREO_QTY, 0 AS WMS_QTY, 0 AS TRANSACTION_QTY
+				FROM TB_WMS_STC_RCPTPAY_DAY_C Y
+				WHERE DATE_FORMAT(Y.WORK_YMD,'%Y%m%d') = DATE_FORMAT(DATE_ADD(STR_TO_DATE(CONCAT(#STA_MN#, '01'), '%Y%m%d'), INTERVAL -1 DAY), '%Y%m%d')
+				/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+				<isNotEqual property="gv_userType" compareValue="SUPER">
+					<isNotEqual property="gv_userType" compareValue="ADMIN">
+					  AND EXISTS (SELECT 1 FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+					  AND EXISTS (SELECT 1 FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+					</isNotEqual>
+				</isNotEqual>
+				GROUP BY DATE_FORMAT(WORK_YMD,'%Y%m'), WAREH_CD, CUST_ID, ITEM_CD
+				) T_MH <!-- 전월 수불 수량 -->
+			
+			UNION ALL
+			
+			SELECT * FROM
+				(SELECT 1 AS GR_NO, IB.CENT_CD AS WAREH_CD, IB.CUST_CD AS CUST_ID, IB.GDS_CD AS ITEM_CD 
+				,0 AS PDAY_QTY, NVL(SUM(IB.DECIS_QTY), 0) AS WAREI_QTY, 0 AS WAREO_QTY, 0 AS WMS_QTY, 0 AS TRANSACTION_QTY
+				FROM TB_WMS_WAREI_C IB
+				WHERE IB.ST = '2'
+				  AND STR_TO_DATE(WAREI_EXPCT_YMD,'%Y%m') BETWEEN STR_TO_DATE(#STA_MN#, '%Y%m') AND STR_TO_DATE(#END_MN#, '%Y%m')
+				/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+				<isNotEqual property="gv_userType" compareValue="SUPER">
+					<isNotEqual property="gv_userType" compareValue="ADMIN">
+					  AND EXISTS (SELECT 1 FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+					  AND EXISTS (SELECT 1 FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+					</isNotEqual>
+				</isNotEqual>
+				GROUP BY IB.CENT_CD, IB.CUST_CD, IB.GDS_CD
+				) T_IN <!-- 입고 수량 -->
+			
+			UNION ALL
+			
+			SELECT * FROM
+				(SELECT 1 AS GR_NO, OB.CENT_CD AS WAREH_CD, OB.CUST_ID, OB.GDS_CD AS ITEM_CD
+				,0 AS PDAY_QTY, 0 AS WAREI_QTY, NVL(SUM(OB.GDS_QTY), 0) AS WAREO_QTY, 0 AS WMS_QTY, 0 AS TRANSACTION_QTY
+				FROM TB_WMS_WAREO_ORD_C OB
+				WHERE OB.WORK_DV_CD = '50'
+				  AND DATE_FORMAT(OB.WAREO_YMD,'%Y%m') BETWEEN DATE_FORMAT(STR_TO_DATE(#STA_MN#, '%Y%m%d'), '%Y%m') AND DATE_FORMAT(STR_TO_DATE(#END_MN#, '%Y%m%d'), '%Y%m')
+				/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+				<isNotEqual property="gv_userType" compareValue="SUPER">
+					<isNotEqual property="gv_userType" compareValue="ADMIN">
+					  AND EXISTS (SELECT 1 FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+					  AND EXISTS (SELECT 1 FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+					</isNotEqual>
+				</isNotEqual>
+				GROUP BY OB.CENT_CD, OB.CUST_ID, OB.GDS_CD
+				) T_OT <!-- 출고 수량 -->
+			
+			UNION ALL
+			
+			SELECT * FROM 
+				(SELECT 1 AS GR_NO, CENT_CD AS WAREH_CD, CUST_CD AS CUST_ID, GDS_CD AS ITEM_CD
+				,0 AS PDAY_QTY, 0 AS WAREI_QTY, 0 AS WAREO_QTY, SUM(STC_QTY) AS WMS_QTY, 0 AS TRANSACTION_QTY
+				FROM TB_WMS_STC_C
+				WHERE 1=1
+				/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+				<isNotEqual property="gv_userType" compareValue="SUPER">
+					<isNotEqual property="gv_userType" compareValue="ADMIN">
+					  AND EXISTS (SELECT 1 FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+					  AND EXISTS (SELECT 1 FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+					</isNotEqual>
+				</isNotEqual>
+				GROUP BY CENT_CD, CUST_CD, GDS_CD
+				) T_IV <!-- WMS 재고 -->
+			
+			UNION ALL
+			
+			SELECT * FROM
+				(SELECT 1 AS GR_NO, CENT_CD AS WAREH_CD, CUST_CD AS CUST_ID, GDS_CD AS ITEM_CD
+				,0 AS PDAY_QTY, 0 AS WAREI_QTY, 0 AS WAREO_QTY, 0 AS WMS_QTY, SUM(TRANSACTION_QTY) AS TRANSACTION_QTY
+				 FROM TB_WMS_STC_MV_MGMT_C IH
+				WHERE 1=1
+				  <!-- AND DATE_FORMAT(IH.OCCR_YMD,'%Y%m') BETWEEN DATE_FORMAT(STR_TO_DATE(#STA_MN#, '%Y%m%d'), '%Y%m') AND DATE_FORMAT(STR_TO_DATE(#END_MN#, '%Y%m%d'), '%Y%m')
+				   -->
+				  AND STR_TO_DATE(IH.OCCR_YMD,'%Y%m') BETWEEN STR_TO_DATE(#STA_MN#, '%Y%m') AND STR_TO_DATE(#END_MN#, '%Y%m')
+				  AND TRANSACTION_TYPE IN ('T6', 'T7', 'T8', 'T9', 'T10', 'T11')
+				/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+				<isNotEqual property="gv_userType" compareValue="SUPER">
+					<isNotEqual property="gv_userType" compareValue="ADMIN">
+					  AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = CENT_CD AND TWUPWA.USER_ID = #gv_userId#)
+					  AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_CD AND TWUPCAC.USER_ID = #gv_userId#)
+					</isNotEqual>
+				</isNotEqual>
+				GROUP BY CENT_CD, CUST_CD, GDS_CD
+			) T_IH <!-- 재고 HISTORY :: 조정 수량 -->
+		) A
+		WHERE 1=1
+			<isNotEmpty property="WAREH_CD">
+				AND WAREH_CD = #WAREH_CD#
+			</isNotEmpty>
+			<isNotEmpty property="CUST_ID">
+				AND CUST_ID = #CUST_ID#
+			</isNotEmpty>
+			<isNotEmpty property="GDS_CD">
+				AND ITEM_CD = #GDS_CD#
+			</isNotEmpty>
+		GROUP BY GR_NO
+			<isNotEmpty property="WAREH_CD">
+				,WAREH_CD
+			</isNotEmpty>
+			<isNotEmpty property="CUST_ID">
+				,CUST_ID
+			</isNotEmpty>
+			<isNotEmpty property="GDS_CD">
+				,ITEM_CD
+			</isNotEmpty>
+	</select>
+	
+	<select id="selectRcptpayByMon" resultClass="java.util.HashMap">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.selectRcptpayByMon]
+		     [월별 재고수불 조회]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			  DATE_FORMAT(M.WORK_YMD,'%Y-%m') AS WORK_YM
+			, M.WAREH_CD
+			, (SELECT MAX(W.WAREH_NM) FROM TB_WMS_WAREH_MGMT_MST_C W WHERE W.WAREH_CD = M.WAREH_CD) AS WRAEH_NM
+			, M.CUST_ID
+			, (SELECT MAX(C.CUST_REPRE_NM) FROM TB_WMS_CUST_MGMT_C C WHERE C.SHIPPER_ID = M.CUST_ID) AS CUST_NM
+			, M.ITEM_CD
+			, (SELECT MAX(I.ITEM_NM) FROM TB_WMS_ITEM_MGMT_C I WHERE I.ITEM_CD = M.ITEM_CD AND I.SHIPPER_ID = M.CUST_ID) AS ITEM_NM
+			, (SELECT TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(STC_QTY),0))) FROM TB_WMS_STC_C ST WHERE ST.CENT_CD = M.WAREH_CD AND ST.CUST_CD = M.CUST_ID AND ST.GDS_CD = M.ITEM_CD) AS STC_QTY
+			, (SELECT NVL(TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(IB.DECIS_QTY),0))), 0) FROM TB_WMS_WAREI_C IB WHERE IB.CENT_CD = M.WAREH_CD AND IB.CUST_CD = M.CUST_ID AND IB.GDS_CD = M.ITEM_CD AND IB.ST = '2'
+				  AND DATE_FORMAT(IB.WAREI_EXPCT_YMD, '%Y%m') = DATE_FORMAT(M.WORK_YMD, '%Y%m')) AS WAREI_QTY
+			, (SELECT NVL(TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(OB.GDS_QTY),0))), 0) FROM TB_WMS_WAREO_ORD_C OB WHERE OB.CENT_CD = M.WAREH_CD AND OB.CUST_ID = M.CUST_ID AND OB.GDS_CD = M.ITEM_CD AND OB.WORK_DV_CD = '50'
+				  AND DATE_FORMAT(OB.WAREO_YMD, '%Y%m') = DATE_FORMAT(M.WORK_YMD, '%Y%m')) AS WAREO_QTY
+			, (SELECT NVL(TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM IFNULL(SUM(IH.TRANSACTION_QTY),0))), 0) FROM TB_WMS_STC_MV_MGMT_C IH WHERE IH.CENT_CD = M.WAREH_CD AND IH.CUST_CD = M.CUST_ID AND IH.GDS_CD = M.ITEM_CD AND TRANSACTION_TYPE IN ('T6', 'T7', 'T8', 'T9', 'T10', 'T11')
+				  AND DATE_FORMAT(IH.OCCR_YMD, '%Y%m') = DATE_FORMAT(M.WORK_YMD, '%Y%m')) AS TRANSACTION_QTY
+			, M.REG_EMP_ID
+			, DATE_FORMAT(M.REG_DTIME, '%Y-%m-%d %H:%i:%s') AS REG_DTIME
+			, M.MODI_EMP_ID
+			, DATE_FORMAT(M.MODI_DTIME, '%Y-%m-%d %H:%i:%s') AS MODI_DTIME 
+		 FROM TB_WMS_STC_RCPTPAY_DAY_C M
+		WHERE 1=1
+		  AND STR_TO_DATE(M.WORK_YMD, '%Y%m') BETWEEN STR_TO_DATE(#STA_MN#, '%Y%m') AND STR_TO_DATE(#END_MN#, '%Y%m')
+		<isNotEmpty property="WAREH_CD">
+			AND WAREH_CD = #WAREH_CD#
+		</isNotEmpty>
+		<isNotEmpty property="CUST_ID">
+			AND CUST_ID = #CUST_ID#
+		</isNotEmpty>
+		<isNotEmpty property="GDS_CD">
+			AND ITEM_CD = #GDS_CD#
+		</isNotEmpty>
+		/*시스템관리자(SUPER, ADMIN)가 아닌경우 로그인계정에 부여된 권한만 조회처리.*/
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+			<isNotEqual property="gv_userType" compareValue="ADMIN">
+			  AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = M.WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+			  AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = M.CUST_ID AND TWUPCAC.USER_ID = #gv_userId#)
+			</isNotEqual>
+		</isNotEqual>
+	    GROUP BY DATE_FORMAT(M.WORK_YMD,'%Y%m'), M.WAREH_CD, M.CUST_ID, M.ITEM_CD
+	</select>
+	
+	
+	<select id="selectStcHour_Scheduler" resultClass="java.util.HashMap">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.selectStcHour_Scheduler]
+		     [시간별 수불 저장]
+		     [KSH 2020.03.12]
+		*/
+		SELECT
+			 (SELECT DATE_FORMAT(NOW(),'%Y%m%d%H')) AS WORK_YMDH
+			, CENT_CD AS WAREH_CD
+			, CUST_CD AS CUST_ID
+			, GDS_CD AS ITEM_CD
+			, SUM(STC_QTY) AS STC_QTY
+			, '' AS REF01 ,'' AS REF02 ,'' AS REF03 ,'' AS REF04 ,'' AS REF05
+			, '' AS REF06 ,'' AS REF07 ,'' AS REF08 ,'' AS REF09 ,'' AS REF10
+			, #gv_userId# as gv_userId
+		  FROM TB_WMS_STC_C
+		 WHERE 1=1
+		   <!-- AND EXISTS (SELECT WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C TWUPWA WHERE TWUPWA.WAREH_CD = WAREH_CD AND TWUPWA.USER_ID = #gv_userId#)
+		   AND EXISTS (SELECT CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C TWUPCAC WHERE TWUPCAC.CUST_ID = CUST_ID AND TWUPCAC.USER_ID = #gv_userId#) -->
+		 GROUP BY CENT_CD, CUST_CD, GDS_CD
+	</select>
+	
+	
+	<insert id="saveRcptpayByHour_Scheduler">
+		/* [sql-rcptpayMgmtService.xml][rcptpayMgmtService.saveRcptpayByHour_Scheduler]
+		     [시간별 수불 저장]
+		     [KSH 2020.03.12]
+		*/
+		INSERT INTO TB_WMS_STC_RCPTPAY_HOUR_C (
+			  WORK_YMDH
+			, WAREH_CD
+			, CUST_ID
+			, ITEM_CD
+			, STC_QTY
+			, REF01 ,REF02 ,REF03 ,REF04 ,REF05
+			, REF06 ,REF07 ,REF08 ,REF09 ,REF10
+			, DEL_YN
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		) VALUES (
+			  #WORK_YMDH#
+			, #WAREH_CD#
+			, #CUST_ID#
+			, #ITEM_CD#
+			, #STC_QTY#
+			, #REF01# ,#REF02# ,#REF03# ,#REF04# ,#REF05#
+			, #REF06# ,#REF07# ,#REF08# ,#REF09# ,#REF10#
+			, 'N'
+			, #gv_userId#
+			, NOW()
+			, #gv_userId#
+			, NOW()
+		)
+		
+		ON DUPLICATE KEY UPDATE
+			  WORK_YMDH   = #WORK_YMDH#
+			, WAREH_CD    = #WAREH_CD#
+			, CUST_ID     = #CUST_ID#
+			, ITEM_CD     = #ITEM_CD#
+			, STC_QTY     = #STC_QTY#
+			, REF01 = #REF01# , REF02 = #REF02# , REF03 = #REF03# , REF04 = #REF04# , REF05 = #REF05#
+			, REF06 = #REF06# , REF07 = #REF07# , REF08 = #REF08# , REF09 = #REF09# , REF10 = #REF10#
+			, DEL_YN      = 'N'
+			, MODI_EMP_ID = #gv_userId#
+			, MODI_DTIME  = NOW()
+	</insert>
+	
+</sqlMap>

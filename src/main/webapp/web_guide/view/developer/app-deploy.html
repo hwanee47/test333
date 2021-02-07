@@ -1,0 +1,90 @@
+<h2 class="az-content-title mg-b-20 tx-bold">앱 배포 가이드</h2>
+
+<div id="rgb-content1">
+	<div class="az-content-label mg-b-5">1. 데이터베이스</div>
+	<small>아래 목록은 서버구성시 <span class="tx-primary tx-bold">데이터이관</span>이 필요한 테이블입니다.</small>
+	<div class="table">
+       <table class="table az-table-reference">
+         <thead>
+           <tr>
+             <th class="wd-20p">테이블명</th>
+             <th class="wd-70p">설명</th>
+           </tr>
+         </thead>
+         <tbody>
+           <tr>
+             <td><code>TMDM_MC_CODE_H</code></td>
+             <td>공통코드마스터, 코드유형목록</td>
+           </tr>
+           <tr>
+             <td><code>TMDM_MC_CODE_M</code></td>
+             <td>코드마스터에 따른 실제 코드값 정의 테이블</td>
+           </tr>
+           <tr>
+             <td><code>TMDM_MC_CODE_B</code></td>
+             <td>정의된 코드에 따른 각 언어별 코드명 테이블</td>
+           </tr>
+           <tr>
+             <td><code>TMDM_KFR_MENU</code></td>
+             <td>메뉴관리 테이블</td>
+           </tr>
+         </tbody>
+       </table>
+     </div><!-- table-responsive -->
+</div>
+
+<hr class="mg-y-60">
+
+<div id="rgb-content2">
+	<div class="az-content-label mg-b-5">2. 데이터베이스 서버구성후 첫번째 할 일은 <span class="tx-danger">SUPER관리자</span> 정보 만들기!</div>
+	<small> 
+		SUPER관리자는 RGB시스템관리자용으로 모든권한을 가지고 있습니다.<br>
+		메뉴로 등록된 화면이 아니기 때문에 개발자가 넥사크로 화면("SYST_MNG_0010")을 실행하여 작업합니다.
+	</small>
+	<div class="mg-t-25">
+    	<img src="../../img/app-deploy1.png" class="img-thumbnail wd-100p wd-sm-800" alt="Responsive image">
+    </div>
+    <small> 
+    	> "SUPER만들기" 버튼을 클릭하면 confirm창이 나타나며 확인버튼을 클릭하면 SUPER관리자정보가 생성되며 기본정보는 다음과 같습니다<br>
+    	> 아이디는 "super", 초기비밀번호는 "1111", 권한명은 "SUPER", 권한메뉴는 모든메뉴가 부여됩니다.
+    </small>
+</div>
+
+<hr class="mg-y-60">
+
+<div id="rgb-content3">
+	<div class="az-content-label mg-b-5">3. 다음은 <span class="tx-warning">ADMIN관리자</span>가 관리할 메뉴권한 만들기!</div>
+	<small> 
+		업체에서 시스템관리자가 관리할 메뉴권한을 생성합니다.<br>
+		메뉴로 등록된 화면이 아니기 때문에 개발자가 넥사크로 화면("SYST_MNG_0020")을 실행하여 작업합니다.
+	</small>
+	<div class="mg-t-25">
+    	<img src="../../img/app-deploy2.png" class="img-thumbnail wd-100p wd-sm-800" alt="Responsive image">
+    </div>
+    <small> 
+    	> 신규버튼을 클릭하고 상단의 권한관리 그리드의 헤더가 <span class="tx-warning">노란색</span>인 항목에 정보를 입력하고 저장합니다. <span class="tx-danger">(※ 권한구분은 "ADMIN" 필수)</span><br>
+    	> 권한을 먼저 저장한 후 하단의 메뉴를 부여할 수 있으며 업체 시스템관리자가 관리할 메뉴를 체크하고 오른쪽으로 이동시킵니다.<br>
+    	> 권한코드는 자동 채번 → 'A' + 시퀀스(7자리, MAX+1) 
+    </small>
+</div>
+
+<hr class="mg-y-60">
+
+<div id="rgb-content4">
+	<div class="az-content-label mg-b-5">4. <span class="tx-warning">ADMIN관리자</span>계정을 만들고 앞서 만든 메뉴권한 부여하면 준비끝!</div>
+	<small> 
+		ADMIN관리자 계정은 업체의 시스템관리자용으로 SUPER시스템관리자가 부여한 권한을 가지고 있습니다.<br>
+		메뉴로 등록된 화면이 아니기 때문에 개발자가 넥사크로 화면("SYST_MNG_0010")을 실행하여 작업합니다.
+	</small>
+	<div class="mg-t-25">
+		<img src="../../img/app-deploy3.png" class="img-thumbnail wd-100p wd-sm-800" alt="Responsive image">
+    	<img src="../../img/app-deploy4.png" class="img-thumbnail wd-100p wd-sm-800 mg-t-5" alt="Responsive image">
+    </div>
+    <small> 
+    	> 다른화면에서 코드필터링, 기능제한 등을 위해 계정 생성시 업체에 맞는 시스템구분(기초코드:SM1000)을 지정하여야 합니다. <br> 
+    	> 계정을 생성한 후 메뉴권한 버튼을 클릭하면 나타나는 팝업창에서 앞서 만든 권한을 오른쪽으로 부여합니다.
+    </small>
+</div>
+
+
+<hr class="mg-y-60">

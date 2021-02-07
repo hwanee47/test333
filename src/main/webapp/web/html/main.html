@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="keywords" content="CJ 화물정보망">
+<meta name="description" content="CJ 화물정보망" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="CJ 화물정보망"/>
+<meta name="twitter:site" content="CJ 화물정보망" />
+<meta name="twitter:creator" content="CJ 화물정보망"/>
+<meta name="twitter:image" content="../img/m_img.jpg" />
+<meta name="twitter:description" content="CJ 화물정보망"/>
+<meta property="og:title" content="글로벌 네트워크 | CJ 화물정보망">    
+<meta property="og:site_name" content="CJ 화물정보망"/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://www.cjlogistics.com/ko/network"/>
+<meta property="og:image" content="../img/m_img.jpg">
+<meta property="og:description" content="CJ 화물정보망"/>
+<title>CJ 화물정보망</title>
+<link rel="image_src" href="../img/m_img.jpg"/>
+<link rel="shortcut icon" href="../img/cj.ico" type="image/x-icon" />
+<link rel="icon" href="../img/cj.ico" type="image/x-icon" />
+
+<meta name="author" content="" />
+<meta name="Resource-type" content="Document" />
+
+<link rel="stylesheet" type="text/css" href="../dist/fullpage.css" />
+<link rel="stylesheet" type="text/css" href="../css/examples.css" />
+<link rel="stylesheet" type="text/css" href="../css/common.css" />
+
+<script type="text/javascript" src="../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../js/common.js"></script>
+<script type="text/javascript" src="../js/WebIF.js"></script>
+
+<!--[if IE]>
+	<script type="text/javascript">
+		 var console = { log: function() {} };
+	</script>
+<![endif]-->
+</head>
+<body onload="fn_init();" class="is-pagetransition">
+
+<script language="JavaScript" type="text/javascript">
+	var gv_userId = "";
+	var gv_userNm = "";
+		
+	function fn_init() {
+		 window.NEXACROHTML.Init();
+	};
+	
+	function fn_pageMove() {
+		try {
+			window.NEXACROHTML.FireUserNotify("login");
+		} catch(e) {
+			alert(e + "error");
+		}
+	}
+	
+	function fn_setSesstionInfo(objJson) {
+		gv_userId = objJson.gv_userId;
+		gv_userNm = objJson.gv_userNm;
+		
+		var userInfo = gv_userNm + "(" + gv_userId + ")" + "님 반갑습니다.";
+		
+		$("#userInfo").text(userInfo);
+	}
+	
+	function fn_login() {
+		if(gv_userId == null || gv_userId == "") {
+			fn_pageMove();
+		}
+	}
+</script>
+
+<script src="https://www.cjlogistics.com/static/pc/global/template/js/jquery-1.12.1.min.js"></script>
+<script type="text/javascript">
+	$(window).load(function(){
+		//로드 시 화면 전환 모션
+		setTimeout(function() {
+			$("body").removeClass("is-pagetransition");
+		}, 100), setTimeout(function() {
+			$("body").addClass("is-pagetransitionend");
+			$(".logo-article").remove();
+		}, 1000), setTimeout(function() {
+			$(".vis_btm_box_wrap").animate({ "bottom": "87px" }, "slow" );
+		}, 4000);
+		/*
+		setTimeout(function() {
+			$("body").removeClass("is-pagetransition");
+		}, 80), setTimeout(function() {
+			$("body").addClass("is-pagetransitionend");
+			$(".logo-article").remove();
+		}, 1000), setTimeout(function() {
+			$("body").css({"overflow-x":"auto"});
+		}, 3000);
+		*/
+	});
+</script>
+<article class="logo-article"></article>
+
+<div class="gnb">
+	<h1 class="logo"><a href="main.html">CJ LOGISTICS 화물정보망</a></h1>
+	<div class="box-globalLang">
+		<a href="#none" id="btnGlobalLang" class=""><span>KO</span></a><!-- 활성화 class="on" -->
+		<ul class="list-lang">
+			<li><a href="/en/network/en-za">EN</a></li>
+			<li><a href="/cn/network/en-za">CN</a></li>
+		</ul>
+	</div>
+	<div class="box-globalNetwork">
+		<a href="#none" class="" id="btnGlobalNetwork"><span></span></a><!-- 활성화 class="on" -->
+		<div class="list-network-wrap">
+			<p class="title-network"><a href="/ko/network">GLOBAL NETWORK</a></p>
+			<ul class="list-network">
+				<li><a href="/ko/network/en-za"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/20a27dc3-294b-4e47-857a-7c66fb8b701b.jpg" alt="남아프리카 공화국 국기 ">남아프리카 공화국</a></li>
+				<li><a href="/ko/network/en-nl"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/c220ef1e-7c3a-4af4-bece-9bfdf21cef75.jpg" alt="네덜란드 국기 ">네덜란드</a></li>
+				<li><a href="/ko/network/en-np"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/cef3d52b-420a-461a-a1e3-f539316aada1.jpg" alt="NEPAL">네팔</a></li>
+				<li><a href="/ko/network/en-de"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/4d4af128-451f-4bff-a4a2-b1f689ad6c83.jpg" alt="독일 국기 ">독일</a></li>
+				<li><a href="/ko/network/en-la"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/e447415b-be76-4295-8789-3127d17d37c0.jpg" alt="라오스 국기 ">라오스</a></li>
+				<li><a href="/ko/network/en-my"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/bb8a5961-264d-4a06-8b82-593ec6ea331c.jpg" alt="말레이시아 국기 ">말레이시아</a></li>
+				<li><a href="/ko/network/en-mx"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/d9f5060a-6af3-4365-ad14-a088d81c07bb.jpg" alt="멕시코 국기 ">멕시코</a></li>
+				<li><a href="/ko/network/en-us"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/4a5ab44c-8d97-45f0-a4cf-d87c68a6f8fa.jpg" alt="미국 국기 ">미국</a></li>
+				<li><a href="/ko/network/en-mm"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/8a59cc98-050a-4f26-83f3-fcdf2c6bc6b6.jpg" alt="미얀마 국기 ">미얀마</a></li>
+				<li><a href="/ko/network/en-vn"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/d5a4bee5-7826-4501-89a7-04896f5f5ef7.jpg" alt="베트남 국기 ">베트남</a></li>
+				<li><a href="/ko/network/en-br"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/72466beb-a556-4363-8815-7be2623a2eb3.jpg" alt="브라질 국기 ">브라질</a></li>
+				<li><a href="/ko/network/en-sg"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/2939b418-9d89-406d-908c-e0fd9db3e781.jpg" alt="싱가포르 국기 ">싱가포르</a></li>
+				<li><a href="/ko/network/en-ae"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/d5bd9a7d-3f5f-4728-9f87-d3cde3f42a46.jpg" alt="아랍에미리트 연합 국기 ">아랍에미리트 연합</a></li>
+				<li><a href="/ko/network/en-az"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/462593c0-8be0-4842-90aa-e4327c724ff9.jpg" alt="AZERBAIJAN">아제르바이잔</a></li>
+				<li><a href="/ko/network/en-gb"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/40aa2d8f-3c01-4045-98db-39cbbb381fc3.jpg" alt="영국 국기 이미지 ">영국</a></li>
+				<li><a href="/ko/network/en-uz"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/16b72d52-17c7-45f2-8073-c59717446d3c.jpg" alt="UZBEKISTAN">우즈베키스탄</a></li>
+				<li><a href="/ko/network/en-iq"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/03fd3c26-daba-4b46-b1ec-490a3db23e5b.jpg" alt="IRAQ">이라크</a></li>
+				<li><a href="/ko/network/en-it"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/57200468-57f0-4d96-bbfa-74b760c4c7f9.jpg" alt="ITALY">이탈리아</a></li>
+				<li><a href="/ko/network/en-in"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/37665460-a9bf-4065-b193-0fdee60bb964.jpg" alt="인도 국기 ">인도(인디아)</a></li>
+				<li><a href="/ko/network/en-id"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/1701daef-f4e4-48e7-872e-d9a3f548b0c2.jpg" alt="인도네시아 국기 ">인도네시아</a></li>
+				<li><a href="/ko/network/en-jp"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/7975608a-47b8-4ebd-99c6-f2be741a3b8e.jpg" alt="일본 국기">일본</a></li>
+				<li><a href="/ko/network/en-ge"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/07c0821b-8091-46f9-86b6-10fb91e6e10b.jpg" alt="GEORGIA">조지아</a></li>
+				<li><a href="/ko/network/zh-cn"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/f9713fe4-47ae-4647-ad31-3f2cd2fa006b.jpg" alt="중국 국기">중국</a></li>
+				<li><a href="/ko/network/en-kz"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/0abe9024-df95-4573-b693-4d06c062a49e.jpg" alt="카자흐스탄 국기 ">카자흐스탄</a></li>
+				<li><a href="/ko/network/en-ca"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/19023cf3-0e84-4558-a480-79d4302502cc.jpg" alt="캐나다 국기 ">캐나다</a></li>
+				<li><a href="/ko/network/en-kw"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/6e998cfc-5f2d-4903-9d00-d916ee511ff9.jpg" alt="KUWAIT ">쿠웨이트</a></li>
+				<li><a href="/ko/network/en-tj"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/aef54d57-27b6-4a6b-ae09-6b5dc877aabc.jpg" alt="TAJIKISTAN ">타지키스탄</a></li>
+				<li><a href="/ko/network/en-tz"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/273d3088-1f3c-4c66-9721-24e366d7ac48.jpg" alt="탄자니아 국기 ">탄자니아</a></li>
+				<li><a href="/ko/network/th-th"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/da30d307-0f18-48d8-b7a0-8fe862d530a8.jpg" alt="태국 국기 ">태국</a></li>
+				<li><a href="/ko/network/en-tr"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/01ab6fcb-3501-4220-88f0-a52fed2a2882.jpg" alt="TURKEY">터키</a></li>
+				<li><a href="/ko/network/en-tm"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/cde48291-0221-4d67-8a77-9b5c036c62f8.jpg" alt="투르크메니스탄 국기이미지">투르크메니스탄</a></li>
+				<li><a href="/ko/network/en-ph"><img class="img-flag" src="https://www.cjlogistics.com/cjlwupload/countryInfo/4729b717-78d2-4540-b90c-0aa2be98fd24.jpg" alt="필리핀 국기 ">필리핀</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="util_menu">
+		<div class="util">
+			<a id="userInfo" href="javascript:fn_login();">로그인</a>
+			<a href="#">회원가입</a>
+			<!-- <a href="#" class="btn_system">고객시스템</a> -->
+			<a href="javascript:fn_pageMove();" class="btn_system">고객시스템</a>
+		</div>
+		<ul class="menu">
+			<li><a href="sub01.html">사업안내</a></li>
+			<li><a href="sub02.html">APP 이용안내</a></li>
+			<li><a href="sub03_01.html">고객지원</a></li>
+		</ul>
+	</div>
+	<div class="btm_line"></div>
+</div>
+
+<div id="fullpage">
+	<!-- /main -->
+	<div class="section" id="section0">
+		<video id="myVideo" loop muted data-autoplay style="/*background:#0c3e5d; opacity:0.5; z-index:10000;*/">
+			<source src="../vod/a_main.mp4" type="video/mp4">
+			<source src="../vod/a_main.webm" type="video/webm">
+		</video>
+		<div class="layer" style="z-index:100000;">
+			<div class="vis_tx_wrap">
+				<p class="tx01">언제 어디서나 모두의 <span class="spc_f">“</span><span class="eng">HELLO</span><span class="spc_l">”</span></p>
+				<p class="tx02">
+					<span style="font-family:'NSKB';">최상의 물류서비스 최고의 가치를 추구하는 Hello 화물정보망</span><br/>
+					<!-- Hello가 지향하는  최고의 가치는 차주님의 성장과 발전입니다 -->
+				</p>
+			</div>
+		</div>
+		<div class="vis_btm_box_wrap">
+			<div class="vis_btm_box">
+				<div class="bx01">
+					고객문의 <span class="num">1855-1234</span>
+					<p class="time">09:00 ~18:00 (토,일,공휴일 휴무)</p>
+				</div>
+				<div class="bx02">
+					고객의 관점으로 새롭게 바뀌었습니다.
+					<!-- <a href="/NKFR/nkfr/index_w.html" class="btn01">Hello 고객시스템<img src="../img/vis_btn_bg01.png" alt="" style="position:absolute; right:-12px; bottom:-3px;" /></a>사용자단 링크 버튼 -->
+					<a href="javascript:fn_pageMove();" class="btn01 flash">Hello 고객시스템<img src="../img/vis_btn_bg01.png" alt="" style="position:absolute; right:-12px; bottom:-3px;" /></a><!-- 사용자단 링크 버튼 -->
+				</div>
+				<div class="bx03">
+					보다 빠르게 물류서비스를 이용하세요.
+					<a href="#" onClick="popOpen('pop_ty01');" class="btn01">빠른 화물 등록<img src="../img/vis_btn_bg01.png" alt="" style="position:absolute; right:-12px; bottom:-3px;" /></a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- //main -->
+
+	<!-- order -->
+	<div class="section z_pl" id="section1" style="/*background:url('../img/img01.png') no-repeat center top;*/">
+		<!-- <p style="position:absolute; top:343px; left:0; width:200px; height:90px; background:#0079c3; z-index:10;"></p> line -->
+		<p id="move04_01"></p>
+		<p id="move04_02"></p>
+		<p id="move04_03"></p>
+		<p id="move01"></p>
+		<p id="move03_01"></p>
+		<p id="move03_02"></p>
+		<div class="wrap_sec1">
+			<div class="tit_area">
+				<p class="tit">SERVICE</p>
+				<p class="tit_tx">대한민국 최대 물류 네트워크 및 인프라를 바탕으로 최상의 서비스를 제공합니다</p>
+			</div>
+			<div class="tab_area">
+				<ul>
+					<li class="a_right on">
+						<p><a href="javascript:void(0);">화물 현황</a><span>1,278</span></p>
+						<img src="../img/bg_menu_l.png" alt="" class="img_bg" />
+					</li>
+					<li class="a_left off">
+						<img src="../img/bg_menu_r.png" alt="" class="img_bg" />
+						<p><a href="javascript:void(0);">공차 현황</a><span>678</span></p>
+					</li>
+				</ul>
+			</div>
+			<div class="cont_wrap" style="position:relative; height:362px; padding-top:37px; background:#fff; z-index:100;">
+				<!-- tab -->
+				<div class="tab_ty01">
+					<ul>
+						<li class="active">
+							<p>수도권</p>
+							<div class="inner_tb" style="display:block;">
+								<div class="board_wrap">
+									<table cellspacing="0" cellpadding="0" class="board_common" summary="강원권 테이블로 상차지, 하차지, 품목, 차종, 톤수, 운임요금, 남은시간의 항목으로 구성되어 있습니다.">
+										<caption>수도권</caption>
+										<colgroup>
+										<col width="80" />
+										<col width="110" />
+										<col width="*" />
+										<col width="255" />
+										<col width="190" />
+										<col width="105" />
+										<col width="105" />
+										<col width="105" />
+										</colgroup>
+										<thead>
+										<tr>
+											<th>의뢰상태</th>
+											<th>남은시간</th>
+											<th>상하차일시</th>
+											<th>상차지</th>
+											<th>하차지</th>
+											<th>품목</th>
+											<th>요청차량</th>
+											<th>운송료</th>
+										</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>배차요청</td>
+												<td>0일 01:53분</td>
+												<td>11/12 15:00 ~ 11/12 15:00</td>
+												<td class="title01">경기도 군포시 부곡동 한국복합물류(주)</td>
+												<td class="title01">경남 창원시 성산동76번지</td>
+												<td>일반컨테이너</td>
+												<td>트렉터 30톤</td>
+												<td>***,***원</td>
+											</tr>
+											<tr>
+												<td>배차요청</td>
+												<td>0일 01:53분</td>
+												<td>11/12 15:00 ~ 11/12 15:00</td>
+												<td class="title01">경기도 가평군 북면</td>
+												<td class="title01">경남 창원시 성산동76번지</td>
+												<td>일반컨테이너</td>
+												<td>트렉터 30톤</td>
+												<td>***,***원</td>
+											</tr>
+											<tr>
+												<td>배차요청</td>
+												<td>0일 01:52분</td>
+												<td>11/12 15:00 ~ 11/12 15:00</td>
+												<td class="title01">경기도 화성시 양감면</td>
+												<td class="title01">경남 창원시 성산동76번지</td>
+												<td>일반컨테이너</td>
+												<td>트렉터 30톤</td>
+												<td>***,***원</td>
+											</tr>
+											<tr>
+												<td>배차요청</td>
+												<td>0일 01:52분</td>
+												<td>11/12 15:00 ~ 11/13 09:00</td>
+												<td class="title01">경기도 안성시 미양면</td>
+												<td class="title01">부산</td>
+												<td>자동차부품</td>
+												<td>카고 5톤</td>
+												<td>***,***원</td>
+											</tr>
+											<tr class="last">
+												<td>배차요청</td>
+												<td>0일 02:52분</td>
+												<td>11/12 16:00 ~ 11/13 09:00</td>
+												<td class="title01">경기도 화성시 향남읍</td>
+												<td class="title01">부산</td>
+												<td>자동차부품</td>
+												<td>카고 18톤</td>
+												<td>***,***원</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</li>
+						<li>
+							<p>강원권</p>
+							<div class="inner_tb">
+								<div class="board_wrap">
+									<table cellspacing="0" cellpadding="0" class="board_common" summary="강원권 테이블로 상차지, 하차지, 품목, 차종, 톤수, 운임요금, 남은시간의 항목으로 구성되어 있습니다.">
+										<caption>강원권</caption>
+										<colgroup>
+										<col width="80" />
+										<col width="110" />
+										<col width="*" />
+										<col width="255" />
+										<col width="190" />
+										<col width="105" />
+										<col width="105" />
+										<col width="105" />
+										</colgroup>
+										<thead>
+										<tr>
+											<th>의뢰상태</th>
+											<th>남은시간</th>
+											<th>상하차일시</th>
+											<th>상차지</th>
+											<th>하차지</th>
+											<th>품목</th>
+											<th>요청차량</th>
+											<th>운송료</th>
+										</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>배차요청</td>
+												<td>0일 02:52분</td>
+												<td>11/12 16:00 ~ 11/13 09:00</td>
+												<td class="title01">강원도 화천군 화천읍</td>
+												<td class="title01">서울특별시 강서구</td>
+												<td>식품류</td>
+												<td>트렉터 30톤</td>
+												<td>***,***원</td>
+											</tr>
+											<tr>
+												<td>배차요청</td>
+												<td>0일 02:51분</td>
+												<td>11/12 16:00 ~ 11/13 09:00</td>
+												<td class="title01">강원도 화천군 화천읍</td>
+												<td class="title01">경남 창원시 성산동76번지</td>
+												<td>식품류</td>
+												<td>카고 2.5톤</td>
+												<td>***,***원</td>
+											</tr>
+											<tr>
+												<td>배차요청</td>
+												<td>0일 02:51분</td>
+												<td>11/12 16:00 ~ 11/13 09:00</td>
+												<td class="title01">강원도 평창군 대관령면</td>
+												<td class="title01">충남 천안시 동남구</td>
+												<td>식품류</td>
+												<td>카고 5톤</td>
+												<td>***,***원</td>
+											</tr>
+											<tr>
+												<td>배차요청</td>
+												<td>0일 02:51분</td>
+												<td>11/12 16:00 ~ 11/13 09:00</td>
+												<td class="title01">강원도 화천군 화천읍</td>
+												<td class="title01">경기 김포시</td>
+												<td>식품류</td>
+												<td>카고 5톤</td>
+												<td>***,***원</td>
+											</tr>
+											<tr class="last">
+												<td>배차요청</td>
+												<td>0일 02:51분</td>
+												<td>11/12 16:00 ~ 11/13 09:00</td>
+												<td class="title01">강원도 평창군 대관령면</td>
+												<td class="title01">충남 천안시 동남구</td>
+												<td>식품류</td>
+												<td>카고 11톤</td>
+												<td>***,***원</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</li>
+						<li>
+							<p>호남권</p>
+							<div class="inner_tb">
+								<div class="board_wrap">
+									<table cellspacing="0" cellpadding="0" class="board_common" summary="호남권 테이블로 상차지, 하차지, 품목, 차종, 톤수, 운임요금, 남은시간의 항목으로 구성되어 있습니다.">
+										<caption>호남권</caption>
+										<colgroup>
+										<col width="80" />
+										<col width="110" />
+										<col width="*" />
+										<col width="255" />
+										<col width="190" />
+										<col width="105" />
+										<col width="105" />
+										<col width="105" />
+										</colgroup>
+										<thead>
+										<tr>
+											<th>의뢰상태</th>
+											<th>남은시간</th>
+											<th>상하차일시</th>
+											<th>상차지</th>
+											<th>하차지</th>
+											<th>품목</th>
+											<th>요청차량</th>
+											<th>운송료</th>
+										</tr>
+										</thead>
+										<tbody>
+											<tr clas="last">
+												<td colspan="8">
+													<div style="height:204px; line-height:204px; text-align:center;">데이터가 없습니다</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</li>
+						<li>
+							<p>영남권</p>
+							<div class="inner_tb">
+								<div class="board_wrap">
+									<table cellspacing="0" cellpadding="0" class="board_common" summary="영남권 테이블로 상차지, 하차지, 품목, 차종, 톤수, 운임요금, 남은시간의 항목으로 구성되어 있습니다.">
+										<caption>영남권</caption>
+										<colgroup>
+										<col width="80" />
+										<col width="110" />
+										<col width="*" />
+										<col width="255" />
+										<col width="190" />
+										<col width="105" />
+										<col width="105" />
+										<col width="105" />
+										</colgroup>
+										<thead>
+										<tr>
+											<th>의뢰상태</th>
+											<th>남은시간</th>
+											<th>상하차일시</th>
+											<th>상차지</th>
+											<th>하차지</th>
+											<th>품목</th>
+											<th>요청차량</th>
+											<th>운송료</th>
+										</tr>
+										</thead>
+										<tbody>
+											<tr clas="last">
+												<td colspan="8">
+													<div style="height:204px; line-height:204px; text-align:center;">데이터가 없습니다</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</li>
+						<li class="last">
+							<p>충청권</p>
+							<div class="inner_tb">
+								<div class="board_wrap">
+									<table cellspacing="0" cellpadding="0" class="board_common" summary="충청권 테이블로 상차지, 하차지, 품목, 차종, 톤수, 운임요금, 남은시간의 항목으로 구성되어 있습니다.">
+										<caption>충청권</caption>
+										<colgroup>
+										<col width="80" />
+										<col width="110" />
+										<col width="*" />
+										<col width="255" />
+										<col width="190" />
+										<col width="105" />
+										<col width="105" />
+										<col width="105" />
+										</colgroup>
+										<thead>
+										<tr>
+											<th>의뢰상태</th>
+											<th>남은시간</th>
+											<th>상하차일시</th>
+											<th>상차지</th>
+											<th>하차지</th>
+											<th>품목</th>
+											<th>요청차량</th>
+											<th>운송료</th>
+										</tr>
+										</thead>
+										<tbody>
+											<tr clas="last">
+												<td colspan="8">
+													<div style="height:204px; line-height:204px; text-align:center;">데이터가 없습니다</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+				<!-- //tab -->
+			</div>
+
+			<div class="btn_area">
+				<a href="#" class="btn01">더 많은 운송오더를 확인하세요</a>
+			</div>
+		</div>
+	</div>
+	<!-- //order -->
+
+	<!-- service -->
+	<div class="section" id="section2">
+		<script src="../js/jquery.min.js"></script>
+		<script src="../js/jquery.bxslider.min.js"></script>
+		<div class="main_visual">
+			<div class="box">
+				<div class="sec2_top_area">
+					<div class="inner_box">
+						<div class="tit">BENEFITS</div>
+						<div class="service_tab bt_control">
+							<a href="#" data-slide-index="0" style="border-right:none;">화주</a>
+							<a href="#" data-slide-index="1">차주</a>
+						</div>
+					</div>
+				</div>
+				<ul class="rolling">
+					<li class="ct_01">
+						<div class="sc2_wrap">
+							<div class="sec2_tx_box">
+								<div class="in_bx">
+									<p class="tx_line">
+										운송서비스가 필요하신가요?
+										<span class="line01"></span>
+									</p>
+									<dl>
+										<dt>01. 편리한 운송요청 및 결제</dt>
+										<dd>모바일APP과 전문화 된 고객시스템을 통해 <br/>
+											편리하게 운송요청과 결제가 가능합니다.</dd>
+									</dl>
+									<dl>
+										<dt>02. 전국 어디나 가능</dt>
+										<dd>CJ 대한통운의 전국 네트워크를 통해 <br/>
+											전국 어디에나 차주분들이 대기하고 있습니다.</dd>
+									</dl>
+									<dl>
+										<dt>03. 더욱 안전하고 정확한 운송</dt>
+										<dd>검증된 차주분들이 고객님의 화물을 운송하며, <br/>
+											모바일 APP을 통해 운송상태를 알 수 있습니다.</dd>
+									</dl>
+								</div>
+							</div>
+							<div class="inner_box"></div>
+						</div>
+					</li>
+	    			<li class="ct_02">
+	    				<div class="sc2_wrap">
+		    				<div class="sec2_tx_box">
+								<div class="in_bx">
+									<p class="tx_line">
+										더 많은 일감이 필요하세요?
+										<span class="line01"></span>
+									</p>
+									<dl>
+										<dt>01. 한 번의 터치로 운송요청</dt>
+										<dd>전용 모바일앱을 통해화물을 검색하고 <br/>
+											한 번의 터치로 운송요청이 가능합니다.</dd>
+									</dl>
+									<dl>
+										<dt>02. 신뢰의 CJ대한통운</dt>
+										<dd>Hello 화물정보망이 보증하는 투명한 결제시스템으로 <br/>
+											더 이상 운송료 분쟁이 없습니다.</dd>
+									</dl>
+									<dl>
+										<dt>03. 더 많은 일감, 더 많은 수익</dt>
+										<dd>원하는 지역, 금액을 직접 선택하여 운송할 수 있습니다. <br/>
+											지금 바로 운송오더를 확인하세요.</dd>
+									</dl>
+								</div>
+							</div>
+		    				<div class="inner_box"></div>
+		    			</div>
+	    			</li>
+	    		</ul>
+	    		<div class="control_wrap">
+					<div class="btns_lr_n" id="btns_lr_n">
+						<span class="slider-prev"></span>
+						<div id="pager_n" class="pager_n bt_control">
+							<a data-slide-index="0" href="">1</a>
+							<a data-slide-index="1" href="">2</a>
+						</div>
+						<!-- <img src="../img/btn_stop.png" alt="" style="display:inline-block; margin-left:4px; vertical-align:top;" /> -->
+						<span class="slider-next"></span>
+					</div>
+				</div>
+	    	</div>
+		</div>
+		<script>
+		$(function() {
+			$('.main_visual .box .rolling').bxSlider({
+				mode:'horizontal',
+				auto: false,
+				autoControls: false,
+				pagerCustom: '.bt_control',
+				nextSelector: '.slider-next',
+				prevSelector: '.slider-prev'
+			});
+		});
+		</script>
+
+		<div id="move02"></div>
+	</div>
+	<!-- //service -->
+
+	<!-- footer -->
+	<div class="section fp-auto-height" id="section3" style="overflow:auto;/*background:url('../img/ft_common.png') no-repeat center top;*/">
+		<div class="footer myContent">
+			<div class="ft_menu">
+				<div class="inner_box">
+					<ul>
+						<li><a href="#">CJ대한통운</a></li>
+						<li><a href="#">법적고지</a></li>
+						<li><a href="#">이용약관</a></li>
+						<li><a href="#">이메일 무단수집거부</a></li>
+						<li class="last"><a href="#">위치기반 서비스 이용약관</a></li>
+					</ul>
+					<div class="sel_group box-familySite">
+						<a href="javascript:void(0);" class="btn_family">그룹 계열사 바로가기<span class="icon"></span></a>
+						<div class="list-family">
+							<ul>
+								<li>
+									<span class="tt-1">CJ그룹</span>
+									<ul>
+										<li><a href="http://www.cj.net/" target="_blank" title="새창">CJ주식회사</a></li>
+									</ul>
+								</li>
+								<li>
+									<span class="tt-1">식품&amp;식품 서비스</span>
+									<ul>
+										<li><a href="http://www.cj.co.kr/cj-kr/" target="_blank" title="새창">CJ제일제당(식품)</a></li>
+										<li><a href="http://www.cjfreshway.com" target="_blank" title="새창">CJ프레시웨이</a></li>
+										<li><a href="https://www.cjfoodville.co.kr" target="_blank" title="새창">CJ푸드빌</a></li>
+										<li><a href="http://www.md1.co.kr" target="_blank" title="새창">CJ엠디원</a></li>
+									</ul>
+								</li>
+							
+								<li>
+									<span class="tt-1">생명공학</span>
+									<ul>
+										<li><a href="http://www.cj.co.kr/cj-kr/businesses/4/main" target="_blank" title="새창">CJ제일제당(바이오)</a></li>
+									</ul>
+								</li>
+							
+								<li>
+									<span class="tt-1">신유통</span>
+									<ul>
+										<li><a href="http://www.cjoshopping.com" target="_blank" title="새창">CJ ENM(오쇼핑)</a></li>
+										<li><a href="http://www.cjlogistics.com/ko/main" target="_blank" title="새창">CJ대한통운</a></li>
+										<li><a href="http://www.cjtelenix.com" target="_blank" title="새창">CJ텔레닉스</a></li>
+										<li><a href="http://www.oliveyoung.co.kr/store/main/main.do" target="_blank" title="새창">CJ올리브네트웍스(올리브영)</a></li>
+									</ul>
+								</li>
+							
+								<li>
+									<span class="tt-1">엔터테인먼트&amp;미디어</span>
+									<ul>
+										<li><a href="http://www.cjenm.com" target="_blank" title="새창">CJ ENM(E&amp;M)</a></li>
+										<li><a href="http://www.cgv.co.kr" target="_blank" title="새창">CJ CGV</a></li>
+										<li><a href="http://www.cjhello.com" target="_blank" title="새창">CJ Hello</a></li>
+										<li><a href="http://www.cjpowercast.com" target="_blank" title="새창">CJ파워캐스트</a></li>
+									</ul>
+								</li>
+								<li>
+									<span class="tt-1">인프라</span>
+									<ul>
+										<li><a href="http://www.cjenc.co.kr" target="_blank" title="새창">CJ대한통운(건설)</a></li>
+										<li><a href="http://www.cjolivenetworks.co.kr/itbusiness/ " target="_blank" title="새창">CJ올리브네트웍스(IT사업)</a></li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="ft_btm">
+				<div class="inner_box">
+					<p class="ft_logo"><img src="../img/ft_logo.png" alt="" /></p>
+					<p class="ft_info">
+						CJ대한통운(주)사업자등록번호 : 110-81-05034 대표자: 박근희, 박근태, 김춘학 개인정보보호책임자 : 서병교<br/>
+						주소 : 서울특별시 중구 세종대로 9길 53 택배고객센터 : 1588-1255 (월~금 08:00 ~ 18:00 / 토 09:00 ~ 13:00)
+					</p>
+					<p class="ft_copyright">COPYRIGHT 2017 BY CJ Logistics Corporation ALL RIGHT RESERVED.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- //footer -->
+</div>
+
+<!-- 팝업 -->
+<div id="pop_ty01" class="pop_wrap01">
+	<div class="pop_opa"></div>
+	<div class="main_pop_ty01">
+		<div class="pop_tit_area">
+			<p>빠른 화물 등록</p>
+			<a href="#" class="btn_pop_close" onClick="popClose('pop_ty01');"><img src="../img/btn_pop_close.png" alt="닫기" /></a>
+		</div>
+		<div class="pop_cont">
+			<div class="board_wrap bg_line">
+				<table cellspacing="0" cellpadding="0" class="board_join" summary="빠른 화물 등록 테이블로 고객명, 연락처, 상차일시, 화물정보의 항목으로 구성되어 있습니다.">
+					<caption>빠른 화물 등록</caption>
+					<colgroup>
+					<col width="140" />
+					<col width="*" />
+					</colgroup>
+					<thead>
+						<th colspan="2"><span>정보 입력</span></th>
+					</thead>
+					<tbody>
+						<tr>
+							<th valign="top">고객명</th>
+							<td>
+								<input type="text" class="inp_ty01" style="width:250px;" />
+							</td>
+						</tr>
+						<tr>
+							<th valign="top">연락처</th>
+							<td>
+								<select class="sel_ty01" style="width:100px;">
+									<option></option>
+								</select>
+								<span class="line01">-</span>
+								<input type="text" class="inp_ty02" style="width:100px;" />
+								<span class="line01">-</span>
+								<input type="text" class="inp_ty02" style="width:100px;" />
+							</td>
+						</tr>
+						<tr>
+							<th valign="top">상차일시</th>
+							<td>
+								<input type="text" class="inp_ty01" style="width:140px;" />
+								<a href="#" class="btn_cal"><img src="../img/icon_cal.png" alt="달력" /></a>
+								<select class="sel_ty01" style="width:90px; margin-left:12px;">
+									<option></option>
+								</select>
+								<select class="sel_ty01" style="width:90px; margin-left:12px;">
+									<option></option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th valign="top">화물정보</th>
+							<td>
+								<textarea class="txa_pop01"></textarea>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="btm_btns center">
+				<a href="#" class="btn_next01">화물등록</a>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- //팝업 -->
+
+<!-- 공통팝업 -->
+<div class="main_pop_ty02" id="pop_common01" style="position:absolute; top:20px; left:30px;">
+	<div class="pop_tit_area">
+		<p>공지사항</p>
+		<a href="#" class="btn_pop_close" onClick="popClose('pop_common01');"><img src="../img/btn_pop_close.png" alt="닫기" /></a>
+	</div>
+	<div class="pop_cont">
+		<div class="board_wrap bg_line">
+			<table cellspacing="0" cellpadding="0" class="board_join" summary="공지사항 테이블로 제목, 내용의 항목으로 구성되어 있습니다.">
+				<caption>공지사항</caption>
+				<colgroup>
+				<col width="140" />
+				<col width="*" />
+				</colgroup>
+				<tbody>
+					<tr>
+						<th valign="top">제목</th>
+						<td>
+							공지사항 제목
+							<!-- <input type="text" class="inp_ty01" style="width:250px;" /> -->
+						</td>
+					</tr>
+					<tr>
+						<th valign="top">내용</th>
+						<td>
+							<div style="height:158px; line-height:24px; padding:10px 0; overflow-y:scroll;">
+							공지사항 내용<br/>
+							공지사항 내용<br/>
+							공지사항 내용<br/>
+							</div>
+							<!-- <textarea class="txa_pop01"></textarea> -->
+						</td>
+					</tr>
+					<tr>
+						<th valign="top">첨부파일</th>
+						<td>
+							첨부파일명 (다운로드 링크)
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="btm_btns center">
+			<a href="#" class="btn_next01" onClick="popClose('pop_notice');">닫기</a>
+		</div>
+
+		<div style="height:30px;">
+			<span class="input_chk">
+				<input type="checkbox" id="today" name="" /> 
+				<label for="today" class="">오늘 하루 보지 않음</label>
+			</span>
+		</div>
+	</div>
+</div>
+
+<div class="main_pop_ty02" id="pop_common02" style="position:absolute; top:20px; left:650px; margin:120px 0 0 0; z-index:1000;">
+	<div class="pop_tit_area">
+		<p>공지사항</p>
+		<a href="#" class="btn_pop_close" onClick="popClose('pop_common02');"><img src="../img/btn_pop_close.png" alt="닫기" /></a>
+	</div>
+	<div class="pop_cont">
+		<div class="board_wrap bg_line">
+			<table cellspacing="0" cellpadding="0" class="board_join" summary="공지사항 테이블로 제목, 내용의 항목으로 구성되어 있습니다.">
+				<caption>공지사항</caption>
+				<colgroup>
+				<col width="140" />
+				<col width="*" />
+				</colgroup>
+				<tbody>
+					<tr>
+						<th valign="top">제목</th>
+						<td>
+							공지사항 제목
+							<!-- <input type="text" class="inp_ty01" style="width:250px;" /> -->
+						</td>
+					</tr>
+					<tr>
+						<th valign="top">내용</th>
+						<td>
+							<div style="height:158px; line-height:24px; padding:10px 0; overflow-y:scroll;">
+							공지사항 내용<br/>
+							공지사항 내용<br/>
+							공지사항 내용<br/>
+							</div>
+							<!-- <textarea class="txa_pop01"></textarea> -->
+						</td>
+					</tr>
+					<tr>
+						<th valign="top">첨부파일</th>
+						<td>
+							첨부파일명 (다운로드 링크)
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="btm_btns center">
+			<a href="#" class="btn_next01" onClick="popClose('pop_notice');">닫기</a>
+		</div>
+
+		<div style="height:30px;">
+			<span class="input_chk">
+				<input type="checkbox" id="today" name="" /> 
+				<label for="today" class="">오늘 하루 보지 않음</label>
+			</span>
+		</div>
+	</div>
+</div>
+
+<div class="main_pop_ty02" id="pop_common03" style="position:absolute; top:20px; left:1270px; margin:120px 0 0 0; z-index:1000;">
+	<div class="pop_tit_area">
+		<p>공지사항</p>
+		<a href="#" class="btn_pop_close" onClick="popClose('pop_common03');"><img src="../img/btn_pop_close.png" alt="닫기" /></a>
+	</div>
+	<div class="pop_cont">
+		<div class="board_wrap bg_line">
+			<table cellspacing="0" cellpadding="0" class="board_join" summary="공지사항 테이블로 제목, 내용의 항목으로 구성되어 있습니다.">
+				<caption>공지사항</caption>
+				<colgroup>
+				<col width="140" />
+				<col width="*" />
+				</colgroup>
+				<tbody>
+					<tr>
+						<th valign="top">제목</th>
+						<td>
+							공지사항 제목
+							<!-- <input type="text" class="inp_ty01" style="width:250px;" /> -->
+						</td>
+					</tr>
+					<tr>
+						<th valign="top">내용</th>
+						<td>
+							<div style="height:158px; line-height:24px; padding:10px 0; overflow-y:scroll;">
+							공지사항 내용<br/>
+							공지사항 내용<br/>
+							공지사항 내용<br/>
+							</div>
+							<!-- <textarea class="txa_pop01"></textarea> -->
+						</td>
+					</tr>
+					<tr>
+						<th valign="top">첨부파일</th>
+						<td>
+							첨부파일명 (다운로드 링크)
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="btm_btns center">
+			<a href="#" class="btn_next01" onClick="popClose('pop_notice');">닫기</a>
+		</div>
+
+		<div style="height:30px;">
+			<span class="input_chk">
+				<input type="checkbox" id="today" name="" /> 
+				<label for="today" class="">오늘 하루 보지 않음</label>
+			</span>
+		</div>
+	</div>
+</div>
+<!-- //공통팝업 -->
+
+<script type="text/javascript" src="../dist/fullpage.js"></script>
+<script type="text/javascript" src="../js/examples.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+		$('#fullpage').fullpage({
+			verticalCentered: true,
+        sectionsColor: ['#000000', '#ffffff', '#0079c3', '#ffffff'],
+        navigation: true,
+        navigationPosition: 'right',
+        navigationTooltips: ['MAIN', 'ORDER', 'SERVICE', ''],
+        showActiveTooltip: true,
+		})
+	})
+</script>
+
+<script>
+$(document).ready(function(){
+	
+	$(".tab_ty01 li p").click(function(){
+		$(".inner_tb").css("display", "none");
+		$(".tab_ty01 li").removeClass("active");
+		$(this).parent().addClass("active");
+		$(this).parent().find(".inner_tb").css("display", "block");
+	});
+
+	$(".tab_area li.a_right a").click(function(){
+		$("li.a_right").removeClass("off");
+		$("li.a_right").addClass("on");
+		$("li.a_left").removeClass("on");
+		$("li.a_left").addClass("off");
+	});
+	$(".tab_area li.a_left a").click(function(){
+		$("li.a_left").removeClass("off");
+		$("li.a_left").addClass("on");
+		$("li.a_right").removeClass("on");
+		$("li.a_right").addClass("off");
+	});
+
+});
+</script>
+
+</body>
+</html>

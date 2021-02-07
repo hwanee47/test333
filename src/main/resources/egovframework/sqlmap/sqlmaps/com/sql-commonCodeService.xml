@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="commonCodeService">
+
+<!-- 개발가이드 1.2 명명규칙에 따라 조회 get + 의미있는명사 + List -->
+    <select id="getCodeList" resultClass="java.util.HashMap">
+		/*[sql-commonCodeService.xml][commonCodeService.getCodeList][공통코드리스트를 조회한다][it Oh] */
+		SELECT TKMC.CD_TCD      /** 코드유형을 구분하는 key value **/
+		      ,TKMC.CD          /** 코드값 **/
+		      ,TKMC.CD_TYP_NM   /** 코드유형명 ex) 거래처유형코드 **/
+		      ,TKMC.CD_NM       /** 코드명 **/
+		      ,TKMC.CD_DESC     /** 코드에 대한 구체적인 설명 **/
+		      ,TKMC.CD_ORDB     /** 각 코드간 출력순서를 정하는 필드 **/
+		      ,TKMC.OWN_SYS_CD  /** 업무 단위명 **/
+		      ,TKMC.REF_1       /** 참조 1 **/
+		      ,TKMC.REF_2       /** 참조 2 **/
+		      ,TKMC.REF_3       /** 참조 3 **/
+		      ,TKMC.REF_4       /** 참조 4 **/
+		      ,TKMC.REF_5       /** 참조 5 **/
+		      ,TKMC.REF_6       /** 참조 6 **/
+		      ,TKMC.PRNT_CD     /** 하위부모 코드 값 **/
+		FROM   TMDM_KFR_MC_CODE TKMC /** 공통코드(화물운송) **/
+		WHERE  TKMC.CD_TCD = #CD_TCD#
+		AND    TKMC.DEL_YN = 'N'
+		<isEqual property="CD_TCD" compareValue="CU309">
+		AND		CD IN ('1','2','3','4','5','6','7','8','9','10','11','12','13','15')
+		</isEqual>
+		<isNotEmpty property="REF_2" prepend="AND">
+		REF_2 = #REF_2#
+		</isNotEmpty>
+		ORDER BY CD_ORDB <!-- NULLS FIRST -->
+    </select>
+    
+    <select id="getListExeCorp" resultClass="java.util.HashMap">
+		/*[sql-commonCodeService.xml][commonCodeService.getListExeCorp][실행거점을 조회한다][it Oh] */
+		SELECT '0'              AS CNK           /** CHECK BOX COLUMN **/
+		      ,#gv_ipAddr#      AS CLIENTIP      /** CLIENT_IP ASIS에서는 MP에서 파라메터로 전송 **/
+		      ,#SEQ_NO#         AS SEQ_NO        /** 선택한 SEQ_NO **/
+		      ,#ID#             AS ID            /** 선택한 아이디  **/
+		      ,'01'             AS CORP_GB       /** 실행거점 **/
+		      ,TBCI.CORP_ID     AS CORP_ID       /** 회사 ID **/
+		      ,'N'              AS CORP_MSTR_YN  /** 대표마스터여부 **/
+		      ,'Y'              AS USE_YN        /** ASIS 사용여부 **/
+		      ,'N'              AS DEL_YN        /** ASIS 그대로 사용 COLUMN을 사용하지 않고 고정값으로 사용중 **/
+		      ,TBCI.ABBR_NM     AS CORP_NM       /** 거점을 나타내는 약어 명 **/
+		      ,#USER_ID#        AS INS_PERSON_ID /** 사용자 ID **/
+		      ,TBCI.CORP_ID     AS CD
+		      ,TBCI.ABBR_NM     AS CD_NM
+		FROM   TMDM_BP_CORP_IF TBCI  /** 실행거점 **/
+		WHERE  1=1
+		AND    TBCI.DEL_YN      = 'N'
+		AND (EXEC_ORG_YN = 'Y' OR  CORP_ID IN (SELECT CD FROM TMDM_KFR_MC_CODE WHERE CD_TCD = 'ETC_LEGACY_ORG' AND DEL_YN = 'N')) /** 고정조건 **/
+		AND (CORP_ID LIKE '00000%' OR CORP_ID IN (SELECT CD FROM TMDM_KFR_MC_CODE WHERE CD_TCD = 'ETC_LEGACY_ORG' AND DEL_YN = 'N'))
+		<isNotEmpty property="NAME" prepend="AND">
+		( TBCI.ABBR_NM LIKE '%' || #NAME# ||'%' OR TBCI.CORP_ID LIKE '%' || #NAME# ||'%' )
+		</isNotEmpty>
+		<isNotEmpty property="SELECT_ALL">
+			<isEqual property="SELECT_ALL" compareValue="N">
+				<isNotEqual property="G_AUTH_NO" compareValue="A0000001">
+				<isNotEqual property="G_AUTH_NO" compareValue="A0000384">
+			/**** 권한에 따른 거점 받아오기 (관리자이면 전체, 관리자가 아니면 사용자별 거점만) ****/
+				AND TBCI.CORP_ID in ( SELECT CORP_ID FROM TADM_KFR_USER_AUTH_DTL TKUAD
+				                  WHERE  TKUAD.DEL_YN  = 'N'
+				                  AND    TKUAD.CORP_GB = '01'
+				                  AND    TKUAD.ID      = #gv_userId#)
+				</isNotEqual>
+				</isNotEqual>
+			</isEqual>
+		</isNotEmpty>
+		ORDER BY ABBR_NM
+    </select>
+    
+    <select id="getListExeEqp" resultClass="java.util.HashMap">
+		/*[sql-commonCodeService.xml][commonCodeService.getListExeEqp][직영 위수탁 정보를 조회한다][it Oh] */
+		SELECT TCEI.OP_BL       AS OP_BL       /** 직영/위수탁의 실행거점 **/
+		      ,TBCI.ABBR_NM     AS ABBR_NM     /** 실행거점명 **/
+		      ,TCEI.EQP_CLS_CD  AS EQP_CLS_CD  /** 직영1 위수탁2 구분 **/
+		      ,CD01.CD_NM       AS EQP_CLS_NM  /** 직영 위수탁 구분 **/
+		      ,TCEI.VHCL_KND_CD AS VHCL_KND_CD /** 차량종류 **/
+		      ,CD02.CD_NM       AS VHCL_KND_NM /** 차량종류명 **/
+		      ,TCEI.TON_CD      AS TON_CD      /** 차량톤수 **/
+		      ,CD03.CD_NM       AS TON_NM      /** 차량톤수명 **/
+		      ,TCEI.CNTRL_NO    AS CNTRL_NO    /** 관리번호 **/
+		      ,TCEI.EQP_NO      AS EQP_NO      /** 차량번호 **/
+		      ,CASE WHEN TRIM(TCEI.MOBILE_NO) IS NULL      THEN '-'
+		            WHEN LENGTH(TRIM(TCEI.MOBILE_NO)) = 10 THEN SUBSTR(TRIM(TCEI.MOBILE_NO),0,3)||'-'||SUBSTR(TRIM(TCEI.MOBILE_NO),4,3)||'-'||'****'
+		            WHEN LENGTH(TRIM(TCEI.MOBILE_NO)) = 11 THEN SUBSTR(TRIM(TCEI.MOBILE_NO),0,3)||'-'||SUBSTR(TRIM(TCEI.MOBILE_NO),4,4)||'-'||'****'
+		            ELSE TCEI.MOBILE_NO END AS MOBILE_NO     /** 공백이면 - 현재 암호화 적용 안되어있음 화면표시는 010-1234-**** **/
+		      ,CASE WHEN TRIM(TCEI.MOBILE_NO) IS NULL      THEN '-'
+		            WHEN LENGTH(TRIM(TCEI.MOBILE_NO)) = 10 THEN SUBSTR(TRIM(TCEI.MOBILE_NO),0,3)||'-'||SUBSTR(TRIM(TCEI.MOBILE_NO),4,3)||'-'||SUBSTR(TRIM(TCEI.MOBILE_NO),7,4)
+		            WHEN LENGTH(TRIM(TCEI.MOBILE_NO)) = 11 THEN SUBSTR(TRIM(TCEI.MOBILE_NO),0,3)||'-'||SUBSTR(TRIM(TCEI.MOBILE_NO),4,4)||'-'||SUBSTR(TRIM(TCEI.MOBILE_NO),8,4)
+		            ELSE TCEI.MOBILE_NO END AS MOBILE_NO_ORI /** 원래 마스킹 처리 안된 번호 010-1234-5678 **/
+		      ,TCEI.DRVR_CD      AS DRVR_CD         /** 운전자 CODE **/
+		      ,TDII.EMP_NM       AS EMP_NM          /** 운전자명 **/
+		      ,FN_GET_MOBILE_NUMBER(TCEI.SPOT_TEL_NO,'*')  AS SPOT_TEL_NO     /** 운전자 CODE 현재 암호화 적용 안되어있음 화면표시는 010-1234-**** **/
+		      ,TCEI.SPOT_TEL_NO  AS SPOT_TEL_NO_ORI /** 운전자 CODE 원래 마스킹 처리 안된 번호 010-1234-5678 TODO **/
+		      ,TCEI.CONSIGN_COMP AS CONSIGN_COMP    /** 위수탁사업자번호 **/
+		      ,DECODE(TCEI.MANAGE_YN,'N','0','Y','1','0')			AS MANAGE_YN
+		      ,DECODE(TCEI.CENTER_MANAGE_YN,'N','0','Y','1','0') 	AS CENTER_MANAGE_YN
+		FROM   TMDM_CT_EQP_IF   TCEI  
+		      ,TMDM_BP_CORP_IF  TBCI  /** 실행거점 **/
+		      ,TMDM_KFR_MC_CODE CD01  /** 차량운영구분 **/
+		      ,TMDM_KFR_MC_CODE CD02  /** 차량종류 **/
+		      ,TMDM_KFR_MC_CODE CD03  /** 차량톤수 **/
+		      ,TMDM_DR_INFO_IF  TDII  /** 운전자정보 **/
+		WHERE  1=1
+		<isNotEmpty prepend="AND" property="CORP_ID">
+		TCEI.OP_BL     = #CORP_ID# /** P 실행거점 **/
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="EQP_CLS_CD">
+		TCEI.EQP_CLS_CD  = #EQP_CLS_CD# /** P 차량운영구분 **/
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="VHCL_KND_CD">
+		TCEI.VHCL_KND_CD = #VHCL_KND_CD# /** P 차량종류 **/
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="TON_CD">
+		TCEI.TON_CD      = #TON_CD# /** P 차량톤수 **/
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="CNTRL_NO">
+		TCEI.CNTRL_NO LIKE '%'||#CNTRL_NO#||'%' /** P 관리번호 **/
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="EQP_NO">
+		TCEI.EQP_NO   LIKE '%'||#EQP_NO#||'%'   /** P 차량번호 **/
+		</isNotEmpty>
+		<isNotEmpty property="RADIO_CD">
+			<isEqual property="RADIO_CD" compareValue="AD">
+			AND		TCEI.MANAGE_YN = 'Y'
+			</isEqual>
+			<isEqual property="RADIO_CD" compareValue="PD">
+			AND		TCEI.CENTER_MANAGE_YN = 'Y'
+			</isEqual>
+		</isNotEmpty>
+		AND    TCEI.DEL_YN  (+) = 'N'
+		AND    CD01.DEL_YN  (+) = 'N'
+		AND    CD01.CD_TCD  (+) = 'EQP_CLS_CD'
+		AND    CD02.DEL_YN  (+) = 'N'
+		AND    CD02.CD_TCD  (+) = 'CM038'
+		AND    CD03.DEL_YN  (+) = 'N'
+		AND    CD03.CD_TCD  (+) = 'CM039'
+		AND    TBCI.CORP_ID (+) = TCEI.OP_BL
+		AND    CD01.CD      (+) = TCEI.EQP_CLS_CD
+		AND    CD02.CD      (+) = TCEI.VHCL_KND_CD
+		AND    CD03.CD      (+) = TCEI.TON_CD
+		AND    TDII.EMP_ID  (+) = TCEI.DRVR_CD
+		AND    TCEI.EQP_SCD     = '1'
+		AND    TCEI.EQP_CLS_CD IN ('1', '2')
+        AND    (TCEI.CNTRL_NO LIKE 'C%' OR TCEI.CNTRL_NO LIKE 'T%')
+		ORDER BY TCEI.OP_BL , TCEI.EQP_CLS_CD , TCEI.CNTRL_NO
+    </select>
+    
+    <select id="getCostCenterList" resultClass="java.util.HashMap">
+	/*[sql-commonCodeService.sqlx][commonCodeService.getCostCenterList][코스트센터 조회][IJP][2015.06.18] */
+	SELECT
+		  0 AS CHK
+	    , #gv_ipAddr#					AS CLIENTIP
+	    , #SEQ_NO#						AS SEQ_NO			/* 선택한 SEQ_NO */
+	    , #gv_userId#					AS ID				/* 선택한 아이디 */
+	    , '02'							AS CORP_GB			/* 실행거점 */
+	    , REF_1							AS CORP_ID
+	    , 'N'							AS CORP_MSTR_YN		/* 대표마스터여부 */
+	    , 'Y'							AS USE_YN
+	    , 'N'							AS DEL_YN
+	    , CD_NM							AS CORP_NM
+	    , REF_4							AS CORP_NM_BACK
+	    , #gv_userId#					AS INS_PERSON_ID
+	    , REF_1							AS COST_CD
+	    , CD_NM							AS COST_NM
+	    , REF_4							AS COST_NM_BACK
+	FROM
+			TMDM_KFR_MC_CODE
+	WHERE
+			CD_TCD = 'CM109'
+	AND
+			DEL_YN = 'N'
+	<isNotEmpty property="NAME">
+	AND (CD_NM LIKE '%' || #NAME# || '%'  OR REF_1 LIKE '%' || #NAME# || '%' )
+	</isNotEmpty>
+	<isNotEmpty property="COST_CD">
+	AND REF_1 LIKE '%' || #COST_CD# || '%'
+	</isNotEmpty>
+	    <isEmpty  property="COST_GBN">
+	    	<isEqual property="G_MENU_SYS"  compareValue="M">
+	           AND CD IN (SELECT CD FROM TMDM_KFR_MC_CODE WHERE CD_TCD = 'ETC_LEGACY_COSTC' AND DEL_YN = 'N')
+	        </isEqual>
+	</isEmpty>
+	<isNotEmpty  property="COST_GBN">
+	    AND CD IN (SELECT CD FROM TMDM_KFR_MC_CODE WHERE CD_TCD = 'ETC_LEGACY_COSTC' AND DEL_YN = 'N')
+	</isNotEmpty>
+	/* 권한에 따른 거점 받아오기 (관리자이면 전체, 관리자가 아니면 사용자별 거점만) */
+	<isEqual property="SELECT_ALL"  compareValue="N">
+		<isNotEqual property="G_AUTH_NO"  compareValue="A0000001">
+		<isNotEqual property="G_AUTH_NO"  compareValue="A0000384">
+	    AND REF_1 in (SELECT CORP_ID
+	                    FROM TADM_KFR_USER_AUTH_DTL A
+	                   WHERE DEL_YN = 'N'
+	                     AND CORP_GB =  '02'
+	                     AND ID = #gv_userId#)
+		</isNotEqual>
+		</isNotEqual>
+	</isEqual>
+	ORDER BY CD_ORDB
+	</select>
+	 
+    <select id="getCostCenterListCombo" resultClass="java.util.HashMap">
+		SELECT  /*[sql-commonCodeService.xml][commonCodeService.getCostCenterListCombo][코스트센터 조회 ASIS 기준으로 SQL이 몇가지 존재한다..][IJP][2015.06.18] */
+		       0				AS CHK
+		      ,#gv_ipAddr#		AS clientIp
+		      ,#SEQ_NO#			AS SEQ_NO			/*선택한 SEQ_NO*/
+		      ,#gv_userId#		AS ID				/*선택한 아이디*/
+		      ,'02'				AS CORP_GB			/*실행거점*/
+		      ,TKMC.REF_1		AS CORP_ID
+		      ,'N'				AS CORP_MSTR_YN		/*대표마스터여부*/
+		      ,'Y'				AS USE_YN
+		      ,'N'				AS DEL_YN
+		      ,TKMC.REF_4		AS CORP_NM_BACK		/*이전 코드명이여서 현 코드명으로 변경*/
+		      ,TKMC.CD_NM		AS CORP_NM
+		      ,#gv_userId#		AS INS_PERSON_ID
+		      ,TKMC.REF_1		AS COST_CD
+		      ,TKMC.REF_4		AS COST_NM_BACK
+		      ,TKMC.CD_NM		AS COST_NM			/*이전 코드명이여서 현 코드명으로 변경*/
+ 		FROM   TMDM_KFR_MC_CODE TKMC
+		      ,TMDM_KFR_MC_CODE TKML
+		WHERE  TKMC.DEL_YN = 'N'
+		AND    TKMC.CD_TCD = 'CM109'
+		AND    TKML.DEL_YN = 'N'
+		AND    TKML.CD_TCD = 'CCL298'
+		AND    TKMC.REF_5  = TKML.CD
+		<isNotEmpty prepend="AND" property="NAME">
+		( TKMC.REF_4 LIKE '%' || #NAME# || '%'  OR   TKMC.REF_1 LIKE '%' || #NAME# || '%' )
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="COST_CD">
+		TKMC.REF_1 LIKE '%' || #COST_CD# || '%'
+		</isNotEmpty>
+		<isEmpty  property="COST_GBN">
+			<isEqual prepend="AND" property="G_MENU_SYS"  compareValue="M">
+			(TKML.REF_5  = 'CL001' OR TKMC.CD IN (SELECT CD FROM TMDM_KFR_MC_CODE WHERE CD_TCD = 'ETC_LEGACY_COSTC' AND DEL_YN = 'N'))  
+			</isEqual>
+		</isEmpty>
+		<isNotEmpty prepend="AND" property="COST_GBN">
+		( TKML.REF_5 = #COST_GBN# OR TKMC.CD IN (SELECT CD FROM TMDM_KFR_MC_CODE WHERE CD_TCD = 'ETC_LEGACY_COSTC' AND DEL_YN = 'N'))
+		</isNotEmpty>
+		/*권한에 따른 거점 받아오기 (관리자이면 전체, 관리자가 아니면 사용자별 거점만)*/
+		<isEqual property="SELECT_ALL"  compareValue="N">
+			<isNotEqual property="G_AUTH_NO"  compareValue="A0000001">
+				<isNotEqual property="G_AUTH_NO"  compareValue="A0000384">
+				AND	TKMC.REF_1 in ( SELECT CORP_ID
+									FROM   TADM_KFR_USER_AUTH_DTL A
+									WHERE  DEL_YN = 'N'
+							        AND    CORP_GB =  '02'
+					                AND    ID = #gv_userId#)
+				</isNotEqual>
+			</isNotEqual>
+		</isEqual>
+		ORDER BY TKMC.CD_NM
+    </select>
+	 
+    <select id="getArLcc" resultClass="java.util.HashMap">
+	SELECT  /*[sql-commonCodeService.xml][commonCodeService.getArLcc][비용항목을 조회한다.][서봉원][20131103] */
+	       TTLD.SUB_LCC_CD    AS CD
+	      ,TTLD.SUB_LCC_CD_NM AS CD_NM
+	FROM   TBCC_TR_LCC_DTL TTLD
+	      ,TBCC_TR_LCC_HD  TTLH
+	WHERE TTLD.DEL_YN    = 'N'
+	AND   TTLH.DEL_YN    = 'N'
+	AND   TTLH.ACITM_TCD = '10'
+	AND   TTLD.LCC_CD    = TTLH.LCC_CD
+	ORDER BY 1
+    </select>
+	 
+    <select id="getAddrSido" resultClass="java.util.HashMap">
+	/** [sql-commonCodeService.xml][commonCodeService.getAddrSido]
+	 *  시군구 , 읍면동에 대한 정보를 조회한다.
+	 *  [it Oh 2018.09.13]
+	 **/
+	SELECT DISTINCT CD1.LCL_ADDR_STATES
+	FROM   TMDM_GS_ZIP_IF CD1
+	WHERE  CD1.DEL_YN = 'N'
+	ORDER BY 1
+    </select>
+	 
+    <select id="getAddrSIgun" resultClass="java.util.HashMap">
+	/** [sql-commonCodeService.xml][commonCodeService.getAddrSIgun]
+	 *  시군구 , 읍면동에 대한 정보를 조회한다.
+	 *  [it Oh 2018.09.13]
+	 **/
+	SELECT DISTINCT CD2.LCL_ADDR_STATES , CD2.LCL_ADDR_CUNTY
+	FROM   TMDM_GS_ZIP_IF CD2
+	WHERE  CD2.DEL_YN = 'N'
+	AND TRIM(CD2.LCL_ADDR_CUNTY) IS NOT NULL
+	ORDER BY 1 , 2
+    </select>
+	 
+</sqlMap>

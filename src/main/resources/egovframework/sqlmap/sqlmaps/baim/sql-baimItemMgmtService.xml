@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimItemMgmtService">
+	
+	<select id="getPopItemInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimItemMgmtService.xml][baimItemMgmtService.getItemInfoList]
+		 *  [계약품목 조회 (팝업)]
+		 *  [KimJinHwan 2020.02.18]
+		 **/
+		SELECT
+			A.CNTR_ITEM_CD,
+			A.CNTR_ITEM_NM
+		FROM
+			TB_BAIM_CNTR_ITEM_C A
+		WHERE
+			A.CUST_ID = #CUST_ID#
+		AND A.CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		AND A.CNTR_START_YMD = #CNTR_START_YMD#
+		AND A.DEL_YN ='N'
+	</select>
+	
+	<select id="getItemInfoList" resultClass="java.util.HashMap">
+		/** [sql-baimItemMgmtService.xml][baimItemMgmtService.getItemInfoList]
+		 *  [계약품목 조회]
+		 *  [KimJinHwan 2020.02.18]
+		 **/
+		SELECT
+		    A.CUST_ID,             	 	/*기업고객번호*/
+		    C.CUST_NM,              	/*기업고객명*/
+		    B.SEND_CUST_NO,         	/*발송고객번호*/
+		    D.CUST_NM AS SEND_CUST_NM,  /*발송고객명*/
+		    A.CUST_MGMT_DLCM_CD,
+		    A.CNTR_START_YMD,
+		    A.CNTR_ITEM_CD,
+		    A.CNTR_ITEM_NM,
+		    A.DEL_YN,
+		    A.REG_EMP_ID,
+		    A.REG_DTIME,
+		    A.MODI_EMP_ID,
+		    A.MODI_DTIME
+		FROM
+		    TB_BAIM_CNTR_ITEM_C A,
+		    TB_BAIM_SEND_CUST_C B,
+		    TB_BAIM_CUST_LIST_C C,
+		    TB_BAIM_CUST_LIST_C D
+		WHERE
+		    A.CUST_ID = B.CUST_ID
+		AND A.CUST_MGMT_DLCM_CD = B.CUST_MGMT_DLCM_CD
+		AND A.CUST_ID = C.CUST_ID
+		AND B.SEND_CUST_NO = D.CUST_ID
+		AND A.CUST_ID = #CUST_ID#
+		AND A.CUST_MGMT_DLCM_CD = #CUST_MGMT_DLCM_CD#
+		AND A.CNTR_START_YMD = #CNTR_START_YMD#
+		ORDER BY A.CNTR_START_YMD, A.CUST_ID, D.CUST_NM, A.CNTR_ITEM_CD
+	</select>
+
+	
+	<insert id="insertItemInfo">
+		/** [sql-baimItemMgmtService.xml][baimItemMgmtService.insertItemInfo]
+		 *  [계약품목 등록]
+		 *  [KimJinHwan 2020.02.18]
+		 **/
+		INSERT INTO TB_BAIM_CNTR_ITEM_C
+		(
+			CUST_ID
+			,CUST_MGMT_DLCM_CD
+			,CNTR_START_YMD
+			,CNTR_ITEM_CD
+			,CNTR_ITEM_NM
+			,DEL_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#CUST_ID#
+			,#CUST_MGMT_DLCM_CD#
+			,#CNTR_START_YMD#
+			,#CNTR_ITEM_CD#
+			,#CNTR_ITEM_NM#
+			,'N'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+	</insert>
+	
+	<update id="updateItemInfo">
+		/** [sql-baimItemMgmtService.xml][baimItemMgmtService.updateItemInfo]
+		 *  [계약품목 수정]
+		 *  [KimJinHwan 2020.02.18]
+		 **/
+		 UPDATE TB_BAIM_CNTR_ITEM_C
+		 SET
+			CNTR_ITEM_CD	= #CNTR_ITEM_CD#
+			,CNTR_ITEM_NM	= #CNTR_ITEM_NM#
+			,DEL_YN			= #DEL_YN#
+		 	,MODI_EMP_ID	= #gv_userId#
+			,MODI_DTIME		= NOW()
+		 WHERE
+		 	 CUST_ID			= #CUST_ID#
+		 AND CUST_MGMT_DLCM_CD	= #CUST_MGMT_DLCM_CD#
+	</update>
+	
+	
+</sqlMap>

@@ -1,0 +1,815 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baimUserMgmtService">
+	
+	<select id="getCheckDupId" resultClass="java.util.HashMap">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.getCheckDupId]
+		 *  [아이디 중복 체크]
+		 *  [KimJinHwan 2020.03.02]
+		 **/
+		SELECT 
+		    ID
+		FROM 
+		    TADM_KFR_USER
+		WHERE
+			ID = #USER_ID#
+		AND DEL_YN = 'N'
+	</select>
+	
+	<select id="checkCustId" resultClass="int">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.checkCustId]
+		 *  [사용자 고객권한 중복 체크]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		SELECT
+			COUNT(*)
+		FROM
+			TB_WMS_USER_PER_CUST_AUTH_C
+		WHERE
+			USER_ID = #USER_ID#
+		AND CUST_ID = #CUST_ID#
+	</select>
+	
+	
+	<select id="getUserList" resultClass="java.util.HashMap">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.getUserList]
+		 *  [사용자 조회]
+		 *  [KimJinHwan 2020.03.02]
+		 **/
+		SELECT
+			'' AS CHK
+			,A.SHPR_ID
+			,B.CUST_NM AS SHPR_NM
+			,A.ID
+			,A.ID AS USER_ID
+			,'' AS PW
+			,A.NAME
+			,A.DUTY_DV
+			,A.TEL1
+			,A.TEL2
+			,FC_AES_DECRYPT(A.TEL3) AS TEL3
+			,CONCAT(A.TEL1, '-', A.TEL2, '-', FC_AES_DECRYPT(A.TEL3)) AS TEL_NO
+			,A.MOBILE1
+			,A.MOBILE2
+			,FC_AES_DECRYPT(A.MOBILE3) AS MOBILE3
+			,CONCAT(A.MOBILE1, '-', A.MOBILE2, '-', FC_AES_DECRYPT(A.MOBILE3)) AS MOBILE_NO
+			,FC_AES_DECRYPT(A.EMAIL1) AS EMAIL1
+			,A.EMAIL2
+			,CONCAT(FC_AES_DECRYPT(A.EMAIL1), '@', A.EMAIL2) AS EMAIL
+			,A.DEL_YN
+			,C.BRAN_CD
+			,D.BRAN_NM
+			,A.SYS_DV
+			,A.USER_TYPE
+		FROM
+			TADM_KFR_USER A
+			<!-- LEFT OUTER JOIN TB_WMS_CUST_MGMT_C B ON (A.SHPR_ID = B.SHIPPER_ID) -->
+			LEFT OUTER JOIN TB_BAIM_CUST_LIST_C B ON (A.SHPR_ID = B.CUST_ID) 
+			LEFT OUTER JOIN TB_BAIM_EMP_MGT_C C ON (A.ID=C.EMP_NO)
+			LEFT OUTER JOIN TB_BAIM_BRAN_MGT_C D ON (C.BRAN_CD=D.BRAN_CD)
+		WHERE
+			A.DEL_YN <![CDATA[<>]]> 'Y' 
+		AND IFNULL(A.USER_TYPE,'') NOT IN ('SUPER') /*RGB시스템관리자는 조회목록에서 제외.*/
+		<isNotEmpty property="USER_ID">
+		AND A.ID = #USER_ID#
+		</isNotEmpty>
+		<isNotEmpty property="USER_NM">
+		AND A.NAME LIKE CONCAT('%', #USER_NM#, '%')
+		</isNotEmpty>
+		<isNotEmpty property="USER_TYPE">
+		AND A.USER_TYPE = #USER_TYPE#
+		</isNotEmpty>
+		ORDER BY MOD_DT ASC
+	</select>
+	
+	
+	<select id="getGroupAuthListBefore" resultClass="java.util.HashMap">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.getGroupAuthListBefore]
+		 *  [등록되지않은 그룹권한 조회]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		SELECT
+			'' AS CHK
+			,#USER_ID# AS USER_ID
+		    ,A.AUTH_CD
+		    ,A.AUTH_NM
+		FROM
+		    TMDM_KFR_AUTH A
+		WHERE
+		    A.USE_YN = 'Y'
+		AND IFNULL(A.DEL_YN, 'N') = 'N'
+		AND A.AUTH_CD NOT IN ( SELECT AUTH_CD FROM TB_WMS_USER_PER_GRP_AUTH_C B WHERE B.USER_ID = #USER_ID#)
+		<isNotEqual property="gv_userType" compareValue="SUPER">
+		AND	IFNULL(A.AUTH_DV,'') NOT IN ('SUPER', 'ADMIN')	/*SUPER시스템관리자만 관리자권한 조회가능 */
+		</isNotEqual>
+	</select>
+	
+	
+	<select id="getGroupAuthListAfter" resultClass="java.util.HashMap">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.getGroupAuthListAfter]
+		 *  [등록된 그룹권한 조회]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		SELECT
+			'' AS CHK
+			,#USER_ID# AS USER_ID
+		    ,A.AUTH_CD
+		    ,B.AUTH_NM
+		FROM
+		    TB_WMS_USER_PER_GRP_AUTH_C A
+		    ,TMDM_KFR_AUTH B
+		WHERE
+			A.AUTH_CD = B.AUTH_CD
+		AND A.USER_ID = #USER_ID#
+	</select>
+	
+	
+	<select id="getWarehAuthListBefore" resultClass="java.util.HashMap">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.getWarehAuthListBefore]
+		 *  [등록되지 않은 창고권한 조회]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		SELECT
+		    '' AS CHK
+		    ,#USER_ID# AS USER_ID
+		    ,A.WAREH_CD
+		    ,A.WAREH_NM
+		    ,A.WAREH_DESC
+		FROM
+		    TB_WMS_WAREH_MGMT_MST_C A
+		WHERE
+			A.USE_YN = 'Y'
+		AND	A.WAREH_CD NOT IN (SELECT B.WAREH_CD FROM TB_WMS_USER_PER_WAREH_AUTH_C B WHERE B.USER_ID = #USER_ID#)
+	</select>
+	
+	
+	<select id="getWarehAuthListAfter" resultClass="java.util.HashMap">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.getWarehAuthListAfter]
+		 *  [등록된 창고권한 조회]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		SELECT
+		    '' AS CHK
+		    ,#USER_ID# AS USER_ID
+		    ,A.WAREH_CD
+		    ,B.WAREH_NM
+		    ,B.WAREH_DESC
+		FROM
+		    TB_WMS_USER_PER_WAREH_AUTH_C A
+		    ,TB_WMS_WAREH_MGMT_MST_C B
+		WHERE
+		    A.WAREH_CD = B.WAREH_CD
+		AND A.USER_ID = #USER_ID#
+	</select>
+	
+	<select id="getCustAuthList" resultClass="java.util.HashMap">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.getCustAuthList]
+		 *  [등록된 고객권한 조회]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		SELECT
+			'' AS CHK
+			,#USER_ID# AS USER_ID
+		    ,A.CUST_ID
+		    ,B.CUST_REPRE_NM AS CUST_NM
+		    ,CONCAT(B.BUSINESTAB_ADDR, ' ', FC_AES_DECRYPT(B.BUSINESTAB_DETAIL_ADDR)) AS ADDR
+		    ,B.CP_DV
+		FROM
+		    TB_WMS_USER_PER_CUST_AUTH_C A
+		    ,TB_WMS_CUST_MGMT_C B
+		WHERE
+		    A.CUST_ID = B.CUST_CD
+		AND A.USER_ID = #USER_ID#
+		AND B.CP_DV IN ('CP01', 'CP02')	/* 공통고객, 창고고객만 조회 */
+		    
+	</select>
+	
+	
+	
+	<select id="getCustAuthListBefore" resultClass="java.util.HashMap">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.getCustAuthList]
+		 *  [등록된 고객권한 조회]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		SELECT
+			'' AS CHK
+			,#USER_ID# AS USER_ID
+		    ,A.SHIPPER_ID AS CUST_ID
+		    ,A.CUST_REPRE_NM AS CUST_NM
+		    ,CONCAT(A.BUSINESTAB_ADDR, ' ', FC_AES_DECRYPT(A.BUSINESTAB_DETAIL_ADDR)) AS ADDR
+		    ,A.CP_DV
+		FROM
+		    TB_WMS_CUST_MGMT_C A
+		WHERE
+		    A.USE_YN = 'Y'
+		AND	A.SHIPPER_ID NOT IN (SELECT B.CUST_ID FROM TB_WMS_USER_PER_CUST_AUTH_C B WHERE B.USER_ID = #USER_ID#)
+		AND A.CP_DV IN ('CP01', 'CP02')	/* 공통고객, 창고고객만 조회 */    
+	</select>
+	
+	
+	
+	<select id="getCustAuthListAfter" resultClass="java.util.HashMap">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.getCustAuthListAfter]
+		 *  [등록된 고객권한 조회]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		SELECT
+			'' AS CHK
+			,#USER_ID# AS USER_ID
+		    ,A.CUST_ID
+		    ,B.CUST_REPRE_NM AS CUST_NM
+		    ,CONCAT(B.BUSINESTAB_ADDR, ' ', FC_AES_DECRYPT(B.BUSINESTAB_DETAIL_ADDR)) AS ADDR
+		    ,B.CP_DV
+		FROM
+		    TB_WMS_USER_PER_CUST_AUTH_C A
+		    ,TB_WMS_CUST_MGMT_C B
+		WHERE
+		    A.CUST_ID = B.SHIPPER_ID
+		AND A.USER_ID = #USER_ID#
+		AND B.CP_DV IN ('CP01', 'CP02')	/* 공통고객, 창고고객만 조회 */        
+	</select>
+	
+	<insert id="insertUserInfo">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.insertUserInfo]
+		 *  [사용자 추가(창고)]
+		 *  [KimJinHwan 2020.03.02]
+		 **/
+		INSERT INTO TB_BAIM_EMP_MGT_C
+		(
+			EMP_NO
+			, SYS_DV
+			, USER_TYPE
+			, BLNG_DV
+			, BRAN_CD
+			, EMP_DUTY_DV
+			, EMP_NM
+			, CELL_NO_1
+			, CELL_NO_2
+			, CELL_NO_3
+			, CP_TEL_NO_1
+			, CP_TEL_NO_2
+			, CP_TEL_NO_3
+			, USE_YN
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		)
+		VALUES
+		(
+			#ID#
+			,#SYS_DV#
+			,#USER_TYPE#
+			,(SELECT CUST_DV FROM TB_BAIM_CUST_LIST_C B WHERE B.CUST_ID=#SHPR_ID#) 
+			,#BRAN_CD#
+			,#DUTY_DV#
+			,#NAME#
+			,#MOBILE1#
+			,#MOBILE2#
+			,FC_AES_ENCRYPT(#MOBILE3#)
+			,#TEL1#
+			,#TEL2#
+			,FC_AES_ENCRYPT(#TEL3#)
+			,'Y'
+			,#gv_userId#
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+			,#gv_userId#
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		)
+		
+	</insert>
+	
+	
+	
+	<insert id="insertUserInfo2">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.insertUserInfo2]
+		 *  [사용자 추가(택배)]
+		 *  [KimJinHwan 2020.03.02]
+		 **/
+		INSERT INTO TADM_KFR_USER
+		(
+			SEQ_NO
+			,SYS_DV
+			,USER_TYPE
+			,DUTY_DV
+			,BLNG_DV
+			,SHPR_ID
+			,ID
+			,PW
+			,TEMPPW_MODIFY_YN
+			,NAME
+			,TEL1
+			,TEL2
+			,TEL3
+			,MOBILE1
+			,MOBILE2
+			,MOBILE3
+			,EMAIL1
+			,EMAIL2
+			,REG_ID
+			,REG_DT
+			,MOD_ID
+			,MOD_DT
+		)
+		VALUES
+		(
+			(SELECT IFNULL(MAX(SEQ_NO)+1,1) FROM TADM_KFR_USER A)
+			,#SYS_DV#
+			,#USER_TYPE#
+			,#DUTY_DV#
+			,(SELECT CUST_DV FROM TB_BAIM_CUST_LIST_C B WHERE B.CUST_ID=#SHPR_ID#)
+			,#SHPR_ID#
+			,#ID#
+			,FC_AES_ENCRYPT(#PW#)
+			,'N'
+			,#NAME#
+			,#TEL1#
+			,#TEL2#
+			,FC_AES_ENCRYPT(#TEL3#)
+			,#MOBILE1#
+			,#MOBILE2#
+			,FC_AES_ENCRYPT(#MOBILE3#)
+			,FC_AES_ENCRYPT(#EMAIL1#)
+			,#EMAIL2#
+			,#gv_userId#
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+			,#gv_userId#
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		)
+		
+	</insert>
+	
+	
+	<update id="updateUserInfo">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.updateUserInfo]
+		 *  [사용자 수정]
+		 *  [KimJinHwan 2020.03.02]
+		 **/
+		UPDATE TB_BAIM_EMP_MGT_C
+		SET
+			USER_TYPE = #USER_TYPE#
+			,SYS_DV = #SYS_DV#
+			,BLNG_DV = (SELECT CUST_DV FROM TB_BAIM_CUST_LIST_C B WHERE B.CUST_ID=#SHPR_ID#)
+			,BRAN_CD = #BRAN_CD#
+			,EMP_NM = #NAME#
+			,CP_TEL_NO_1 = #TEL1#
+			,CP_TEL_NO_2 = #TEL2#
+			,CP_TEL_NO_3 = FC_AES_ENCRYPT(#TEL3#)
+			,CELL_NO_1 = #MOBILE1#
+			,CELL_NO_2 = #MOBILE2#
+			,CELL_NO_3 = FC_AES_ENCRYPT(#MOBILE3#)
+			,USE_YN = #DEL_YN#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE
+			EMP_NO = #ID#
+	</update>
+	
+	<update id="updateUserInfo2">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.updateUserInfo2]
+		 *  [사용자 수정]
+		 *  [KimJinHwan 2020.03.02]
+		 **/
+		UPDATE TADM_KFR_USER
+		SET
+			USER_TYPE = #USER_TYPE#
+			,SYS_DV = #SYS_DV#
+			,SHPR_ID = #SHPR_ID#
+			,BLNG_DV = (SELECT CUST_DV FROM TB_BAIM_CUST_LIST_C B WHERE B.CUST_ID=#SHPR_ID#)
+			,NAME = #NAME#
+			,TEL1 = #TEL1#
+			,TEL2 = #TEL2#
+			,TEL3 = FC_AES_ENCRYPT(#TEL3#)
+			,MOBILE1 = #MOBILE1#
+			,MOBILE2 = #MOBILE2#
+			,MOBILE3 = FC_AES_ENCRYPT(#MOBILE3#)
+			,EMAIL1 = FC_AES_ENCRYPT(#EMAIL1#)
+			,EMAIL2 = #EMAIL2#
+			,DEL_YN = #DEL_YN#
+			,MOD_ID = #gv_userId#
+			,MOD_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		WHERE
+			ID = #ID#
+	</update>
+	
+	<update id="updateUserPw">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.updateUserPw]
+		 *  [비밀번호 수정]
+		 *  [KimJinHwan 2020.03.02]
+		 **/
+		UPDATE TADM_KFR_USER
+		SET
+			PW = FC_AES_ENCRYPT(#USER_PW#)
+			,TEMPPW_MODIFY_YN = 'Y'
+			,MOD_ID = #gv_userId#
+			,MOD_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		WHERE
+			ID = #USER_ID#
+	</update>
+	
+	
+	
+	<insert id="insertGroupAuthList">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.insertGroupAuthList]
+		 *  [사용자 그룹권한 추가]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		INSERT INTO TB_WMS_USER_PER_GRP_AUTH_C
+		(
+			USER_ID
+			,AUTH_CD
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#USER_ID#
+			,#AUTH_CD#
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+	</insert>
+	
+	
+	<delete id="deleteGroupAuthList">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.deleteGroupAuthList]
+		 *  [사용자 그룹권한 삭제]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		DELETE FROM TB_WMS_USER_PER_GRP_AUTH_C
+		WHERE
+			USER_ID = #USER_ID#
+		AND AUTH_CD = #AUTH_CD#
+	</delete>
+	
+	
+	<insert id="insertWarehAuthList">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.insertWarehAuthList]
+		 *  [사용자 창고권한 추가]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		INSERT INTO TB_WMS_USER_PER_WAREH_AUTH_C 
+		(
+			USER_ID
+			,WAREH_CD
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#USER_ID#
+			,#WAREH_CD#
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		 
+	</insert>
+	
+	
+	<delete id="deleteWarehAuthList">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.deleteWarehAuthList]
+		 *  [사용자 창고권한 삭제]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		DELETE FROM TB_WMS_USER_PER_WAREH_AUTH_C
+		WHERE
+			USER_ID = #USER_ID#
+		AND WAREH_CD = #WAREH_CD#
+	</delete>
+	
+	<insert id="mergeCustAuth">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.mergeCustAuth]
+		 *  [사용자 고객권한 저장]
+		 *  [KimJinHwan 2020.07.13]
+		 **/
+		INSERT INTO TB_WMS_USER_PER_CUST_AUTH_C
+		(
+			USER_ID
+			,CUST_ID
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#ID#
+			,#SHPR_ID#
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)
+		ON DUPLICATE KEY
+		UPDATE
+			MODI_EMP_ID     = #gv_userId#
+			,MODI_DTIME      = NOW()	
+	</insert>
+	
+	<insert id="insertCustAuthList">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.insertCustAuthList]
+		 *  [사용자 고객권한 추가]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		INSERT INTO TB_WMS_USER_PER_CUST_AUTH_C
+		(
+			USER_ID
+			,CUST_ID
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			#USER_ID#
+			,#CUST_ID#
+			,'Y'
+			,#gv_userId#
+			,NOW()
+			,#gv_userId#
+			,NOW()
+		)		
+	</insert>
+	
+	<delete id="deleteCustAuthAll">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.deleteCustAuthAll]
+		 *  [사용자 고객권한 전체삭제]
+		 *  [KimJinHwan 2020.07.14]
+		 **/
+		DELETE FROM TB_WMS_USER_PER_CUST_AUTH_C
+		WHERE
+			USER_ID = #USER_ID#
+	</delete>
+	
+	<delete id="deleteCustAuthList">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.deleteCustAuthList]
+		 *  [사용자 고객권한 삭제]
+		 *  [KimJinHwan 2020.03.03]
+		 **/
+		DELETE FROM TB_WMS_USER_PER_CUST_AUTH_C
+		WHERE
+			USER_ID = #USER_ID#
+		AND CUST_ID = #CUST_ID#
+	</delete>
+	
+	<update id="updateResetUserPw">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.updateResetUserPw]
+		 *  [사용자 비밀번호 초기화]
+		 *  [KimJinHwan 2020.07.13]
+		 **/
+		UPDATE TADM_KFR_USER
+		SET
+			PW = FC_AES_ENCRYPT((SELECT CD_NM FROM TMDM_MC_CODE_B TMCB WHERE TMCB.CD_TCD = 'SM1001' AND TMCB.CD = 'DFPW'))
+			,TEMPPW_MODIFY_YN = 'N'
+			,MOD_ID = #gv_userId#
+			,MOD_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		WHERE ID = #USER_ID#
+	</update>
+	
+	
+	<update id="updateUserDelYn_1">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.updateUserDelYn_1]
+		 *  [삭제여부 update]
+		 *  [KimJinHwan 2020.07.14]
+		 **/
+		UPDATE TB_BAIM_EMP_MGT_C
+		SET
+			DEL_YN = #DEL_YN#
+			,MODI_EMP_ID = #gv_userId#
+			,MODI_DTIME = NOW()
+		WHERE EMP_NO = #ID#
+	</update>
+	
+	<update id="updateUserDelYn_2">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.updateUserDelYn_2]
+		 *  [삭제여부 update]
+		 *  [KimJinHwan 2020.07.14]
+		 **/
+		UPDATE TADM_KFR_USER
+		SET
+			DEL_YN = #DEL_YN#
+			,MOD_ID = #gv_userId#
+			,MOD_DT = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		WHERE ID = #ID#
+	</update>
+	
+	
+	<insert id="insertSuper_1">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.insertSuper_1]
+		 *  [SUPER 계정 생성]
+		 *  [KimJinHwan 2020.07.17]
+		 **/
+		INSERT INTO TB_BAIM_EMP_MGT_C
+		(
+			EMP_NO
+			, SYS_DV
+			, USER_TYPE
+			, EMP_NM
+			, USE_YN
+			, REG_EMP_ID
+			, REG_DTIME
+			, MODI_EMP_ID
+			, MODI_DTIME
+		)
+		VALUES
+		(
+			'super'
+			,'GWDS'
+			,'SUPER'
+			,'RGB시스템관리자'
+			,'Y'
+			,'system'
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+			,'system'
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		)
+		
+	</insert>
+	
+	
+	
+	<insert id="insertSuper_2">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.insertSuper_2]
+		 *  [SUPER 계정 생성]
+		 *  [KimJinHwan 2020.07.17]
+		 **/
+		INSERT INTO TADM_KFR_USER
+		(
+			SEQ_NO
+			,SYS_DV
+			,USER_TYPE
+			,ID
+			,PW
+			,TEMPPW_MODIFY_YN
+			,NAME
+			,REG_ID
+			,REG_DT
+			,MOD_ID
+			,MOD_DT
+		)
+		VALUES
+		(
+			(SELECT IFNULL(MAX(SEQ_NO)+1,1) FROM TADM_KFR_USER A)
+			,'GWDS'
+			,'SUPER'
+			,'super'
+			,FC_AES_ENCRYPT('1111')
+			,'N'
+			,'RGB시스템관리자'
+			,'system'
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+			,'system'
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		)
+		
+	</insert>
+	
+	
+	<insert id="insertSuperAuth">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.insertSuperAuth]
+		 *  [SUPER 권한 생성]
+		 *  [KimJinHwan 2020.07.17]
+		 **/
+		INSERT INTO TMDM_KFR_AUTH
+		(
+			AUTH_CD
+			,AUTH_NM
+			,AUTH_DESC
+			,AUTH_DV
+			,USE_YN
+			,DEL_YN
+			,REG_ID
+			,REG_DT
+			,MOD_ID
+			,MOD_DT
+		)
+		VALUES
+		(
+			'SUPER'
+			,'RGB시스템관리자권한'
+			,'RGB시스템관리자권한입니다'
+			,'SUPER'
+			,'Y'
+			,'N'
+			,'system'
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+			,'system'
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		)
+		
+		
+	</insert>
+	
+	<insert id="insertSuperAuthDetail">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.insertSuperAuthDetail]
+		 *  [SUPER 권한 메뉴생성]
+		 *  [KimJinHwan 2020.07.17]
+		 **/
+		INSERT INTO TMDM_KFR_AUTH_DETAIL
+		(
+			MENU_CD
+			,AUTH_CD
+			,REG_ID
+			,REG_DT
+			,MOD_ID
+			,MOD_DT
+		)
+		SELECT
+			A.MENU_CD
+			,'SUPER'
+			,'system'
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+			,'system'
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		FROM
+			TMDM_KFR_MENU A
+		
+		
+	</insert>
+	
+	<insert id="insertSuperMenuBtnAuthDetail">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService."insertSuperMenuBtnAuthDetail"]
+		 *  [SUPER 메뉴버튼권한생성]
+		 *  [KimJinHwan 2020.07.17]
+		 **/
+		INSERT INTO TMDM_KFR_AUTH_DETAIL_BTN
+		(
+			AUTH_CD
+			,MENU_CD
+			,SEL_YN
+			,ADD_YN
+			,SAV_YN
+			,DEL_YN
+			,PRT_YN
+			,XLS_YN
+			,REG_ID
+			,REG_DT
+			,MOD_ID
+			,MOD_DT
+		)
+		SELECT
+			'SUPER'
+			,A.MENU_CD
+			,'1'
+			,'1'
+			,'1'
+			,'1'
+			,'1'
+			,'1'
+			,'system'
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+			,'system'
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		FROM
+			TMDM_KFR_AUTH_DETAIL A
+		WHERE
+			A.AUTH_CD = 'SUPER'
+		
+		
+	</insert>
+	
+	<insert id="insertSuperUserPerAuth">
+		/** [sql-baimUserMgmtService.xml][baimUserMgmtService.insertSuperUserPerAuth]
+		 *  [생성된 계정과 권한연결]
+		 *  [KimJinHwan 2020.07.17]
+		 **/
+		INSERT INTO TB_WMS_USER_PER_GRP_AUTH_C
+		(
+			USER_ID
+			,AUTH_CD
+			,USE_YN
+			,REG_EMP_ID
+			,REG_DTIME
+			,MODI_EMP_ID
+			,MODI_DTIME
+		)
+		VALUES
+		(
+			'super'
+			,'SUPER'
+			,'Y'
+			,'system'
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+			,'system'
+			,DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')
+		)
+		
+		
+	</insert>
+</sqlMap>
