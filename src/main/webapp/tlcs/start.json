@@ -125,7 +125,12 @@
         	"screenid":"Screen_D",
         	"launch":"./packageB.xadl.js",
         	"quickview":"./packageB.xadl.quickview.js",
-        	"form":[]
+        	"form":[
+        				"./frame/frameTop.xfdl.js",
+        		"./frame/frameLeft.xfdl.js",
+        		"./frame/frameMDI.xfdl.js",
+        		"./frame/frameBottom.xfdl.js"
+        	]
         }
         ],  
         "protocol" :

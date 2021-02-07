@@ -1,0 +1,784 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form id="form1" width="1330" height="800" titletext="배송출발" onload="form_onload" oninit="fnInitForm">
+    <Layouts>
+      <Layout description="배송출발" height="800" mobileorientation="landscape" width="1330" stepcount="0" screenid="Screen_D">
+        <Static id="sta10" taborder="9" text="" left="0" top="35" height="40" right="30" cssclass="top_search_ty01"/>
+        <Grid id="grd_master" taborder="5" left="0" top="sta10:3" cssclass="tb_ty01" bottom="0" right="465" binddataset="dsList" oncellclick="grd_master_oncellclick" onselectchanged="grd_master_onselectchanged">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="108"/>
+                <Column size="120"/>
+                <Column size="130"/>
+                <Column size="120"/>
+                <Column size="160"/>
+                <Column size="169"/>
+                <Column size="166"/>
+                <Column size="162"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" text="점소"/>
+                <Cell col="2" text="점소명"/>
+                <Cell col="3" text="구분"/>
+                <Cell col="4" text="SM사원"/>
+                <Cell col="5" text="운송장번호*" cssclass="imp" font="bold 12px/normal &quot;돋움&quot;"/>
+                <Cell col="6" text="예정시간"/>
+                <Cell col="7" text="등록일자*" cssclass="imp" font="bold 12px/normal &quot;돋움&quot;"/>
+                <Cell col="8" text="등록장비"/>
+              </Band>
+              <Band id="body">
+                <Cell displaytype="normal" edittype="none" text="expr:currow + 1"/>
+                <Cell col="1" text="bind:BRAN_CD"/>
+                <Cell col="2" text="bind:BRAN_NM"/>
+                <Cell col="3" text="bind:CRG_ST_NM"/>
+                <Cell col="4" text="bind:USER_NM"/>
+                <Cell col="5" text="bind:WAYBILL_NO"/>
+                <Cell col="6" text="bind:EXPCT_DTIME"/>
+                <Cell col="7" text="bind:REG_DTIME"/>
+                <Cell col="8" text="bind:EQUIP_DIV_NM"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Edit id="edtSearchBranCd" taborder="0" left="70" top="44" width="70" height="23" cssclass="inp_ty01_req" textAlign="center" onkeydown="edtBranCd_onkeydown" onchanged="edtBranCd_onkeydown"/>
+        <Button cssclass="btn_search01" height="23" id="btnBranPop" left="140" onclick="btnPopClick" top="44" width="25" text="" textAlign="center" taborder="1"/>
+        <Edit id="edtSearchBranNm" taborder="6" left="162" top="44" width="106" height="23" cssclass="inp_ty01" onchanged="edtBranNm_onchanged" enable="false"/>
+        <Button id="btnSearch" taborder="2" text="조회" top="7" height="23" cssclass="btn_ty01_search" onclick="btnOnClick" textPadding="0px" width="68" right="187"/>
+        <Button id="btnDel" taborder="4" text="삭제" top="7" height="23" cssclass="btn_ty01_delete" onclick="btnOnClick" right="32" width="69"/>
+        <Button id="btnSave" taborder="3" text="저장" top="7" height="23" cssclass="btn_ty01_save" onclick="btnOnClick" width="68" right="109"/>
+        <Static id="sta09" taborder="7" text="배송 &gt; 배송출발" left="21" top="1" width="165" fittocontents="width" onclick="sta09_onclick" height="34" cssclass="top_title_route01"/>
+        <Static fittocontents="width" height="13" id="sta04_00" taborder="8" text="l" textAlign="center" top="11" width="4" left="9" cssclass="top_title_prefix01"/>
+        <Tab id="tab00" taborder="10" tabindex="0" left="grd_master:5" top="sta10:3" width="425" height="711" cssclass="in_tab_ty01" tabbuttonheight="30">
+          <Tabpages>
+            <Tabpage id="Tabpage2" text="정보입력">
+              <Layouts>
+                <Layout>
+                  <Div id="div00" taborder="0" text="" left="0" top="0" right="0" height="641">
+                    <Layouts>
+                      <Layout>
+                        <Static cssclass="sta_tbody_th01" domainId="T1133" height="24" id="sta06" left="0" taborder="0" text="점소" top="0" width="120" onclick="tab00_Tabpage1_divTab1_sta06_onclick"/>
+                        <Static cssclass="sta_tbody_td01" height="24" id="stc_search" left="119" right="0" taborder="1" top="0"/>
+                        <Static cssclass="sta_tbody_th01" domainId="T1133" height="24" id="sta06_00" left="0" taborder="2" text="일자" top="23" width="120" onclick="tab00_Tabpage1_divTab1_sta06_onclick"/>
+                        <Static cssclass="sta_tbody_td01" height="24" id="stc_search00" left="119" right="0" taborder="3" top="23"/>
+                        <Static cssclass="sta_tbody_th01" domainId="T1726" height="24" id="sta03" left="0" taborder="4" text="SM사원" top="46" width="120"/>
+                        <Static cssclass="sta_tbody_th01" domainId="T1723" height="24" id="sta04" left="0" taborder="5" text="집배구분" top="69" width="120"/>
+                        <Static cssclass="sta_tbody_th01" domainId="T2022" height="24" id="sta05" left="0" taborder="6" text="예정시간" top="92" width="120"/>
+                        <Static cssclass="sta_tbody_td01" height="24" id="stc_search02" left="119" right="0" taborder="7" top="92"/>
+                        <Static cssclass="sta_tbody_td01" height="24" id="stc_search01" left="119" right="0" taborder="8" top="46"/>
+                        <Static cssclass="sta_tbody_td01" height="24" id="stc_search12" left="119" right="0" taborder="9" top="69"/>
+                        <Static cssclass="sta_tbody_th01" domainId="T2022" height="24" id="sta05_00" left="0" taborder="10" text="운송장번호" top="115" width="120"/>
+                        <Static cssclass="sta_tbody_td01" height="24" id="stc_search02_00" left="119" right="0" taborder="11" top="115"/>
+                        <Button cssclass="btn_search02" height="18" id="btnDetailBranPop" left="210" onclick="btnPopClick" taborder="12" top="3" width="18"/>
+                        <Edit cssclass="inp_ty01" enable="false" height="18" id="edtBranNm" left="231" taborder="13" top="3" width="189" password="false" readonly="true" textAlign="left"/>
+                        <Calendar id="calWorkYmd" taborder="14" left="125" top="25" width="150" height="20" cssclass="cal_ty01_req"/>
+                        <Button cssclass="btn_search02" height="18" id="btnDetailEmpPop" left="210" onclick="btnPopClick" taborder="15" top="49" width="18"/>
+                        <Edit cssclass="inp_ty01" enable="false" height="17" id="edtEmpNm" left="231" taborder="16" top="50" width="189" password="false" readonly="true" textAlign="left"/>
+                        <Static id="sta00" taborder="17" text="배달출발" left="130" top="74" width="120" height="14"/>
+                        <Combo id="cboExpctHour" taborder="18" text="cbo00" left="125" top="97" height="16" cssclass="sel_ty01_req" index="-1" innerdataset="dsExpctHour" codecolumn="CD" datacolumn="CD_NM" right="5"/>
+                        <Edit id="edtWaybillNo" taborder="19" left="125" top="117" height="20" cssclass="inp_ty01_req" background="papayawhip" right="5" textAlign="left"/>
+                        <Edit id="edtBranCd" taborder="20" left="125" top="3" width="83" height="18" cssclass="inp_ty01_req" onkeydown="tab00_Tabpage2_div00_edtBranCd_onkeydown" textAlign="center"/>
+                        <Edit id="edtEmpNo" taborder="21" left="125" top="49" width="83" height="18" cssclass="inp_ty01_req" onkeydown="tab00_Tabpage2_div00_edtEmpNo_onkeydown" textAlign="center"/>
+                      </Layout>
+                    </Layouts>
+                  </Div>
+                </Layout>
+              </Layouts>
+            </Tabpage>
+          </Tabpages>
+        </Tab>
+        <Static id="sta01_00" taborder="11" text="점소" left="25" top="44" height="23" cssclass="top_search_tx01" width="45"/>
+        <Static id="sta01_00_00" taborder="12" text="일자" left="285" top="44" height="23" cssclass="top_search_tx01" width="45"/>
+        <Calendar id="calSearchWorkYmd" taborder="13" left="330" top="44" width="150" height="23" cssclass="cal_ty01_req"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  @MenuPath       	
+*  @FileName 		
+*  @Creator 		
+*  @CreateDate 		2020.02.10
+*  @Desction        스크립트 표준 및 주석 표준 정의
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.02.10								최초 생성
+************************************************************************************************
+*/
+
+/************************************************************************************************
+* include 선언부																				*
+ ************************************************************************************************/
+
+/************************************************************************************************************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+ var objDetail;
+ 
+ 
+ /***********************************************************************************************
+ * @function: form_onload
+ * @description: FORM 온로드
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	
+	//상세입력object
+	objDetail = this.tab00.Tabpage2.form.div00.form;
+	
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	this.fnInitForm();
+};
+
+this.fnInitForm = function()
+{
+	// 권한조회
+	
+	// 공통코드조회
+	this.gfnTransaction("commonCode");	//PD005 장비구분
+	
+	//화면 초기화
+	//날짜셋팅	
+	
+	this.edtSearchBranCd.setFocus();
+	
+	this.calSearchWorkYmd.set_value(this.gfnGetDate("date"));
+	objDetail.calWorkYmd.set_value(this.gfnGetDate("date"));
+	
+};
+
+ /***********************************************************************************************
+ * @function: btnOnClick
+ * @description: 버튼이벤트 제어
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		// 조회
+		case "btnSearch" : 
+			this.fnSearch();	
+		break;
+		
+		//삭제
+		case "btnDel":
+			this.fnDelete();
+		break;
+		
+		// 저장
+		case "btnSave" : 
+			this.fnSave();
+		break;
+			
+		default :	
+		break;
+	}
+};
+
+ /***********************************************************************************************
+ * @function: btnPopClick
+ * @description: 팝업버튼 제어
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.btnPopClick =  function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		//점소조회 팝업
+		case "btnBranPop":
+			this.fnOpenPopBran();
+		break;
+		
+		//점소조회 팝업
+		case "btnDetailBranPop":
+			this.fnOpenDetailPopBran();
+		break;
+		
+		//사원조회 팝업
+		case "btnDetailEmpPop":
+			this.fnOpenDetailPopEmp();
+		break;
+	}
+};
+
+ /***********************************************************************************************
+ * @function: btn_emppop_OnClick
+ * @description:  사원조회팝업
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+function btn_emppop_OnClick(obj)
+{
+	var objChildFrame = new ChildFrame();
+	objChildFrame.init("emppop1", "Form::emp_Popup_Sub.xfdl");
+}
+ /***********************************************************************************************
+ * @function: fnSave
+ * @description: 배달출발 저장
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.fnSave = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	
+	var workYmd = objDetail.calWorkYmd.value;
+	var brancd = objDetail.edtBranCd.value;
+	var branNm = objDetail.edtBranNm.value;
+	var empNm = objDetail.edtEmpNm.value;
+	var empNo = objDetail.edtEmpNo.value;
+	var waybillNo = objDetail.edtWaybillNo.value;
+	var expctHourCd = objDetail.cboExpctHour.value;
+	var expctHourStr = objDetail.cboExpctHour.text;
+	var expctStartHour = expctHourStr.substr(0,2);
+	var expctEndHour = expctHourStr.substr(6,2);
+	
+	//유효성 체크
+	if(this.gfnIsNull(this.gfnTrim(brancd)) ){
+		this.gfnAlert("점소코드를 입력해주세요.");
+		this.edtBranCd.setFocus();
+		return;
+	}
+	
+	if(this.gfnIsNull(this.gfnTrim(branNm)) ){
+		this.gfnAlert("점소코드명를 입력해주세요.");
+		this.edtBranCd.setFocus();
+		return;
+	}
+	
+	if(this.gfnIsNull(this.gfnTrim(workYmd)) ){
+		this.gfnAlert("일자를 입력해주세요.");
+		this.calWorkYmd.setFocus();
+		return;
+	}
+	
+	if(this.gfnIsNull(this.gfnTrim(empNo)) ){
+		this.gfnAlert("사원번호를 입력해주세요.");
+		this.edtEmpNm.setFocus();
+		return;
+	}
+	
+	if(this.gfnIsNull(this.gfnTrim(empNm)) ){
+		this.gfnAlert("사원명를 입력해주세요.");
+		this.edtEmpNm.setFocus();
+		return;
+	}
+	
+	
+	if(this.gfnIsNull(this.gfnTrim(waybillNo)) || waybillNo.length != 12){
+		this.gfnAlert("운송장번호 12자리를 입력해주세요.");
+		this.edtWaybillNo.setFocus();
+		return;
+	}
+	
+	if(workYmd.length > 8){
+		workYmd = workYmd.substr(0,8);
+	}
+	
+	
+	this.dsSaveInfo.setColumn(0,"CRG_ST",82);						//배달출발
+	this.dsSaveInfo.setColumn(0,"EQUIP_DV_CD",'02');				//(02) 화면
+	
+	this.dsSaveInfo.setColumn(0,"PIDV_EXPCT_START_HOUR",expctStartHour);			//집배예정출발시간 text
+	this.dsSaveInfo.setColumn(0,"PIDV_EXPCT_END_HOUR",expctEndHour);				//집배예정도착시간 text
+	
+	
+	
+
+	//trace(this.dsSaveInfo.saveXML());
+	this.gfnTransaction("saveDepatInfo");
+	//
+	 
+};
+
+ /***********************************************************************************************
+ * @function: fnSearch
+ * @description: 배달출발 리스트 조회
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.fnSearch = function()
+{
+	this.dsList.clearData();
+
+	var branCd = this.edtSearchBranCd.value;
+	//var empNo = this.edtEmpNo.value;
+	var workYmd = this.calSearchWorkYmd.value;
+	
+	if(this.gfnIsNull(this.gfnTrim(branCd)) ){
+		this.gfnAlert("점소코드를 입력해주세요.");
+		this.edtSearchBranCd.setFocus();
+		return;
+	}
+	
+	if(this.gfnIsNull(this.gfnTrim(workYmd)) ){
+		this.gfnAlert("일자를 선택해주세요.");
+		this.calSearchWorkYmd.setFocus();
+		return;
+	}
+	
+	/*
+	if(this.gfnIsNull(this.gfnTrim(empNo)) ){
+		this.gfnAlert("사원코드를 입력해주세요.");
+		this.edtEmpNo.setFocus();
+		return;
+	}*/
+	
+	this.dsSearch.setColumn(0,"CRG_ST",'82');
+	this.gfnTransaction("getDlvyDepatList");
+};
+
+ /***********************************************************************************************
+ * @function: fnDelete
+ * @description: 배달출발 리스트 삭제
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.fnDelete = function()
+{
+	if(this.confirm("삭제하시겠습니까?")){
+		var workYmd = objDetail.calWorkYmd.value;
+		var brancd = objDetail.edtBranCd.value;
+		var branNm = objDetail.edtBranNm.value;
+		var empNm = objDetail.edtEmpNm.value;
+		var empNo = objDetail.edtEmpNo.value;
+		var waybillNo = objDetail.edtWaybillNo.value;
+		var expctHourCd = objDetail.cboExpctHour.value;
+		var expctHourStr = objDetail.cboExpctHour.text;
+		var expctStartHour = expctHourStr.substr(0,2);
+		var expctEndHour = expctHourStr.substr(6,2);
+		
+		if(workYmd.length > 8){
+			workYmd = workYmd.substr(0,8);
+		}
+		
+		if(waybillNo.length != 12 || workYmd.length != 8){
+			trace('운송장번호, 작업일자 확인');
+			return;
+		}
+		
+		this.dsSaveInfo.setColumn(0,"CRG_ST",'82');
+		this.dsSaveInfo.setColumn(0,"EQUIP_DV_CD",'02');				//(02) 화면
+		this.dsSaveInfo.setColumn(0,"PIDV_EXPCT_HOUR_CD",expctHourCd);	//배송예정시간 코드
+		
+		this.dsSaveInfo.setColumn(0,"PIDV_EXPCT_START_HOUR",expctStartHour);			//집배예정출발시간 text
+		this.dsSaveInfo.setColumn(0,"PIDV_EXPCT_END_HOUR",expctEndHour);				//집배예정도착시간 text
+				
+		this.gfnTransaction("deleteDepatInfo");
+	}
+}
+
+/***********************************************************************************************
+ * @function	: fnOpenPopBran
+ * @description	: 점소 조회 팝업을 호출한다.
+ * @param		: 
+ * @return N/A
+/***********************************************************************************************/
+this.fnOpenPopBran = function()
+{
+	// 파라미터 설정
+	var popupId = 'popSearchBran';	//팝업ID
+	var pBranCdValue = this.edtSearchBranCd.value;	// 점소코드
+	var pBranNmValue = '';	// 점소명
+
+	// 팝업 호출
+	var oArg = {
+				  pBranCd       : pBranCdValue									// 점소코드
+				, pBranNm       : pBranNmValue  								// 점소명
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_BAIM_P010.xfdl", oArg, sPopupCallBack, oOption);
+}
+
+/***********************************************************************************************
+ * @function	: fnOpenDetailPopBran
+ * @description	: 점소 조회 팝업을 호출한다.
+ * @param		: 
+ * @return N/A
+/***********************************************************************************************/
+this.fnOpenDetailPopBran = function()
+{
+	// 파라미터 설정
+	var popupId = 'popDetailSearchBran';	//팝업ID
+	var pBranCdValue = objDetail.edtBranCd.value;	// 점소코드
+	var pBranNmValue = '';	// 점소명
+
+	// 팝업 호출
+	var oArg = {
+				  pBranCd       : pBranCdValue									// 점소코드
+				, pBranNm       : pBranNmValue  								// 점소명
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_BAIM_P010.xfdl", oArg, sPopupCallBack, oOption);
+};
+
+/***********************************************************************************************
+ * @function	: fnOpenPopEmp
+ * @description	: 사원 조회 팝업을 호출한다.
+ * @param		: 
+ * @return N/A
+/***********************************************************************************************/
+this.fnOpenDetailPopEmp = function()
+{
+	// 파라미터 설정
+	var popupId = 'popDetailSearchEmp';	//팝업ID
+	var pEmpNoValue = objDetail.edtEmpNo.value;	// 사원코드
+	var pEmpNmValue = '';	// 사원명
+
+	// 팝업 호출
+	var oArg = {
+				  pEmpNo       : pEmpNoValue									// 사원코드
+				, pEmpNm       : pEmpNmValue  									// 사원명
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_BAIM_P040.xfdl", oArg, sPopupCallBack, oOption);
+};
+
+
+/***********************************************************************************************
+ * @function	: fnPopupCallBack
+ * @description	: popup Callback
+ * @param		: popupId	- String
+ * @param		: dsObj		- nexacro.NormalDataset
+ * @return N/A
+ ***********************************************************************************************/
+this.fnPopupCallback = function(sPopupId, dsObj)
+{
+	switch(sPopupId) {
+
+		case "popSearchBran" :
+			this.edtSearchBranCd.set_value(dsObj.getColumn(0, "BRAN_CD"));
+			this.edtSearchBranNm.set_value(dsObj.getColumn(0, "BRAN_NM"));
+		break;
+		
+		case "popDetailSearchEmp" :
+			objDetail.edtEmpNo.set_value(dsObj.getColumn(0,"EMP_NO"));
+			objDetail.edtEmpNm.set_value(dsObj.getColumn(0,"EMP_NM"));
+		break;
+		
+		case "popDetailSearchBran" :
+			objDetail.edtBranCd.set_value(dsObj.getColumn(0, "BRAN_CD"));
+			objDetail.edtBranNm.set_value(dsObj.getColumn(0, "BRAN_NM"));
+		break;
+
+		default :
+		break;
+	}
+}
+
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	trace("[fnCallback()] svcID["+svcID+"] errorCode["+errorCode+"] errorMsg["+errorMsg+"]");
+	
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+		return;
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+			// 예정시간	
+			objDetail.cboExpctHour.set_index(0);
+		break;
+		
+		// 배달출발 조회
+		case "getDlvyDepatList" :
+			if(this.dsList.rowcount > 0){
+				this.grd_master.setCellPos(0,0);
+			}else{
+				//this.edtBranCd.set_value('');
+				//this.edtBranNm.set_value('');
+				//this.edtEmpNm.set_value('');
+				//this.edtEmpNo.set_value('');
+				//this.cboExpctHour.set_index(0);
+				//this.edtWaybillNo.set_value('');
+			}
+		break;
+		
+		// 배달출발 저장
+		case "saveDepatInfo" :
+			this.gfnAlert("저장되었습니다.");
+			
+			this.edtSearchBranCd.set_value(objDetail.edtBranCd.value);
+			this.edtSearchBranNm.set_value(objDetail.edtBranNm.value);
+			this.fnInitForm();
+			
+			this.fnSearch();	
+		break;
+		
+		case "deleteDepatInfo":
+			this.gfnAlert("삭제되었습니다.");
+			
+			this.edtSearchBranCd.set_value(objDetail.edtBranCd.value);
+			this.edtSearchBranNm.set_value(objDetail.edtBranNm.value);
+			this.fnSearch();
+		break;
+	}
+};
+
+/***********************************************************************************************
+ * @function	: grd_master_onselectchanged
+ * @description	: onselectchanged
+ * @param		: obj	- nexacro.Grid
+ * @param		: e		- nexacro.GridClickEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.grd_master_onselectchanged = function(obj:nexacro.Grid,e:nexacro.GridSelectEventInfo)
+{
+	this.dsSaveInfo.clearData();
+	this.dsSaveInfo.addRow();
+	
+	var branCd = this.dsList.getColumn(this.dsList.rowposition, "BRAN_CD");
+	var branNm = this.dsList.getColumn(this.dsList.rowposition, "BRAN_NM");
+	var empId = this.dsList.getColumn(this.dsList.rowposition, "EMP_ID");
+	var userNm = this.dsList.getColumn(this.dsList.rowposition, "USER_NM");
+	var hourCd = this.dsList.getColumn(this.dsList.rowposition, "PIDV_EXPCT_HOUR_CD");
+	var waybillNo = this.dsList.getColumn(this.dsList.rowposition, "WAYBILL_NO");
+	objDetail.edtBranCd.set_value(branCd);
+	objDetail.edtBranNm.set_value(branNm);
+	objDetail.edtEmpNm.set_value(userNm);
+	objDetail.edtEmpNo.set_value(empId);
+	objDetail.cboExpctHour.set_value(hourCd);
+	objDetail.edtWaybillNo.set_value(waybillNo);
+	objDetail.calWorkYmd.set_value(this.gfnGetDate("date"));
+};
+
+ /***********************************************************************************************
+ * @function: calWorkYmd_onchanged
+ * @description:  일자 변경이벤트
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.calWorkYmd_onchanged = function(obj:nexacro.Calendar,e:nexacro.ChangeEventInfo)
+{
+	var chkday = this.calWorkYmd.value;
+	if( Number(chkday) > strToDay ) {
+		this.calWorkYmd.set_value(this.gfnGetDate("date"));
+		this.calWorkYmd.SetFocus();
+		return;
+	}
+};
+
+
+ /***********************************************************************************************
+ * @function: edtBranCd_onkeydown
+ * @description:  onkeydown 이벤트
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.edtBranCd_onkeydown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	if( e.keycode == 13)
+    {		
+		this.fnOpenPopBran();
+	}else{
+		this.edtSearchBranNm.set_value('');
+	}
+};
+
+
+
+/***********************************************************************************************
+ * @function	: tab00_Tabpage2_div00_edtBranCd_onkeydown
+ * @description	: keydown이벤트
+ * @param		: obj	- nexacro.Edit
+ * @param		: e		- nexacro.KeyEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.tab00_Tabpage2_div00_edtBranCd_onkeydown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	if( e.keycode == 13)
+    {		
+		this.fnOpenDetailPopBran();
+	}else{
+		objDetail.edtBranNm.set_value('');
+	}
+};
+
+/***********************************************************************************************
+ * @function	: tab00_Tabpage2_div00_edtEmpNo_onkeydown
+ * @description	: keydown이벤트
+ * @param		: obj	- nexacro.Edit
+ * @param		: e		- nexacro.KeyEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.tab00_Tabpage2_div00_edtEmpNo_onkeydown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	if( e.keycode == 13)
+    {		
+		this.fnOpenDetailPopEmp();
+	}else{
+		objDetail.edtEmpNm.set_value('');
+	}	
+};
+]]></Script>
+    <Objects>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="OUT_DATASET_LIST">dsExpctHour=ds1</Col>
+            <Col id="QUERY_LIST">q1=PD005</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getDlvyDepatList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST">q1=dlvyDepatMgmtService.getDlvyDepatList</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsList=dsList</Col>
+            <Col id="SERVICE_BEANNAME">dlvyDepatMgmtService</Col>
+            <Col id="SERVICE_METHOD">getDlvyDepatList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">saveDepatInfo</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSaveInfo</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">dlvyDepatMgmtService</Col>
+            <Col id="SERVICE_METHOD">saveDepatInfo</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="QUERY_LIST">q1=dlvyDepatMgmtService.saveDepatInfo</Col>
+            <Col id="OUT_DATASET_LIST"/>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">deleteDepatInfo</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSaveInfo</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST">q1=dlvyDepatMgmtService.deleteDepatInfo</Col>
+            <Col id="SERVICE_METHOD">deleteDepatInfo</Col>
+            <Col id="SERVICE_BEANNAME">dlvyDepatMgmtService</Col>
+            <Col id="OUT_DATASET_LIST"/>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsList">
+        <ColumnInfo>
+          <Column id="BRAN_CD" type="STRING" size="256"/>
+          <Column id="BRAN_NM" type="STRING" size="256"/>
+          <Column id="CRG_ST" type="STRING" size="256"/>
+          <Column id="CRG_ST_NM" type="STRING" size="256"/>
+          <Column id="USER_NM" type="STRING" size="256"/>
+          <Column id="EMP_ID" type="STRING" size="256"/>
+          <Column id="WAYBILL_NO" type="STRING" size="256"/>
+          <Column id="PIDV_EXPCT_HOUR_CD" type="STRING" size="256"/>
+          <Column id="EXPCT_DTIME" type="STRING" size="256"/>
+          <Column id="REG_DTIME" type="STRING" size="256"/>
+          <Column id="EQUIP_DV_CD" type="STRING" size="256"/>
+          <Column id="EQUIP_DIV_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSearch">
+        <ColumnInfo>
+          <Column id="BRAN_CD" type="STRING" size="256"/>
+          <Column id="EMP_NO" type="STRING" size="256"/>
+          <Column id="WORK_YMD" type="STRING" size="256"/>
+          <Column id="CRG_ST" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsExpctHour">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="256"/>
+          <Column id="CD_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSaveInfo">
+        <ColumnInfo>
+          <Column id="WORK_YMD" type="STRING" size="256"/>
+          <Column id="CRG_ST" type="STRING" size="256"/>
+          <Column id="WAYBILL_NO" type="STRING" size="256"/>
+          <Column id="BRAN_CD" type="STRING" size="256"/>
+          <Column id="EMP_NO" type="STRING" size="256"/>
+          <Column id="EQUIP_DV_CD" type="STRING" size="256"/>
+          <Column id="PIDV_EXPCT_HOUR_CD" type="STRING" size="256"/>
+          <Column id="LOGIN_ID" type="STRING" size="256"/>
+          <Column id="PIDV_EXPCT_START_HOUR" type="STRING" size="256"/>
+          <Column id="PIDV_EXPCT_END_HOUR" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsSaveResult">
+        <ColumnInfo>
+          <Column id="MSG" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item7" compid="edtSearchBranCd" propid="value" datasetid="dsSearch" columnid="BRAN_CD"/>
+      <BindItem id="item4" compid="tab00.Tabpage2.form.div00.form.calWorkYmd" propid="value" datasetid="dsSaveInfo" columnid="WORK_YMD"/>
+      <BindItem id="item5" compid="tab00.Tabpage2.form.div00.form.cboExpctHour" propid="value" datasetid="dsSaveInfo" columnid="PIDV_EXPCT_HOUR_CD"/>
+      <BindItem id="item6" compid="tab00.Tabpage2.form.div00.form.edtWaybillNo" propid="value" datasetid="dsSaveInfo" columnid="WAYBILL_NO"/>
+      <BindItem id="item1" compid="calSearchWorkYmd" propid="value" datasetid="dsSearch" columnid="WORK_YMD"/>
+      <BindItem id="item0" compid="tab00.Tabpage2.form.div00.form.edtBranCd" propid="value" datasetid="dsSaveInfo" columnid="BRAN_CD"/>
+      <BindItem id="item2" compid="tab00.Tabpage2.form.div00.form.edtEmpNo" propid="value" datasetid="dsSaveInfo" columnid="EMP_NO"/>
+    </Bind>
+  </Form>
+</FDL>

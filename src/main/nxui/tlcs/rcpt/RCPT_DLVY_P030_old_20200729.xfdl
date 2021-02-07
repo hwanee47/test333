@@ -1,0 +1,1239 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form cssclass="bg_pop01" height="780" id="RCPT_DLVY_P010" onload="form_onload" titletext="고객레이아웃(창고용)" width="960" oninit="form_oninit">
+    <Layouts>
+      <Layout description="" height="780" width="960">
+        <Static bottom="0" cssclass="pop_cont" id="sta00" left="0" right="0" taborder="6" top="34" text=""/>
+        <Static cssclass="top_search_ty01" height="40" id="stSearch" left="0" onclick="divSearch_staSearch_onclick" right="0" taborder="8" text="" top="34"/>
+        <Static cssclass="pop_tit_txt01" domainId="T0167" height="34" id="sta01" left="15" taborder="5" text="고객레이아웃" top="0" width="195"/>
+        <Button cssclass="btn_pop_img_close" height="22" id="btnClose" onclick="btnClose_onclick" right="15" taborder="7" top="5" width="22" text=""/>
+        <Button cssclass="btn_ty01_save" domainId="T0830" fittocontents="none" height="23" id="btnSave" onclick="btnOnClick" taborder="4" text="저장" top="43" width="68" left="658"/>
+        <Static cssclass="top_search_tx01" domainId="T1075" height="23" id="staDropLoc00" left="25" taborder="0" text="고객" top="43" width="45"/>
+        <Edit id="edtCustId_sc" taborder="1" left="62" top="43" width="90" height="23" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown" inputmode="upper" inputtype="normal" enable="false"/>
+        <Edit id="edtCustNm_sc" taborder="2" left="152" top="43" width="178" height="23" enable="false" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown"/>
+        <Button cssclass="btn_ty01_search" domainId="T0877" fittocontents="none" height="23" id="btnSearch" onclick="btnOnClick" taborder="3" text="조회" top="43" width="68" left="512"/>
+        <Button cssclass="btn_ty01_new" domainId="T0645" fittocontents="none" height="23" id="btnAdd" onclick="btnOnClick" taborder="9" text="신규" top="43" width="68" left="585"/>
+        <Button cssclass="btn_ty01_delete" domainId="T0519" fittocontents="none" height="23" id="btnDelete" onclick="btnOnClick" taborder="10" text="삭제" top="43" width="68" left="731"/>
+        <Grid autoenter="select" autofittype="col" cellsizingtype="col" cssclass="tb_ty01" id="grd_Main" left="10" taborder="11" top="88" autoupdatetype="itemselect" right="10" bottom="460" binddataset="dsMaster" oncellclick="grd_Main_oncellclick" oncellposchanged="grd_Main_oncellposchanged" onkeydown="grd_Main_onkeydown" oncelldblclick="grd_Main_oncelldblclick" nodatatext="등록된 레이아웃이 없습니다. 신규로 등록해주세요.">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="272"/>
+                <Column size="103"/>
+                <Column size="91"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" text="형식명"/>
+                <Cell col="2" text="등록자"/>
+                <Cell col="3" text="등록일"/>
+              </Band>
+              <Band id="body">
+                <Cell displaytype="normal" expr="currow+1"/>
+                <Cell col="1" edittype="normal" text="bind:XLS_FRM_NM" expandshow="hide" maskedittype="number" textAlign="left"/>
+                <Cell col="2" text="bind:REG_EMP_NM" edittype="none" textAlign="center"/>
+                <Cell col="3" text="bind:REG_DTIME" edittype="none" textAlign="center" displaytype="normal" calendardateformat="yyyy-MM-dd"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Grid autoenter="select" autofittype="col" cellsizingtype="col" cssclass="tb_ty01" id="grd_StdLayout" left="10" onheadclick="grdOnHeadClick" taborder="12" top="360" autoupdatetype="itemselect" right="530" bottom="10" binddataset="dsStdLayoutColumn">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="30"/>
+                <Column size="265"/>
+                <Column size="74"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" text="필드명"/>
+                <Cell col="3" text="크기"/>
+              </Band>
+              <Band id="body">
+                <Cell displaytype="normal" expr="currow+1"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox" text="bind:CHK"/>
+                <Cell col="2" text="bind:COL_NM" edittype="none" expandshow="hide" textAlign="left" displaytype="normal" combodataset="dsRsvtDv" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="3" text="bind:COL_WIDTH" edittype="none" expandshow="hide" textAlign="right" displaytype="normal" combodataset="dsCalCpDv2" combocodecol="CD" combodatacol="CD_NM"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static cssclass="in_tit01" domainId="T0198" id="stTitle00" left="22" taborder="13" text="기준레이아웃" top="316" width="100" height="50"/>
+        <Static cssclass="in_tit01" domainId="T0198" id="stTitle00_00" left="522" taborder="14" text="고객레이아웃" top="316" width="100" height="50"/>
+        <Grid autoenter="select" autofittype="col" cellsizingtype="col" cssclass="tb_ty01" id="grd_CustLayout" left="510" onheadclick="grdOnHeadClick" taborder="15" top="360" autoupdatetype="itemselect" right="10" bottom="10" binddataset="dsCustLayoutColumn">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="30"/>
+                <Column size="265"/>
+                <Column size="74"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" text="필드명"/>
+                <Cell col="3" text="크기"/>
+              </Band>
+              <Band id="body">
+                <Cell displaytype="normal" text="bind:NO"/>
+                <Cell col="1" displaytype="checkboxcontrol" text="bind:CHK" edittype="checkbox"/>
+                <Cell col="2" text="bind:COL_NM" edittype="none" expandshow="hide" textAlign="left" displaytype="normal" combodataset="dsRsvtDv" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="3" edittype="none" text="bind:COL_WIDTH" expandshow="hide" maskedittype="number" textAlign="right" displaytype="normal"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Button domainId="T0830" fittocontents="none" height="29" id="btnAddColumn" onclick="btnOnClick" taborder="16" width="30" background="url('img::btn_CalNext_P.png') no-repeat" left="456" top="494"/>
+        <Button domainId="T0830" fittocontents="none" height="29" id="btnDeleteColumn" onclick="btnOnClick" taborder="17" width="30" background="url('img::btn_CalPrev_P.png') no-repeat" left="456" top="554"/>
+        <Button cssclass="btn_ty01_excel" domainId="T0682" fittocontents="none" height="23" id="btnExcel" onclick="btnOnClick" taborder="18" text="엑셀" top="43" width="68" left="804"/>
+        <Grid autoenter="select" autofittype="none" autosizebandtype="body" autosizingtype="none" cellsizingtype="col" cssclass="tb_ty01" id="grdExcel" left="6" taborder="19" top="845" visible="false" width="109.79%" binddataset="dsXls" height="135">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="0"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:NO"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Button cssclass="btn_ty04" domainId="T0683" fittocontents="none" height="23" id="btnChoice" onclick="btnOnClick" taborder="20" text="선택" width="67" top="43" left="878"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  고객레이아웃(WMS)
+*  @MenuPath       	
+*  @FileName 		RCPT_DLVY_P010.xfdl
+*  @Creator 		KJH
+*  @CreateDate 		2020.06.15
+*  @Desction        폼 템플릿
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.06.15		Kim Jin Hwan			최초 생성
+************************************************************************************************
+*/
+ 
+/************************************************************************************************
+* include 선언부																				*
+ ************************************************************************************************/
+include "lib::lib_Form.xjs";
+
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+this.objApp;
+this.keyFlag=false;
+this.iODv;
+this.wareioDv;
+this.dsMgmtColumn;
+ 
+ 
+ /***********************************************************************************************
+ * @function: form_onload
+ * @description: FORM 온로드
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication();
+	
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	this.fnInit();
+	
+	
+	var edtCustIdValue = this.edtCustId_sc.value;
+	var edtCustNmValue = this.edtCustNm_sc.value;
+	
+	if( !this.gfnIsNull(edtCustIdValue) && !this.gfnIsNull(edtCustNmValue) ){
+		this.fnSearch();
+	}
+	
+};
+
+
+ /***********************************************************************************************
+ * @function	: form_onload
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnInit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	// 공통코드조회
+	this.gfnTransaction("commonCode");
+	
+	
+	// 입출고 구분 ( IN : 입고 , OUT : 출고 )
+	iODv = this.getOwnerFrame().pIODv;
+	
+	if(iODv == "IN"){
+		this.dsMgmtColumn = this.objApp.gdsMgmtColumn_i;
+		this.wareioDv = "W2";
+	}else{
+		this.dsMgmtColumn = this.objApp.gdsMgmtColumn_o;
+		this.wareioDv = "W1";
+	}
+	
+	
+	// 조회조건 셋팅
+	this.dsSearch.setColumn(0, "CUST_ID", this.getOwnerFrame().pCustId);
+	this.dsSearch.setColumn(0, "CUST_NM", this.getOwnerFrame().pCustNm);
+	this.dsSearch.setColumn(0, "WAREIO_DV", this.wareioDv);
+	
+	
+	this.fnSetDefault();
+	
+	
+	//this.fnSearch();
+};
+
+
+/***********************************************************************************************
+ * @function	: fnSetDefault
+ * @description	: 초기값 셋팅
+ * @return N/A
+/***********************************************************************************************/
+this.fnSetDefault = function()
+{
+	
+	
+}
+
+
+/***********************************************************************************************
+ * @function	: btnOnClick
+ * @description	: 버튼이벤트 제어
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		// 조회
+		case "btnSearch" : 
+			this.fnSearch();	
+		break;
+		
+		
+		// 신규추가
+		case "btnAdd" :
+			this.fnAdd();
+		break;
+		
+		
+		// 레이아웃 컬럼추가
+		case "btnAddColumn" :
+			this.fnAddColumn();
+			
+			this.fnSetExcelGridForm();
+		break;
+		
+		// 레이아웃 컬럼삭제
+		case "btnDeleteColumn" :
+			this.fnDeleteColumn();
+			
+			this.fnSetExcelGridForm();
+		break;
+		
+		
+		// 저장
+		case "btnSave" : 
+			this.fnSave();
+		break;
+		
+		
+		// 삭제
+		case "btnDelete" :
+			this.fnDelete();
+		break;
+		
+		
+		// 선택
+		case "btnChoice" :
+			this.fnChoise();
+		break;
+		
+		
+		// 엑셀다운로드
+		case "btnExcel" :
+			this.fnExcel();
+		break;
+		
+		default :	
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 레이아웃 리스트조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearch = function() 
+{
+	
+	this.dsMaster.clearData();
+	this.dsDetail2.clearData();
+	this.dsStdLayoutColumn.clearData();
+	this.dsStdLayoutSortColumn.clearData();
+	this.dsCustLayoutColumn.clearData();
+	
+	
+	
+	// 조회
+	this.gfnTransaction("getCustLayoutList");
+
+};
+
+
+
+/***********************************************************************************************
+ * @function	: fnSearch2
+ * @description	: 레이아웃 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearch2 = function() 
+{
+	
+
+	this.dsSearch.setColumn(0, "XLS_FRM_NM", this.dsMaster.getColumn(this.dsMaster.rowposition, "XLS_FRM_NM"));
+
+	this.dsDetail2.clearData();
+	this.dsStdLayoutColumn.clearData();
+	this.dsStdLayoutSortColumn.clearData();
+	this.dsCustLayoutColumn.clearData();
+	
+	// 조회
+	this.gfnTransaction("getCustLayout");
+};
+
+
+/***********************************************************************************************
+ * @function	: fnAdd
+ * @description	: 신규추가.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnAdd = function() 
+{
+	var nRowType = this.dsMaster.getRowType(this.dsMaster.rowcount-1);
+	
+	if(nRowType == Dataset.ROWTYPE_INSERT){
+		return;
+	}
+
+	this.dsStdLayoutColumn.clearData();
+	this.dsStdLayoutSortColumn.clearData();
+	this.dsCustLayoutColumn.clearData();
+
+	this.dsStdLayoutColumn.copyData(this.dsMgmtColumn, true);
+
+	
+	
+	var nRow = this.dsMaster.addRow();
+	this.dsMaster.setColumn(nRow, "WAREIO_DV", this.wareioDv);
+	
+
+};
+
+
+/***********************************************************************************************
+ * @function	: fnAddColumn
+ * @description	: 레이아웃 컬럼 추가
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnAddColumn = function() 
+{
+	// 기준레이아웃에 체크된 행이 없으면 에러
+	var nFindRow = this.dsStdLayoutColumn.findRow("CHK", "1");
+	if(nFindRow == -1){
+		this.gfnAlert("기준레이아웃에서 추가하려는 행을 체크해주세요.");
+		return;
+	}
+	
+	
+	// 추가
+	for(var i=0; i<this.dsStdLayoutColumn.rowcount; i++){
+	
+		var nChkRow = this.dsStdLayoutColumn.getColumn(i, "CHK");
+		
+		if(nChkRow != "1") continue;
+		
+		var colId = this.dsStdLayoutColumn.getColumn(i, "COL_ID");
+		
+		var nRow = this.dsCustLayoutColumn.addRow();
+		this.dsCustLayoutColumn.setColumn(nRow, "NO", this.dsExcelAlphabet.getColumn(nRow, "CD_NM"));
+		this.dsCustLayoutColumn.setColumn(nRow, "COL_ID", colId);
+		this.dsCustLayoutColumn.setColumn(nRow, "COL_NM", this.dsMgmtColumn.lookup("COL_ID", colId, "COL_NM"));
+		this.dsCustLayoutColumn.setColumn(nRow, "COL_WIDTH", this.dsMgmtColumn.lookup("COL_ID", colId, "COL_WIDTH"));
+		this.dsCustLayoutColumn.setColumn(nRow, "SEQ", this.dsMgmtColumn.findRow("COL_ID", colId));
+	}
+	
+	
+	// 삭제
+	for(var i=this.dsStdLayoutColumn.rowcount-1; i>=0; i--){
+		var nChkRow = this.dsStdLayoutColumn.getColumn(i, "CHK");
+		
+		if(nChkRow != "1") continue;
+		
+		this.dsStdLayoutColumn.deleteRow(i);
+	}
+	
+	this.dsStdLayoutSortColumn.copyData(this.dsStdLayoutColumn, true);
+	
+	
+	// 그리드헤더 체크해제
+	this.grd_StdLayout.setCellProperty("head", this.grd_StdLayout.getBindCellIndex("body", "CHK"), "text", '0');
+};
+
+
+
+/***********************************************************************************************
+ * @function	: fnDeleteColumn
+ * @description	: 레이아웃 컬럼 삭제
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnDeleteColumn = function() 
+{
+	// 고객레이아웃에 체크된 행이 없으면 에러
+	var nFindRow = this.dsCustLayoutColumn.findRow("CHK", "1");
+	if(nFindRow == -1){
+		this.gfnAlert("고객레이아웃에서 삭제하려는 행을 체크해주세요.");
+		return;
+	}
+	
+	
+	
+	// 추가
+	for(var i=0; i<this.dsCustLayoutColumn.rowcount; i++){
+	
+		var nChkRow = this.dsCustLayoutColumn.getColumn(i, "CHK");
+		
+		if(nChkRow != "1") continue;
+		
+		var colId = this.dsCustLayoutColumn.getColumn(i, "COL_ID");
+		
+		var nRow = this.dsStdLayoutSortColumn.addRow();
+		this.dsStdLayoutSortColumn.setColumn(nRow, "COL_ID", colId);
+		this.dsStdLayoutSortColumn.setColumn(nRow, "COL_NM", this.dsMgmtColumn.lookup("COL_ID", colId, "COL_NM"));
+		this.dsStdLayoutSortColumn.setColumn(nRow, "COL_WIDTH", this.dsMgmtColumn.lookup("COL_ID", colId, "COL_WIDTH"));
+		this.dsStdLayoutSortColumn.setColumn(nRow, "SEQ", this.dsMgmtColumn.findRow("COL_ID", colId));
+	}
+	
+	// 데이터셋 SEQ 기준으로 정렬후 Copy ( 정렬시 데이터셋의 물리적은 로우는 정렬되지 않음. Copy를 통해 정렬된 데이터셋 새로 생성처리함.)
+	this.dsStdLayoutSortColumn.set_keystring("S:+SEQ");
+	this.dsStdLayoutColumn.copyData(this.dsStdLayoutSortColumn, true);
+	
+	
+	// 삭제
+	for(var i=this.dsCustLayoutColumn.rowcount-1; i>=0; i--){
+		var nChkRow = this.dsCustLayoutColumn.getColumn(i, "CHK");
+		
+		if(nChkRow != "1") continue;
+		
+		this.dsCustLayoutColumn.deleteRow(i);
+	}
+	
+	// 엑셀알파벳 재설정 (고객레이아웃 NO)
+	for(var i=0; i<this.dsCustLayoutColumn.rowcount; i++){
+		this.dsCustLayoutColumn.setColumn(i, "NO", this.dsExcelAlphabet.getColumn(i, "CD_NM"));
+	}
+	
+	
+	// 그리드헤더 체크해제
+	this.grd_CustLayout.setCellProperty("head", this.grd_CustLayout.getBindCellIndex("body", "CHK"), "text", '0');
+	
+};
+
+
+/***********************************************************************************************
+ * @function	: fnSave
+ * @description	: 저장
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSave = function() 
+{
+	var custIdValue = this.edtCustId_sc.value;
+	var custNmValue = this.edtCustNm_sc.value;
+	
+	var xlsFrmNmOrgValue = this.dsMaster.getColumn(this.dsMaster.rowposition, "XLS_FRM_NM_ORG");
+	var xlsFrmNmValue = this.dsMaster.getColumn(this.dsMaster.rowposition, "XLS_FRM_NM");
+	
+	if( this.gfnIsNull(custIdValue) || this.gfnIsNull(custIdValue)){
+		this.gfnAlert("고객을 입력해주세요.");
+		return;
+	}
+	
+	
+	if( this.gfnIsNull(xlsFrmNmValue) ){
+		this.gfnAlert("형식명을 입력해주세요.");
+		return;
+	}
+	
+	
+	/* 형식명 특수문자 체크 
+		파일명으로 사용할 수 없는 문자 ( '\', '/', ':', '*', '?', '"', '<', '>', '|' )
+	*/
+	var pattern1 = /[\/:*?"<>|]/;
+	
+	if(pattern1.test(xlsFrmNmValue)){
+		var errMsg = "형식명으로 사용할 수 없는 문자가 포함되어있습니다";
+		errMsg += "\n사용할수 없는 특수문자 ( \\, /, :, *, ?, \", <, >, | )";
+		this.gfnAlert(errMsg);
+		return;
+	}
+
+	
+	this.dsSave.setColumn(0, "CUST_ID", custIdValue);
+	this.dsSave.setColumn(0, "WAREIO_DV", this.wareioDv);
+	this.dsSave.setColumn(0, "XLS_FRM_NM", this.gfnIsNull(xlsFrmNmOrgValue)?xlsFrmNmValue:xlsFrmNmOrgValue);
+	this.dsSave.setColumn(0, "XLS_FRM_NM_NEW", xlsFrmNmValue);
+	
+	// 고객레이아웃 필드 셋팅
+	var strColidList = "";
+	for(var i=0; i<this.dsCustLayoutColumn.rowcount; i++){
+		var colId = this.dsCustLayoutColumn.getColumn(i, "COL_ID");
+		
+		strColidList += colId +"|";
+	}
+	
+	// 마지막 기호('|') 제거
+	strColidList = strColidList.slice(0,-1);
+	
+	this.dsSave.setColumn(0, "XLS_HD_LIST", strColidList);
+	
+	
+	var nRowType = this.dsMaster.getRowType(this.dsMaster.rowposition);
+	
+	var strRowType = "";
+	
+	if( nRowType == Dataset.ROWTYPE_INSERT ) strRowType = "insert";
+	
+	
+	this.dsSave.setColumn(0, "MASTER_ROW_TYPE", strRowType);
+	
+	
+	
+	this.gfnCustomConfirm("저장하시겠습니까?", function(sPopupId, bResult){
+		
+		if(!bResult) return;
+		
+		this.gfnTransaction("saveCustLayout");
+	});
+	
+	
+}
+
+
+/***********************************************************************************************
+ * @function	: fnDelete
+ * @description	: 삭제
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnDelete = function() 
+{
+	if(this.dsMaster.getRowCount() == 0){
+		this.gfnAlert("삭제할 대상이 없습니다.");
+		return;
+	}
+	
+	
+	this.gfnCustomConfirm("삭제하시겠습니까?", function(sPopupId, bResult){
+		
+		if(!bResult) return;
+		
+		var nRowType = this.dsMaster.getRowType(this.dsMaster.rowposition);
+		
+		if( nRowType == Dataset.ROWTYPE_INSERT ){
+			
+			this.dsMaster.deleteRow(this.dsMaster.rowposition);
+			this.gfnAlert("삭제되었습니다.");
+			this.fnSearch();
+			
+		}else{
+		
+			var custIdValue = this.edtCustId_sc.value;
+			var custNmValue = this.edtCustNm_sc.value;
+			var rsvtDvValue = this.cboRsvtDv.value;
+			var xlsFrmNmOrgValue = this.dsMaster.getColumn(this.dsMaster.rowposition, "XLS_FRM_NM_ORG");
+		
+			this.dsDelete.setColumn(0, "CUST_ID", custIdValue);
+			this.dsDelete.setColumn(0, "WAREIO_DV", rsvtDvValue);
+			this.dsDelete.setColumn(0, "XLS_FRM_NM", xlsFrmNmOrgValue);
+			
+
+			this.gfnTransaction("deleteCustLayout");
+		}
+	});
+}
+
+
+/***********************************************************************************************
+ * @function	: fnChoise
+ * @description	: 선택
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnChoise = function()
+{
+	if(this.dsMaster.rowcount == 0){
+		this.gfnAlert("조회한 내용이 없습니다.");
+		return;
+	}
+
+
+	var row = this.dsMaster.rowposition;
+	
+	var nRowType = this.dsMaster.getRowType(row);
+	
+	
+	if( nRowType ==  Dataset.ROWTYPE_INSERT ){
+		this.gfnAlert("신규인경우 저장 후 선택가능합니다.");
+		return;
+	}
+	
+	if( row !== -1 ) {
+		// return dataSet 초기화
+		this.fnReturnClose(row);
+	}
+}
+
+
+/***********************************************************************************************
+ * @function	: fnReturnClose
+ * @description	: 
+ * @param		: obj	- nexacro.Edit
+ * @return N/A
+/***********************************************************************************************/
+this.fnReturnClose = function(row:Number) {
+
+	if( row !== -1 ) {
+		
+		
+		var colId;
+		for(var i=0; i<this.dsCustLayoutColumn.rowcount; i++){
+			colId = this.dsCustLayoutColumn.getColumn(i, "COL_ID");
+			this.dsResult.addColumn(colId, "STRING");
+		}
+		
+		// return dataSet 초기화
+		
+		var json = {
+			ds : this.dsResult.saveXML(),
+			callFn : this.getOwnerFrame().callbackFn
+		}
+		
+		
+		// opener에 값 셋팅.
+		//this.opener.edtRcptDv.set_value(this.dsMaster.getColumn(this.dsMaster.rowposition, "WAREIO_DV"));
+		//this.opener.div00.form.edtRcptDvNm.set_value(this.dsRsvtDv.lookup("CD",this.dsMaster.getColumn(this.dsMaster.rowposition, "WAREIO_DV"), "CD_NM"));
+		this.opener.edtXlsFormNm.set_value(this.dsMaster.getColumn(this.dsMaster.rowposition, "XLS_FRM_NM_ORG"));
+		
+		this.opener.dsMgmtColumn.copyData(this.dsMgmtColumn);
+		  
+		this.close(JSON.stringify(json));
+	}
+}
+
+
+/***********************************************************************************************
+ * @function	: fnExcel
+ * @description	: 엑셀 다운로드
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnExcel = function()
+{
+	if(this.dsMaster.rowcount == 0){
+		this.gfnAlert("조회한 내용이 없습니다.");
+		return;
+	}
+
+	
+	if( this.dsMaster.getRowType(this.dsMaster.rowposition) ==  Dataset.ROWTYPE_INSERT ){
+		this.gfnAlert("신규인경우 저장 후 다운로드가능합니다.");
+		return;
+	}
+	
+	var fileName = this.dsMaster.getColumn(this.dsMaster.rowposition, "XLS_FRM_NM")+"_"+this.gfnGetDate("milli");	// 파일명
+	
+	this.gfnExcelExport(this.grdExcel, "sheet1", fileName);
+}
+
+
+/***********************************************************************************************
+ * @function	: fnSetExcelGridForm
+ * @description	: 엑셀 그리드 항목 셋팅 (다운로드용). 
+/***********************************************************************************************/
+this.fnSetExcelGridForm = function()
+{	
+	for(var i = this.grdExcel.getCellCount("body"); i>=1; i--){
+		this.grdExcel.deleteContentsCol("body", i);
+	}
+
+	var nCol;
+	
+
+	// 양식에 맞는 그리드 그리기
+	for(var i=0; i<this.dsCustLayoutColumn.rowcount; i++){
+		
+		this.dsXls.addColumn("COL_ID_"+i, "string");
+		this.dsXls.setColumn(0, "COL_ID_"+i, this.dsCustLayoutColumn.getColumn(i,"COL_ID"));
+		
+		
+		nCol = this.grdExcel.appendContentsCol("body");
+		
+		this.grdExcel.setCellProperty("head", nCol, "text", this.dsCustLayoutColumn.getColumn(i,"COL_NM"));
+		this.grdExcel.setCellProperty("body", nCol, "text", "bind:COL_ID_"+i);
+		this.grdExcel.setCellProperty("body", nCol, "background", "#FFF0D2");
+		
+		this.grdExcel.setRealColSize("body", nCol, this.dsCustLayoutColumn.getColumn(i,"COL_WIDTH"));
+	}
+	
+}
+
+
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	//trace("[fnCallback()] svcID["+svcID+"] errorCode["+errorCode+"] errorMsg["+errorMsg+"]");
+	
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+		return;
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+			
+		break;
+		
+		// 고객레이아웃리스트 조회
+		case "getCustLayoutList" :
+			if(this.dsMaster.rowcount > 0){
+				// 고객레이아웃 조회
+				this.fnSearch2();
+			}
+		break;
+		
+		
+		// 고객레이아웃 조회
+		case "getCustLayout" :
+			// 기준레이아웃과 고객레이아웃컬럼을 셋팅.
+			this.fnSetLayoutColumn();
+			
+			this.fnSetExcelGridForm();
+			
+			
+			this.grd_Main.setFocus();
+		break;
+		
+		
+		// 저장
+		case "saveCustLayout":
+			this.gfnAlert("저장되었습니다.");
+			this.fnSearch();
+		break;
+		
+		
+		// 삭제
+		case "deleteCustLayout":
+			this.gfnAlert("삭제되었습니다.");
+			this.fnSearch();
+		break;
+		
+		default :
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnSetLayoutColumn
+ * @description	: 기준레이아웃과 고객레이아웃컬럼을 셋팅한다.
+ * @return N/A
+ ***********************************************************************************************/
+this.fnSetLayoutColumn = function()
+{
+	var strXlsHdList = this.dsDetail2.getColumn(0,"XLS_HD_LIST");
+			
+
+	var arrColId = this.gfnIsNull(strXlsHdList)?"":strXlsHdList.split('|');
+	
+	// 고객 레이아웃 컬럼 셋팅.
+	for(var i=0; i<arrColId.length; i++){
+		
+		var nRow = this.dsCustLayoutColumn.addRow();
+		this.dsCustLayoutColumn.setColumn(nRow, "NO", this.dsExcelAlphabet.getColumn(nRow, "CD_NM"));
+		this.dsCustLayoutColumn.setColumn(nRow, "COL_ID", arrColId[i]);
+		this.dsCustLayoutColumn.setColumn(nRow, "COL_NM", this.dsMgmtColumn.lookup("COL_ID", arrColId[i], "COL_NM"));
+		this.dsCustLayoutColumn.setColumn(nRow, "COL_WIDTH", this.dsMgmtColumn.lookup("COL_ID", arrColId[i], "COL_WIDTH"));
+		this.dsCustLayoutColumn.setColumn(nRow, "SEQ", this.dsMgmtColumn.findRow("COL_ID", colId));
+	}
+	
+	// 기준레이아웃 컬럼 셋팅. 
+	for(var i=0; i<this.dsMgmtColumn.rowcount; i++){
+		
+		var colId = this.dsMgmtColumn.getColumn(i, "COL_ID");
+		
+		// (고객 레이아웃에 셋팅된 컬럼은 제외)
+		if( this.dsCustLayoutColumn.findRow("COL_ID", colId) != -1) continue;
+		
+		var nRow = this.dsStdLayoutSortColumn.addRow();
+		this.dsStdLayoutSortColumn.setColumn(nRow, "COL_ID", colId);
+		this.dsStdLayoutSortColumn.setColumn(nRow, "COL_NM", this.dsMgmtColumn.lookup("COL_ID", colId, "COL_NM"));
+		this.dsStdLayoutSortColumn.setColumn(nRow, "COL_WIDTH", this.dsMgmtColumn.lookup("COL_ID", colId, "COL_WIDTH"));
+		this.dsStdLayoutSortColumn.setColumn(nRow, "SEQ", this.dsMgmtColumn.findRow("COL_ID", colId));
+	}		
+	
+	
+	this.dsStdLayoutSortColumn.set_keystring("S:+SEQ");
+	this.dsStdLayoutColumn.copyData(this.dsStdLayoutSortColumn, true);
+	
+}
+
+
+/***********************************************************************************************
+ * @function	: fnPopupCallBack
+ * @description	: popup Callback
+ * @param		: popupId	- String
+ * @param		: dsObj		- nexacro.NormalDataset
+ * @return N/A
+ ***********************************************************************************************/
+this.fnPopupCallback = function(popupId, dsObj)
+{
+	//trace("[fnPopupCallback()] sPopupId["+popupId+"] rtnMsg["+JSON.stringify(dsObj)+"]");
+	
+	switch(popupId) {
+		
+	
+	
+		default :
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function		: fnPopOpen
+ * @description		: 팝업 화면 오픈
+ * @param 			: obj	- Button object
+ * @param 			: e		- Button event 
+ * @return 			: N/A
+***********************************************************************************************/
+this.fnOpenPop = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var btnName		= obj.name;
+	
+	switch(btnName)
+	{
+		//case "btnOpenPopSearchCust" :	this.fnOpenPopSearchCust(); break; 
+		
+		default 		: 	break;
+	}
+};
+
+
+/***********************************************************************************************
+* USER FUNCTION
+***********************************************************************************************/
+
+ /************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+this.btnClose_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.close();
+};
+
+
+/***********************************************************************************************
+ * @function   : grd_Main_oncellclick
+ * @description   : 그리드 행 클릭 이벤트.
+ * @param      : obj   - nexacro.Grid
+ * @param      : e      - nexacro.GridClickEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.grd_Main_oncellclick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	this.keyFlag = false;
+	this.dsMaster.set_enableevent(false);
+	this.dsMaster.set_rowposition(e.row);
+	this.dsMaster.set_enableevent(true);
+	
+	if(e.row != e.oldrow){
+		if( this.dsMaster.getRowType(e.oldrow) == Dataset.ROWTYPE_INSERT){
+			this.gfnCustomConfirm("신규로 작업중인 내용은 삭제됩니다. 그래도 행을 변경하시겠습니까?", function(sPopupId, bResult){
+		
+				if(!bResult){
+					this.dsMaster.set_rowposition(e.oldrow);
+					return;
+				}
+				
+				this.dsMaster.deleteRow(e.oldrow);
+				this.fnSearch2();
+			});
+		}else{
+			this.fnSearch2();
+		}
+	}
+
+};
+
+
+/***********************************************************************************************
+ * @function   : gridMain_onheadclick
+ * @description   : 그리드 헤더 클릭 이벤트.
+ * @param      : obj   - nexacro.Grid
+ * @param      : e      - nexacro.GridClickEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.grdOnHeadClick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var strType = obj.getCellProperty("head", e.cell, "edittype");
+   if (strType == "checkbox") {
+      // checkBox Event
+      this.gfnSetGridCheckAll(obj, e);
+   }else {
+      //this.gfnGridSort(obj, e);
+   }
+};
+
+
+
+
+/***********************************************************************************************
+ * @function   : cboRsvtDv_onitemchanged
+ * @description: 예약구분 값 변경 이벤트.
+ * @param      : obj   - nexacro.Grid
+ * @param      : e      - nexacro.GridClickEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.cboRsvtDv_onitemchanged = function(obj:nexacro.Combo,e:nexacro.ItemChangeEventInfo)
+{
+	// 조회처리.
+	this.fnSearch();
+};
+
+
+/***********************************************************************************************
+ * @function   : grd_Main_onkeydown
+ * @description   : 그리드에서 방향키로 이동하는거 막음.
+ * @param      : obj   - nexacro.Grid
+ * @param      : e      - nexacro.KeyEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.grd_Main_onkeydown = function(obj:nexacro.Grid,e:nexacro.KeyEventInfo)
+{
+	if(e.keycode >= 38 && e.keycode <= 40){
+		this.keyFlag = true;
+	}else{
+		this.keyFlag = false;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function   : dsMaster_onrowposchanged
+ * @description   : 그리드 행 변경 이벤트.
+ * @param      : obj   - nexacro.Grid
+ * @param      : e      - nexacro.KeyEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.dsMaster_onrowposchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSRowPosChangeEventInfo)
+{
+
+	// 그리드에서 방향키로 이동하는거 막음.
+	if(this.keyFlag){
+		this.dsMaster.set_enableevent(false);
+		this.dsMaster.set_rowposition(e.oldrow);
+		this.dsMaster.set_enableevent(true);
+		this.keyFlag = false;
+		return false;
+	}
+	
+	var nRowType = this.dsMaster.getRowType(e.newrow);
+	var nOldRowType = this.dsMaster.getRowType(e.oldrow);
+	
+	if(e.newrow != e.oldrow){
+		if( this.dsMaster.getRowType(e.oldrow) == Dataset.ROWTYPE_INSERT){
+			this.gfnCustomConfirm("신규로 작업중인 내용은 삭제됩니다. 그래도 행을 변경하시겠습니까?", function(sPopupId, bResult){
+		
+				if(!bResult){
+					this.dsMaster.set_rowposition(e.oldrow);
+					return;
+				}
+				
+				this.dsMaster.deleteRow(e.oldrow);
+				this.fnSearch2();
+			});
+		}
+	}
+	
+	if(nOldRowType == Dataset.ROWTYPE_UPDATE){
+		
+		for(var i=0; i<this.dsMaster.getColCount(); i++){
+			
+			this.dsMaster.setColumn(e.oldrow, i, this.dsMaster.getOrgColumn(e.oldrow, i));
+			
+		}
+		
+	}
+};
+
+
+
+this.dsMaster_oncolumnchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSColChangeEventInfo)
+{
+	this.dsMaster.set_enableevent(false);
+	this.dsMaster.set_rowposition(e.row);
+	this.dsMaster.set_enableevent(true);
+};
+
+
+this.grd_Main_oncelldblclick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	this.fnChoise();
+};
+]]></Script>
+    <Objects>
+      <Dataset id="dsSearch" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="CUST_ID" size="256" type="STRING"/>
+          <Column id="CUST_NM" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM" type="STRING" size="256"/>
+          <Column id="WAREIO_DV" type="STRING" size="256"/>
+          <Column id="RSVT_DV" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="WAREIO_DV"/>
+            <Col id="XLS_FRM_NM"/>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="OUT_DATASET_LIST">dsRsvtDv=ds1 dsExcelAlphabet=ds2</Col>
+            <Col id="QUERY_LIST">q1=RV002 q2=SM994</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getCustLayoutList</Col>
+            <Col id="IN_DATASET_LIST">dsSearch=dsSearch</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="OUT_DATASET_LIST">dsMaster=dsMaster</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">dlvyRsrvService</Col>
+            <Col id="SERVICE_METHOD">getCustLayoutList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getCustLayout</Col>
+            <Col id="IN_DATASET_LIST">dsSearch=dsSearch</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="OUT_DATASET_LIST">dsDetail2=dsDetail2</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">dlvyRsrvService</Col>
+            <Col id="SERVICE_METHOD">getCustLayout</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">saveCustLayout</Col>
+            <Col id="IN_DATASET_LIST">dsSave=dsSave</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">dlvyRsrvService</Col>
+            <Col id="SERVICE_METHOD">saveCustLayout</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">deleteCustLayout</Col>
+            <Col id="IN_DATASET_LIST">dsDelete=dsDelete</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">dlvyRsrvService</Col>
+            <Col id="SERVICE_METHOD">deleteCustLayout</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsRsvtDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">01</Col>
+            <Col id="CD_NM">선택1</Col>
+          </Row>
+          <Row>
+            <Col id="CD">02</Col>
+            <Col id="CD_NM">선택2</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsMaster" onrowposchanged="dsMaster_onrowposchanged" oncolumnchanged="dsMaster_oncolumnchanged" cancolumnchange="dsMaster_cancolumnchange">
+        <ColumnInfo>
+          <Column id="CUST_ID" type="STRING" size="256"/>
+          <Column id="WAREIO_DV" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM" type="STRING" size="256"/>
+          <Column id="REG_EMP_ID" type="STRING" size="256"/>
+          <Column id="REG_EMP_NM" type="STRING" size="256"/>
+          <Column id="REG_DTIME" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM_ORG" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsStdLayoutColumn">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="256"/>
+          <Column id="COL_ID" type="STRING" size="256"/>
+          <Column id="COL_NM" type="STRING" size="256"/>
+          <Column id="COL_WIDTH" type="STRING" size="256"/>
+          <Column id="SEQ" type="INT" size="256"/>
+          <Column id="REQUIRED" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsCustLayoutColumn">
+        <ColumnInfo>
+          <Column id="NO" type="STRING" size="256"/>
+          <Column id="CHK" type="STRING" size="256"/>
+          <Column id="COL_ID" type="STRING" size="256"/>
+          <Column id="COL_NM" type="STRING" size="256"/>
+          <Column id="COL_WIDTH" type="STRING" size="256"/>
+          <Column id="SEQ" type="INT" size="256"/>
+          <Column id="REQUIRED" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsDetail2" onrowposchanged="dsMaster_onrowposchanged">
+        <ColumnInfo>
+          <Column id="CUST_ID" type="STRING" size="256"/>
+          <Column id="WAREIO_DV" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM" type="STRING" size="256"/>
+          <Column id="XLS_HD_LIST" type="STRING" size="256"/>
+          <Column id="REG_EMP_ID" type="STRING" size="256"/>
+          <Column id="REG_EMP_NM" type="STRING" size="256"/>
+          <Column id="REG_DTIME" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsExcelAlphabet">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsStdLayoutSortColumn">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="256"/>
+          <Column id="COL_ID" type="STRING" size="256"/>
+          <Column id="COL_NM" type="STRING" size="256"/>
+          <Column id="COL_WIDTH" type="STRING" size="256"/>
+          <Column id="SEQ" type="INT" size="256"/>
+          <Column id="REQUIRED" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSave">
+        <ColumnInfo>
+          <Column id="CUST_ID" type="STRING" size="256"/>
+          <Column id="WAREIO_DV" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM" type="STRING" size="256"/>
+          <Column id="XLS_HD_LIST" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM_NEW" type="STRING" size="256"/>
+          <Column id="MASTER_ROW_TYPE" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsDelete">
+        <ColumnInfo>
+          <Column id="CUST_ID" type="STRING" size="256"/>
+          <Column id="WAREIO_DV" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM" type="STRING" size="256"/>
+          <Column id="XLS_HD_LIST" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM_NEW" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsResult"/>
+      <Dataset id="dsXls">
+        <ColumnInfo>
+          <Column id="COL_ID" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="edtCustId_sc" propid="value" datasetid="dsSearch" columnid="CUST_ID"/>
+      <BindItem id="item1" compid="edtCustNm_sc" propid="value" datasetid="dsSearch" columnid="CUST_NM"/>
+    </Bind>
+  </Form>
+</FDL>

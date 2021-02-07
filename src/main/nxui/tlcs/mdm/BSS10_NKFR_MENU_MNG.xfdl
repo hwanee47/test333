@@ -1,0 +1,877 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form height="800" id="BSS10_NKFR_MENU_MNG" onload="form_onload" titletext="메뉴관리" width="1566">
+    <Layouts>
+      <Layout height="800" mobileorientation="landscape" width="1566">
+        <Static cssclass="in_tit01" domainId="T0386" height="31" id="sta00" left="10" taborder="2" text="메인메뉴" top="76" width="91"/>
+        <Grid autoenter="select" autofittype="col" autoupdatetype="itemselect" binddataset="ds_List" bottom="0" cellsizingtype="col" cssclass="tb_ty01" id="grd_Main" left="0" oncellclick="grd_Main_oncellclick" onheadclick="fn_Grid_onheadclick" onselectchanged="grd_Main_onselectchanged" taborder="0" top="105" width="699">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="37"/>
+                <Column size="100"/>
+                <Column size="100"/>
+                <Column size="60"/>
+                <Column size="97"/>
+                <Column size="80"/>
+              </Columns>
+              <Rows>
+                <Row size="26" band="head"/>
+                <Row size="26"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" accessibilitydescription="T0377" text="메뉴명"/>
+                <Cell col="3" accessibilitydescription="T2128" text="메뉴명(EN)"/>
+                <Cell col="4" accessibilitydescription="T0378" text="메뉴순번"/>
+                <Cell col="5" accessibilitydescription="T0514" text="시스템업무구분"/>
+                <Cell col="6" accessibilitydescription="T0514" text="사용여부"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1" textAlign="right"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox" text="bind:CHK"/>
+                <Cell col="2" edittype="normal" text="bind:MENU_NM" textAlign="left"/>
+                <Cell col="3" edittype="normal" text="bind:MENU_NM_EN" textAlign="left"/>
+                <Cell col="4" displaytype="number" editinputtype="number" edittype="normal" text="bind:SORT_MAIN" textAlign="right"/>
+                <Cell col="5" combocodecol="CD" combodatacol="CD_NM" combodataset="dsSysDutyDv" combotype="dropdown" displaytype="expr:dataset.getRowType(currow)==2?'combocontrol':'combotext'" edittype="expr:dataset.getRowType(currow)==2?'combo':'none'" text="bind:SYS_DUTY_DV" textAlign="left"/>
+                <Cell col="6" combocodecol="CD" combodatacol="CD_NM" combodataset="ds_UseYn" combotype="dropdown" displaytype="combocontrol" edittype="combo" text="bind:USE_YN"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Grid autoenter="select" autofittype="col" autoupdatetype="itemselect" binddataset="ds_SubList" bottom="0" cellsizingtype="col" cssclass="tb_ty01" id="grd_Sub" maxwidth="" onheadclick="fn_Grid_onheadclick" taborder="1" top="105" right="30" left="grd_Main:16">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="35"/>
+                <Column size="100"/>
+                <Column size="100"/>
+                <Column size="150"/>
+                <Column size="80"/>
+                <Column size="80"/>
+              </Columns>
+              <Rows>
+                <Row size="26" band="head"/>
+                <Row size="26"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" accessibilitydescription="T0377" text="메뉴명"/>
+                <Cell col="3" accessibilitydescription="T2128" text="메뉴명(EN)"/>
+                <Cell col="4" accessibilitydescription="T0376" text="메뉴URL"/>
+                <Cell col="5" accessibilitydescription="T0378" text="메뉴순번"/>
+                <Cell col="6" accessibilitydescription="T0514" text="사용여부"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1" textAlign="right"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox" text="bind:CHK"/>
+                <Cell col="2" edittype="normal" text="bind:MENU_NM" textAlign="left"/>
+                <Cell col="3" edittype="normal" text="bind:MENU_NM_EN" textAlign="left"/>
+                <Cell col="4" edittype="normal" text="bind:MENU_URL" textAlign="left"/>
+                <Cell col="5" displaytype="number" editinputtype="number" edittype="normal" text="bind:SORT_SUB" textAlign="right"/>
+                <Cell col="6" combocodecol="CD" combodatacol="CD_NM" combodataset="ds_UseYn" displaytype="combocontrol" edittype="combo" text="bind:USE_YN"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Button cssclass="btn_ty01_save" domainId="T0830" fittocontents="none" height="23" id="btn_S_Save" onclick="fn_SubSave" right="176" taborder="11" tabstop="false" text="저장" top="79" width="68"/>
+        <Button cssclass="btn_ty01_excel" domainId="T0682" fittocontents="none" height="23" id="btn_S_Excel" onclick="fn_ExcelDown" right="30" taborder="10" tabstop="false" text="엑셀" top="79" width="68"/>
+        <Button cssclass="btn_ty01_delete" domainId="T0519" fittocontents="none" height="23" id="btn_S_Delete" onclick="fn_SubDelete" right="103" taborder="9" tabstop="false" text="삭제" top="79" width="68"/>
+        <Button cssclass="btn_ty01_new" domainId="T0991" fittocontents="none" height="23" id="btn_S_New" onclick="btn_New_onclick" right="249" taborder="8" tabstop="false" text="신규" top="79" width="68"/>
+        <Static cssclass="top_search_ty01" height="41" id="sta02" left="0" right="30" taborder="14" text="" top="35"/>
+        <Static cssclass="in_tit01" domainId="T0588" height="31" id="sta01" taborder="3" text="서브메뉴" width="330" top="78" left="728"/>
+        <Button cssclass="btn_ty01_save" domainId="T0830" fittocontents="none" height="23" id="btn_Save" onclick="fn_Save" taborder="4" tabstop="false" text="저장" top="79" width="68" left="483"/>
+        <Button cssclass="btn_ty01_excel" domainId="T0682" fittocontents="none" height="23" id="btn_Excel" onclick="fn_ExcelDown" taborder="5" tabstop="false" text="엑셀" top="79" width="68" left="629"/>
+        <Button cssclass="btn_ty01_delete" domainId="T0519" fittocontents="none" height="23" id="btn_Delete" onclick="fn_MainDelete" taborder="6" tabstop="false" text="삭제" top="79" width="68" left="556"/>
+        <Button cssclass="btn_ty01_new" domainId="T0991" fittocontents="none" height="23" id="btn_New" onclick="btn_New_onclick" taborder="7" tabstop="false" text="신규" top="sta02:3" width="68" left="410"/>
+        <Static bottom="-65" domainId="T0012" height="15" id="stc_cnt" left="10" taborder="12" text="0건" width="51" visible="false"/>
+        <Static bottom="-65" domainId="T0012" height="15" id="stc_s_cnt" taborder="13" text="0건" width="51" right="715" visible="false"/>
+        <Edit cssclass="inp_ty01" height="23" id="edt_nm" left="531" taborder="15" top="44" width="130"/>
+        <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cbo_useYn" index="-1" innerdataset="ds_UseYn" left="304" taborder="16" text="사용" top="44" value="Y" width="130"/>
+        <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cbo_menuSys" index="-1" innerdataset="dsSysDutyDv_sc" left="87" taborder="17" top="44" width="130"/>
+        <Static cssclass="top_search_tx01" domainId="T0387" height="23" id="sta03" left="458" taborder="18" text="메인메뉴명" top="44" width="68"/>
+        <Static cssclass="top_search_tx01" domainId="T0514" height="23" id="sta04" left="242" taborder="19" text="사용여부" top="44" width="68"/>
+        <Static cssclass="top_search_tx01" domainId="T0641" height="23" id="sta05" left="25" taborder="20" text="업무구분" top="44" width="68"/>
+        <Static fittocontents="width" height="13" id="sta04_00" taborder="21" text="l" textAlign="center" top="11" width="4" left="9" cssclass="top_title_prefix01"/>
+        <Div id="divBtn" taborder="22" top="0" height="34" right="30" text="btnComponent" width="556">
+          <Layouts>
+            <Layout/>
+          </Layouts>
+        </Div>
+        <Static id="staMenuFullPath" taborder="23" left="21" top="1" width="469" fittocontents="none" onclick="sta09_onclick" height="34" cssclass="top_title_route01" text="MENU_FULL_PATH"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  메뉴등록 관리
+*  @MenuPath       	mdm > BSS10_NKFR_MENU_MNG
+*  @FileName 		BSS10_NKFR_MENU_MNG.xfdl
+*  @Creator 			seungmin
+*  @CreateDate 	2018.06.09
+*  @Desction         스크립트 표준 및 주석 표준 정의
+************** 소스 수정 이력 ***************************************************
+*  date          		Modifier                Description
+*******************************************************************************
+*  2018.06.09     	seungmin 	           최초 생성
+*******************************************************************************
+*/
+ 
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+ this.objApp;
+ /***********************************************************************************************
+ * @function: form_onload
+ * @description: FORM 온로드
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	this.gfnTransaction("commonCode");
+};
+
+ /***********************************************************************************************
+ * @function: fn_Search
+ * @description: 메인 메뉴 조회.
+ * @param : N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearch = function()
+{
+	this.dsSearch.clearData();
+	this.dsSearch.insertRow(0);
+	
+	this.ds_List.clearData();
+	this.ds_SubList.clearData();
+	
+	this.dsSearch.setColumn(0, "MENU_TYPE"	, "0");						//메인메뉴
+	this.dsSearch.setColumn(0, "MENU_NM"	, this.edt_nm.value);		//메인명
+	this.dsSearch.setColumn(0, "USE_YN"		, this.cbo_useYn.value);	//사용여부
+	//this.dsSearch.setColumn(0, "MENU_SYS"	, this.cbo_menuSys.value);	//업무구분(M : 운송가맹,  C : 화물정보센터)
+	
+	this.gfnTransaction("selectMainInfo");
+};
+
+
+ /***********************************************************************************************
+ * @function: fn_Search_Sub
+ * @description: 서브 메뉴 조회.
+ * @param : obj - Button object
+ * @param : e - Button event 
+ * @return N/A
+/***********************************************************************************************/ 
+this.fn_Search_Sub = function (nRow)
+{
+	//메인 메뉴가 신규인 경우 서브 메뉴 조회 생략
+	if(this.ds_List.getRowType(nRow) == 2) {
+		this.ds_SubList.clearData();
+		return true;
+	}
+
+	//서브메뉴 변경 내역 존재 여부 확인.
+	if(this.ds_List.getRowCount() > 0 && this.gfnDsIsUpdated(this.ds_SubList)) {
+		if(!this.gfnConfirm("M0303")) {
+			return false;
+		}
+	}
+	
+	this.dsSearch.clearData();
+	this.dsSearch.insertRow(0);
+
+	this.ds_SubList.clearData();
+	
+	this.dsSearch.setColumn(0, "MSTR_MENU_CD"	, this.ds_List.getColumn(nRow, "MENU_CD"));				 //대분류코드에 해당하는 소분류 코드를 조회
+	this.dsSearch.setColumn(0, "MENU_TYPE"		, "1");		//메뉴레벨
+	//this.dsSearch.setColumn(0, "MENU_SYS"		, this.ds_List.getColumn(nRow, "MENU_SYS"));			//업무구분(M : 운송가맹,  C : 화물정보센터)
+
+	this.gfnTransaction("selectSubInfo");
+	return true;
+};
+ 
+ /***********************************************************************************************
+ * @function: btn_New_onclick
+ * @description: 추가 버튼 클릭 이벤트
+ * @param : obj - Button object
+ * @param : e - Button event 
+ * @return N/A
+/***********************************************************************************************/ 
+this.btn_New_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var dsObj = (obj.name == "btn_New" ? this.ds_List : this.ds_SubList);
+			
+	//대메뉴
+	if(obj.name == "btn_New") {
+		var v_MenuSys = this.cbo_menuSys.value;
+		
+		//하나이상 추가안됨
+		if(this.fn_gridCheckInsert(dsObj)) {
+			
+			var addRow = dsObj.addRow();	//그리드 ROW 추가.	
+			
+			//default 설정 - 사용여부, 메뉴레벨
+			dsObj.setColumn(addRow, "MENU_SYS", "M");
+			dsObj.setColumn(addRow, "USE_YN", "Y");
+			dsObj.setColumn(addRow, "MENU_TYPE", "0");
+		}
+	} 
+	//소메뉴
+	else {
+		var v_MenuSys = this.ds_List.getColumn(this.ds_List.rowposition, "MENU_SYS");
+		var v_MasterMenuXCd = this.ds_List.getColumn(this.ds_List.rowposition, "MENU_CD");
+		var v_SortMain = this.ds_List.getColumn(this.ds_List.rowposition, "SORT_MAIN");
+	
+		//필수 값 확인.
+		if(this.ds_List.getRowCount() <= 0) {
+			//this.gfnAlert("M0170");
+			this.gfnAlert("M0170");
+			return;
+		}
+		
+		/*if(this.gfnIsNull(v_MenuSys)) {
+			//this.gfnAlert("M0355");
+			this.gfnAlert("M0355");
+			this.grd_Main.selectRow(this.ds_List.rowposition);
+			return;
+		}*/
+		
+		if(this.gfnIsNull(v_MasterMenuXCd)) {
+			//this.gfnAlert("M0171");
+			this.gfnAlert("메인메뉴먼저 저장하세요.");
+			this.grd_Main.selectRow(this.ds_List.rowposition);
+			return;
+		}
+		
+		var addRow = dsObj.addRow();	//그리드 ROW 추가.	
+		
+		//default 설정 - 사용여부, 시스템구분, 메뉴레벨, 부모메뉴, 부모순서, 시스템업무구분
+		//dsObj.setColumn(addRow, "MENU_SYS"			, v_MenuSys);
+		dsObj.setColumn(addRow, "MSTR_MENU_CD"		, v_MasterMenuXCd);
+		dsObj.setColumn(addRow, "MENU_TYPE"			, "1");
+		dsObj.setColumn(addRow, "SORT_MAIN"			, v_SortMain);
+		dsObj.setColumn(addRow, "USE_YN"			, "Y");
+		dsObj.setColumn(addRow, "SYS_DUTY_DV"		, v_MasterMenuXCd.substr(0,4));
+		
+	}
+};
+
+ /***********************************************************************************************
+ * @function: fn_gridCheckInsert
+ * @description: 그리드에 추가 된 row가 한건 이상인지 체크.
+ * @param : objGrd - Grid object
+ * @return N/A
+/***********************************************************************************************/ 
+this.fn_gridCheckInsert = function (dsObj) 
+{
+	if(dsObj.getRowCount() >= 0) {
+		var checkCnt = 0;
+		for(var i=0; i<dsObj.getRowCount(); i++) {
+			if(dsObj.getRowType(i) == 2) {
+				checkCnt++;
+			}
+		}
+		
+		if(checkCnt > 1) return false;
+	}
+	
+	return true;
+};
+
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	if(errorCode < 0) {    
+		//this.gfnAlert(errorMsg);
+		this.alert(errorMsg);
+	}else{    
+		if(svcID == "selectMainInfo") {
+			this.stc_cnt.set_text(this.ds_List.getRowCount() + " 건");
+		} else if(svcID == "selectSubInfo") {
+			this.stc_s_cnt.set_text(this.ds_SubList.getRowCount() + " 건");
+		} else if(svcID == "saveMainInfo" || svcID == "saveSubInfo") {
+			//this.gfnAlert("M0418");
+			this.gfnAlert("저장되었습니다.");
+			this.fnSearch();
+		} else if(svcID == "deleteMainInfo" || svcID == "deleteSubInfo") {
+			//this.gfnAlert("M0263");
+			this.gfnAlert("M0263");
+			this.fnSearch();
+			
+		} else if(svcID == "commonCode") {
+		
+			this.fnAddCodeDef(this.dsSysDutyDv_sc, '전체');
+		
+			this.cbo_useYn.set_index(0);
+			this.cbo_menuSys.set_index(0);
+			
+			
+			this.fnAddCodeDef(this.dsSysDv, '');
+			
+			
+		}  
+		
+		
+ 	}  
+};
+
+ /***********************************************************************************************
+ * @function	: fnAfterCodeDef
+ * @description	: 코드조회후 선택,전체 추가
+ * @param		: dsObj	- Dataset Object
+ * @param       : strText - String
+ * @return N/A
+/***********************************************************************************************/
+this.fnAddCodeDef = function(dsObj:nexacro.NormalDataset, strText:String) 
+{
+	dsObj.insertRow();
+	dsObj.setColumn(0,'CD','');
+	dsObj.setColumn(0,'CD_NM', strText);
+}
+
+
+/***********************************************************************************************
+ * @function: grd_Main_onselectchanged
+ * @description: 그리드 선택 영역이 변경 된 경우 이벤트
+ * @param : obj - Grid object
+ * @param : e - Grid event
+ * @return N/A
+/***********************************************************************************************/
+this.grd_Main_onselectchanged = function(obj:nexacro.Grid,e:nexacro.GridSelectEventInfo)
+{
+	obj.set_enableevent(false);
+	//서브 메뉴 조회.
+	if(!this.fn_Search_Sub(e.row)) {
+		obj.selectRow(e.oldrow);
+	}
+	
+	obj.set_enableevent(true);
+};
+
+
+/***********************************************************************************************
+ * @function: fn_Save
+ * @description: 대메뉴 입력 된 정보 저장 처리 함수.
+ * @param : obj - Button object
+ * @param : e - Button event
+ * @return N/A
+/***********************************************************************************************/
+this.fn_Save = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	//변경사항 있는지 확인.
+	if(this.gfnDsIsUpdated(this.ds_List) == false) {
+		//this.gfnAlert("M0418");
+		this.gfnAlert("저장할 내용이 없습니다.");
+		return;
+	}
+	
+	//chk된 항목이 있는지 확인.
+	if(this.ds_List.findRow("CHK", "1") < 0) {
+		//this.gfnAlert("M0307");
+		this.gfnAlert("저장할 메인메뉴를 체크해주세요.");
+		return;
+	}
+	
+	//유효성 검사.
+	if(!this.fn_validation("M")) return;
+	
+	
+	this.gfnCustomConfirm("저장하시겠습니까?", function(sPopupId, bResult){
+		
+		if(!bResult) return;
+		
+		// 트랜잭션 호출 (저장)
+		this.gfnTransaction("saveMainInfo");
+	});
+	
+};
+
+
+/***********************************************************************************************
+ * @function: fn_SubSave
+ * @description: 소메뉴 입력 된 정보 저장 처리 함수.
+ * @param : obj - Button object
+ * @param : e - Button event
+ * @return N/A
+/***********************************************************************************************/
+this.fn_SubSave = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	//변경사항 있는지 확인.
+	if(this.gfnDsIsUpdated(this.ds_SubList) == false) {
+		//this.gfnAlert("M0418");
+		this.gfnAlert("저장할 내용이 없습니다.");
+		return;
+	}
+	
+	//chk된 항목이 있는지 확인.
+	if(this.ds_SubList.findRow("CHK", "1") < 0) {
+		//this.gfnAlert("M0307");
+		this.gfnAlert("저장할 서브메뉴를 체크해주세요.");
+		return;
+	}
+	
+	//유효성 검사.
+	if(!this.fn_validation("S")) return;
+	
+	
+	this.gfnCustomConfirm("저장하시겠습니까?", function(sPopupId, bResult){
+		
+		if(!bResult) return;
+		
+		// 트랜잭션 호출 (저장)
+		this.gfnTransaction("saveSubInfo");
+	});
+	
+	
+};
+
+
+/***********************************************************************************************
+ * @function: fn_validation
+ * @description: data 적합성 검사 함수.
+ * @param : strType - 적합성 검사 타입
+ * @return : true - 적합성 검사 통과, false - 적합성 검사 부적절
+/***********************************************************************************************/
+this.fn_validation = function (strType)
+{
+	if(strType == "M") {
+		//data가 없는 경우
+		if(this.ds_List.getRowCount() == 0) {
+			//this.gfnAlert("M0488");
+			//this.gfnAlert("M0488");
+			return false;
+		}
+		
+		//필수값 확인.
+		var v_msg = "";
+		for(var i=0; i<this.ds_List.getRowCount(); i++) {
+			if(this.gfnIsNull(this.ds_List.getColumn(i, "MENU_NM"))) {
+				v_msg = "메뉴명을 입력하세요.";
+			} else if(this.gfnIsNull(this.ds_List.getColumn(i, "SORT_MAIN"))){
+				v_msg = "메뉴순번을 입력해주세요.";
+			}
+			
+			if(!this.gfnIsNull(v_msg)) {
+				//this.gfnAlert(v_msg);
+				this.alert(v_msg);
+				this.ds_List.set_rowposition(i);
+				return false;
+			}
+		}
+	} else {
+		//data가 없는 경우
+		if(this.ds_SubList.getRowCount() == 0) {
+			//this.gfnAlert("M0488");
+			//this.gfnAlert("M0488");
+			return false;
+		}
+		
+		//필수값 확인.
+		var v_msg = "";
+		for(var i=0; i<this.ds_SubList.getRowCount(); i++) {
+			if(this.gfnIsNull(this.ds_SubList.getColumn(i, "MENU_NM"))) {
+				v_msg = "메뉴명을 입력하세요.";
+			} else if(this.gfnIsNull(this.ds_SubList.getColumn(i, "SORT_SUB"))){
+				v_msg = "메뉴순번을 입력해주세요.";
+			} else if(this.gfnIsNull(this.ds_SubList.getColumn(i, "MENU_URL"))){
+				v_msg = "메뉴 URL을 입력해주세요.";
+			}
+			
+			if(!this.gfnIsNull(v_msg)) {
+				//this.gfnAlert(v_msg);
+				this.alert(v_msg);
+				this.ds_SubList.set_rowposition(i);
+				return false;
+			}
+		}
+	}
+	
+	return true;
+};
+
+/***********************************************************************************************
+ * @function: fn_MainDelete
+ * @description: 대메뉴 입력 된 정보 삭제 처리 함수.
+ * @param : obj - Button object
+ * @param : e - Button event
+ * @return N/A
+/***********************************************************************************************/
+this.fn_MainDelete = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	//chk된 항목이 있는지 확인.
+	if(this.ds_List.findRow("CHK", "1") < 0) {
+		//this.gfnAlert("M0269");
+		this.gfnAlert("삭제할 메인메뉴를 체크해주세요.");
+		return;
+	}
+	
+	this.ds_MainDelete.clearData();
+	
+	
+	this.gfnCustomConfirm("삭제하시겠습니까?", function(sPopupId, bResult){
+		
+		if(!bResult) return;
+		
+		for(var i=this.ds_List.getRowCount() -1; i>=0; i--) {
+			if(this.ds_List.getColumn(i, "CHK") == '1') {
+				if(this.ds_List.getRowType(i) == 2) {
+						this.ds_List.deleteRow(i);
+		
+				} else {
+					var addrow = this.ds_MainDelete.addRow();
+					this.ds_MainDelete.copyRow(addrow, this.ds_List, i);
+				}
+			}
+		}	
+		
+		if(this.ds_MainDelete.getRowCount() > 0) {
+			this.gfnTransaction("deleteMainInfo");
+		}
+	});
+	
+};
+
+
+/***********************************************************************************************
+ * @function: fn_SubDelete
+ * @description: 소메뉴 입력 된 정보 삭제 처리 함수.
+ * @param : obj - Button object
+ * @param : e - Button event
+ * @return N/A
+/***********************************************************************************************/
+this.fn_SubDelete = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	//chk된 항목이 있는지 확인.
+	if(this.ds_SubList.findRow("CHK", "1") < 0) {
+		//this.gfnAlert("M0269");
+		this.gfnAlert("삭제할 메인메뉴를 체크해주세요.");
+		return;
+	}
+	
+	this.ds_SubDelete.clearData();
+	
+	
+	this.gfnCustomConfirm("삭제하시겠습니까?", function(sPopupId, bResult){
+		
+		if(!bResult) return;
+		
+		for(var i=this.ds_SubList.getRowCount() -1; i>=0; i--) {
+			if(this.ds_SubList.getColumn(i, "CHK") == '1') {
+				if(this.ds_SubList.getRowType(i) == 2) {
+						this.ds_SubList.deleteRow(i);
+		
+				} else {
+					var addrow = this.ds_SubDelete.addRow();
+					this.ds_SubDelete.copyRow(addrow, this.ds_SubList, i);
+				}
+			}
+		}	
+		
+		if(this.ds_SubDelete.getRowCount() > 0) {
+			this.gfnTransaction("deleteSubInfo");
+		}
+	});
+	
+};
+
+/***********************************************************************************************
+ * @function: fn_Grid_onheadclick
+ * @description: 그리드 헤더 클릭 이벤트 처리 함수.
+ * @param : obj - Grid object
+ * @param : e - Grid event
+ * @return N/A
+/***********************************************************************************************/
+this.fn_Grid_onheadclick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var objDs = this.lookup(obj.binddataset);
+	
+	this.gfnGridSort(obj, e);
+};
+
+/***********************************************************************************************
+ * @function: fn_ExcelDown
+ * @description: 그리드 표시 된 정보를 엑셀로 download
+ * @param : obj - Button object
+ * @param : e - Button event
+ * @return N/A
+/***********************************************************************************************/
+this.fn_ExcelDown = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var objGrd = (obj.name == "btn_Excel"? this.grd_Main : this.grd_Sub);
+	var objDs = (obj.name == "btn_Excel"? this.ds_List : this.ds_SubList);
+	
+	if(objDs.getRowCount() > 0) {
+		this.gfnExcelExport(objGrd);
+	} else {
+		//this.gfnAlert("M0113");
+		this.gfnAlert("M0113");
+	}
+};
+
+
+this.grd_Main_oncellclick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var cellType = obj.getCellProperty("body", e.cell, "displaytype");
+	if(cellType == "combocontrol") {
+		obj.showEditor(true); 
+		obj.dropdownCombo(); 
+	}
+ };
+]]></Script>
+    <Objects>
+      <Dataset id="ds_List" useclientlayout="true">
+        <ColumnInfo>
+          <Column id="MENU_CD" size="256" type="STRING"/>
+          <Column id="MENU_NM" size="256" type="STRING"/>
+          <Column id="MENU_TYPE" size="256" type="STRING"/>
+          <Column id="MSTR_MENU_CD" size="256" type="STRING"/>
+          <Column id="MENU_URL" size="256" type="STRING"/>
+          <Column id="SORT_MAIN" size="256" type="INT"/>
+          <Column id="SORT_SUB" size="256" type="INT"/>
+          <Column id="MENU_SYS" size="256" type="STRING"/>
+          <Column id="MENU_DESC" size="256" type="STRING"/>
+          <Column id="USE_YN" size="256" type="STRING"/>
+          <Column id="DEL_YN" size="256" type="STRING"/>
+          <Column id="MENU_IMG_CLASS" size="256" type="STRING"/>
+          <Column id="CHK" size="256" type="STRING"/>
+          <Column id="MENU_NM_EN" size="256" type="STRING"/>
+          <Column id="MENU_NM_ZH" size="256" type="STRING"/>
+          <Column id="SYS_DUTY_DV" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_SubList" useclientlayout="true">
+        <ColumnInfo>
+          <Column id="MENU_CD" size="256" type="STRING"/>
+          <Column id="MENU_NM" size="256" type="STRING"/>
+          <Column id="MENU_TYPE" size="256" type="STRING"/>
+          <Column id="MSTR_MENU_CD" size="256" type="STRING"/>
+          <Column id="MENU_URL" size="256" type="STRING"/>
+          <Column id="SORT_MAIN" size="256" type="STRING"/>
+          <Column id="SORT_SUB" size="256" type="STRING"/>
+          <Column id="MENU_SYS" size="256" type="STRING"/>
+          <Column id="MENU_DESC" size="256" type="STRING"/>
+          <Column id="USE_YN" size="256" type="STRING"/>
+          <Column id="DEL_YN" size="256" type="STRING"/>
+          <Column id="MENU_IMG_CLASS" size="256" type="STRING"/>
+          <Column id="CHK" size="256" type="STRING"/>
+          <Column id="MENU_NM_EN" size="256" type="STRING"/>
+          <Column id="MENU_NM_ZH" size="256" type="STRING"/>
+          <Column id="SYS_DUTY_DV" type="STRING" size="256"/>
+          <Column id="Column0" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSearch">
+        <ColumnInfo>
+          <Column id="MENU_TYPE" size="256" type="STRING"/>
+          <Column id="MENU_NM" size="256" type="STRING"/>
+          <Column id="USE_YN" size="256" type="STRING"/>
+          <Column id="MENU_SYS" size="256" type="STRING"/>
+          <Column id="MSTR_MENU_CD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="MENU_TYPE">test1</Col>
+            <Col id="MENU_NM">test1</Col>
+            <Col id="USE_YN">tester1@cj.cj.cj.cj.net</Col>
+            <Col id="MENU_SYS">테스터이름</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsService">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">selectMainInfo</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">ds_List=ds1</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST">q1=menuMgmService.selectMenuList</Col>
+            <Col id="SERVICE_BEANNAME"/>
+            <Col id="SERVICE_METHOD"/>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">selectSubInfo</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">ds_SubList=ds1</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST">q1=menuMgmService.selectMenuList</Col>
+            <Col id="SERVICE_BEANNAME"/>
+            <Col id="SERVICE_METHOD"/>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">saveMainInfo</Col>
+            <Col id="IN_DATASET_LIST">ds_Save=ds_List:U</Col>
+            <Col id="OUT_DATASET_LIST"/>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">menuMgmService</Col>
+            <Col id="SERVICE_METHOD">saveMainMenu</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">saveSubInfo</Col>
+            <Col id="IN_DATASET_LIST">ds_Save=ds_SubList:U</Col>
+            <Col id="OUT_DATASET_LIST"/>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">menuMgmService</Col>
+            <Col id="SERVICE_METHOD">saveSubMenu</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">deleteMainInfo</Col>
+            <Col id="IN_DATASET_LIST">ds_Delete=ds_MainDelete:U</Col>
+            <Col id="OUT_DATASET_LIST"/>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">menuMgmService</Col>
+            <Col id="SERVICE_METHOD">deleteMenu</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">deleteSubInfo</Col>
+            <Col id="IN_DATASET_LIST">ds_Delete=ds_SubDelete:U</Col>
+            <Col id="OUT_DATASET_LIST"/>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">menuMgmService</Col>
+            <Col id="SERVICE_METHOD">deleteMenu</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="OUT_DATASET_LIST">ds_UseYn=ds1 dsSysDutyDv=ds2 dsSysDutyDv_sc=ds3 dsSysDv=ds4</Col>
+            <Col id="QUERY_LIST">q1=SM993 q2=SM999 q3=SM999 q4=SM1000</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_UseYn">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_MainDelete" useclientlayout="true">
+        <ColumnInfo>
+          <Column id="MENU_CD" size="256" type="STRING"/>
+          <Column id="MENU_NM" size="256" type="STRING"/>
+          <Column id="MENU_TYPE" size="256" type="STRING"/>
+          <Column id="MSTR_MENU_CD" size="256" type="STRING"/>
+          <Column id="MENU_URL" size="256" type="STRING"/>
+          <Column id="SORT_MAIN" size="256" type="INT"/>
+          <Column id="SORT_SUB" size="256" type="INT"/>
+          <Column id="MENU_SYS" size="256" type="STRING"/>
+          <Column id="MENU_DESC" size="256" type="STRING"/>
+          <Column id="USE_YN" size="256" type="STRING"/>
+          <Column id="DEL_YN" size="256" type="STRING"/>
+          <Column id="MENU_IMG_CLASS" size="256" type="STRING"/>
+          <Column id="CHK" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_SubDelete" useclientlayout="true">
+        <ColumnInfo>
+          <Column id="MENU_CD" size="256" type="STRING"/>
+          <Column id="MENU_NM" size="256" type="STRING"/>
+          <Column id="MENU_TYPE" size="256" type="STRING"/>
+          <Column id="MSTR_MENU_CD" size="256" type="STRING"/>
+          <Column id="MENU_URL" size="256" type="STRING"/>
+          <Column id="SORT_MAIN" size="256" type="STRING"/>
+          <Column id="SORT_SUB" size="256" type="STRING"/>
+          <Column id="MENU_SYS" size="256" type="STRING"/>
+          <Column id="MENU_DESC" size="256" type="STRING"/>
+          <Column id="USE_YN" size="256" type="STRING"/>
+          <Column id="DEL_YN" size="256" type="STRING"/>
+          <Column id="MENU_IMG_CLASS" size="256" type="STRING"/>
+          <Column id="CHK" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_CboBusiness">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSysDutyDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSysDutyDv_sc">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSysDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">01</Col>
+            <Col id="CD_NM">운임구분1</Col>
+          </Row>
+          <Row>
+            <Col id="CD">02</Col>
+            <Col id="CD_NM">운임구분2</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsBtn">
+        <ColumnInfo>
+          <Column id="BTN_SEL" type="STRING" size="256"/>
+          <Column id="BTN_ADD" type="STRING" size="256"/>
+          <Column id="BTN_SAV" type="STRING" size="256"/>
+          <Column id="BTN_DEL" type="STRING" size="256"/>
+          <Column id="BTN_XLS" type="STRING" size="256"/>
+          <Column id="BTN_PRT" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="BTN_SEL">1</Col>
+            <Col id="BTN_ADD">0</Col>
+            <Col id="BTN_SAV">0</Col>
+            <Col id="BTN_DEL">0</Col>
+            <Col id="BTN_PRT">0</Col>
+            <Col id="BTN_XLS">0</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem columnid="CD_TCD" compid="edt_nm" datasetid="dsSearch" id="item0" propid="value"/>
+    </Bind>
+  </Form>
+</FDL>

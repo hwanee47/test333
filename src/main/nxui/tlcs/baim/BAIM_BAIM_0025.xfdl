@@ -1,0 +1,433 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form height="800" id="BAIM_BAIM_0025" oninit="form_oninit" onload="form_onload" titletext="점소현황" width="1566">
+    <Layouts>
+      <Layout height="800" mobileorientation="landscape" width="1566">
+        <Static cssclass="top_search_ty01" height="41" id="stc_search" left="0" right="30" taborder="3" top="35"/>
+        <Grid autoenter="select" autofittype="col" cellsizingtype="col" cssclass="tb_ty01" id="grd_Main" left="0" right="30" taborder="2" top="stc_search:3" binddataset="dsBranInfoList" bottom="0" treeinitstatus="expand,all" treeusecheckbox="false">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="128"/>
+                <Column size="80"/>
+                <Column size="65"/>
+                <Column size="390"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="점소명"/>
+                <Cell col="1" text="점소코드"/>
+                <Cell col="2" text="점소구분"/>
+                <Cell col="3" text="주소"/>
+                <Cell col="4" text="대표자명"/>
+                <Cell col="5" text="전화번호"/>
+                <Cell col="6" text="영업개시일"/>
+                <Cell col="7" text="영업종료일"/>
+                <Cell col="8" text="점소상태"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:BRAN_NM" treelevel="bind:LEVEL" displaytype="treeitemcontrol" edittype="tree"/>
+                <Cell col="1" text="bind:BRAN_CD" textAlign="left" edittype="none"/>
+                <Cell col="2" text="bind:BRAN_DV" edittype="none" displaytype="combotext" combodataset="dsBranDv" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="3" text="bind:FULL_ADDR" textAlign="left" edittype="none"/>
+                <Cell col="4" text="bind:REPRE_NM" textAlign="left" edittype="none"/>
+                <Cell col="5" text="bind:REPRE_TEL_NO" edittype="none"/>
+                <Cell col="6" text="bind:SALE_START_YMD" displaytype="date" edittype="none"/>
+                <Cell col="7" text="bind:SALE_END_YMD" displaytype="expr:SALE_END_YMD.length == 0? &quot;normal&quot; : &quot;date&quot;" edittype="none"/>
+                <Cell col="8" text="bind:BRAN_ST" edittype="none" displaytype="combotext" combodataset="dsBranSt" combodatacol="CD_NM" combocodecol="CD"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static id="staMenuFullPath" taborder="4" left="21" top="1" width="469" fittocontents="none" onclick="sta09_onclick" height="34" cssclass="top_title_route01" text="MENU_FULL_PATH"/>
+        <Static fittocontents="width" height="13" id="sta04_00" taborder="5" text="l" textAlign="center" top="11" width="4" left="9" cssclass="top_title_prefix01"/>
+        <Div id="divBtn" taborder="6" top="0" height="34" right="30" text="btnComponent" width="556">
+          <Layouts>
+            <Layout/>
+          </Layouts>
+        </Div>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp" left="25" taborder="7" text="점소명" top="45" width="43"/>
+        <Edit id="edtBranCd" taborder="1" left="304" top="44" width="106" height="23" cssclass="inp_ty01" inputmode="upper"/>
+        <Edit id="edtBranNm" taborder="0" left="71" top="44" width="140" height="23" enable="true" cssclass="inp_ty01"/>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp00" left="245" taborder="8" text="점소코드" top="45" width="55"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  점소현황
+*  @MenuPath		
+*  @FileName		BAIM_BAIM_0025.xfdl
+*  @Creator			KJH
+*  @CreateDate		2020.07.23
+*  @Desction		등록된 점소조회하는 화면
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.07.23		KJH				최초 생성
+************************************************************************************************
+*/
+
+/**************************************************************************************************************************************
+* include 선언부
+***************************************************************************************************************************************/
+include "lib::lib_Form.xjs";
+
+
+/**************************************************************************************************************************************
+* FORM 변수 선언 영역
+***************************************************************************************************************************************/
+ this.objApp;
+
+
+ /***********************************************************************************************
+ * @function	: form_onload
+ * @description	: FORM 온로드
+ * @param		: obj 	- nexacro.Form
+ * @param		: e 	- nexacro.LoadEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	// nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	
+	// 화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+};
+
+
+ /***********************************************************************************************
+ * @function	: form_oninit
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.form_oninit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	// 공통코드 조회
+	this.gfnTransaction("commonCode");
+};
+
+
+/**************************************************************************************************************************************
+* 공통버튼 FUNCTION
+***************************************************************************************************************************************/
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 권한리스트 조회.
+ * @param	N/A
+ * @return	N/A
+/***********************************************************************************************/ 
+this.fnSearch = function()
+{
+	this.gfnTransaction("getBranInfoList");
+};
+
+
+/**************************************************************************************************************************************
+* USER FUNCTION
+***************************************************************************************************************************************/
+/***********************************************************************************************
+ * @function	: fnSearchDetailList
+ * @description	: 권한 상세리스트 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearchDetailList = function()
+{
+	
+};
+
+
+ /***********************************************************************************************
+ * @function: fnCompInit
+ * @description: 컴포넌트 초기화 함수.
+ * @param  N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnCompInit = function()
+{
+	// 사용여부
+	this.fnAddCodeDef(this.dsUseYn_sc, '전체');
+	this.cboUseYn_sc.set_index(0);
+	
+}
+
+ /***********************************************************************************************
+ * @function	: fnAfterCodeDef
+ * @description	: 코드조회후 선택,전체 추가
+ * @param		: dsObj	- Dataset Object
+ * @param       : strText - String
+ * @return N/A
+/***********************************************************************************************/
+this.fnAddCodeDef = function(dsObj:nexacro.NormalDataset, strText:String) 
+{
+	dsObj.insertRow();
+	dsObj.setColumn(0,'CD','');
+	dsObj.setColumn(0,'CD_NM', strText);
+}
+
+
+
+/***********************************************************************************************
+ * @function		: fnPopOpen
+ * @description		: 팝업 화면 오픈
+ * @param 			: obj	- Button object
+ * @param 			: e		- Button event 
+ * @return 			: N/A
+***********************************************************************************************/
+this.fnOpenPop = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var btnName		= obj.name;
+	
+	switch(btnName)
+	{
+		case "btnSearchAddr" :	this.fnOpenPopAddr(); break; 		
+		default 		: 	break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function		: fnOpenPopAddr
+ * @description		: 우편번호 주소 조회 팝업 호출
+ * @param 			: 
+ * @return 			: N/A
+***********************************************************************************************/
+this.fnOpenPopAddr = function()
+{
+	// 파라미터 설정
+	var popupId = 'popSearchAddr';	//팝업ID
+	
+	var zipNo = this.tab00.Tabpage1.form.divTab1.form.mskZipNo.value;
+	var addr = this.tab00.Tabpage1.form.divTab1.form.edtAddr.value;
+	var zipAddrDv = '';
+	
+
+
+	// 도로명
+	if( this.gfnTrim(zipNo).length == "5" ){
+		zipAddrDv = "02";
+	}
+	// 지번
+	else{
+		zipAddrDv = "01";
+	}
+	
+
+	// 팝업 호출
+	var oArg = {
+				  pZipNo		: zipNo
+				, pAddr			: addr
+				, pZipAddrDv	: zipAddrDv
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_BAIM_P100.xfdl", oArg, sPopupCallBack, oOption);
+}
+
+
+
+/**************************************************************************************************************************************
+* 각 COMPONENT 별 FUNCTION
+***************************************************************************************************************************************/
+/***********************************************************************************************
+ * @function	: dsAuthList_onrowposchanged
+ * @description	: rowposition changed
+ * @param		: obj - nexacro.NormalDataset
+ * @param		: e	  - nexacro.DSRowPosChangeEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.dsAuthList_onrowposchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSRowPosChangeEventInfo)
+{
+	
+};
+
+
+/***********************************************************************************************
+ * @function	: grdOnHeadClick
+ * @description	: rowposition changed
+ * @param		: obj - nexacro.Grid
+ * @param		: e	  - nexacro.GridClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.grdOnHeadClick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var objDs = this.lookup(obj.binddataset);
+	
+	this.gfnGridSort(obj, e);
+};
+
+
+/**************************************************************************************************************************************
+* 콜백 FUNCTION
+***************************************************************************************************************************************/
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	if(errorCode < 0) {    
+		this.gfnAlert(errorMsg);
+		return;
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+		
+			// 컴포넌트 초기화
+			this.fnCompInit();
+
+		break;
+		
+		
+		default :
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnPopupCallBack
+ * @description	: popup Callback
+ * @param		: popupId	- String
+ * @param		: dsObj		- nexacro.NormalDataset
+ * @return N/A
+ ***********************************************************************************************/
+this.fnPopupCallback = function(sPopupId, dsObj)
+{
+	//trace("[fnPopupCallback()] sPopupId["+sPopupId+"] rtnMsg["+JSON.stringify(rtnObj)+"]");
+
+	switch(sPopupId) {
+		
+		case "popSearchAddr" :
+			this.tab00.Tabpage1.form.divTab1.form.mskZipNo.set_value(dsObj.getColumn(0,"ZIP_NO"));	// 우편번호
+			this.tab00.Tabpage1.form.divTab1.form.edtAddr.set_value(dsObj.getColumn(0,"ADDR"));		// 주소
+			
+		break;
+		
+		case "warehPop1" :
+			this.edtWarehCd_sc.set_value(dsObj.getColumn(0,"WAREH_CD"));
+			this.edtWarehNm_sc.set_value(dsObj.getColumn(0,"WAREH_NM"));
+		break;
+		
+		default :
+		break;
+	}
+};
+
+]]></Script>
+    <Objects>
+      <Dataset id="dsService">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="OUT_DATASET_LIST">dsBranDv=ds1 dsBranSt=ds2</Col>
+            <Col id="QUERY_LIST">q1=MS002 q2=MS052</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getBranInfoList</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsBranInfoList=ds1</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST">q1=baimBranMgmtService.getBranInfoTreeList</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsBtn">
+        <ColumnInfo>
+          <Column id="BTN_SEL" type="STRING" size="256"/>
+          <Column id="BTN_ADD" type="STRING" size="256"/>
+          <Column id="BTN_SAV" type="STRING" size="256"/>
+          <Column id="BTN_DEL" type="STRING" size="256"/>
+          <Column id="BTN_XLS" type="STRING" size="256"/>
+          <Column id="BTN_PRT" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="BTN_SEL">1</Col>
+            <Col id="BTN_ADD">0</Col>
+            <Col id="BTN_SAV">0</Col>
+            <Col id="BTN_DEL">0</Col>
+            <Col id="BTN_PRT">0</Col>
+            <Col id="BTN_XLS">1</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsBranInfoList">
+        <ColumnInfo>
+          <Column id="LEVEL" type="STRING" size="256"/>
+          <Column id="CUSTOM_SORT" type="STRING" size="256"/>
+          <Column id="BRAN_CD" type="STRING" size="256"/>
+          <Column id="BRAN_NM" type="STRING" size="256"/>
+          <Column id="BRAN_DV" type="STRING" size="256"/>
+          <Column id="FULL_ADDR" type="STRING" size="256"/>
+          <Column id="REPRE_NM" type="STRING" size="256"/>
+          <Column id="REPRE_TEL_NO" type="STRING" size="256"/>
+          <Column id="SALE_START_YMD" type="STRING" size="256"/>
+          <Column id="SALE_END_YMD" type="STRING" size="256"/>
+          <Column id="BRAN_ST" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSearch" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="BRAN_CD" size="256" type="STRING"/>
+          <Column id="BRAN_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsBranDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsBranSt">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="edtBranCd" propid="value" datasetid="dsSearch" columnid="BRAN_CD"/>
+      <BindItem id="item1" compid="edtBranNm" propid="value" datasetid="dsSearch" columnid="BRAN_NM"/>
+    </Bind>
+  </Form>
+</FDL>

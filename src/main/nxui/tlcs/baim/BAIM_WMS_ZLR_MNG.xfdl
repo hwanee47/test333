@@ -1,0 +1,1211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form height="800" id="BAIM_WMS_ZLR_MNG" oninit="form_oninit" onload="form_onload" titletext="존/로케이션/랙관리" width="1566">
+    <Layouts>
+      <Layout height="800" mobileorientation="landscape" stepcount="0" width="1566">
+        <Static cssclass="top_search_ty01" height="40" id="stSearch" left="0" onclick="divSearch_staSearch_onclick" right="30" taborder="0" text="" top="35"/>
+        <Grid autoenter="select" autofittype="col" binddataset="dsZnList" bottom="0" cellsizingtype="col" cssclass="tb_ty01" id="grdZn" left="0" onheadclick="grdOnHeadClick" right="1040" taborder="1" top="104" onexpandup="grd_Main_onexpandup">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="30"/>
+                <Column size="79"/>
+                <Column size="111"/>
+                <Column size="85"/>
+                <Column size="126"/>
+              </Columns>
+              <Rows>
+                <Row size="26" band="head"/>
+                <Row size="26"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" accessibilitydescription="T0199" text="창고코드"/>
+                <Cell col="3" accessibilitydescription="T0199" text="창고명"/>
+                <Cell col="4" accessibilitydescription="T0199" text="존코드"/>
+                <Cell col="5" accessibilitydescription="T0199" text="비고"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1" textAlign="center"/>
+                <Cell col="1" textAlign="center" displaytype="checkboxcontrol" edittype="checkbox" text="bind:CHK"/>
+                <Cell col="2" editautoselect="true" edittype="none" text="bind:WAREH_CD" textAlign="left" expandimage="url('theme://images/btn_WF_Grdexpand.png')" expandshow="expr:dataset.getRowType(currow)==2?'show':'hide'"/>
+                <Cell col="3" editautoselect="true" edittype="none" text="bind:WAREH_NM" textAlign="left"/>
+                <Cell col="4" editautoselect="true" edittype="normal" text="bind:ZN_CD" textAlign="left" displaytype="normal" combodataset="dsWarehType" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="5" editautoselect="true" edittype="normal" text="bind:REMARK" textAlign="left"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Button cssclass="btn_ty01_new" domainId="T0645" fittocontents="none" height="23" id="btnAddZone" onclick="btnOnClick" right="1116" taborder="2" text="신규" width="68" top="stSearch:3"/>
+        <Button cssclass="btn_ty01_delete" domainId="T0519" fittocontents="none" height="23" id="btnDeleteZone" right="1043" taborder="3" tabstop="false" text="삭제" top="78" width="68" onclick="btnOnClick"/>
+        <Grid autoenter="select" autofittype="col" binddataset="dsLocList" bottom="0" cellsizingtype="col" cssclass="tb_ty01" id="grdLoc" onheadclick="grdOnHeadClick" taborder="4" top="104" width="492" right="539">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="30"/>
+                <Column size="99"/>
+                <Column size="97"/>
+                <Column size="126"/>
+              </Columns>
+              <Rows>
+                <Row size="26" band="head"/>
+                <Row size="26"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" accessibilitydescription="T0199" text="존코드"/>
+                <Cell col="3" accessibilitydescription="T0199" text="로케이션코드"/>
+                <Cell col="4" accessibilitydescription="T0199" text="비고"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1" textAlign="center"/>
+                <Cell col="1" textAlign="center" displaytype="checkboxcontrol" edittype="checkbox" text="bind:CHK"/>
+                <Cell col="2" editautoselect="true" edittype="none" text="bind:ZN_CD" textAlign="left"/>
+                <Cell col="3" editautoselect="true" edittype="normal" text="bind:LOC_CD" textAlign="left"/>
+                <Cell col="4" editautoselect="true" edittype="normal" text="bind:REMARK" textAlign="left"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Grid autoenter="select" autofittype="col" binddataset="dsRackList" bottom="0" cellsizingtype="col" cssclass="tb_ty01" id="grdRack" onheadclick="grdOnHeadClick" right="29" taborder="5" top="104" width="501">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="30"/>
+                <Column size="97"/>
+                <Column size="99"/>
+                <Column size="126"/>
+              </Columns>
+              <Rows>
+                <Row size="26" band="head"/>
+                <Row size="26"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" accessibilitydescription="T0199" text="로케이션코드"/>
+                <Cell col="3" accessibilitydescription="T0199" text="랙코드"/>
+                <Cell col="4" accessibilitydescription="T0199" text="비고"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1" textAlign="center"/>
+                <Cell col="1" textAlign="center" displaytype="checkboxcontrol" edittype="checkbox" text="bind:CHK"/>
+                <Cell col="2" editautoselect="true" edittype="none" text="bind:LOC_CD" textAlign="left"/>
+                <Cell col="3" editautoselect="true" edittype="normal" text="bind:RACK_CD" textAlign="left"/>
+                <Cell col="4" editautoselect="true" edittype="normal" text="bind:REMARK" textAlign="left"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Button cssclass="btn_ty01_delete" domainId="T0519" fittocontents="none" height="23" id="btnDeleteLoc" right="542" taborder="6" tabstop="false" text="삭제" top="78" width="68" onclick="btnOnClick"/>
+        <Button cssclass="btn_ty01_new" domainId="T0645" fittocontents="none" height="23" id="btnAddLoc" onclick="btnOnClick" right="615" taborder="7" text="신규" width="68" top="78"/>
+        <Button cssclass="btn_ty01_delete" domainId="T0519" fittocontents="none" height="23" id="btnDeleteRack" right="32" taborder="8" tabstop="false" text="삭제" top="78" width="68" onclick="btnOnClick"/>
+        <Button cssclass="btn_ty01_new" domainId="T0645" fittocontents="none" height="23" id="btnAddRack" onclick="btnOnClick" right="105" taborder="9" text="신규" width="68" top="78"/>
+        <Edit id="edtZnCd_sc" taborder="10" left="336" top="43" width="134" height="23" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown"/>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp01_00" left="285" taborder="11" text="존코드" top="44" width="56"/>
+        <Static cssclass="in_tit01" domainId="T0386" height="31" id="sta00" left="10" taborder="12" text="존목록" top="74" width="91"/>
+        <Static cssclass="in_tit01" domainId="T0386" height="31" id="sta00_00" taborder="13" text="로케이션목록" top="74" width="91" right="925"/>
+        <Static cssclass="in_tit01" domainId="T0386" height="31" id="sta00_00_00" taborder="14" text="랙목록" top="74" width="91" right="425"/>
+        <Static fittocontents="width" height="13" id="sta04" taborder="15" text="l" textAlign="center" top="11" width="4" left="9" cssclass="top_title_prefix01"/>
+        <Combo autoselect="true" codecolumn="WAREH_CD" datacolumn="WAREH_NM" displayrowcount="6" height="23" id="cboWareh" index="0" innerdataset="gdsWarehAuthList" taborder="16" top="44" type="dropdown" value="ko" visible="true" width="161" left="88"/>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp00_00" left="25" taborder="17" text="창고코드" top="44" width="82" onclick="staExeCorp_onclick"/>
+        <Static id="staMenuFullPath" taborder="18" left="21" top="1" width="469" fittocontents="none" onclick="sta09_onclick" height="34" cssclass="top_title_route01" text="MENU_FULL_PATH"/>
+        <Div id="divBtn" taborder="19" top="0" height="34" right="30" text="btnComponent" width="556">
+          <Layouts>
+            <Layout/>
+          </Layouts>
+        </Div>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  창고관리
+*  @MenuPath       	
+*  @FileName 		BAIM_WMS_WAREH_MNG.xfdl
+*  @Creator 		Kim Jin Hwan
+*  @CreateDate 		2020.03.04
+*  @Desction        창고관리
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.03.04		Kim Jin Hwan			최초 생성
+************************************************************************************************
+*/
+
+/************************************************************************************************
+* include 선언부																				*
+ ************************************************************************************************/
+include "lib::lib_Form.xjs";
+
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+this.objApp;
+ 
+ 
+ /***********************************************************************************************
+ * @function: form_onload
+ * @description: FORM 온로드
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	// 초기화
+	this.fnInit();
+};
+
+
+ /***********************************************************************************************
+ * @function	: form_onload
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnInit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	// 공통코드조회
+	this.gfnTransaction("commonCode");
+	
+	// 창고코드
+	this.cboWareh.set_index(0);
+};
+
+
+/***********************************************************************************************
+ * @function	: btnOnClick
+ * @description	: 버튼이벤트 제어
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		
+		
+		// 존추가
+		case "btnAddZone":
+			this.fnAddZone();
+		break;
+		
+		// 존삭제
+		case "btnDeleteZone":
+			this.fnDeleteZone();
+		break;
+		
+		
+		// 로케이션추가
+		case "btnAddLoc":
+			this.fnAddLoc();
+		break;
+		
+		// 로케이션삭제
+		case "btnDeleteLoc":
+			this.fnDeleteLoc();
+		break;
+		
+		
+		
+		// 랙추가
+		case "btnAddRack":
+			this.fnAddRack();
+		break;
+		
+		// 랙삭제
+		case "btnDeleteRack":
+			this.fnDeleteRack();
+		break;
+		
+		
+		
+		
+		// 초기화
+		case "btnReset" :
+			this.fnInit();
+		break;
+		
+		default :	
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearch = function() {
+
+	
+	// 조회조건 필수입력 체크
+	
+	// 존목록 조회
+	this.dsZnList.clearData();
+	this.gfnTransaction("getZnList");
+
+};
+
+
+/***********************************************************************************************
+ * @function	: fnSearchLoc
+ * @description	: 로케이션조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearchLoc = function()
+{
+	var currowRowType = this.dsZnList.getRowType(this.dsZnList.rowposition);
+	
+	// 신규추가인경우
+	if(currowRowType == Dataset.ROWTYPE_INSERT){
+		this.dsLocList.clearData();
+		this.dsRackList.clearData();
+		return;
+	}
+
+	var warehCdValue = this.dsZnList.getColumn(this.dsZnList.rowposition, "WAREH_CD");
+	var znCdValue = this.dsZnList.getColumn(this.dsZnList.rowposition, "ZN_CD");
+	
+	
+	this.dsSubSearch1.setColumn(0, "WAREH_CD", warehCdValue);
+	this.dsSubSearch1.setColumn(0, "ZN_CD", znCdValue);
+	
+	// 로케이션목록 조회
+	this.dsLocList.clearData();
+	this.gfnTransaction("getLocList");
+}
+
+
+
+/***********************************************************************************************
+ * @function	: fnSearchRack
+ * @description	: 랙 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearchRack = function()
+{
+	var currowRowType = this.dsLocList.getRowType(this.dsLocList.rowposition);
+	
+	// 신규추가인경우
+	if(currowRowType == Dataset.ROWTYPE_INSERT){
+		this.dsRackList.clearData();
+		return;
+	}
+
+	var warehCdValue = this.dsLocList.getColumn(this.dsLocList.rowposition, "WAREH_CD");
+	var znCdValue = this.dsLocList.getColumn(this.dsLocList.rowposition, "ZN_CD");
+	var locCdValue = this.dsLocList.getColumn(this.dsLocList.rowposition, "LOC_CD");
+
+	this.dsSubSearch2.setColumn(0, "WAREH_CD", warehCdValue);
+	this.dsSubSearch2.setColumn(0, "ZN_CD", znCdValue);
+	this.dsSubSearch2.setColumn(0, "LOC_CD", locCdValue);
+	
+	
+	// 랙목록 조회
+	this.dsRackList.clearData();
+	this.gfnTransaction("getRackList");
+}
+
+
+
+
+
+/***********************************************************************************************
+ * @function	: fnAddZone
+ * @description	: 존추가.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnAddZone = function() {
+	
+	//하나이상 추가안됨
+	var lastRowType = this.dsZnList.getRowType(this.dsZnList.getRowCount()-1);
+	
+	if(lastRowType != Dataset.ROWTYPE_INSERT){
+		var nRow = this.dsZnList.addRow();
+		
+		this.dsZnList.setColumn(nRow, "CHK", "1");
+		this.dsZnList.setColumn(nRow, "USE_YN", "Y");
+	}
+
+};
+
+
+
+/***********************************************************************************************
+ * @function	: fnDeleteZone
+ * @description	: 삭제처리. 
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnDeleteZone = function() {
+	
+	//chk된 항목이 있는지 확인.
+	if(this.dsZnList.findRow("CHK", "1") < 0) {
+		//this.gfnAlert("M0307");
+		this.gfnAlert("[존목록]의 삭제할 행을 체크해주세요.");
+		return;
+	}
+	
+	this.gfnCustomConfirm("삭제하시겠습니까?", function(sPopId, bResult){
+	
+		if(!bResult) return;
+	
+		
+		this.gfnTransaction("deleteZnList");
+	});	
+	
+	
+	
+};
+
+
+
+/***********************************************************************************************
+ * @function	: fnAddLoc
+ * @description	: 로케이션추가.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnAddLoc = function() {
+	
+	// 존이 선택안된경우 에러처리.
+	if(this.dsZnList.getRowCount() == 0){
+		this.gfnAlert("존목록의 행을 선택해주세요.");
+		return;
+	}
+	
+	
+	//하나이상 추가안됨
+	var lastRowType = this.dsLocList.getRowType(this.dsLocList.getRowCount()-1);
+	
+	if(lastRowType != Dataset.ROWTYPE_INSERT){
+		var nRow = this.dsLocList.addRow();
+		
+		this.dsLocList.setColumn(nRow, "CHK", "1");
+		this.dsLocList.setColumn(nRow, "WAREH_CD", this.dsZnList.getColumn(this.dsZnList.rowposition, "WAREH_CD"));
+		this.dsLocList.setColumn(nRow, "ZN_CD", this.dsZnList.getColumn(this.dsZnList.rowposition, "ZN_CD"));
+		this.dsLocList.setColumn(nRow, "USE_YN", "Y");
+	}
+
+};
+
+
+
+/***********************************************************************************************
+ * @function	: fnDeleteLoc
+ * @description	: 삭제처리. 
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnDeleteLoc = function() {
+	
+	//chk된 항목이 있는지 확인.
+	if(this.dsLocList.findRow("CHK", "1") < 0) {
+		//this.gfnAlert("M0307");
+		this.gfnAlert("[로케이션목록]의 삭제할 행을 체크해주세요.");
+		return;
+	}
+	
+	this.gfnCustomConfirm("삭제하시겠습니까?", function(sPopId, bResult){
+	
+		if(!bResult) return;
+	
+		
+		this.gfnTransaction("deleteLocList");
+	});	
+
+	
+};
+
+
+/***********************************************************************************************
+ * @function	: fnAddRack
+ * @description	: 랙추가.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnAddRack = function() {
+	
+	// 로케이션이 선택안된경우 에러처리.
+	if(this.dsLocList.getRowCount() == 0){
+		this.gfnAlert("로케이션목록의 행을 선택해주세요.");
+		return;
+	}
+	
+	
+	var nRow = this.dsRackList.addRow();
+	
+	this.dsRackList.setColumn(nRow, "CHK", "1");
+	this.dsRackList.setColumn(nRow, "WAREH_CD", this.dsLocList.getColumn(this.dsLocList.rowposition, "WAREH_CD"));
+	this.dsRackList.setColumn(nRow, "ZN_CD", this.dsLocList.getColumn(this.dsLocList.rowposition, "ZN_CD"));
+	this.dsRackList.setColumn(nRow, "LOC_CD", this.dsLocList.getColumn(this.dsLocList.rowposition, "LOC_CD"));
+	this.dsRackList.setColumn(nRow, "USE_YN", "Y");
+	
+
+};
+
+
+/***********************************************************************************************
+ * @function	: fnDeleteRack
+ * @description	: 삭제처리. 
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnDeleteRack = function() {
+	
+	//chk된 항목이 있는지 확인.
+	if(this.dsRackList.findRow("CHK", "1") < 0) {
+		//this.gfnAlert("M0307");
+		this.gfnAlert("[랙목록]의 삭제할 행을 체크해주세요.");
+		return;
+	}
+	
+	this.gfnCustomConfirm("삭제하시겠습니까?", function(sPopId, bResult){
+	
+		if(!bResult) return;
+	
+		
+		this.gfnTransaction("deleteRackList");
+	});	
+	
+};
+
+
+/***********************************************************************************************
+ * @function	: fnSave
+ * @description	: 저장.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSave = function() {
+	
+	//chk된 항목이 있는지 확인.
+	if(this.dsZnList.findRow("CHK", "1") < 0 &&
+		this.dsLocList.findRow("CHK", "1") < 0 &&
+		this.dsRackList.findRow("CHK", "1") < 0
+	) {
+		//this.gfnAlert("M0307");
+		this.gfnAlert("저장할 행을 체크해주세요.");
+		return;
+	}
+	
+	
+	/** 저장할 데이터 유효성 체크*********************************************************************/
+	
+	// 존목록
+	var dsRowCount = this.dsZnList.getRowCount();
+	
+	for(var i=0; i<dsRowCount; i++){
+	
+		var chkValue = this.dsZnList.getColumn(i, "CHK");
+		
+		var nRowType = this.dsZnList.getRowType(i);
+		
+		// 수정상태이면서 체크되지않은 행은 스킵
+		if(chkValue != "1" && nRowType != Dataset.ROWTYPE_UPDATE) continue;
+		
+		// 신규 또는 수정 행만 저장 처리
+		if(nRowType != Dataset.ROWTYPE_INSERT && nRowType != Dataset.ROWTYPE_UPDATE){
+			continue;
+		}
+		
+		var warehCdValue = this.dsZnList.getColumn(i, "WAREH_CD");
+		var zoneCdValue = this.dsZnList.getColumn(i, "ZN_CD");
+		
+
+		// 창고코드
+		if(this.gfnIsNull(warehCdValue)){
+			this.gfnAlert("[존목록] "+(i+1)+"행의 창고코드를 입력해주세요.");
+			this.dsZnList.set_rowposition(i);
+			return;
+		}
+		
+		// 존코드
+		if(this.gfnIsNull(zoneCdValue)){
+			this.gfnAlert("[존목록] "+(i+1)+"행의 존코드를 입력해주세요.");
+			this.dsZnList.set_rowposition(i);
+			this.grdZn.setCellPos(this.grdZn.getBindCellIndex("BODY", "ZN_CD"), i);
+			this.grdZn.setFocus();
+			return;
+		}
+		
+	}
+	
+	
+	// 로케이션목록
+	dsRowCount = this.dsLocList.getRowCount();
+	
+	for(var i=0; i<dsRowCount; i++){
+	
+		var chkValue = this.dsLocList.getColumn(i, "CHK");
+		
+		var nRowType = this.dsLocList.getRowType(i);
+		
+		// 수정상태이면서 체크되지않은 행은 스킵
+		if(chkValue != "1" && nRowType != Dataset.ROWTYPE_UPDATE) continue;
+		
+		// 신규 또는 수정 행만 저장 처리
+		if(nRowType != Dataset.ROWTYPE_INSERT && nRowType != Dataset.ROWTYPE_UPDATE){
+			continue;
+		}
+		
+		var warehCdValue = this.dsLocList.getColumn(i, "WAREH_CD");
+		var zoneCdValue = this.dsLocList.getColumn(i, "ZN_CD");
+		var locCdValue = this.dsLocList.getColumn(i, "LOC_CD");
+		
+
+		// 창고코드
+		if(this.gfnIsNull(warehCdValue)){
+			this.gfnAlert("[로케이션목록] "+(i+1)+"행의 창고코드를 입력해주세요.");
+			this.dsLocList.set_rowposition(i);
+			return;
+		}
+		
+		// 존코드
+		if(this.gfnIsNull(zoneCdValue)){
+			this.gfnAlert("[로케이션목록] "+(i+1)+"행의 존코드를 입력해주세요.");
+			this.dsLocList.set_rowposition(i);
+			return;
+		}
+		
+		// 로케이션코드
+		if(this.gfnIsNull(locCdValue)){
+			this.gfnAlert("[로케이션목록] "+(i+1)+"행의 로케이션코드를 입력해주세요.");
+			this.dsLocList.set_rowposition(i);
+			this.grdLoc.setCellPos(this.grdLoc.getBindCellIndex("BODY", "LOC_CD"), i);
+			this.grdLoc.setFocus();
+			return;
+		}
+		
+	}
+	
+	
+	// 랙목록
+	dsRowCount = this.dsRackList.getRowCount();
+	
+	for(var i=0; i<dsRowCount; i++){
+	
+		var chkValue = this.dsRackList.getColumn(i, "CHK");
+		
+		var nRowType = this.dsRackList.getRowType(i);
+		
+		// 수정상태이면서 체크되지않은 행은 스킵
+		if(chkValue != "1" && nRowType != Dataset.ROWTYPE_UPDATE) continue;
+		
+		// 신규 또는 수정 행만 저장 처리
+		if(nRowType != Dataset.ROWTYPE_INSERT && nRowType != Dataset.ROWTYPE_UPDATE){
+			continue;
+		}
+		
+		var warehCdValue = this.dsRackList.getColumn(i, "WAREH_CD");
+		var zoneCdValue = this.dsRackList.getColumn(i, "ZN_CD");
+		var locCdValue = this.dsRackList.getColumn(i, "LOC_CD");
+		var rackCdValue = this.dsRackList.getColumn(i, "RACK_CD");
+		
+
+		// 창고코드
+		if(this.gfnIsNull(warehCdValue)){
+			this.gfnAlert("[랙목록] "+(i+1)+"행의 창고코드를 입력해주세요.");
+			this.dsRackList.set_rowposition(i);
+			return;
+		}
+		
+		// 존코드
+		if(this.gfnIsNull(zoneCdValue)){
+			this.gfnAlert("[랙목록] "+(i+1)+"행의 존코드를 입력해주세요.");
+			this.dsRackList.set_rowposition(i);
+			return;
+		}
+		
+		// 로케이션코드
+		if(this.gfnIsNull(locCdValue)){
+			this.gfnAlert("[랙목록] "+(i+1)+"행의 로케이션코드를 입력해주세요.");
+			this.dsRackList.set_rowposition(i);
+			return;
+		}
+		
+		// 랙코드
+		if(this.gfnIsNull(rackCdValue)){
+			this.gfnAlert("[랙목록] "+(i+1)+"행의 랙코드를 입력해주세요.");
+			this.dsRackList.set_rowposition(i);
+			this.grdRack.setCellPos(this.grdRack.getBindCellIndex("BODY", "RACK_CD"), i);
+			this.grdRack.setFocus();
+			return;
+		}
+		
+	}
+	
+	/****************************************************************************************************/
+	
+	
+	this.gfnCustomConfirm("저장하시겠습니까?", function(sPopId, bResult){
+	
+		if(!bResult) return;
+	
+		this.gfnTransaction("saveZLRList");
+	});	
+
+};
+
+
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	trace("[fnCallback()] svcID["+svcID+"] errorCode["+errorCode+"] errorMsg["+errorMsg+"]");
+	
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+		return;
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+		
+			// 컴포넌트 초기화
+			this.fnCompInit();
+
+		break;
+		
+		
+		// 저장
+		case "saveZLRList" :
+			this.gfnAlert("저장되었습니다.");
+			
+			this.fnSearch();
+		break;
+		
+		
+		// 로케이션 목록조회
+		case "getLocList":
+			
+		break;
+		
+		
+		// 삭제
+		case "deleteZnList" :
+			this.fnSearch();
+		break;
+		
+		// 삭제
+		case "deleteLocList" :
+			this.fnSearchLoc();
+		break;
+		
+		// 삭제
+		case "deleteRackList" :
+			this.fnSearchRack();
+		break;
+		
+		
+		default :
+		break;
+	}
+};
+
+/***********************************************************************************************
+ * @function	: fnPopupCallBack
+ * @description	: popup Callback
+ * @param		: popupId	- String
+ * @param		: dsObj		- nexacro.NormalDataset
+ * @return N/A
+ ***********************************************************************************************/
+this.fnPopupCallback = function(sPopupId, dsObj)
+{
+	//trace("[fnPopupCallback()] sPopupId["+sPopupId+"] rtnMsg["+JSON.stringify(rtnObj)+"]");
+
+	switch(sPopupId) {
+		
+		// 그리드에서 창고팝업실행
+		case "pop1" :
+			this.dsZnList.setColumn(this.dsZnList.rowposition, "WAREH_CD", dsObj.getColumn(0,"WAREH_CD"));
+			this.dsZnList.setColumn(this.dsZnList.rowposition, "WAREH_NM", dsObj.getColumn(0,"WAREH_NM"));
+			
+		break;
+		
+		// 조회조건에서 창고팝업실행
+		case "pop2" :
+			
+			this.edtWarehCd_sc.set_value(dsObj.getColumn(0,"WAREH_CD"));
+			this.edtWarehNm_sc.set_value(dsObj.getColumn(0,"WAREH_NM"));
+		break;
+		
+		default :
+		break;
+	}
+};
+
+
+
+/***********************************************************************************************
+* USER FUNCTION
+***********************************************************************************************/
+
+ /***********************************************************************************************
+ * @function: fnCompInit
+ * @description: 컴포넌트 초기화 함수.
+ * @param  N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnCompInit = function()
+{
+	// 사용여부
+	this.fnAddCodeDef(this.dsUseYn_sc, '전체');
+	this.cboUseYn_sc.set_index(0);
+	
+}
+
+ /***********************************************************************************************
+ * @function	: fnAfterCodeDef
+ * @description	: 코드조회후 선택,전체 추가
+ * @param		: dsObj	- Dataset Object
+ * @param       : strText - String
+ * @return N/A
+/***********************************************************************************************/
+this.fnAddCodeDef = function(dsObj:nexacro.NormalDataset, strText:String) 
+{
+	dsObj.insertRow();
+	dsObj.setColumn(0,'CD','');
+	dsObj.setColumn(0,'CD_NM', strText);
+}
+
+
+
+/***********************************************************************************************
+ * @function		: fnPopOpen
+ * @description		: 팝업 화면 오픈
+ * @param 			: obj	- Button object
+ * @param 			: e		- Button event 
+ * @return 			: N/A
+***********************************************************************************************/
+this.fnOpenPop = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var btnName		= obj.name;
+	
+	switch(btnName)
+	{
+		case "btnOpenPopSearchWareh" :	this.fnOpenPopWareh("btnOpenPopSearchWareh"); break; 													
+		
+		default 		: 	break;
+	}
+};
+
+
+
+ /************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+
+// 그리드 헤더 클릭
+this.grdOnHeadClick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var objDs = this.lookup(obj.binddataset);
+	
+	this.gfnGridSort(obj, e);
+};
+
+this.grd_Main_onexpandup = function(obj:nexacro.Grid,e:nexacro.GridMouseEventInfo)
+{
+	var bindText = obj.getCellProperty("body", e.cell, "text");
+
+	// cell 컬럼명 추출.
+	var column = this.gfnNvl(bindText, "").replace("bind:", "");
+	
+	switch(column) 
+	{
+		// 창고코드
+		case "WAREH_CD" : 
+			this.fnOpenPopWareh('btnOpenPopGridSearchWareh');
+		break;
+		
+		default : 
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function		: fnOpenPopWareh
+ * @description		: 창고 조회 팝업 호출
+ * @param 			: btnName
+ * @return 			: N/A
+***********************************************************************************************/
+this.fnOpenPopWareh = function(btnName : String)
+{
+	// 파라미터 설정
+	var popupId = "";	//팝업ID
+	var pWarehCdValue = "";
+	var pWarehNmValue = "";
+	
+	if(btnName == "btnOpenPopGridSearchWareh"){
+		popupId = "pop1";
+	}
+	else{
+		popupId = "pop2";
+		pWarehCdValue = this.edtWarehCd_sc.value;
+		pWarehNmValue = this.edtWarehNm_sc.value;
+	}
+	
+	// 팝업 호출
+	var oArg = {
+				  pWarehCd      : pWarehCdValue
+				, pWarehNm      : pWarehNmValue
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_WMS_P010.xfdl", oArg, sPopupCallBack, oOption);
+}
+
+
+/***********************************************************************************************
+ * @function	: editOnKeyDown
+ * @description	: edit onkeydown
+ * @param		: obj	- nexacro.Edit
+ * @param		: e		- nexacro.KeyEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnEditOnKeyDown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	var objName = obj.name;
+	
+	if( e.keycode === 13 ) {
+	
+		obj.updateToDataset();
+		switch( objName ) {
+			case	'edtWarehCd_sc' : this.btnOpenPopSearchWareh.click();	break;
+			case	'edtWarehNm_sc'	: this.btnOpenPopSearchWareh.click();	break;
+			default		: 	break;
+		}
+	}
+	else{
+		switch( objName ) {
+			
+			default		: 	break;
+		}
+	}
+};
+
+
+// 존 데이터셋 
+this.dsZnList_oncolumnchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSColChangeEventInfo)
+{
+	// 창고코드, 존코드
+	if(e.columnid == "WAREH_CD" || e.columnid == "ZN_CD"){
+		
+		// 존목록에서 항목값 변경시 로케이션 목록중 신규입력인경우 항목값 변경.
+		var dsRowCount = this.dsLocList.getRowCount();
+		for(var i=0; i<dsRowCount; i++){
+			
+			var nRowType = this.dsLocList.getRowType(i);
+			
+			if( nRowType != Dataset.ROWTYPE_INSERT ) continue;
+			
+			
+			this.dsLocList.setColumn(i, e.columnid, e.newvalue);
+			
+		}
+		
+	}
+
+};
+
+
+// 로케이션 데이터셋
+this.dsLocList_oncolumnchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSColChangeEventInfo)
+{
+	if(e.columnid == "WAREH_CD" || e.columnid == "ZN_CD" || e.columnid == "LOC_CD"){
+		
+		// 로케이션목록에서 항목값 변경시 랙목록중 신규입력인경우 항목값 변경.
+		var dsRowCount = this.dsRackList.getRowCount();
+		for(var i=0; i<dsRowCount; i++){
+			
+			var nRowType = this.dsRackList.getRowType(i);
+			
+			if( nRowType != Dataset.ROWTYPE_INSERT ) continue;
+			
+			
+			this.dsRackList.setColumn(i, e.columnid, e.newvalue);
+			
+		}
+		
+	}
+};
+
+
+// 존데이터셋 행변경
+this.dsZnList_onrowposchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSRowPosChangeEventInfo)
+{
+	this.fnSearchLoc();
+};
+
+// 로케이션데이터셋 행변경
+this.dsLocList_onrowposchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSRowPosChangeEventInfo)
+{
+	this.fnSearchRack();
+};
+
+// 조회조건데이터셋
+this.dsSearch_oncolumnchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSColChangeEventInfo)
+{
+	if(e.columnid == "USE_YN"){
+		
+		this.dsSubSearch.setColumn(0, "USE_YN", e.newvalue);
+		this.dsSubSearch1.setColumn(0, "USE_YN", e.newvalue);
+		this.dsSubSearch2.setColumn(0, "USE_YN", e.newvalue);
+		
+	}
+};
+]]></Script>
+    <Objects>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+            <Col id="OUT_DATASET_LIST">dsWarehType=ds1</Col>
+            <Col id="QUERY_LIST">q1=MS101</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">saveZLRList</Col>
+            <Col id="SERVICE_BEANNAME">baimZLRMgmtService</Col>
+            <Col id="SERVICE_METHOD">saveZLRList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="IN_DATASET_LIST">dsZnList=dsZnList:U dsLocList=dsLocList:U dsRackList=dsRackList:U</Col>
+            <Col id="OUT_DATASET_LIST"/>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getZnList</Col>
+            <Col id="IN_DATASET_LIST">dsSearch=dsSearch</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="OUT_DATASET_LIST">dsZnList=dsZnList</Col>
+            <Col id="SERVICE_BEANNAME">baimZLRMgmtService</Col>
+            <Col id="SERVICE_METHOD">getZnList</Col>
+            <Col id="QUERY_LIST"/>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getLocList</Col>
+            <Col id="IN_DATASET_LIST">dsSubSearch=dsSubSearch1</Col>
+            <Col id="OUT_DATASET_LIST">dsLocList=dsLocList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">baimZLRMgmtService</Col>
+            <Col id="SERVICE_METHOD">getLocList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getRackList</Col>
+            <Col id="IN_DATASET_LIST">dsSubSearch=dsSubSearch2</Col>
+            <Col id="OUT_DATASET_LIST">dsRackList=dsRackList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">baimZLRMgmtService</Col>
+            <Col id="SERVICE_METHOD">getRackList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">deleteZnList</Col>
+            <Col id="IN_DATASET_LIST">dsZnList=dsZnList:U</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">baimZLRMgmtService</Col>
+            <Col id="SERVICE_METHOD">deleteZnList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">deleteLocList</Col>
+            <Col id="IN_DATASET_LIST">dsLocList=dsLocList:U</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">baimZLRMgmtService</Col>
+            <Col id="SERVICE_METHOD">deleteLocList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">deleteRackList</Col>
+            <Col id="IN_DATASET_LIST">dsRackList=dsRackList:U</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">baimZLRMgmtService</Col>
+            <Col id="SERVICE_METHOD">deleteRackList</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsSearch" useclientlayout="false" oncolumnchanged="dsSearch_oncolumnchanged">
+        <ColumnInfo>
+          <Column id="WAREH_CD" size="256" type="STRING"/>
+          <Column id="WAREH_NM" size="256" type="STRING"/>
+          <Column id="ZN_CD" size="256" type="STRING"/>
+          <Column id="USE_YN" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsZnList" oncolumnchanged="dsZnList_oncolumnchanged" onrowposchanged="dsZnList_onrowposchanged">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="256"/>
+          <Column id="WAREH_CD" type="STRING" size="256"/>
+          <Column id="WAREH_NM" type="STRING" size="256"/>
+          <Column id="ZN_CD" type="STRING" size="256"/>
+          <Column id="REMARK" type="STRING" size="256"/>
+          <Column id="USE_YN" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsUseYn_sc">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">Y</Col>
+            <Col id="CD_NM">사용</Col>
+          </Row>
+          <Row>
+            <Col id="CD">N</Col>
+            <Col id="CD_NM">사용안함</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsUseYn">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">Y</Col>
+            <Col id="CD_NM">사용</Col>
+          </Row>
+          <Row>
+            <Col id="CD">N</Col>
+            <Col id="CD_NM">사용안함</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsLocList" oncolumnchanged="dsLocList_oncolumnchanged" onrowposchanged="dsLocList_onrowposchanged">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="256"/>
+          <Column id="WAREH_CD" type="STRING" size="256"/>
+          <Column id="WAREH_NM" type="STRING" size="256"/>
+          <Column id="ZN_CD" type="STRING" size="256"/>
+          <Column id="LOC_CD" type="STRING" size="256"/>
+          <Column id="REMARK" type="STRING" size="256"/>
+          <Column id="USE_YN" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsRackList">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="256"/>
+          <Column id="WAREH_CD" type="STRING" size="256"/>
+          <Column id="WAREH_NM" type="STRING" size="256"/>
+          <Column id="ZN_CD" type="STRING" size="256"/>
+          <Column id="LOC_CD" type="STRING" size="256"/>
+          <Column id="RACK_CD" type="STRING" size="256"/>
+          <Column id="REMARK" type="STRING" size="256"/>
+          <Column id="USE_YN" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSubSearch">
+        <ColumnInfo>
+          <Column id="WAREH_CD" type="STRING" size="256"/>
+          <Column id="ZN_CD" type="STRING" size="256"/>
+          <Column id="LOC_CD" type="STRING" size="256"/>
+          <Column id="RACK_CD" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsSubSearch1">
+        <ColumnInfo>
+          <Column id="WAREH_CD" type="STRING" size="256"/>
+          <Column id="ZN_CD" type="STRING" size="256"/>
+          <Column id="LOC_CD" type="STRING" size="256"/>
+          <Column id="RACK_CD" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsSubSearch2">
+        <ColumnInfo>
+          <Column id="WAREH_CD" type="STRING" size="256"/>
+          <Column id="ZN_CD" type="STRING" size="256"/>
+          <Column id="LOC_CD" type="STRING" size="256"/>
+          <Column id="RACK_CD" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsBtn">
+        <ColumnInfo>
+          <Column id="BTN_SEL" type="STRING" size="256"/>
+          <Column id="BTN_ADD" type="STRING" size="256"/>
+          <Column id="BTN_SAV" type="STRING" size="256"/>
+          <Column id="BTN_DEL" type="STRING" size="256"/>
+          <Column id="BTN_XLS" type="STRING" size="256"/>
+          <Column id="BTN_PRT" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="BTN_SEL">1</Col>
+            <Col id="BTN_ADD">0</Col>
+            <Col id="BTN_SAV">1</Col>
+            <Col id="BTN_DEL">0</Col>
+            <Col id="BTN_PRT">0</Col>
+            <Col id="BTN_XLS">0</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item2" compid="edtZnCd_sc" propid="value" datasetid="dsSearch" columnid="ZN_CD"/>
+      <BindItem id="item0" compid="cboWareh" propid="value" datasetid="dsSearch" columnid="WAREH_CD"/>
+    </Bind>
+  </Form>
+</FDL>

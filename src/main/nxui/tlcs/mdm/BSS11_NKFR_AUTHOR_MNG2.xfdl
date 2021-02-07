@@ -1,0 +1,756 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form height="800" id="BSS11_NKFR_AUTHOR_MNG" oninit="form_oninit" onload="form_onload" titletext="권한별메뉴관리" width="1566">
+    <Layouts>
+      <Layout height="800" mobileorientation="landscape" width="1566">
+        <Static cssclass="top_search_ty01" height="41" id="stc_search" left="0" right="30" taborder="4" top="35"/>
+        <Static cssclass="top_search_tx01" domainId="T0199" height="23" id="stcBaseCorpId" left="25" taborder="5" text="권한명" top="44" width="70"/>
+        <Edit cssclass="inp_ty01" height="23" id="edtAuthNm" left="73" onkeydown="edtAuthNm_onkeydown" taborder="0" top="44" width="123"/>
+        <Static cssclass="in_tit01" domainId="T0198" height="31" id="stTitle" left="10" taborder="2" text="권한관리" top="stc_search:2" width="91"/>
+        <Grid autoenter="select" autofittype="col" binddataset="dsAuthList" cellsizingtype="col" cssclass="tb_ty01" id="grd_Main" left="0" onheadclick="grdOnHeadClick" right="30" taborder="1" top="stTitle:0" height="187">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="30"/>
+                <Column size="123"/>
+                <Column size="200"/>
+                <Column size="200"/>
+                <Column size="80"/>
+                <Column size="90"/>
+                <Column size="130"/>
+                <Column size="90"/>
+                <Column size="130"/>
+              </Columns>
+              <Rows>
+                <Row size="26" band="head"/>
+                <Row size="26"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" accessibilitydescription="T0199" text="권한코드"/>
+                <Cell col="3" accessibilitydescription="T0199" text="권한명" color="#f9f475"/>
+                <Cell col="4" accessibilitydescription="T0199" text="권한설명" color="#f9f475"/>
+                <Cell col="5" accessibilitydescription="T0514" text="사용여부" color="#f9f475"/>
+                <Cell col="6" accessibilitydescription="T0278" text="등록자"/>
+                <Cell col="7" accessibilitydescription="T0587" text="생성일자"/>
+                <Cell col="8" accessibilitydescription="T0278" text="수정자"/>
+                <Cell col="9" accessibilitydescription="T0587" text="수정일자"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1" textAlign="center"/>
+                <Cell col="1" textAlign="center" displaytype="checkboxcontrol" edittype="checkbox" text="bind:CHK"/>
+                <Cell col="2" editautoselect="true" edittype="none" text="bind:AUTH_CD" textAlign="left"/>
+                <Cell col="3" editautoselect="true" edittype="normal" text="bind:AUTH_NM" textAlign="left"/>
+                <Cell col="4" editautoselect="true" edittype="normal" text="bind:AUTH_DESC" textAlign="left"/>
+                <Cell col="5" comboautoselect="true" combocodecol="CD" combodatacol="CD_NM" combodataset="dsUseYn" displaytype="combocontrol" editautoselect="true" edittype="combo" text="bind:USE_YN"/>
+                <Cell col="6" editautoselect="true" edittype="expr:EDIT_YN" text="bind:REG_ID" textAlign="center"/>
+                <Cell col="7" editautoselect="true" edittype="expr:EDIT_YN" text="bind:REG_DT" textAlign="center"/>
+                <Cell col="8" editautoselect="true" edittype="expr:EDIT_YN" text="bind:MOD_ID" textAlign="center"/>
+                <Cell col="9" editautoselect="true" edittype="expr:EDIT_YN" text="bind:MOD_DT" textAlign="center"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cboUseYn_sc" index="-1" left="283" taborder="3" text="" top="44" value="" width="98" innerdataset="dsUseYn_sc"/>
+        <Static cssclass="top_search_tx01" domainId="T0514" height="23" id="stcBaseCorpId01" left="221" taborder="6" text="사용여부" top="44" width="60"/>
+        <Static cssclass="in_tit01" domainId="T0200" id="stTitleDetail" left="830" right="129" taborder="7" text="권한 메뉴리스트" onclick="stTitleDetail_onclick" top="grd_Main:12" height="31"/>
+        <Grid autoenter="select" autofittype="col" binddataset="dsAuthDetailList" bottom="0" cellsizingtype="col" cssclass="tb_ty01" id="grd_Sub2" maxwidth="" onheadclick="grdOnHeadClick" taborder="8" right="30" left="820" top="340">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="32"/>
+                <Column size="105"/>
+                <Column size="318"/>
+              </Columns>
+              <Rows>
+                <Row size="26" band="head"/>
+                <Row size="26"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" accessibilitydescription="T0386" text="메인메뉴"/>
+                <Cell col="3" accessibilitydescription="T0588" text="서브메뉴"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1" textAlign="center"/>
+                <Cell col="1" displaytype="checkboxcontrol" editautoselect="true" edittype="checkbox" text="bind:CHK" textAlign="left"/>
+                <Cell col="2" editautoselect="true" edittype="none" suppress="1" text="bind:PARENT_MENU_NM" textAlign="center"/>
+                <Cell col="3" displaytype="normal" editautoselect="true" edittype="none" text="bind:MENU_NM" textAlign="left"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static cssclass="in_tit01" domainId="T0200" id="stTitleDetail00" left="10" right="949" taborder="9" text="메뉴리스트 ( ※ 상단의 권한관리를 먼저 저장후 메뉴관리 가능합니다 )" onclick="stTitleDetail_onclick" height="31" top="grd_Main:12"/>
+        <Grid autoenter="select" autofittype="col" binddataset="dsMenuList" bottom="0" cellsizingtype="col" cssclass="tb_ty01" id="grd_Sub1" maxwidth="" onheadclick="grdOnHeadClick" taborder="10" width="716" left="0" top="340">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="32"/>
+                <Column size="105"/>
+                <Column size="318"/>
+              </Columns>
+              <Rows>
+                <Row size="26" band="head"/>
+                <Row size="26"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" accessibilitydescription="T0386" text="메인메뉴"/>
+                <Cell col="3" accessibilitydescription="T0588" text="서브메뉴"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1" textAlign="center"/>
+                <Cell col="1" displaytype="checkboxcontrol" editautoselect="true" edittype="checkbox" text="bind:CHK" textAlign="left"/>
+                <Cell col="2" editautoselect="true" edittype="none" suppress="1" text="bind:PARENT_MENU_NM" textAlign="center"/>
+                <Cell col="3" displaytype="normal" editautoselect="true" edittype="none" text="bind:MENU_NM" textAlign="left"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Button domainId="T0830" fittocontents="none" height="29" id="btnAddMenu" onclick="btnOnClick" taborder="11" width="30" background="url('img::btn_CalNext_P.png') no-repeat" left="756" top="494"/>
+        <Button domainId="T0830" fittocontents="none" height="29" id="btnDeleteMenu" onclick="btnOnClick" taborder="12" width="30" background="url('img::btn_CalPrev_P.png') no-repeat" left="756" top="554"/>
+        <Static fittocontents="width" height="13" id="sta04_00" taborder="13" text="l" textAlign="center" top="11" width="4" left="9" cssclass="top_title_prefix01"/>
+        <Div id="divBtn" taborder="14" top="0" height="34" right="30" text="btnComponent" width="556">
+          <Layouts>
+            <Layout/>
+          </Layouts>
+        </Div>
+        <Static id="staMenuFullPath" taborder="15" left="21" top="1" width="469" fittocontents="none" onclick="sta09_onclick" height="34" cssclass="top_title_route01" text="MENU_FULL_PATH"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  권한별메뉴관리
+*  @MenuPath		mdm > BSS11_NKFR_AUTHOR_MNG2
+*  @FileName		BSS11_NKFR_AUTHOR_MNG2.xfdl
+*  @Creator			kjh
+*  @CreateDate		2020.02.26
+*  @Desction		스크립트 표준 및 주석 표준 정의
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.02.26		kjh				최초 생성
+************************************************************************************************
+*/
+
+/************************************************************************************************
+* include 선언부																				*
+ ************************************************************************************************/
+include "lib::lib_Form.xjs";
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+ this.objApp;
+ var lvRegSys;
+ /***********************************************************************************************
+ * @function	: form_onload
+ * @description	: FORM 온로드
+ * @param		: obj - form object
+ * @param		: e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+};
+
+ /***********************************************************************************************
+ * @function	: form_oninit
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.form_oninit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	this.gfnTransaction("commonCode");
+};
+
+
+/***********************************************************************************************
+ * @function	: edtAuthNm_onkeydown
+ * @description	: onkeydown
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.edtAuthNm_onkeydown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	switch( e.keycode ) {
+		case	13 :
+			obj.updateToDataset();
+			this.btnSearch.click();
+			break;
+		default	   : break;
+	}
+};
+
+/***********************************************************************************************
+ * @function	: cboSystem_onitemchanged
+ * @description	: onitemchanged
+ * @param		: obj - nexacro.Combo
+ * @param		: e - nexacro.ItemChangeEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.cboSystem_onitemchanged = function(obj:nexacro.Combo,e:nexacro.ItemChangeEventInfo)
+{
+	obj.updateToDataset();
+	this.btnSearch.click();
+};
+
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 권한리스트 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearch = function()
+{
+	//lvRegSys = this.cboSystem.value;
+	// 조회 transaction
+	this.dsAuthList.clearData();
+	this.gfnTransaction("searchList");
+};
+
+/***********************************************************************************************
+ * @function	: fnAdd
+ * @description	: 추가
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnAdd = function()
+{
+	// 몇건안되니 for...
+	for( var idx = 0; idx < this.dsAuthList.rowcount; idx++ ) {
+		if( this.dsAuthList.getRowType(idx) === Dataset.ROWTYPE_INSERT ) {
+			return;
+		}
+	}
+	
+	var nRow = this.dsAuthList.addRow();
+	this.dsAuthList.setColumn(nRow,'CHK','1');
+	this.dsAuthList.setColumn(nRow,'DEL_YN','N');
+	this.dsAuthList.setColumn(nRow,'CONFIRM_YN','N');
+	this.dsAuthList.setColumn(nRow,'USE_YN','Y');
+	
+};
+
+/***********************************************************************************************
+ * @function	: fnDel
+ * @description	: 삭제
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnDelete = function()
+{
+	//하나라도 체크를 해야함
+    if(this.dsAuthList.getCaseCount("CHK==1") <= 0) {
+		this.gfnAlert("1건 이상 선택해야합니다.");
+		return;
+    }
+
+	var nRow = this.dsAuthList.rowposition;
+	if( this.dsAuthList.getRowType(nRow) === Dataset.ROWTYPE_INSERT ) {
+		this.dsAuthList.deleteRow(nRow);
+	} else {
+		var authTitle = this.dsAuthList.getColumn(nRow,'AUTH_NM');
+		//if( !confirm(authTitle + ' 권한을 삭제하시겠습니까?') ) return;
+		
+		this.gfnCustomConfirm(authTitle + ' 권한을 삭제하시겠습니까?', function(sPopupId, bResult){
+		
+			if(!bResult) return;
+			
+			this.dsAuthDel.clearData();
+			this.dsAuthDel.setColumn(this.dsAuthDel.addRow(),'AUTH_CD',this.dsAuthList.getColumn(nRow,'AUTH_CD'));
+			this.gfnTransaction("delete");
+		
+		});
+		
+		
+	}
+};
+
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	if(errorCode < 0) {    
+		this.gfnAlert(errorMsg);
+	}else{
+		
+		if( svcID === "save" ) {
+			this.fnSearch();
+			this.gfnAlert("저장되었습니다.");
+		} else if( svcID === 'commonCode' ) {
+			
+			// 컴포넌트 초기화
+			this.fnCompInit();
+			
+		} else if( svcID === 'delete' ) {
+			this.fnSearch();
+			this.gfnAlert("삭제되었습니다.");
+
+		} 
+		else if( svcID === 'insertMenuList') {
+			this.gfnAlert("추가되었습니다.");
+			this.fnSearchDetailList();
+			
+			this.grd_Sub1.setCellProperty("head", this.grd_Sub1.getBindCellIndex("body", "CHK"), "text", '0');
+			this.grd_Sub2.setCellProperty("head", this.grd_Sub2.getBindCellIndex("body", "CHK"), "text", '0');
+		} 
+		else if( svcID === 'deleteMenuList') {
+			this.gfnAlert("삭제되었습니다.");
+			this.fnSearchDetailList();
+			
+			this.grd_Sub1.setCellProperty("head", this.grd_Sub1.getBindCellIndex("body", "CHK"), "text", '0');
+			this.grd_Sub2.setCellProperty("head", this.grd_Sub2.getBindCellIndex("body", "CHK"), "text", '0');
+		}
+		else if (svcID === "searchList"){
+			if(this.dsAuthList.getRowCount()==0){
+				this.dsMenuList.clearData();
+				this.dsAuthDetailList.clearData();
+			}
+		}
+ 	}
+};
+
+/***********************************************************************************************
+ * @function	: fnSave
+ * @description	: 추가 변경 건에 대한 정보를 반영한다.
+ * @return N/A
+/***********************************************************************************************/
+this.fnSave = function() {
+
+	// 저장전 체크
+	
+	//하나라도 체크를 해야함
+    if(this.dsAuthList.getCaseCount("CHK==1") <= 0) {
+		this.gfnAlert("1건 이상 선택해야합니다.");
+		return;
+    }
+	
+	
+	
+	for( var i=0; i<this.dsAuthList.rowcount; i++){
+		
+		var nRowChk = this.dsAuthList.getColumn(i, "CHK");
+		
+		// 체크되지 않은 행 스킵.
+		if( nRowChk != "1") continue;
+		
+		var nAuthNmValue = this.dsAuthList.getColumn(i, "AUTH_NM");
+		
+		if(this.gfnIsNull(nAuthNmValue)){
+			this.gfnAlert((i+1)+"행의 권한명을 입력해주세요.", "", function(){
+				this.grd_Main.setCellPos(this.grd_Main.getBindCellIndex("BODY", "AUTH_NM"), i);
+				this.grd_Main.setFocus();
+			});
+			
+			return;
+		}
+		
+	}
+	
+
+	this.gfnCustomConfirm("저장하시겠습니까?", function(sPopId, bResult){
+	
+		if(!bResult) return;
+	
+		this.gfnTransaction("save");
+	});
+}
+
+/***********************************************************************************************
+ * @function	: dsAuthList_onrowposchanged
+ * @description	: rowposition changed
+ * @param		: obj - nexacro.NormalDataset
+ * @param		: e	  - nexacro.DSRowPosChangeEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.dsAuthList_onrowposchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSRowPosChangeEventInfo)
+{
+	if(this.dsAuthList.rowcount == 0) return;
+
+
+	// 신규추가일경우
+	var nRowType = this.dsAuthList.getRowType(e.newrow);
+	
+	if( nRowType == Dataset.ROWTYPE_INSERT){
+		this.dsMenuList.clearData();
+		this.dsAuthDetailList.clearData();
+		return;
+	}
+
+	this.fnSearchDetailList();
+};
+
+
+
+/***********************************************************************************************
+ * @function	: fnSearchDetailList
+ * @description	: 권한 상세리스트 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearchDetailList = function()
+{
+	this.dsSearchSub.clearData();
+	
+	var nRow = this.dsSearchSub.addRow();
+	this.dsSearchSub.setColumn(nRow,"AUTH_CD",this.dsAuthList.getColumn(this.dsAuthList.rowposition,"AUTH_CD"));
+	
+	// 조회 transaction
+	this.gfnTransaction("searchDetailList");
+};
+
+
+/***********************************************************************************************
+ * @function    : btnOnClick
+ * @description    : 버튼이벤트 제어
+ * @param        : obj - nexacro.Button
+ * @param        : e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+    switch( obj.name ) {
+        
+        case "btnAddMenu"        : this.fnAddMenu(); // 메뉴추가
+            break;
+        case "btnDeleteMenu"    : this.fnDeleteMenu(); // 메뉴삭제
+            break;
+        default :    break;
+    }
+};
+
+
+/***********************************************************************************************
+ * @function	: grdOnHeadClick
+ * @description	: rowposition changed
+ * @param		: obj - nexacro.Grid
+ * @param		: e	  - nexacro.GridClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.grdOnHeadClick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var objDs = this.lookup(obj.binddataset);
+	
+	this.gfnGridSort(obj, e);
+};
+
+/***********************************************************************************************
+ * @function	: fnHeadAllCheck
+ * @description	: headAllCheck
+ * @param		: cellNumber - Number
+ * @return N/A
+/***********************************************************************************************/
+this.fnHeadAllCheck = function(obj:nexacro.Grid,cellNumber:Number) {
+
+	var check = '0';
+	var colId = obj.getCellProperty('body',cellNumber,'text');
+	colId = colId.replace('bind:','');
+	
+	var dsObj = this.objects[obj.binddataset];
+	var fRow  = dsObj.findRowExpr("CHK =='0'");
+	if( fRow !== -1 ) check = '1';
+	for( var idx = 0; idx < dsObj.rowcount; idx++ ) {
+		dsObj.setColumn(idx,'CHK',check);
+	}
+}
+
+
+
+/***********************************************************************************************
+ * @function	: fnAddMenu
+ * @description	: 권한에 메뉴 추가.
+ * @param		: 
+ * @return N/A
+/***********************************************************************************************/
+this.fnAddMenu = function()
+{
+	//chk된 항목이 있는지 확인.
+	if(this.dsMenuList.findRow("CHK", "1") < 0) {
+		//this.gfnAlert("M0307");
+		this.gfnAlert("추가할 메뉴를 체크해주세요.");
+		return;
+	}
+	
+	
+	this.gfnCustomConfirm("추가하시겠습니까?", function(sPopupId, bResult){
+		
+		if(!bResult) return;
+		
+		this.gfnTransaction("insertMenuList");
+	});
+}
+
+
+
+/***********************************************************************************************
+ * @function	: fnDeleteMenu
+ * @description	: 권한에서 메뉴 삭제.
+ * @param		: 
+ * @return N/A
+/***********************************************************************************************/
+this.fnDeleteMenu = function()
+{
+	//chk된 항목이 있는지 확인.
+	if(this.dsAuthDetailList.findRow("CHK", "1") < 0) {
+		//this.gfnAlert("M0307");
+		this.gfnAlert("삭제할 메뉴를 체크해주세요.");
+		return;
+	}
+	
+	
+	this.gfnCustomConfirm("삭제하시겠습니까?", function(sPopupId, bResult){
+		
+		if(!bResult) return;
+		
+		this.gfnTransaction("deleteMenuList");
+	});
+}
+
+
+/***********************************************************************************************
+ * @function: fnCompInit
+ * @description: 컴포넌트 초기화 함수.
+ * @param  N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnCompInit = function()
+{
+	// 사용여부
+	this.fnAddCodeDef(this.dsUseYn_sc, '전체');
+	this.dsSearch.setColumn(0, "USE_YN", "Y");
+	
+}
+
+ /***********************************************************************************************
+ * @function	: fnAfterCodeDef
+ * @description	: 코드조회후 선택,전체 추가
+ * @param		: dsObj	- Dataset Object
+ * @param       : strText - String
+ * @return N/A
+/***********************************************************************************************/
+this.fnAddCodeDef = function(dsObj:nexacro.NormalDataset, strText:String) 
+{
+	dsObj.insertRow();
+	dsObj.setColumn(0,'CD','');
+	dsObj.setColumn(0,'CD_NM', strText);
+}]]></Script>
+    <Objects>
+      <Dataset id="dsSearch">
+        <ColumnInfo>
+          <Column id="AUTH_NM" size="256" type="STRING"/>
+          <Column id="USE_YN" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsService">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">searchList</Col>
+            <Col id="IN_DATASET_LIST">dsSearch=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsAuthList=dsAuthList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">authMgmService</Col>
+            <Col id="SERVICE_METHOD">getAuthList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">save</Col>
+            <Col id="IN_DATASET_LIST">dsAuthList=dsAuthList:U</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">authMgmService</Col>
+            <Col id="SERVICE_METHOD">saveAuthList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">delete</Col>
+            <Col id="IN_DATASET_LIST">dsAuthList=dsAuthList:U</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">authMgmService</Col>
+            <Col id="SERVICE_METHOD">deleteAuth</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">searchDetailList</Col>
+            <Col id="IN_DATASET_LIST">dsSearchSub=dsSearchSub</Col>
+            <Col id="OUT_DATASET_LIST">dsMenuList=dsMenuList dsAuthDetailList=dsAuthDetailList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">authMgmService</Col>
+            <Col id="SERVICE_METHOD">getAuthDetailList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="OUT_DATASET_LIST">dsUseYn=ds1 dsUseYn_sc=ds2</Col>
+            <Col id="QUERY_LIST">q1=SM993 q2=SM993</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">insertMenuList</Col>
+            <Col id="IN_DATASET_LIST">dsMenuList=dsMenuList:U</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">authMgmService</Col>
+            <Col id="SERVICE_METHOD">insertMenuList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">deleteMenuList</Col>
+            <Col id="IN_DATASET_LIST">dsAuthDetailList=dsAuthDetailList:U</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">authMgmService</Col>
+            <Col id="SERVICE_METHOD">deleteMenuList</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsUseYn">
+        <ColumnInfo>
+          <Column id="CODE" size="256" type="STRING"/>
+          <Column id="VALUE" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="VALUE">전체</Col>
+          </Row>
+          <Row>
+            <Col id="CODE">N</Col>
+            <Col id="VALUE">Y</Col>
+          </Row>
+          <Row>
+            <Col id="CODE">Y</Col>
+            <Col id="VALUE">N</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsAuthList" onrowposchanged="dsAuthList_onrowposchanged" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="256"/>
+          <Column id="AUTH_CD" type="STRING" size="256"/>
+          <Column id="AUTH_NM" type="STRING" size="256"/>
+          <Column id="AUTH_DESC" type="STRING" size="256"/>
+          <Column id="USE_YN" type="STRING" size="256"/>
+          <Column id="REG_ID" type="STRING" size="256"/>
+          <Column id="REG_NM" type="STRING" size="256"/>
+          <Column id="REG_DT" type="STRING" size="256"/>
+          <Column id="MOD_ID" type="STRING" size="256"/>
+          <Column id="MOD_NM" type="STRING" size="256"/>
+          <Column id="MOD_DT" type="STRING" size="256"/>
+          <Column id="AUTH_DV" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsAuthDetailList" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="256"/>
+          <Column id="AUTH_CD" type="STRING" size="256"/>
+          <Column id="PARENT_MENU_CD" type="STRING" size="256"/>
+          <Column id="PARENT_MENU_NM" type="STRING" size="256"/>
+          <Column id="MENU_CD" type="STRING" size="256"/>
+          <Column id="MENU_NM" type="STRING" size="256"/>
+          <Column id="AUTH_DV" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSearchSub">
+        <ColumnInfo>
+          <Column id="AUTH_CD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsMenuList" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="256"/>
+          <Column id="AUTH_CD" type="STRING" size="256"/>
+          <Column id="PARENT_MENU_CD" type="STRING" size="256"/>
+          <Column id="PARENT_MENU_NM" type="STRING" size="256"/>
+          <Column id="MENU_CD" type="STRING" size="256"/>
+          <Column id="MENU_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsAuthDel">
+        <ColumnInfo>
+          <Column id="AUTH_CD" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsUseYn_sc">
+        <ColumnInfo>
+          <Column id="CODE" size="256" type="STRING"/>
+          <Column id="VALUE" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="VALUE">전체</Col>
+          </Row>
+          <Row>
+            <Col id="CODE">N</Col>
+            <Col id="VALUE">Y</Col>
+          </Row>
+          <Row>
+            <Col id="CODE">Y</Col>
+            <Col id="VALUE">N</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsBtn">
+        <ColumnInfo>
+          <Column id="BTN_SEL" type="STRING" size="256"/>
+          <Column id="BTN_ADD" type="STRING" size="256"/>
+          <Column id="BTN_SAV" type="STRING" size="256"/>
+          <Column id="BTN_DEL" type="STRING" size="256"/>
+          <Column id="BTN_XLS" type="STRING" size="256"/>
+          <Column id="BTN_PRT" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="BTN_SEL">1</Col>
+            <Col id="BTN_ADD">1</Col>
+            <Col id="BTN_SAV">1</Col>
+            <Col id="BTN_DEL">1</Col>
+            <Col id="BTN_PRT">0</Col>
+            <Col id="BTN_XLS">0</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem columnid="AUTH_NM" compid="edtAuthNm" datasetid="dsSearch" id="item1" propid="accessibilityaction"/>
+      <BindItem columnid="USE_YN" compid="cboUseYn_sc" datasetid="dsSearch" id="item2" propid="value"/>
+      <BindItem columnid="AUTH_NM" compid="edtAuthNm" datasetid="dsSearch" id="item3" propid="value"/>
+    </Bind>
+  </Form>
+</FDL>

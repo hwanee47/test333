@@ -1,0 +1,487 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form cssclass="bg_pop01" height="480" id="BAIM_BAIM_P110" onload="form_onload" titletext="메뉴권한" width="960" oninit="form_oninit">
+    <Layouts>
+      <Layout description="" height="480" width="960">
+        <Static cssclass="pop_tit_txt01" domainId="T0167" height="34" id="sta01" left="15" taborder="0" text="메뉴권한  -" top="0" width="78"/>
+        <Static bottom="0" cssclass="pop_cont" id="sta00" left="0" right="0" taborder="1" top="34"/>
+        <Button cssclass="btn_pop_img_close" height="22" id="btnClose00" onclick="btnClose_onclick" right="15" taborder="2" top="5" width="22" text=""/>
+        <Static cssclass="in_tit01" domainId="T0198" height="31" id="stTitle" left="19" taborder="8" text="메뉴권한리스트" top="33" width="91"/>
+        <Grid autoenter="select" autofittype="col" binddataset="dsGroupAuthListBefore" cellsizingtype="col" cssclass="tb_ty01" id="grd1" maxwidth="" onheadclick="grdOnHeadClick" taborder="3" left="8" width="434" top="stTitle:1" autoupdatetype="itemselect" bottom="10">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="32"/>
+                <Column size="105"/>
+                <Column size="318"/>
+              </Columns>
+              <Rows>
+                <Row size="26" band="head"/>
+                <Row size="26"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" accessibilitydescription="T0386" text="그룹권한코드"/>
+                <Cell col="3" accessibilitydescription="T0588" text="그룹권한명"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1" textAlign="center"/>
+                <Cell col="1" displaytype="checkboxcontrol" editautoselect="true" edittype="checkbox" text="bind:CHK" textAlign="left"/>
+                <Cell col="2" editautoselect="true" edittype="none" suppress="1" text="bind:AUTH_CD" textAlign="center"/>
+                <Cell col="3" displaytype="normal" editautoselect="true" edittype="none" text="bind:AUTH_NM" textAlign="left"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Button domainId="T0830" fittocontents="none" height="29" id="btnAddGroupAuth" onclick="btnOnClick" taborder="4" top="180" background="url('img::btn_CalNext_P.png') no-repeat" left="458" width="30"/>
+        <Button domainId="T0830" fittocontents="none" height="29" id="btnDeleteGroupAuth" onclick="btnOnClick" taborder="5" top="240" background="url('img::btn_CalPrev_P.png') no-repeat" left="458" width="30"/>
+        <Static cssclass="in_tit01" domainId="T0198" height="31" id="stTitle00" left="520" taborder="9" text="사용자 메뉴권한리스트" top="33" width="150"/>
+        <Grid autoenter="select" autofittype="col" binddataset="dsGroupAuthListAfter" cellsizingtype="col" cssclass="tb_ty01" id="grd2" maxwidth="" onheadclick="grdOnHeadClick" taborder="6" left="503" right="10" top="stTitle00:1" bottom="10">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="32"/>
+                <Column size="105"/>
+                <Column size="318"/>
+              </Columns>
+              <Rows>
+                <Row size="26" band="head"/>
+                <Row size="26"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" accessibilitydescription="T0386" text="그룹권한코드"/>
+                <Cell col="3" accessibilitydescription="T0588" text="그룹권한명"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1" textAlign="center"/>
+                <Cell col="1" displaytype="checkboxcontrol" editautoselect="true" edittype="checkbox" text="bind:CHK" textAlign="left"/>
+                <Cell col="2" editautoselect="true" edittype="none" suppress="1" text="bind:AUTH_CD" textAlign="center"/>
+                <Cell col="3" displaytype="normal" editautoselect="true" edittype="none" text="bind:AUTH_NM" textAlign="left"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static id="staUserId" taborder="7" left="sta01:5" top="6" width="124" height="21" cssclass="txt_search01"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  메뉴권한 부여 팝업
+*  @MenuPath        
+*  @FileName 		BAIM_BAIM_P110.xfdl
+*  @Creator 		Kim Jin Hwan
+*  @CreateDate		2020.07.13
+*  @Desction        메뉴권한 부여 팝업
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.07.13		Kim Jin Hwan			최초 생성
+************************************************************************************************
+*/
+
+
+ include "lib::lib_Form.xjs";
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+
+/***********************************************************************************************
+* FORM EVENT 영역(onload)
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	// 초기화
+	this.fnInit();
+	
+	
+	// 조회
+	this.fnSearch();
+};
+
+
+/***********************************************************************************************
+ * @function	: forOninit
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.form_oninit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication();
+};
+
+
+ /***********************************************************************************************
+ * @function	: form_onload
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnInit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	
+	this.staUserId.set_text(this.getOwnerFrame().pUserId);
+	this.dsSearch.setColumn(0, "USER_ID", this.getOwnerFrame().pUserId);
+};
+
+
+
+/************************************************************************************************
+* TRANSACTION 서비스 호출 처리
+************************************************************************************************/
+
+/************************************************************************************************
+ * CALLBACK 콜백 처리부분
+ ************************************************************************************************/
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+		return;
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+		
+			// 컴포넌트 초기화
+			this.fnCompInit();
+
+		break;
+		
+		// 조회
+		case "getAuthList" :
+			this.grd1.setCellProperty("head", this.grd1.getBindCellIndex("body", "CHK"), "text", '0');
+			this.grd2.setCellProperty("head", this.grd2.getBindCellIndex("body", "CHK"), "text", '0');
+		break;
+	
+		
+		// 그룹권한 추가
+		case "insertGroupAuthList":
+			this.fnSearch();
+		break;
+		
+		// 그룹권한 삭제
+		case "deleteGroupAuthList":
+			this.fnSearch();
+		break;
+		
+		default :
+		break;
+	}
+};
+
+
+ /************************************************************************************************
+ * 사용자 FUNCTION 영역
+ ************************************************************************************************/
+ /***********************************************************************************************
+ * @function: fnCompInit
+ * @description: 컴포넌트 초기화 함수.
+ * @param  N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnCompInit = function()
+{
+	
+}
+
+
+ /***********************************************************************************************
+ * @function	: fnAfterCodeDef
+ * @description	: 코드조회후 선택,전체 추가
+ * @param		: dsObj	- Dataset Object
+ * @param       : strText - String
+ * @return N/A
+/***********************************************************************************************/
+this.fnAddCodeDef = function(dsObj:nexacro.NormalDataset, strText:String) {
+	dsObj.insertRow();
+	dsObj.setColumn(0,'CD','');
+	dsObj.setColumn(0,'CD_NM', strText);
+}
+
+
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 조회
+ * @param		: obj	- nexacro.Button
+ * @param		: e		- nexacro.ClickEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnSearch = function()
+{
+
+	/** 조회조건 필수입력 체크********************************************************/
+	/*if( this.gfnIsNull(edtBranCdValue) && this.gfnIsNull(edtBranNmValue) ){
+		this.gfnAlert("점소코드 또는 점소명 입력해주세요.");
+		
+		if( this.gfnIsNull(edtBranCdValue) ){
+			this.edtBranCd.setFocus();
+			return;
+		}
+		
+		return;
+	}*/
+	
+	/************************************************************************************/
+	
+	this.gfnTransaction("getAuthList");
+};
+
+this.fnChoise = function()
+{
+	var row = this.dsList.rowposition;
+	if( row !== -1 ) {
+		// return dataSet 초기화
+		this.fnReturnClose(row);
+	}
+}
+
+
+ 
+ /************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+/**
+ * @description popup close
+*/
+this.btnClose_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.close();
+};
+
+
+
+/***********************************************************************************************
+ * @function	: gridCellDbClick
+ * @description	: button onClick event
+ * @param		: obj	- nexacro.Grid
+ * @param		: e		- nexacro.GridClickEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.gridCellDbClick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var row = e.row;
+	if( row !== -1 ) {
+		// return dataSet 초기화
+		this.fnReturnClose(row);
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnReturnClose
+ * @description	: 
+ * @param		: obj	- nexacro.Edit
+ * @return N/A
+/***********************************************************************************************/
+this.fnReturnClose = function(row:Number) {
+
+	if( row !== -1 ) {
+		// return dataSet 초기화
+		this.dsResult.clearData();
+		this.dsResult.copyRow(this.dsResult.addRow(), this.dsList, row);
+		
+		var json = {
+			ds : this.dsResult.saveXML(),
+			callFn : this.getOwnerFrame().callbackFn
+		}
+		  
+		this.close(JSON.stringify(json));
+	}
+}
+
+
+/***********************************************************************************************
+ * @function	: btnOnClick
+ * @description	: 버튼이벤트 제어
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		
+		// 그룹권한추가
+		case "btnAddGroupAuth":
+			this.fnAddGroupAuth();
+		break;
+		
+		// 그룹권한삭제
+		case "btnDeleteGroupAuth":
+			this.fnDeleteGroupAuth();
+		break;
+		
+		
+		default :	
+		break;
+	}
+};
+
+
+ /***********************************************************************************************
+ * @function	: fnAddGroupAuth
+ * @description	: 그룹권한 추가
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnAddGroupAuth = function()
+{
+	
+	//chk된 항목이 있는지 확인.
+	if(this.dsGroupAuthListBefore.findRow("CHK", "1") < 0) {
+		//this.gfnAlert("M0307");
+		this.gfnAlert("추가할 메뉴를 체크해주세요.");
+		return;
+	}
+	
+	
+	this.gfnCustomConfirm("추가하시겠습니까?", function(sPopupId, bResult){
+		
+		if(!bResult) return;
+		
+		this.gfnTransaction("insertGroupAuthList");
+	
+	});
+
+}
+
+
+ /***********************************************************************************************
+ * @function	: fnDeleteGroupAuth
+ * @description	: 그룹권한 삭제
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnDeleteGroupAuth = function()
+{
+	
+	//chk된 항목이 있는지 확인.
+	if(this.dsGroupAuthListAfter.findRow("CHK", "1") < 0) {
+		//this.gfnAlert("M0307");
+		this.gfnAlert("삭제할 메뉴를 체크해주세요.");
+		return;
+	}
+	
+	
+	this.gfnCustomConfirm("삭제하시겠습니까?", function(sPopupId, bResult){
+		
+		if(!bResult) return;
+		
+		this.gfnTransaction("deleteGroupAuthList");
+	
+	});
+
+}
+
+
+// 그리드 헤더 클릭
+this.grdOnHeadClick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var objDs = this.lookup(obj.binddataset);
+	
+	this.gfnGridSort(obj, e);
+};]]></Script>
+    <Objects>
+      <Dataset id="dsSearch" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="USER_ID" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsResult">
+        <ColumnInfo>
+          <Column id="WAREH_CD" size="256" type="STRING"/>
+          <Column id="WAREH_NM" size="256" type="STRING"/>
+          <Column id="WAREH_TYPE" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">getAuthList</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch ds2=dsSearch</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="OUT_DATASET_LIST">dsGroupAuthListBefore=ds1 dsGroupAuthListAfter=ds2</Col>
+            <Col id="QUERY_LIST">q1=baimUserMgmtService.getGroupAuthListBefore q2=baimUserMgmtService.getGroupAuthListAfter</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">insertGroupAuthList</Col>
+            <Col id="IN_DATASET_LIST">dsGroupAuthListBefore=dsGroupAuthListBefore:U</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SERVICE_BEANNAME">baimUserMgmtService</Col>
+            <Col id="SERVICE_METHOD">insertGroupAuthList</Col>
+          </Row>
+          <Row>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">baimUserMgmtService</Col>
+            <Col id="IN_DATASET_LIST">dsGroupAuthListAfter=dsGroupAuthListAfter:U</Col>
+            <Col id="SVC_ID">deleteGroupAuthList</Col>
+            <Col id="SERVICE_METHOD">deleteGroupAuthList</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsWarehType">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="256"/>
+          <Column id="CD_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsGroupAuthListBefore">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="256"/>
+          <Column id="USER_ID" type="STRING" size="256"/>
+          <Column id="AUTH_CD" type="STRING" size="256"/>
+          <Column id="AUTH_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsGroupAuthListAfter">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="256"/>
+          <Column id="USER_ID" type="STRING" size="256"/>
+          <Column id="AUTH_CD" type="STRING" size="256"/>
+          <Column id="AUTH_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+  </Form>
+</FDL>

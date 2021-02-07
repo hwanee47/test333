@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form height="800" id="BOARD_NOTICE_LIST" onload="form_onload" titletext="공지사항" width="1566">
+    <Layouts>
+      <Layout height="800" mobileorientation="landscape" width="1566">
+        <Static id="sta09" taborder="7" text="게시판관리 &gt; 공지사항" left="21" top="1" width="165" fittocontents="width" onclick="sta09_onclick" height="34" cssclass="top_title_route01"/>
+        <Static cssclass="top_search_ty01" height="40" id="sta00" left="0" right="30" taborder="0" text="" top="sta09:0"/>
+        <Grid autoenter="select" autofittype="none" binddataset="dsList" bottom="2" cellsizingtype="col" cssclass="tb_ty00" id="grdMain" left="0" oncelldblclick="fn_PopCall" right="30" taborder="1" top="sta00:3">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="427"/>
+                <Column size="204"/>
+                <Column size="150"/>
+                <Column size="150"/>
+              </Columns>
+              <Rows>
+                <Row band="head" size="24"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell accessibilitydescription="T0871" text="제목"/>
+                <Cell accessibilitydescription="T0118" col="1" text="게시기간"/>
+                <Cell accessibilitydescription="T0276" col="2" text="등록일시"/>
+                <Cell accessibilitydescription="T0278" col="3" text="등록자"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:SUBJECT" textAlign="left"/>
+                <Cell col="1" text="bind:POSTED_DT"/>
+                <Cell calendardisplaynulltype="none" col="2" displaytype="date" text="bind:REG_DT"/>
+                <Cell col="3" text="bind:REG_NM"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static cssclass="top_search_tx01" domainId="T0203" height="23" id="sta03" left="10" taborder="2" text="게시일" top="45" width="50"/>
+        <Button cssclass="btn_ty01_search" domainId="T0115" fittocontents="none" height="23" id="btnSearch" onclick="fn_SearchList" right="32" taborder="3" text="검색" top="7" width="68"/>
+        <Static cssclass="top_search_tx01" domainId="T0203" height="23" id="sta03_00" left="242" taborder="4" text="제목" top="45" width="38"/>
+        <Edit id="edtTitle" taborder="5" left="290" top="44" width="180" height="24" onchanged="edtTitle_onchanged"/>
+        <Calendar id="calStDate" taborder="6" left="75" top="44" width="150" height="24"/>
+        <Static fittocontents="width" height="13" id="sta04" taborder="8" text="l" textAlign="center" top="11" width="4" left="9" cssclass="top_title_prefix01"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  공지사항
+*  @MenuPath		ptl > PTL_NOT_0001
+*  @FileName		PTL_NOT_0001.xfdl
+*  @Creator			yhkim
+*  @CreateDate		2018.11.19
+*  @Desction		스크립트 표준 및 주석 표준 정의
+************** 소스 수정 이력 ***************************************************
+*  date          		Modifier                Description
+*******************************************************************************
+*  2018.11.19			yhkim					최초 생성
+*******************************************************************************
+*/
+
+/************************************************************************************************
+ * include 선언부																				*
+************************************************************************************************/
+include "lib::lib_Form.xjs";
+
+
+/************************************************************************************************
+ * FORM 변수 선언 영역																		*
+************************************************************************************************/
+ this.objApp; 
+ 
+/***********************************************************************************************
+ * @function		: form_onload
+ * @description		: FORM 온로드
+ * @param 			: obj - form object
+ * @param 			: e - form event 
+ * @return 			: N/A
+***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication();
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	//
+	this.fn_FormInit();
+};
+/***********************************************************************************************
+ * @function		: fn_codeSearch
+ * @description		: FORM init
+ * @param			: obj - nexacro.Form
+ * @param			: e   - nexacro.EventInfo
+ * @return			: N/A
+/***********************************************************************************************/
+this.fn_FormInit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	this.fn_CalSetting();
+	this.calStDate.setFocus();
+	
+};
+/***********************************************************************************************
+* COMM FUNCTION
+***********************************************************************************************/
+/***********************************************************************************************
+ * @function		: fn_CalSetting
+ * @description		: 달력 값 셋팅
+ * @return			: N/A
+/***********************************************************************************************/
+this.fn_CalSetting = function()
+{
+	var dateFm = this.divDate.form;
+	//
+	dateFm.fnSetCalFromBindItem("dsSearch", "STA_DT");
+	dateFm.fnSetCalToBindItem("dsSearch", "END_DT");	
+	//
+	dateFm.fnSetFromDate(this.gfnGetDate("date"));
+	//dateFm.fnSetToDate(this.gfnAddDate(this.gfnGetDate("date"), 45));
+	dateFm.fnSetToDate(this.gfnGetDate("date"));
+	//
+	dateFm.fnSetFromFocus();
+};
+/***********************************************************************************************
+* USER FUNCTION
+***********************************************************************************************/
+ /***********************************************************************************************
+ * @function		: fn_SearchList
+ * @description		: 공지사항 목록 조회
+ * @param 			: obj	- Button object
+ * @param 			: e		- Button event 
+ * @return 			: N/A
+***********************************************************************************************/
+this.fn_SearchList = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.gfnTransaction("searchList");
+};
+
+/***********************************************************************************************
+ * @function		: fn_PopCall
+ * @description		: 공지사항 상세정보 팝업 조회
+ * @param 			: obj	- Grid object
+ * @param 			: e		- GridClickEventInfo event 
+ * @return 			: N/A
+***********************************************************************************************/
+this.fn_PopCall = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var autoSeq		= this.dsList.getColumn(e.row,"AUTO_SEQ");
+	//
+	var autosearchGb	= ( this.gfnIsNull(autoSeq) ? 'N' : 'Y' );
+	var sFormName		= "게시물관리";
+	var sFormUrl		= "board::BOARD_NOT_P001.xfdl";
+	var oArg			= {paramTitle:sFormName,pAutosearchGb:autosearchGb,pAutoSeq:autoSeq};
+	var oOption			= {"width":920,"height":500};	//top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack	= "fnPopupCallback";
+	
+	this.gfnOpenPopup("notiPop",sFormUrl,oArg,sPopupCallBack,oOption);
+	
+};
+
+this.edtTitle_onchanged = function(obj:nexacro.Edit,e:nexacro.ChangeEventInfo)
+{
+	
+};
+]]></Script>
+    <Objects>
+      <Dataset id="dsSearch">
+        <ColumnInfo>
+          <Column id="STA_DT" size="256" type="STRING"/>
+          <Column id="AUTH" size="256" type="STRING"/>
+          <Column id="TITLE" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="AUTH">T01|T02|T03</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsService">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">searchList</Col>
+            <Col id="OUT_DATASET_LIST">dsList=ds1</Col>
+            <Col id="SERVICE_BEANNAME"/>
+            <Col id="SERVICE_METHOD"/>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="QUERY_LIST">q1=baimNoticeMgmService.getNoticeList</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsList" oncolumnchanged="fn_ChkSum">
+        <ColumnInfo>
+          <Column id="SUBJECT" size="256" type="STRING"/>
+          <Column id="REG_NM" size="256" type="STRING"/>
+          <Column id="REG_DT" size="256" type="STRING"/>
+          <Column id="POSTED_DT" size="256" type="STRING"/>
+          <Column id="AUTO_SEQ" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="edtTitle" propid="value" datasetid="dsSearch" columnid="TITLE"/>
+      <BindItem id="item1" compid="calStDate" propid="value" datasetid="dsSearch" columnid="STA_DT"/>
+    </Bind>
+  </Form>
+</FDL>

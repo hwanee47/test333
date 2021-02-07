@@ -1,0 +1,1281 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form height="800" id="BAIM_BAIM_0020" oninit="form_oninit" onload="form_onload" titletext="점소등록" width="1566">
+    <Layouts>
+      <Layout height="800" mobileorientation="landscape" stepcount="0" width="1566">
+        <Static cssclass="top_search_ty01" height="40" id="stSearch" left="0" onclick="divSearch_staSearch_onclick" right="30" taborder="0" text="" top="35"/>
+        <Div id="div00" taborder="5" text="div00" left="0" top="stSearch:3" height="372" border="2px solid #1a3867,1px solid #dddddd,1px solid #dddddd" boxShadow="0px 6px 6px #dddddd" background="#ffffff" width="981">
+          <Layouts>
+            <Layout>
+              <Static id="sta00_01_01_00_00_00_01_00" taborder="88" left="595" top="272" width="384" height="49" cssclass="sta_tbody_td01" text=""/>
+              <Static id="sta00" taborder="53" left="67" top="-2" width="263" height="49" cssclass="sta_tbody_td01"/>
+              <Static id="sta00_01" taborder="62" left="67" top="45" width="263" height="49" cssclass="sta_tbody_td01" text=""/>
+              <Static id="sta00_01_00" taborder="65" left="67" top="93" width="263" height="43" cssclass="sta_tbody_td01" onclick="div00_sta00_01_00_onclick"/>
+              <Static id="sta00_01_00_00" taborder="66" left="67" top="135" width="263" height="42" cssclass="sta_tbody_td01" onclick="div00_sta00_01_00_onclick"/>
+              <Static id="sta00_01_01" taborder="70" left="67" top="272" width="202" height="49" cssclass="sta_tbody_td01" onclick="div00_sta00_01_01_onclick"/>
+              <Static id="sta00_01_01_00" taborder="71" left="67" top="176" width="202" height="49" cssclass="sta_tbody_td01"/>
+              <Static id="sta00_01_01_00_00" taborder="72" left="67" top="224" width="202" height="49" cssclass="sta_tbody_td01"/>
+              <Static id="sta00_01_01_01" taborder="85" left="67" top="320" width="202" height="49" cssclass="sta_tbody_td01" onclick="div00_sta00_01_01_onclick"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001" left="0" taborder="0" text="점       소" top="-3" width="68" textAlign="center" onclick="div00_sta001_onclick"/>
+              <Static id="sta00_01_01_00_00_00_01_00_00" taborder="101" left="595" top="320" width="384" height="49" cssclass="sta_tbody_td01" text=""/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="133" id="sta001_00_00_00_00" left="659" taborder="69" text="특 이 사 항" top="45" width="80" textAlign="center"/>
+              <Static id="sta00_01_00_01_00" taborder="99" left="738" top="93" height="85" cssclass="sta_tbody_td01" onclick="div00_sta00_01_00_onclick" text="" right="384"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00" left="0" taborder="8" text="운영&#13;&#10;상위점소" top="45" width="68" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="84" id="sta001_00_00" left="0" taborder="15" text="사업자주소" top="93" width="68" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01" left="0" taborder="26" text="대표&#13;&#10;전화번호" top="176" width="68" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_00" left="0" taborder="54" text="대  표   자" top="224" width="68" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_00_00" left="0" taborder="55" text="업       태" top="320" width="68" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_01" left="0" taborder="56" text="영업&#13;&#10;관장사원" top="272" width="68" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_01" left="329" taborder="3" text="점 소 구 분" top="-3" width="68" textAlign="center"/>
+              <Static id="sta00_00" taborder="60" left="396" top="-2" width="583" height="49" cssclass="sta_tbody_td01"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_01_00" left="659" taborder="5" text="영업&#13;&#10;개시일/종료일" top="-2" width="80" textAlign="center"/>
+              <Static id="sta00_00_00" taborder="61" left="738" top="-2" height="49" cssclass="sta_tbody_td01" right="384"/>
+              <Static id="sta00_00_01" taborder="63" left="396" top="45" width="264" height="49" cssclass="sta_tbody_td01"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_01_00_00" left="329" taborder="12" text="집 화 불 가 일" top="45" width="68" textAlign="center"/>
+              <Static id="sta00_00_00_00" taborder="64" left="738" top="45" height="49" cssclass="sta_tbody_td01" right="384"/>
+              <Static id="sta00_01_00_00_00" taborder="67" left="396" top="134" width="264" height="43" cssclass="sta_tbody_td01" onclick="div00_sta00_01_00_onclick"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="84" id="sta001_00_00_00" left="329" taborder="20" text="주        소" top="93" width="68" textAlign="center"/>
+              <Static id="sta00_01_00_01" taborder="68" left="396" top="93" width="264" height="42" cssclass="sta_tbody_td01" onclick="div00_sta00_01_00_onclick"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_02" left="268" taborder="51" text="팩 스 번 호" top="176" width="68" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_02_00" left="268" taborder="73" text="사업자번호" top="224" width="68" textAlign="center"/>
+              <Static id="sta00_01_01_00_01" taborder="74" left="335" top="176" width="194" height="49" cssclass="sta_tbody_td01"/>
+              <Static id="sta00_01_01_00_00_00" taborder="75" left="335" top="224" width="194" height="49" cssclass="sta_tbody_td01"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_02_01" left="528" taborder="52" text="전 화 번 호" top="176" width="68" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_02_00_00" left="528" taborder="76" text="소 유 구 분" top="224" width="68" textAlign="center"/>
+              <Static id="sta00_01_01_00_01_00" taborder="77" left="595" top="176" width="384" height="49" cssclass="sta_tbody_td01"/>
+              <Static id="sta00_01_01_00_00_00_00" taborder="78" left="595" top="224" width="384" height="49" cssclass="sta_tbody_td01"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_02_01_00" left="797" taborder="79" text="점소&#13;&#10;업무구분" top="176" width="68" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_02_00_00_00" left="797" taborder="80" text="권 역 구 분" top="224" width="68" textAlign="center"/>
+              <Static id="sta00_01_01_00_01_00_00" taborder="81" left="894" top="176" height="49" cssclass="sta_tbody_td01" right="383"/>
+              <Static id="sta00_01_01_00_00_00_00_00" taborder="82" left="894" top="224" height="49" cssclass="sta_tbody_td01" right="383"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_02_00_00_00_00" left="797" taborder="83" text="점 소 상 태" top="272" width="68" textAlign="center"/>
+              <Static id="sta00_01_01_00_00_00_00_00_00" taborder="84" left="894" top="272" height="49" cssclass="sta_tbody_td01" right="383"/>
+              <Static id="sta00_01_01_01_00" taborder="86" left="335" top="320" width="194" height="49" cssclass="sta_tbody_td01" onclick="div00_sta00_01_01_onclick"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_02_00_01_00" left="528" taborder="87" text="위 탁 구 분" top="272" width="68" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_02_00_00_00_00_00" left="797" taborder="89" text="회 사 구 분" top="320" width="68" textAlign="center" visible="false"/>
+              <Static id="sta00_01_01_00_00_00_00_00_00_00" taborder="90" left="894" top="320" height="49" cssclass="sta_tbody_td01" right="383"/>
+              <Edit id="edtOprUpBranNm" taborder="11" left="184" top="59" width="125" height="23" enable="false" cssclass="inp_ty01_req" readonly="false" background="papayawhip"/>
+              <Edit id="edtOprUpBranCd" taborder="9" left="70" top="59" width="90" height="23" cssclass="inp_ty01_req" onkeydown="fnEditOnKeyDown"/>
+              <Edit id="edtDetailAddr" taborder="16" left="70" top="145" width="256" height="23" enable="true" cssclass="inp_ty01_req" background="papayawhip"/>
+              <Edit id="edtBranDetailAddr" taborder="21" left="399" top="145" width="256" height="23" enable="true" cssclass="inp_ty01"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01_req" datacolumn="CD_NM" height="23" id="cboBranDv" left="399" taborder="4" top="9" type="filterlike" width="141" innerdataset="dsBranDv" canitemchange="div00_cboBranDv_canitemchange"/>
+              <Edit id="edtSaleMgmtEmpNm" taborder="43" left="175" top="282" width="89" height="23" enable="false" cssclass="inp_ty01"/>
+              <Edit id="edtSaleMgmtEmpNo" taborder="41" left="70" top="282" width="81" height="23" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cboZnDv" left="871" taborder="40" top="237" type="filterlike" width="103" innerdataset="dsZnDv"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cboBranSt" left="871" taborder="46" top="283" type="filterlike" width="103" innerdataset="dsBranSt"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cboCpDv" left="871" taborder="50" top="332" type="filterlike" width="103" innerdataset="dsCpDv" visible="false"/>
+              <Edit id="edtRepreNm" taborder="37" left="70" top="237" width="128" height="23" enable="true" cssclass="inp_ty01_req"/>
+              <Edit id="edtBzconNm" taborder="47" left="70" top="332" width="194" height="23" enable="true" cssclass="inp_ty01"/>
+              <Edit id="edtRepreSortCd" taborder="49" left="600" top="334" width="194" height="23" enable="true" cssclass="inp_ty01"/>
+              <Edit id="edtItemNm" taborder="48" left="339" top="332" width="186" height="23" enable="true" cssclass="inp_ty01"/>
+              <Calendar id="calSaleStartYmd" taborder="6" left="742" top="9" width="106" height="23" cssclass="cal_ty01_req"/>
+              <Calendar id="calSaleEndYmd" taborder="7" left="868" top="9" width="106" height="23" cssclass="cal_ty01"/>
+              <Calendar id="calPidvFailYmdFr" taborder="13" left="399" top="58" width="106" height="23" cssclass="cal_ty01" canchange="div00_calPidvFailYmdFr_canchange"/>
+              <Calendar id="calPidvFailYmdTo" taborder="14" left="527" top="58" width="106" height="23" cssclass="cal_ty01"/>
+              <TextArea id="txtCaution" taborder="25" left="741" top="50" height="118" cssclass="inp_ty01" width="233"/>
+              <Edit cssclass="inp_ty01_req" enable="true" height="23" id="cboRepreTelNo3" inputtype="number" left="215" maxlength="4" taborder="29" top="190" width="49" value="2345" text="2345"/>
+              <Static height="18" id="sta02_00" left="198" taborder="93" text="-" textAlign="center" top="190" width="15"/>
+              <Edit cssclass="inp_ty01_req" enable="true" height="23" id="cboRepreTelNo2" inputtype="number" left="149" maxlength="4" taborder="28" top="190" width="49"/>
+              <Static height="18" id="sta01_00" left="132" taborder="94" text="-" textAlign="center" top="190" width="15"/>
+              <Static id="sta07" taborder="91" text="-" left="856" top="9" width="8" height="23" color="black"/>
+              <Static id="sta07_00" taborder="92" text="-" left="513" top="58" width="8" height="23" color="black"/>
+              <Edit cssclass="inp_ty01" enable="true" height="23" id="cboTelNo3" inputtype="number" left="741" maxlength="4" taborder="35" top="190" width="49"/>
+              <Static height="18" id="sta02_00_00" left="725" taborder="95" text="-" textAlign="center" top="190" width="15"/>
+              <Edit cssclass="inp_ty01" enable="true" height="23" id="cboTelNo2" inputtype="number" left="675" maxlength="4" taborder="34" top="190" width="49"/>
+              <Static height="18" id="sta01_00_00" left="660" taborder="96" text="-" textAlign="center" top="190" width="15"/>
+              <Edit cssclass="inp_ty01" enable="true" height="23" id="cboFaxNo3" inputtype="number" left="476" maxlength="4" taborder="32" top="190" width="49"/>
+              <Static height="18" id="sta02_00_01" left="462" taborder="97" text="-" textAlign="center" top="190" width="15"/>
+              <Edit cssclass="inp_ty01" enable="true" height="23" id="cboFaxNo2" inputtype="number" left="415" maxlength="4" taborder="31" top="190" width="49"/>
+              <Static height="18" id="sta01_00_01" left="399" taborder="98" text="-" textAlign="center" top="190" width="15"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" enable="true" height="23" id="cboFaxNo1" innerdataset="dsTelCd" taborder="30" text="010" top="190" width="61" index="18" type="filterlike" left="339"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cboBranDutyDv" left="871" taborder="36" top="190" type="filterlike" width="103" text="" innerdataset="dsBranDutyDv"/>
+              <Button id="btnSearchAddr1" taborder="18" left="160" top="102" height="23" width="25" cssclass="btn_search01" onclick="fnOpenPop"/>
+              <Edit id="edtAddr" taborder="19" left="184" top="102" width="142" height="23" enable="false" cssclass="inp_ty01_req" background="papayawhip"/>
+              <Edit id="edtZipNo" taborder="17" left="70" top="102" width="90" height="23" cssclass="inp_ty01_req" enable="false" background="papayawhip"/>
+              <Edit id="edtBranAddr" taborder="24" left="513" top="102" width="142" height="23" enable="false" cssclass="inp_ty01"/>
+              <Button id="btnSearchAddr2" taborder="23" left="489" top="102" height="23" width="25" cssclass="btn_search01" onclick="fnOpenPop"/>
+              <Edit id="edtBranZipNo" taborder="22" left="399" top="102" width="90" height="23" cssclass="inp_ty01" enable="false"/>
+              <Edit id="edtBranCd2" taborder="1" left="70" top="9" width="90" height="23" enable="true" cssclass="inp_ty01_req" inputmode="upper"/>
+              <Edit id="edtBranNm2" taborder="2" left="161" top="9" width="125" height="23" enable="true" cssclass="inp_ty01_req"/>
+              <Radio codecolumn="CD" columncount="2" datacolumn="CD_NM" enable="true" height="20" id="rdoTrustDv" index="0" left="605" taborder="45" text="" top="288" value="01" width="184" innerdataset="dsTrustDv"/>
+              <MaskEdit id="mskEntrpRegNo" taborder="38" left="339" top="238" width="123" height="23" format="###-##-#####" limitbymask="both" type="string" cssclass="inp_ty01_req"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_00_00_00_00" left="528" taborder="58" text="대표&#13;&#10;분류코드" top="320" width="68" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_00_00_00" left="268" taborder="57" text="점 소 약 칭" top="272" width="68" textAlign="center"/>
+              <Static id="sta00_01_01_00_00_00_01" taborder="100" left="335" top="272" width="194" height="49" cssclass="sta_tbody_td01"/>
+              <Edit id="edtBranAbrvNm" taborder="44" left="339" top="284" width="186" height="23" enable="true" cssclass="inp_ty01"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_00_00_01" left="268" taborder="59" text="종       목" top="320" width="68" textAlign="center"/>
+              <Radio codecolumn="CD" columncount="2" datacolumn="CD_NM" enable="true" height="20" id="rdoOwnrDv" index="0" left="605" taborder="39" text="" top="238" value="01" width="184" innerdataset="dsOwnrDv"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" enable="true" height="23" id="cboTelNo1" innerdataset="dsTelCd" taborder="33" text="010" top="190" width="61" index="18" type="filterlike" left="599"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01_req" datacolumn="CD_NM" enable="true" height="23" id="cboRepreTelNo1" innerdataset="dsTelCd" taborder="27" text="010" top="190" width="61" index="18" type="filterlike" left="70"/>
+              <Button id="btnSearchBran2" taborder="10" left="160" top="59" height="23" width="25" cssclass="btn_search01" onclick="fnOpenPop"/>
+              <Button id="btnSearchEmp" taborder="42" left="151" top="282" height="23" width="25" cssclass="btn_search01" onclick="fnOpenPop"/>
+            </Layout>
+          </Layouts>
+        </Div>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp" left="25" taborder="1" text="점소" top="45" width="37"/>
+        <Edit id="edtBranCd" taborder="2" left="64" top="44" width="90" height="23" cssclass="inp_ty01_req" onkeydown="fnEditOnKeyDown" inputmode="upper"/>
+        <Button id="btnSearchBran1" taborder="3" left="154" top="44" height="23" width="25" cssclass="btn_search01" onclick="fnOpenPop"/>
+        <Edit id="edtBranNm" taborder="4" left="178" top="44" width="130" height="23" enable="true" cssclass="inp_ty01_req" onkeydown="fnEditOnKeyDown"/>
+        <Static fittocontents="width" height="13" id="sta04" taborder="6" text="l" textAlign="center" top="11" width="4" left="9" cssclass="top_title_prefix01"/>
+        <Div id="divBtn" taborder="7" top="0" height="34" right="30" text="btnComponent" width="556">
+          <Layouts>
+            <Layout/>
+          </Layouts>
+        </Div>
+        <Static id="staMenuFullPath" taborder="8" left="21" top="1" width="469" fittocontents="none" onclick="sta09_onclick" height="34" cssclass="top_title_route01" text="MENU_FULL_PATH"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  점소 등록
+*  @MenuPath       	
+*  @FileName 		BAIM_BAIM_0020.xfdl
+*  @Creator 		Kim Jin Hwan
+*  @CreateDate 		2020.02.05
+*  @Desction        점소 등록
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.02.05		Kim Jin Hwan			최초 생성
+************************************************************************************************
+*/
+
+/************************************************************************************************
+* include 선언부																				*
+ ************************************************************************************************/
+include "lib::lib_Form.xjs";
+
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+this.objApp;
+ 
+ 
+ /***********************************************************************************************
+ * @function: form_onload
+ * @description: FORM 온로드
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	// 초기화
+	this.fnAdd();
+};
+
+
+ /***********************************************************************************************
+ * @function	: form_onload
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnAdd = function()
+{
+	// 점소정보 데이터셋
+	this.dsDetail.clearData();
+	this.dsDetail.addRow();
+	
+	// 점소코드 활성화
+	this.div00.form.edtBranCd2.set_enable(true);
+	
+	
+	// 공통코드조회
+	// 점소구분, 점소업무구분, 권역구분, 점소상태구분, 회사구분, 터미널구분, 소유구분, 위탁구분
+	this.gfnTransaction("commonCode");
+	
+};
+
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 점소 정보 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearch = function() {
+
+	// 조회조건 필수입력 체크
+	var edtBranCdValue = this.edtBranCd.value;
+	if(this.gfnIsNull(edtBranCdValue)){
+		this.gfnAlert("조회조건의 점소코드를 입력해주세요.");
+		this.edtBranCd.setFocus();
+		return;
+	}
+
+	// 조회조건 init
+	this.dsSearch.clearData();
+	this.dsSearch.insertRow(0);
+	this.dsSearch.setColumn(0, "BRAN_CD" 		,edtBranCdValue);	// 점소코드
+	
+	this.dsDetail.clearData();
+	
+	this.gfnTransaction("getBranInfo");
+
+};
+
+
+/***********************************************************************************************
+ * @function	: fnSearchAfterSave
+ * @description	: 점소 저장후 정보 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearchAfterSave = function(){
+
+	// 조회조건 init
+	this.dsSearch.clearData();
+	this.dsSearch.insertRow(0);
+	this.dsSearch.setColumn(0, "BRAN_CD", this.div00.form.edtBranCd2.value);	// 점소코드
+
+	this.gfnTransaction("getBranInfo");
+}
+
+
+/***********************************************************************************************
+ * @function	: fnSave
+ * @description	: 점소 저장.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSave = function() {
+	
+	var dsRowType = this.dsDetail.getRowType(0);	// 데이터셋 상태
+	if(dsRowType == Dataset.ROWTYPE_EMPTY || dsRowType == Dataset.ROWTYPE_NORMAL){
+		this.gfnAlert("저장할 내용이 없습니다.");
+		return;
+	}
+	
+	// 폼 접근 변수
+	var divFm = this.div00.form;
+	
+	var edtBranCd2Value = divFm.edtBranCd2.value;				// 점소코드
+	var edtBranNm2Value = divFm.edtBranNm2.value;				// 점소명
+	var edtBranAbrvNmValue = divFm.edtBranAbrvNm.value;			// 점소약칭
+	var cboBranDvValue = divFm.cboBranDv.value;					// 점소구분
+	var calSaleStartYmdValue = divFm.calSaleStartYmd.value;		// 영업개시일(FROM)
+	var calSaleEndYmdValue = divFm.calSaleEndYmd.value;			// 영업개시일(TO)
+	var calPidvFailYmdFrValue = divFm.calPidvFailYmdFr.value;	// 집하불가일(FROM)
+	var calPidvFailYmdToValue = divFm.calPidvFailYmdTo.value;	// 집하불가일(TO)
+	var edtOprUpBranCdValue = divFm.edtOprUpBranCd.value;		// 운영상위점소코드
+	var edtOprUpBranNmValue = divFm.edtOprUpBranNm.value;		// 운영상위점소명
+	//var edtMgmtUpBranCdValue = divFm.edtMgmtUpBranCd.value;		// 관리상위점소코드
+	//var edtMgmtUpBranNmValue = divFm.edtMgmtUpBranNm.value;		// 관리상위점소명
+	var edtZipNoValue = divFm.edtZipNo.value;					// 사업자우편번호
+	var edtAddrValue = divFm.edtAddr.value;						// 사업자주소
+	var edtDetailAddrValue = divFm.edtDetailAddr.value;			// 사업자상세주소
+	var edtBranZipNoValue = divFm.edtBranZipNo.value;			// 점소우편번호
+	var edtBranAddrValue = divFm.edtBranAddr.value;				// 점소주소
+	var edtBranDetailAddrValue = divFm.edtBranDetailAddr.value;	// 점소상세주소
+	var edtRepreNmValue = divFm.edtRepreNm.value;				// 대표자명
+	var cboRepreTelNo1Value = divFm.cboRepreTelNo1.value;		// 대표자전화번호1
+	var cboRepreTelNo2Value = divFm.cboRepreTelNo2.value;		// 대표자전화번호2
+	var cboRepreTelNo3Value = divFm.cboRepreTelNo3.value;		// 대표자전화번호3
+	var cboCpDvValue = divFm.cboCpDv.value;						// 회사구분
+	var mskEntrpRegNoValue = divFm.mskEntrpRegNo.value;			// 사업자번호
+	var cboBranDutyDvValue = divFm.cboBranDutyDv.value;			// 점소업무구분
+	var cboZnDvValue = divFm.cboZnDv.value;						// 권역구분
+	var edtSaleMgmtEmpNoValue = divFm.edtSaleMgmtEmpNo.value;	// 영업관장사원번호
+	var edtSaleMgmtEmpNmValue = divFm.edtSaleMgmtEmpNm.value;	// 영업관장사원명
+	
+	
+	
+	/** 저장할 데이터 유효성 체크*********************************************************************/
+	
+	// 공통 필수 입력 체크.
+	// 점소코드 
+	if(this.gfnIsNull(this.gfnTrim(edtBranCd2Value)) ){
+		this.gfnAlert("점소코드를 입력해주세요.");
+		divFm.edtBranCd2.setFocus();
+		return;
+	}
+	// 점소명
+	if(this.gfnIsNull(this.gfnTrim(edtBranNm2Value)) ){
+		this.gfnAlert("점소명을 입력해주세요.");
+		divFm.edtBranNm2.setFocus();
+		return;
+	}
+	// 점소구분
+	if(this.gfnIsNull(this.gfnTrim(cboBranDvValue)) ){
+		this.gfnAlert("점소구분을 선택해주세요.");
+		divFm.cboBranDv.setFocus();
+		return;
+	}
+	// 본사가 아닐때만 상위점소 체크.
+	if(cboBranDvValue != "01"){
+		// 운영상위점소코드
+		if(this.gfnIsNull(this.gfnTrim(edtOprUpBranCdValue)) ){
+			this.gfnAlert("운영상위점소코드를 입력해주세요.");
+			divFm.edtOprUpBranCd.setFocus();
+			return;
+		}
+		// 운영상위점소명
+		if(this.gfnIsNull(this.gfnTrim(edtOprUpBranNmValue)) ){
+			this.gfnAlert("운영상위점소명을 입력해주세요.");
+			divFm.edtOprUpBranNm.setFocus();
+			return;
+		}
+		/*
+		// 관리상위점소코드
+		if(this.gfnIsNull(this.gfnTrim(edtMgmtUpBranCdValue)) ){
+			this.gfnAlert("관리상위점소코드를 입력해주세요.");
+			divFm.edtMgmtUpBranCd.setFocus();
+			return;
+		}
+		// 관리상위점소명
+		if(this.gfnIsNull(this.gfnTrim(edtMgmtUpBranNmValue)) ){
+			this.gfnAlert("관리상위점소명을 입력해주세요.");
+			divFm.edtMgmtUpBranNm.setFocus();
+			return;
+		}
+		*/
+	}
+	// 영업개시일
+	if(this.gfnIsNull(this.gfnTrim(calSaleStartYmdValue)) ){
+		this.gfnAlert("영업개시일을 입력해주세요.");
+		divFm.calSaleStartYmd.setFocus();
+		return;
+	}
+	// 사업자우편번호
+	if(this.gfnIsNull(this.gfnTrim(edtZipNoValue)) ){
+		this.gfnAlert("사업자우편번호를 입력해주세요.");
+		divFm.edtZipNo.setFocus();
+		return;
+	}
+	// 사업자주소
+	if(this.gfnIsNull(this.gfnTrim(edtAddrValue)) ){
+		this.gfnAlert("사업자주소를 입력해주세요.");
+		divFm.edtAddr.setFocus();
+		return;
+	}
+	// 사업자상세주소
+	if(this.gfnIsNull(this.gfnTrim(edtDetailAddrValue)) ){
+		this.gfnAlert("사업자상세주소를 입력해주세요.");
+		divFm.edtDetailAddr.setFocus();
+		return;
+	}
+	// 대표자전화번호1
+	if(this.gfnIsNull(this.gfnTrim(cboRepreTelNo1Value)) ){
+		this.gfnAlert("대표자전화번호1을 입력해주세요.");
+		divFm.cboRepreTelNo1.setFocus();
+		return;
+	}
+	// 대표자전화번호2
+	if(this.gfnIsNull(this.gfnTrim(cboRepreTelNo2Value)) ){
+		this.gfnAlert("대표자전화번호2을 입력해주세요.");
+		divFm.RepreTelNo2.setFocus();
+		return;
+	}
+	// 대표자전화번호3
+	if(this.gfnIsNull(this.gfnTrim(cboRepreTelNo3Value)) ){
+		this.gfnAlert("대표자전화번호3을 입력해주세요.");
+		divFm.cboRepreTelNo3.setFocus();
+		return;
+	}
+	// 대표자명
+	if(this.gfnIsNull(this.gfnTrim(edtRepreNmValue)) ){
+		this.gfnAlert("대표자명을 입력해주세요.");
+		divFm.edtRepreNm.setFocus();
+		return;
+	}
+	// 회사구분
+	if(this.gfnIsNull(this.gfnTrim(cboCpDvValue)) ){
+		this.gfnAlert("회사구분을 선택해주세요.");
+		divFm.cboCpDv.setFocus();
+		return;
+	}
+	
+	// 영업관장사원번호를 입력했는데 사원명이 없는경우 
+	if( !this.gfnIsNull(edtSaleMgmtEmpNoValue)){
+		if(this.gfnIsNull(edtSaleMgmtEmpNmValue)){
+			this.gfnAlert("영업관장사원명을 입력해주세요.");
+			divFm.edtSaleMgmtEmpNm.setFocus();
+			return;
+		}
+	}
+	
+	
+	
+	// 점소구분이 "터미널(19)"이 아닌경우.
+	if(cboBranDvValue != "19"){
+	
+		// 사업자번호 필수입력체크.
+		if(this.gfnIsNull(this.gfnTrim(mskEntrpRegNoValue)) ){
+			this.gfnAlert("사업자 번호를 입력해주세요.");
+			divFm.mskEntrpRegNo.setFocus();
+			return;
+		}
+		// 사업자번호 유효성체크.
+		else{
+			if( !this.fnChkEntrpRegNo(this.gfnTrim(mskEntrpRegNoValue)) ){
+				this.gfnAlert("사업자 번호를 확인해주세요.");
+				divFm.mskEntrpRegNo.setFocus();
+				return;
+			}
+		}
+		
+		// 점소업무구분 필수입력체크.
+		if(this.gfnIsNull(cboBranDutyDvValue)){
+			this.gfnAlert("점소업무구분을 선택해주세요.");
+			divFm.cboBranDutyDv.setFocus();
+			return;
+		}
+	}
+	
+	// 점소구분이 "터미널(19)"인 경우.
+	if(cboBranDvValue == "19"){
+	
+		// 권역구분 필수입력체크.
+		if(this.gfnIsNull(cboZnDvValue)){
+			this.gfnAlert("권역구분을 선택해주세요.");
+			divFm.cboZnDv.setFocus();
+			return;
+		}
+	}
+	
+	// 점소구분이 "대리점(22)"인 경우.
+	if(cboBranDvValue == "22"){
+		
+		// 영업관장사원 필수입력체크.
+		if(this.gfnIsNull(edtSaleMgmtEmpNoValue) || this.gfnIsNull(edtSaleMgmtEmpNmValue)){
+			this.gfnAlert("영업관장사원을 입력해주세요.");
+			divFm.edtSaleMgmtEmpNo.setFocus();
+			return;
+		}
+		
+		// 점소약칭 필수입력체크.
+		if(this.gfnIsNull(edtBranAbrvNmValue)){
+			this.gfnAlert("점소약칭을 입력해주세요.");
+			divFm.edtBranAbrvNm.setFocus();
+			return;
+		}
+	}
+	
+	// 영업개시일,종료일 비교 (개시일이 종료일보다 클수 없음.)
+	if( !this.gfnIsNull(calSaleEndYmdValue) ){	// 종료일이 입력된경우만 체크.
+		
+		if( !this.fnChkCalDate(calSaleStartYmdValue, calSaleEndYmdValue, "영업종료일이 개시일보다 빠를수 없습니다.") ){
+			divFm.calSaleEndYmd.setFocus();
+			return;
+		}
+		
+	}
+	
+	
+	// 집하불가일(FROM~TO) 비교 (FROM일자가 TO일자보다 클수 없음.)
+	if( !this.gfnIsNull(calPidvFailYmdToValue) && !this.gfnIsNull(calPidvFailYmdFrValue)){	// 종료일이 입력된경우만 체크.
+		
+		if( !this.fnChkCalDate(calPidvFailYmdFrValue, calPidvFailYmdToValue, "집하불가일(TO)일자가 (FROM)일자보다 빠를수 없습니다.") ){
+			divFm.calPidvFailYmdTo.setFocus();
+			return;
+		}
+		
+	}
+	
+	
+	/****************************************************************************************************/
+	
+	
+	this.gfnCustomConfirm("저장하시겠습니까?", function(sPopId, bResult){
+	
+		if(!bResult) return;
+	
+		this.gfnTransaction("saveBranInfo");
+	});
+	
+
+	
+
+};
+
+
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	//trace("[fnCallback()] svcID["+svcID+"] errorCode["+errorCode+"] errorMsg["+errorMsg+"]");
+	
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+		return;
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+		
+			// 컴포넌트 초기화
+			this.fnCompInit();
+
+		break;
+		
+		// 조회
+		case "getBranInfo" :
+			// 점소코드 비활성화
+			this.div00.form.edtBranCd2.set_enable(false);	
+		
+			// 점소구분에 따라 스타일변경
+			this.fnChgCompStyleByBranCd(this.dsDetail.getColumn(0,"BRAN_DV"));
+		break;
+		
+		
+		// 저장
+		case "saveBranInfo" :
+			this.gfnAlert("저장되었습니다.");
+		
+			// 조회
+			this.fnSearchAfterSave();
+		break;
+		
+		
+		default :
+		break;
+	}
+};
+
+/***********************************************************************************************
+ * @function	: fnPopupCallBack
+ * @description	: popup Callback
+ * @param		: popupId	- String
+ * @param		: dsObj		- nexacro.NormalDataset
+ * @return N/A
+ ***********************************************************************************************/
+this.fnPopupCallback = function(sPopupId, dsObj)
+{
+	//trace("[fnPopupCallback()] sPopupId["+sPopupId+"] rtnMsg["+JSON.stringify(rtnObj)+"]");
+
+	// 폼 접근 변수
+	var divFm = this.div00.form;
+
+	switch(sPopupId) {
+		case "searchPopAddr1" :
+			divFm.edtZipNo.set_value(dsObj.getColumn(0,"ZIP_NO"));	// 우편번호
+			divFm.edtAddr.set_value(dsObj.getColumn(0,"ADDR"));		// 주소
+			divFm.edtDetailAddr.setFocus();
+		break;
+		
+		case "searchPopAddr2" :
+			divFm.edtBranZipNo.set_value(dsObj.getColumn(0,"ZIP_NO"));	// 우편번호
+			divFm.edtBranAddr.set_value(dsObj.getColumn(0,"ADDR"));		// 주소
+			divFm.edtBranDetailAddr.setFocus();
+		break;
+		
+		
+		case "searchPopBran1" :
+			this.edtBranCd.set_value(dsObj.getColumn(0, "BRAN_CD"));
+			this.edtBranNm.set_value(dsObj.getColumn(0, "BRAN_NM"));
+			
+			if(! this.gfnIsNull(dsObj.getColumn(0, "BRAN_CD"))){
+				this.fnSearch();
+			}
+			
+		break;
+		
+		case "searchPopBran2" :
+			divFm.edtOprUpBranCd.set_value(dsObj.getColumn(0, "BRAN_CD"));
+			divFm.edtOprUpBranNm.set_value(dsObj.getColumn(0, "BRAN_NM"));
+		break;
+		
+		case "searchPopBran3" :
+			divFm.edtMgmtUpBranCd.set_value(dsObj.getColumn(0, "BRAN_CD"));
+			divFm.edtMgmtUpBranNm.set_value(dsObj.getColumn(0, "BRAN_NM"));
+		break;
+		
+		case "searchPopEmp1" :
+			divFm.edtSaleMgmtEmpNo.set_value(dsObj.getColumn(0, "EMP_NO"));
+			divFm.edtSaleMgmtEmpNm.set_value(dsObj.getColumn(0, "EMP_NM"));
+		break;
+	
+		default :
+		break;
+	}
+};
+
+
+
+/***********************************************************************************************
+* USER FUNCTION
+***********************************************************************************************/
+/***********************************************************************************************
+ * @function: fnCompInit
+ * @description: 컴포넌트 초기화 함수.
+ * @param  N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnCompInit = function()
+{
+	// 폼 접근 변수
+	var divFm = this.div00.form;
+	
+	
+	// 영업개시일
+	divFm.calSaleStartYmd.set_value(this.gfnGetDate("date"));
+
+	// 점소업무구분
+	this.fnAddCodeDef(this.dsBranDutyDv, '선택');
+	divFm.cboBranDutyDv.set_index(1);
+	
+	// 권역구분
+	this.fnAddCodeDef(this.dsZnDv, '선택');
+	divFm.cboZnDv.set_index(0);
+	
+	// 점소상태
+	this.fnAddCodeDef(this.dsBranSt, '선택');
+	divFm.cboBranSt.set_index(1);					
+	
+	// 회사구분
+	this.fnAddCodeDef(this.dsCpDv, '선택');
+	divFm.cboCpDv.set_index(1);
+	
+	// 위탁구분
+	divFm.rdoTrustDv.set_index(0);
+}
+
+
+/***********************************************************************************************
+ * @function		: fnPopOpen
+ * @description		: 팝업 화면 오픈
+ * @param 			: obj	- Button object
+ * @param 			: e		- Button event 
+ * @return 			: N/A
+***********************************************************************************************/
+this.fnOpenPop = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var btnName		= obj.name;
+	
+	switch(btnName)
+	{
+		case "btnSearchAddr1" :	this.fnOpenPopAddr(btnName); break; 													
+		case "btnSearchAddr2"	: this.fnOpenPopAddr(btnName); break;
+											
+		case "btnSearchBran1"	: this.fnOpenPopBran(btnName); break;
+		case "btnSearchBran2"	: this.fnOpenPopBran(btnName); break;
+		case "btnSearchBran3"	: this.fnOpenPopBran(btnName); break;	
+		
+		case "btnSearchEmp" : this.fnOpenPopEmp(); break;
+		
+		default 		: 	break;
+	}
+};
+
+
+
+/***********************************************************************************************
+ * @function		: fnOpenPopAddr
+ * @description		: 우편번호 주소 조회 팝업 호출
+ * @param 			: fnOpenPopAddr	- String
+ * @return 			: N/A
+***********************************************************************************************/
+this.fnOpenPopAddr = function(btnName:String)
+{
+	// 파라미터 설정
+	var popupId = '';	//팝업ID
+
+
+	if(btnName == "btnSearchAddr1"){
+		popupId = 'searchPopAddr1';
+	}else{
+		popupId = 'searchPopAddr2';
+	}
+	
+
+	// 팝업 호출
+	var oArg = {
+				  pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_BAIM_P100.xfdl", oArg, sPopupCallBack, oOption);
+}
+
+
+
+/***********************************************************************************************
+ * @function	: fnOpenPopBran
+ * @description	: 점소 조회 팝업을 호출한다.
+ * @param		: btnName	- String
+ * @return N/A
+/***********************************************************************************************/
+this.fnOpenPopBran = function(btnName:String)
+{
+	// 파라미터 설정
+	var popupId = '';	//팝업ID
+	var pBranCdValue = '';	// 점소코드
+	var pBranNmValue = '';	// 점소명
+
+	if(btnName == "btnSearchBran1"){
+		popupId = 'searchPopBran1';
+		pBranCdValue = this.edtBranCd.value;
+		pBranNmValue = this.edtBranNm.value;
+	}else if(btnName == "btnSearchBran2"){
+		popupId = 'searchPopBran2';
+		pBranCdValue = this.div00.form.edtOprUpBranCd.value;
+	}else{
+		popupId = 'searchPopBran3';
+		pBranCdValue = this.div00.form.edtMgmtUpBranCd.value;
+	}
+	
+
+	// 팝업 호출
+	var oArg = {
+				  pBranCd       : pBranCdValue									// 점소코드
+				, pBranNm       : pBranNmValue  								// 점소명
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_BAIM_P010.xfdl", oArg, sPopupCallBack, oOption);
+}
+
+
+
+/***********************************************************************************************
+ * @function		: fnOpenPopEmp
+ * @description		: 사원 조회 팝업 호출
+ * @param 			: 
+ * @return 			: N/A
+***********************************************************************************************/
+this.fnOpenPopEmp= function()
+{
+	// 파라미터 설정
+	var popupId = 'searchPopEmp1';	//팝업ID
+
+	var pEmpNoValue = this.div00.form.edtSaleMgmtEmpNo.value; //사원번호
+
+	
+
+	// 팝업 호출
+	var oArg = {
+				  pEmpNo		: pEmpNoValue									// 사원번호
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_BAIM_P040.xfdl", oArg, sPopupCallBack, oOption);
+}
+
+/***********************************************************************************************
+ * @function	: fnAfterCodeDef
+ * @description	: 코드조회후 선택,전체 추가
+ * @param		: dsObj	- Dataset Object
+ * @param       : strText - String
+ * @return N/A
+/***********************************************************************************************/
+this.fnAddCodeDef = function(dsObj:nexacro.NormalDataset, strText:String) {
+
+	dsObj.insertRow();
+	dsObj.setColumn(0,'CD','');
+	dsObj.setColumn(0,'CD_NM', strText);
+}
+
+
+
+/***********************************************************************************************
+ * @function	: fnChkEntrpRegNo
+ * @description	: 사업자번호 유효성 체크.
+ * @param       : entrpNo - String
+ * @return N/A
+/***********************************************************************************************/
+this.fnChkEntrpRegNo = function(entrpRegNo:Number)
+{
+	var	temp;
+	if(entrpRegNo.length != 10)
+	{
+		return false;
+	}
+	
+	temp = parseInt(parseInt(entrpRegNo[8])*5/10);
+	/*trace("temp = " +temp);
+	trace(">>>>>"+ parseInt(entrpRegNo[9]) !=
+		(( 10 - (((parseInt(entrpRegNo[0])*1)%10 ) +
+				((parseInt(entrpRegNo[1])*3)%10 ) +
+				((parseInt(entrpRegNo[2])*7)%10 ) +
+				((parseInt(entrpRegNo[3])*1)%10 ) +
+				((parseInt(entrpRegNo[4])*3)%10 ) +
+				((parseInt(entrpRegNo[5])*7)%10 ) +
+				((parseInt(entrpRegNo[6])*1)%10 ) +
+				((parseInt(entrpRegNo[7])*3)%10 ) +
+				temp +
+				((parseInt(entrpRegNo[8])*5)%10 ))%10)%10) );*/
+	if( parseInt(entrpRegNo[9]) !=
+		(( 10 - (((parseInt(entrpRegNo[0])*1)%10 ) +
+				((parseInt(entrpRegNo[1])*3)%10 ) +
+				((parseInt(entrpRegNo[2])*7)%10 ) +
+				((parseInt(entrpRegNo[3])*1)%10 ) +
+				((parseInt(entrpRegNo[4])*3)%10 ) +
+				((parseInt(entrpRegNo[5])*7)%10 ) +
+				((parseInt(entrpRegNo[6])*1)%10 ) +
+				((parseInt(entrpRegNo[7])*3)%10 ) +
+				temp +
+				((parseInt(entrpRegNo[8])*5)%10 ))%10)%10) )
+	{
+		return false;
+	}
+
+	return true;
+	
+};
+
+
+
+/***********************************************************************************************
+ * @function	: fnChgCompStyleByBranCd
+ * @description	: 점소구분에 따라 컴포넌트 스타일변경
+ * @param       : pBranDv - String
+ * @return N/A
+/***********************************************************************************************/
+this.fnChgCompStyleByBranCd = function(pBranDv:String)
+{	
+	// 터미널인 경우
+	if(pBranDv == "19"){
+		this.div00.form.cboZnDv.set_background('papayawhip');
+	} else {
+		this.div00.form.cboZnDv.set_background('');
+	}
+	
+	// 대리점인 경우
+	if(pBranDv == "22"){
+		this.div00.form.edtSaleMgmtEmpNo.set_background('papayawhip');
+		this.div00.form.edtSaleMgmtEmpNm.set_background('papayawhip');
+		
+		this.div00.form.edtBranAbrvNm.set_background('papayawhip');
+	} else {
+		this.div00.form.edtSaleMgmtEmpNo.set_background('');
+		this.div00.form.edtSaleMgmtEmpNm.set_background('');
+		
+		this.div00.form.edtBranAbrvNm.set_background('');
+	}
+}
+
+
+
+
+ /************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+this.btn00_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var oArg = {pName			: ""		//
+				, pSeqNo	 	: ""											//	
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};
+	var sPopupCallBack = "fncmmAddr";
+	this.gfnOpenPopup("popup","baim::BAIM_BAIM_P010.xfdl", oArg, sPopupCallBack, oOption);	
+};
+
+
+/**
+* @description from일자 to일자 체크
+*/ 
+this.fnChkCalDate = function(sFDate, sTDate, sMsg)
+{
+	var nRtnCnt = this.gfnGetDiffDate(sFDate, sTDate);
+	if(nRtnCnt < 0){
+		this.alert(sMsg);
+		return false;
+	}
+	/*
+	else if(this.nMaxDay > -1 && nRtnCnt >= this.nMaxDay){
+		// this.alert("조회기간은 "+this.nMaxDay+"일을 넘길 수 없습니다.");
+		var arrMaxDay = [this.nMaxDay];
+		this.gfnAlert("M0441", arrMaxDay);
+		return false;
+	}*/
+	return true;
+};
+
+
+
+/***********************************************************************************************
+ * @function	: editOnKeyDown
+ * @description	: edit onkeydown
+ * @param		: obj	- nexacro.Edit
+ * @param		: e		- nexacro.KeyEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnEditOnKeyDown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	var objName = obj.name;
+	
+	if( e.keycode === 13 ) {
+	
+		obj.updateToDataset();
+		switch( objName ) {
+			case	'edtBranCd' : this.btnSearchBran1.click();	break;
+			case	'edtBranNm'	: this.btnSearchBran1.click();	break;
+			case	'edtOprUpBranCd' : this.div00.form.btnSearchBran2.click(); break;
+			case	'edtMgmtUpBranCd' : this.div00.form.btnSearchBran3.click(); break;
+			case    'edtSaleMgmtEmpNo' : this.div00.form.btnSearchEmp.click(); break;
+			default		: 	break;
+		}
+	}
+	else{
+		switch( objName ) {
+			case	'edtOprUpBranCd' : this.div00.form.edtOprUpBranNm.set_value(''); break;
+			case	'edtMgmtUpBranCd' : this.div00.form.edtMgmtUpBranNm.set_value(''); break;
+			case	'edtSaleMgmtEmpNo' : this.div00.form.edtSaleMgmtEmpNm.set_value(''); break;
+			default		: 	break;
+		}
+	}
+};
+
+
+// 점소구분 변경 이벤트
+this.div00_cboBranDv_canitemchange = function(obj:nexacro.Combo,e:nexacro.ItemChangeEventInfo)
+{
+	
+	this.fnChgCompStyleByBranCd(e.postvalue);
+	
+};
+
+
+
+
+]]></Script>
+    <Objects>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+            <Col id="OUT_DATASET_LIST">dsBranDv=ds1 dsBranDutyDv=ds2 dsZnDv=ds3 dsBranSt=ds4 dsCpDv=ds5 dsTmDv=ds6 dsOwnrDv=ds7 dsTrustDv=ds8</Col>
+            <Col id="QUERY_LIST">q1=MS002 q2=MS006 q3=MS035 q4=MS052 q5=MS005 q6=MS007 q7=MS003 q8=MS004</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getBranInfo</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsDetail=ds1</Col>
+            <Col id="QUERY_LIST">q1=baimBranMgmtService.getBranInfo</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">saveBranInfo</Col>
+            <Col id="IN_DATASET_LIST">dsSave=dsDetail:U</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">baimBranMgmtService</Col>
+            <Col id="SERVICE_METHOD">saveBranInfo</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsSearch" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="BRAN_CD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsTelCd">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">02</Col>
+            <Col id="CD_NM">02</Col>
+          </Row>
+          <Row>
+            <Col id="CD">031</Col>
+            <Col id="CD_NM">031</Col>
+          </Row>
+          <Row>
+            <Col id="CD">032</Col>
+            <Col id="CD_NM">032</Col>
+          </Row>
+          <Row>
+            <Col id="CD">033</Col>
+            <Col id="CD_NM">033</Col>
+          </Row>
+          <Row>
+            <Col id="CD">041</Col>
+            <Col id="CD_NM">041</Col>
+          </Row>
+          <Row>
+            <Col id="CD">042</Col>
+            <Col id="CD_NM">042</Col>
+          </Row>
+          <Row>
+            <Col id="CD">043</Col>
+            <Col id="CD_NM">043</Col>
+          </Row>
+          <Row>
+            <Col id="CD">044</Col>
+            <Col id="CD_NM">044</Col>
+          </Row>
+          <Row>
+            <Col id="CD">051</Col>
+            <Col id="CD_NM">051</Col>
+          </Row>
+          <Row>
+            <Col id="CD">052</Col>
+            <Col id="CD_NM">052</Col>
+          </Row>
+          <Row>
+            <Col id="CD">053</Col>
+            <Col id="CD_NM">053</Col>
+          </Row>
+          <Row>
+            <Col id="CD">054</Col>
+            <Col id="CD_NM">054</Col>
+          </Row>
+          <Row>
+            <Col id="CD">055</Col>
+            <Col id="CD_NM">055</Col>
+          </Row>
+          <Row>
+            <Col id="CD">061</Col>
+            <Col id="CD_NM">061</Col>
+          </Row>
+          <Row>
+            <Col id="CD">062</Col>
+            <Col id="CD_NM">062</Col>
+          </Row>
+          <Row>
+            <Col id="CD">063</Col>
+            <Col id="CD_NM">063</Col>
+          </Row>
+          <Row>
+            <Col id="CD">064</Col>
+            <Col id="CD_NM">064</Col>
+          </Row>
+          <Row>
+            <Col id="CD">070</Col>
+            <Col id="CD_NM">070</Col>
+          </Row>
+          <Row>
+            <Col id="CD">010</Col>
+            <Col id="CD_NM">010</Col>
+          </Row>
+          <Row>
+            <Col id="CD">011</Col>
+            <Col id="CD_NM">011</Col>
+          </Row>
+          <Row>
+            <Col id="CD">016</Col>
+            <Col id="CD_NM">016</Col>
+          </Row>
+          <Row>
+            <Col id="CD">017</Col>
+            <Col id="CD_NM">017</Col>
+          </Row>
+          <Row>
+            <Col id="CD">018</Col>
+            <Col id="CD_NM">018</Col>
+          </Row>
+          <Row>
+            <Col id="CD">019</Col>
+            <Col id="CD_NM">019</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsBranDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsBranDutyDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsZnDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsBranSt">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsCpDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsTmDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsOwnrDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsTrustDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsDetail" oncolumnchanged="dsDetail_oncolumnchanged">
+        <ColumnInfo>
+          <Column id="BRAN_CD" size="256" type="STRING"/>
+          <Column id="BRAN_NM" type="STRING" size="256"/>
+          <Column id="BRAN_ABRV_NM" type="STRING" size="256"/>
+          <Column id="OPR_UP_BRAN_CD" type="STRING" size="256"/>
+          <Column id="OPR_UP_BRAN_NM" type="STRING" size="256"/>
+          <Column id="MGMT_UP_BRAN_CD" type="STRING" size="256"/>
+          <Column id="MGMT_UP_BRAN_NM" type="STRING" size="256"/>
+          <Column id="BRAN_OPR_NO" type="STRING" size="256"/>
+          <Column id="BRAN_MGMT_NO" type="STRING" size="256"/>
+          <Column id="ENTRP_REG_NO" type="STRING" size="256"/>
+          <Column id="REPRE_NM" type="STRING" size="256"/>
+          <Column id="ZIP_NO" type="STRING" size="256"/>
+          <Column id="ADDR" type="STRING" size="256"/>
+          <Column id="DETAIL_ADDR" type="STRING" size="256"/>
+          <Column id="BRAN_ZIP_NO" type="STRING" size="256"/>
+          <Column id="BRAN_ADDR" type="STRING" size="256"/>
+          <Column id="BRAN_DETAIL_ADDR" type="STRING" size="256"/>
+          <Column id="TEL_NO_1" type="STRING" size="256"/>
+          <Column id="TEL_NO_2" type="STRING" size="256"/>
+          <Column id="TEL_NO_3" type="STRING" size="256"/>
+          <Column id="FAX_NO_1" type="STRING" size="256"/>
+          <Column id="FAX_NO_2" type="STRING" size="256"/>
+          <Column id="FAX_NO_3" type="STRING" size="256"/>
+          <Column id="REPRE_TEL_NO_1" type="STRING" size="256"/>
+          <Column id="REPRE_TEL_NO_2" type="STRING" size="256"/>
+          <Column id="REPRE_TEL_NO_3" type="STRING" size="256"/>
+          <Column id="SALE_START_YMD" type="STRING" size="256"/>
+          <Column id="SALE_END_YMD" type="STRING" size="256"/>
+          <Column id="PIDV_FAIL_YMD_FR" type="STRING" size="256"/>
+          <Column id="PIDV_FAIL_YMD_TO" type="STRING" size="256"/>
+          <Column id="TRUNK_ABRV" type="STRING" size="256"/>
+          <Column id="SALE_MGMT_EMP_NO" type="STRING" size="256"/>
+          <Column id="SALE_MGMT_EMP_NM" type="STRING" size="256"/>
+          <Column id="REPRE_DLV_EMP_NO" type="STRING" size="256"/>
+          <Column id="REPRE_DLV_EMP_NM" type="STRING" size="256"/>
+          <Column id="CAUTION" type="STRING" size="256"/>
+          <Column id="BRAN_DV" type="STRING" size="256"/>
+          <Column id="OWNR_DV" type="STRING" size="256"/>
+          <Column id="TRUST_DV" type="STRING" size="256"/>
+          <Column id="CP_DV" type="STRING" size="256"/>
+          <Column id="BZCON_NM" type="STRING" size="256"/>
+          <Column id="ITEM_NM" type="STRING" size="256"/>
+          <Column id="BRAN_DUTY_DV" type="STRING" size="256"/>
+          <Column id="TM_DV" type="STRING" size="256"/>
+          <Column id="BRAN_ST" type="STRING" size="256"/>
+          <Column id="PMON_BAL" type="STRING" size="256"/>
+          <Column id="OLD_BRAN_CD" type="STRING" size="256"/>
+          <Column id="ZN_DV" type="STRING" size="256"/>
+          <Column id="REPRE_SORT_CD" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsBtn">
+        <ColumnInfo>
+          <Column id="BTN_SEL" type="STRING" size="256"/>
+          <Column id="BTN_ADD" type="STRING" size="256"/>
+          <Column id="BTN_SAV" type="STRING" size="256"/>
+          <Column id="BTN_DEL" type="STRING" size="256"/>
+          <Column id="BTN_XLS" type="STRING" size="256"/>
+          <Column id="BTN_PRT" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="BTN_SEL">1</Col>
+            <Col id="BTN_ADD">1</Col>
+            <Col id="BTN_SAV">1</Col>
+            <Col id="BTN_DEL">0</Col>
+            <Col id="BTN_PRT">0</Col>
+            <Col id="BTN_XLS">0</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item1" compid="tabUserInfo.Tabpage3.form.div00.form.cboSTelCd01" propid="value" datasetid="dsDetail" columnid="UTEL1"/>
+      <BindItem id="item0" compid="div00.form.edtBranCd2" propid="value" datasetid="dsDetail" columnid="BRAN_CD"/>
+      <BindItem id="item2" compid="div00.form.edtBranNm2" propid="value" datasetid="dsDetail" columnid="BRAN_NM"/>
+      <BindItem id="item3" compid="div00.form.cboBranDv" propid="value" datasetid="dsDetail" columnid="BRAN_DV"/>
+      <BindItem id="item4" compid="div00.form.calSaleStartYmd" propid="value" datasetid="dsDetail" columnid="SALE_START_YMD"/>
+      <BindItem id="item5" compid="div00.form.calSaleEndYmd" propid="value" datasetid="dsDetail" columnid="SALE_END_YMD"/>
+      <BindItem id="item6" compid="div00.form.edtOprUpBranCd" propid="value" datasetid="dsDetail" columnid="OPR_UP_BRAN_CD"/>
+      <BindItem id="item7" compid="div00.form.edtOprUpBranNm" propid="value" datasetid="dsDetail" columnid="OPR_UP_BRAN_NM"/>
+      <BindItem id="item10" compid="div00.form.calPidvFailYmdFr" propid="value" datasetid="dsDetail" columnid="PIDV_FAIL_YMD_FR"/>
+      <BindItem id="item11" compid="div00.form.calPidvFailYmdTo" propid="value" datasetid="dsDetail" columnid="PIDV_FAIL_YMD_TO"/>
+      <BindItem id="item12" compid="div00.form.edtDetailAddr" propid="value" datasetid="dsDetail" columnid="DETAIL_ADDR"/>
+      <BindItem id="item13" compid="div00.form.edtZipNo" propid="value" datasetid="dsDetail" columnid="ZIP_NO"/>
+      <BindItem id="item14" compid="div00.form.edtAddr" propid="value" datasetid="dsDetail" columnid="ADDR"/>
+      <BindItem id="item15" compid="div00.form.edtBranDetailAddr" propid="value" datasetid="dsDetail" columnid="BRAN_DETAIL_ADDR"/>
+      <BindItem id="item16" compid="div00.form.edtBranZipNo" propid="value" datasetid="dsDetail" columnid="BRAN_ZIP_NO"/>
+      <BindItem id="item17" compid="div00.form.edtBranAddr" propid="value" datasetid="dsDetail" columnid="BRAN_ADDR"/>
+      <BindItem id="item18" compid="div00.form.txtCaution" propid="value" datasetid="dsDetail" columnid="CAUTION"/>
+      <BindItem id="item19" compid="div00.form.cboRepreTelNo1" propid="value" datasetid="dsDetail" columnid="REPRE_TEL_NO_1"/>
+      <BindItem id="item20" compid="div00.form.cboRepreTelNo2" propid="value" datasetid="dsDetail" columnid="REPRE_TEL_NO_2"/>
+      <BindItem id="item21" compid="div00.form.cboRepreTelNo3" propid="value" datasetid="dsDetail" columnid="REPRE_TEL_NO_3"/>
+      <BindItem id="item22" compid="div00.form.cboFaxNo1" propid="value" datasetid="dsDetail" columnid="FAX_NO_1"/>
+      <BindItem id="item23" compid="div00.form.cboFaxNo2" propid="value" datasetid="dsDetail" columnid="FAX_NO_2"/>
+      <BindItem id="item24" compid="div00.form.cboFaxNo3" propid="value" datasetid="dsDetail" columnid="FAX_NO_3"/>
+      <BindItem id="item25" compid="div00.form.cboTelNo1" propid="value" datasetid="dsDetail" columnid="TEL_NO_1"/>
+      <BindItem id="item26" compid="div00.form.cboTelNo2" propid="value" datasetid="dsDetail" columnid="TEL_NO_2"/>
+      <BindItem id="item27" compid="div00.form.cboTelNo3" propid="value" datasetid="dsDetail" columnid="TEL_NO_3"/>
+      <BindItem id="item28" compid="div00.form.cboBranDutyDv" propid="value" datasetid="dsDetail" columnid="BRAN_DUTY_DV"/>
+      <BindItem id="item29" compid="div00.form.edtRepreNm" propid="value" datasetid="dsDetail" columnid="REPRE_NM"/>
+      <BindItem id="item30" compid="div00.form.mskEntrpRegNo" propid="value" datasetid="dsDetail" columnid="ENTRP_REG_NO"/>
+      <BindItem id="item31" compid="div00.form.rdoOwnrDv" propid="value" datasetid="dsDetail" columnid="OWNR_DV"/>
+      <BindItem id="item32" compid="div00.form.cboZnDv" propid="value" datasetid="dsDetail" columnid="ZN_DV"/>
+      <BindItem id="item33" compid="div00.form.edtSaleMgmtEmpNo" propid="value" datasetid="dsDetail" columnid="SALE_MGMT_EMP_NO"/>
+      <BindItem id="item34" compid="div00.form.edtSaleMgmtEmpNm" propid="value" datasetid="dsDetail" columnid="SALE_MGMT_EMP_NM"/>
+      <BindItem id="item35" compid="div00.form.edtBranAbrvNm" propid="value" datasetid="dsDetail" columnid="BRAN_ABRV_NM"/>
+      <BindItem id="item36" compid="div00.form.rdoTrustDv" propid="value" datasetid="dsDetail" columnid="TRUST_DV"/>
+      <BindItem id="item37" compid="div00.form.cboBranSt" propid="value" datasetid="dsDetail" columnid="BRAN_ST"/>
+      <BindItem id="item38" compid="div00.form.edtBzconNm" propid="value" datasetid="dsDetail" columnid="BZCON_NM"/>
+      <BindItem id="item39" compid="div00.form.edtItemNm" propid="value" datasetid="dsDetail" columnid="ITEM_NM"/>
+      <BindItem id="item40" compid="div00.form.edtRepreSortCd" propid="value" datasetid="dsDetail" columnid="REPRE_SORT_CD"/>
+      <BindItem id="item41" compid="div00.form.cboCpDv" propid="value" datasetid="dsDetail" columnid="CP_DV"/>
+    </Bind>
+  </Form>
+</FDL>

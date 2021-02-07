@@ -1,0 +1,1065 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form height="800" id="SYST_MNG_0010" oninit="form_oninit" onload="form_onload" titletext="관리자등록(시스템관리자용)" width="1566">
+    <Layouts>
+      <Layout height="800" mobileorientation="landscape" stepcount="0" width="1566">
+        <Static id="sta09" taborder="6" text="시스템관리 &gt; 관리자등록(RGB시스템관리자용)" left="21" top="1" width="294" fittocontents="width" onclick="sta09_onclick" height="34" cssclass="top_title_route01"/>
+        <Static cssclass="top_search_ty01" height="40" id="stSearch" left="0" onclick="divSearch_staSearch_onclick" right="30" taborder="3" text="" top="sta09:0"/>
+        <Button cssclass="btn_ty01_new" domainId="T0645" fittocontents="none" height="23" id="btnAdd" onclick="btnOnClick" right="105" taborder="0" text="신규" width="68" top="7"/>
+        <Button cssclass="btn_ty01_search" domainId="T0877" fittocontents="none" height="23" id="btnSearch" onclick="btnOnClick" taborder="1" text="조회" top="7" width="68" right="178"/>
+        <Grid autoenter="select" autofittype="col" bottom="0" cellsizingtype="col" cssclass="tb_ty01" id="grd_Main" left="0" onheadclick="grdOnHeadClick" right="467" taborder="4" top="stSearch:3" binddataset="dsList">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="115"/>
+                <Column size="113"/>
+                <Column size="80"/>
+                <Column size="132"/>
+                <Column size="124"/>
+                <Column size="175"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="아이디"/>
+                <Cell col="1" text="시스템구분"/>
+                <Cell col="2" text="관리자명"/>
+                <Cell col="3" text="전화번호"/>
+                <Cell col="4" text="휴대폰번호"/>
+                <Cell col="5" text="이메일"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:ID"/>
+                <Cell col="1" text="bind:SYS_DV"/>
+                <Cell col="2" text="bind:NAME"/>
+                <Cell col="3" text="bind:TEL_NO"/>
+                <Cell col="4" text="bind:MOBILE_NO"/>
+                <Cell col="5" text="bind:EMAIL"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Button cssclass="btn_ty01_save" domainId="T0830" height="23" id="btnSave" onclick="btnOnClick" taborder="2" text="저장" top="7" width="68" right="32"/>
+        <Tab bottom="0" cssclass="in_tab_ty01" id="tab00" onchanged="tab00_onchanged" tabbuttonheight="30" tabindex="0" taborder="5" top="stSearch:3" width="430" left="grd_Main:5">
+          <Tabpages>
+            <Tabpage domainId="T2125" id="Tabpage1" tabbuttonheight="30" text="기본정보">
+              <Layouts>
+                <Layout>
+                  <Div bottom="0" id="divTab1" left="0" right="0" taborder="0" text="div00" top="0">
+                    <Layouts>
+                      <Layout>
+                        <Static cssclass="sta_tbody_th01" domainId="T1133" height="30" id="sta001" left="0" taborder="14" text="아이디" top="0" textAlign="left" width="120"/>
+                        <Static id="sta00" taborder="15" left="119" top="0" height="30" cssclass="sta_tbody_td01" right="0"/>
+                        <Button cssclass="btn_ty02" domainId="T0900" enable="true" fittocontents="width" height="23" id="btnIdChk" onclick="btnOnClick" taborder="1" text="중복체크" top="3" width="63" verticalAlign="middle" right="3"/>
+                        <Edit id="edtId" taborder="0" left="123" top="3" height="23" cssclass="inp_ty01_req" onkeydown="fnEditOnKeyDown" inputmode="normal" oninput="fnEditOnInput" enable="true" readonly="false" textAlign="left" right="btnIdChk:3" inputtype="normal,english,number"/>
+                        <Static cssclass="sta_tbody_th01" domainId="T1133" height="30" id="sta001_00" left="0" taborder="16" text="임시비밀번호" top="29" textAlign="left" width="120"/>
+                        <Static id="sta00_00" taborder="17" left="119" top="29" height="30" cssclass="sta_tbody_td01" right="0"/>
+                        <Static cssclass="sta_tbody_th01" domainId="T1133" height="30" id="sta001_00_00" left="0" taborder="18" text="시스템구분" top="58" textAlign="left" width="120"/>
+                        <Static id="sta00_00_00" taborder="19" left="119" top="58" height="30" cssclass="sta_tbody_td01" right="0"/>
+                        <Edit cssclass="inp_ty01_req" enable="true" height="23" id="edtPw" left="123" taborder="2" top="32" width="304" password="true" background="papayawhip"/>
+                        <Combo codecolumn="CD" cssclass="sel_ty01_req" datacolumn="CD_NM" enable="true" height="23" id="cboSysDv" index="-1" innerdataset="dsSysDv" left="123" taborder="3" text="cboJoinType" top="61" value="" width="304" background="papayawhip"/>
+                        <Static cssclass="sta_tbody_th01" domainId="T1133" height="30" id="sta001_00_00_00" left="0" taborder="20" text="관리자명" top="87" textAlign="left" width="120"/>
+                        <Static id="sta00_00_00_00" taborder="21" left="119" top="87" height="30" cssclass="sta_tbody_td01" right="0"/>
+                        <Static cssclass="sta_tbody_th01" domainId="T1133" height="30" id="sta001_00_00_00_00" left="0" taborder="22" text="전화번호" top="116" textAlign="left" width="120"/>
+                        <Static id="sta00_00_00_00_00" taborder="23" left="119" top="116" height="30" cssclass="sta_tbody_td01" right="0"/>
+                        <Static cssclass="sta_tbody_th01" domainId="T1133" height="30" id="sta001_00_00_00_00_00" left="0" taborder="24" text="휴대폰번호" top="145" textAlign="left" width="120"/>
+                        <Static id="sta00_00_00_00_00_00" taborder="25" left="119" top="145" height="30" cssclass="sta_tbody_td01" right="0"/>
+                        <Static cssclass="sta_tbody_th01" domainId="T1133" height="30" id="sta001_00_00_00_00_00_00" left="0" taborder="26" text="이메일" top="174" textAlign="left" width="120"/>
+                        <Static id="sta00_00_00_00_00_00_00" taborder="27" left="119" top="174" height="30" cssclass="sta_tbody_td01" right="0"/>
+                        <Edit cssclass="inp_ty01_req" enable="true" height="23" id="edtName" left="123" taborder="4" top="90" width="304" background="papayawhip"/>
+                        <Combo codecolumn="CD" cssclass="sel_ty02" datacolumn="CD_NM" enable="true" height="23" id="cboTel1" index="0" innerdataset="dsTelCd" taborder="5" text="010" top="119" value="010" width="75" left="123"/>
+                        <Static height="18" id="sta01_00" left="200" taborder="28" text="-" textAlign="center" top="121" width="15"/>
+                        <Edit cssclass="inp_ty02" enable="true" height="23" id="edtTel2" inputtype="number" left="218" maxlength="4" taborder="6" top="119" width="85"/>
+                        <Static height="18" id="sta02" left="305" taborder="29" text="-" textAlign="center" top="121" width="15"/>
+                        <Edit cssclass="inp_ty02" enable="true" height="23" id="edtTel3" inputtype="number" left="323" maxlength="4" taborder="7" top="119" width="85"/>
+                        <Edit cssclass="inp_ty02" enable="true" height="23" id="edtMobile3" inputtype="number" left="323" maxlength="4" taborder="10" top="148" width="85"/>
+                        <Static height="18" id="sta02_00" left="305" taborder="30" text="-" textAlign="center" top="150" width="15"/>
+                        <Edit cssclass="inp_ty02" enable="true" height="23" id="edtMobile2" inputtype="number" left="218" maxlength="4" taborder="9" top="148" width="85"/>
+                        <Static height="18" id="sta01_00_00" left="200" taborder="31" text="-" textAlign="center" top="150" width="15"/>
+                        <Combo codecolumn="CD" cssclass="sel_ty02" datacolumn="CD_NM" enable="true" height="23" id="cboMobile1" index="0" innerdataset="dsTelCd" taborder="8" text="010" top="148" value="010" width="75" left="123"/>
+                        <Edit cssclass="inp_ty02" enable="true" height="23" id="edtEmail1" imemode="alpha" inputtype="number,alpha" left="123" taborder="11" top="177" width="75"/>
+                        <Static height="18" id="sta00_01" left="202" taborder="32" text="@" top="177" width="15"/>
+                        <Edit cssclass="inp_ty02" enable="true" height="23" id="edtEmail2" inputtype="english,comma,half" left="218" taborder="12" top="177" width="103"/>
+                        <Combo codecolumn="CD" cssclass="sel_ty02" datacolumn="CD_NM" enable="true" height="23" id="cboEmail3" index="0" innerdataset="dsEmailCd" left="323" taborder="13" text="직접입력" top="177" type="filterlike" value="" width="85"/>
+                        <Static cssclass="sta_tbody_th01" domainId="T1534" height="41" id="sta09_00_00_00" left="0" taborder="33" text="권한관리" top="203" width="120" visible="true"/>
+                        <Static id="sta00_00_00_00_00_00_00_00" taborder="34" left="119" top="203" height="41" cssclass="sta_tbody_td01" right="0"/>
+                        <Button cssclass="btn_btm_ty01" domainId="T0091" fittocontents="none" height="31" id="btnMenuAuth" onclick="btnOnClick" taborder="35" text="메뉴권한" width="97" top="208" left="123" enable="false"/>
+                      </Layout>
+                    </Layouts>
+                  </Div>
+                </Layout>
+              </Layouts>
+            </Tabpage>
+          </Tabpages>
+        </Tab>
+        <Static fittocontents="width" height="13" id="sta04" taborder="7" text="l" textAlign="center" top="11" width="4" left="9" cssclass="top_title_prefix01"/>
+        <Button cssclass="btn_btm_ty01" domainId="T0091" fittocontents="none" height="31" id="btnCreateSuper" onclick="btnOnClick" taborder="8" text="SUPER만들기" top="2" enable="true" right="254" width="97"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  관리자등록(시스템관리자용)
+*  @MenuPath       	
+*  @FileName 		SYST_MNG_0010.xfdl
+*  @Creator 		Kim Jin Hwan
+*  @CreateDate 		2020.07.09
+*  @Desction        품목관리
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.07.09		Kim Jin Hwan			최초 생성
+************************************************************************************************
+*/
+
+/************************************************************************************************
+* include 선언부																				*
+ ************************************************************************************************/
+include "lib::lib_Form.xjs";
+
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+this.objApp;
+var checkDupIdFlag = false; // 아이디 중복체크
+ 
+ 
+ /***********************************************************************************************
+ * @function: form_onload
+ * @description: FORM 온로드
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	// 초기화
+	this.fnInit();
+};
+
+
+ /***********************************************************************************************
+ * @function	: form_onload
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnInit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	// 공통코드조회
+	this.gfnTransaction("commonCode");
+};
+
+
+/***********************************************************************************************
+ * @function	: btnOnClick
+ * @description	: 버튼이벤트 제어
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		// 조회
+		case "btnSearch" : 
+			this.fnSearch();	
+		break;
+		
+		// 저장
+		case "btnSave" :
+			this.fnSave();
+		break;
+		
+		// 신규
+		case "btnAdd":
+			this.fnAdd();
+		break;
+		
+		// 삭제
+		case "btnDelete":
+			this.fnDelete();
+		break;
+		
+		
+		// 초기화
+		case "btnReset" :
+			this.fnInit();
+		break;
+		
+		
+		// ID 중복체크
+		case "btnIdChk" :
+			this.fnCheckDupId();
+		break;
+		
+		// 메뉴권한팝업
+		case "btnMenuAuth" :
+			this.fnOpenPopMenuAuth();
+		break;
+		
+		
+		// super 유저 생성
+		case "btnCreateSuper":
+			this.gfnCustomConfirm("RGB시스템관리자를 생성하시겠습니까?", function(sPopupId, bResult){
+		
+				if(!bResult) return;
+				this.gfnTransaction("createSuper");
+			});
+		break;
+		
+		default :	
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnOpenPopMenuAuth
+ * @description	: 메뉴권한부여 팝업을 호출한다.
+ * @param		: 
+ * @return N/A
+/***********************************************************************************************/
+this.fnOpenPopMenuAuth = function()
+{
+	// 파라미터 설정
+	var popupId = 'menuAuthPop1';	//팝업ID
+	var userId = this.dsList.getColumn(this.dsList.rowposition, "ID");
+	
+	if( this.gfnIsNull(userId) ) return;
+
+	// 팝업 호출
+	var oArg = {
+			      pUserId		: userId
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_BAIM_P110.xfdl", oArg, sPopupCallBack, oOption);
+}
+
+
+/***********************************************************************************************
+ * @function	: fnCheckDupId
+ * @description	: 아이디 중복체크.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnCheckDupId = function()
+{
+	// 신규입력이 아닌경우 체크 안함.
+	var currowRowType = this.dsList.getRowType(this.dsList.rowposition);
+	
+	if(currowRowType != Dataset.ROWTYPE_INSERT) return;
+	
+	
+	var userId = this.tab00.Tabpage1.form.divTab1.form.edtId.value;
+	
+	if( this.gfnIsNull(userId)){
+		this.gfnAlert("아이디를 입력해 주세요.", "", function(){
+		
+			this.tab00.Tabpage1.form.divTab1.form.edtId.setFocus();
+		});
+		
+		return;
+	}
+	
+	// 조회조건 설정
+	this.dsSubSearch1.setColumn(0, "USER_ID", userId);
+	
+	this.gfnTransaction("getCheckDupId");
+	
+}
+
+
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearch = function() {
+
+	
+	// 조회조건 필수입력 체크
+	
+	
+	this.gfnTransaction("getUserList");
+
+};
+
+
+/***********************************************************************************************
+ * @function	: fnAdd
+ * @description	: 신규추가.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnAdd = function() {
+	
+	// 이미 추가되어 있는경우 행 추가 안함.
+	var nRowType = this.dsList.getRowType(this.dsList.rowposition);
+	
+	if(nRowType == Dataset.ROWTYPE_INSERT) return;
+	
+	
+	var nRow = this.dsList.addRow();
+	
+	this.dsList.setColumn(nRow, "CHK", "1");
+	this.dsList.setColumn(nRow, "SYS_DV", "");			// 선택
+	this.dsList.setColumn(nRow, "USER_TYPE", "M01");	// 사용자유형 (M01 : 관리자)
+	this.dsList.setColumn(nRow, "TEL1", "010");			// 전화번호1
+	this.dsList.setColumn(nRow, "MOBILE1", "010");		// 휴대폰번호1
+	this.dsList.setColumn(nRow, "PW", this.dsDefaultPw.getColumn(0,"CD_NM"));			
+	
+	
+	// 화주ID 포커스
+	this.tab00.Tabpage1.form.divTab1.form.edtId.setFocus();
+};
+
+
+
+/***********************************************************************************************
+ * @function	: fnDelete
+ * @description	: 삭제처리. 
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnDelete = function() {
+	
+	
+	
+};
+
+
+
+/***********************************************************************************************
+ * @function	: fnSave
+ * @description	: 저장.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSave = function() {
+	
+	var currowRowType = this.dsList.getRowType(this.dsList.rowposition);
+
+	if( !checkDupIdFlag && currowRowType == Dataset.ROWTYPE_INSERT){
+		this.gfnAlert("아이디 중복 체크를 해주세요.");
+		return;
+	}
+	
+	/** 저장할 데이터 유효성 체크*********************************************************************/
+	
+	var edtIdValue = this.tab00.Tabpage1.form.divTab1.form.edtId.value;
+	var edtPwValue = this.tab00.Tabpage1.form.divTab1.form.edtPw.value;
+	var cboSysDvValue = this.tab00.Tabpage1.form.divTab1.form.cboSysDv.value;
+	var edtNameValue = this.tab00.Tabpage1.form.divTab1.form.edtName.value;
+	
+	
+	if( currowRowType == Dataset.ROWTYPE_INSERT ){
+		
+		if(this.gfnIsNull(edtPwValue)){
+			this.gfnAlert("임시비밀번호를 입력해주세요.", "", function(){ this.tab00.Tabpage1.form.divTab1.form.edtPw.setFocus() });
+			return;
+		}
+	}
+	
+	
+	if(this.gfnIsNull(cboSysDvValue)){
+		this.gfnAlert("시스템구분을 선택해주세요.", "", function(){ this.tab00.Tabpage1.form.divTab1.form.cboSysDv.dropdown() });
+		return;
+	}
+	
+	if(this.gfnIsNull(edtNameValue)){
+		this.gfnAlert("관리자명을 입력해주세요.", "", function(){ this.tab00.Tabpage1.form.divTab1.form.edtName.setFocus() });
+		return;
+	}
+	
+	/****************************************************************************************************/
+	
+	
+	
+	this.gfnCustomConfirm("저장하시겠습니까?", function(sPopupId, bResult){
+		
+		if(!bResult) return;
+		
+		
+		this.dsList.addColumn("AUTH_CD", "STRING");
+		this.dsList.addColumn("USER_ID", "STRING");
+		this.dsList.addColumn("USER_TYPE", "STRING");
+		this.dsList.setColumn(this.dsList.rowposition, "AUTH_CD", cboSysDvValue);
+		this.dsList.setColumn(this.dsList.rowposition, "USER_ID", edtIdValue);
+		this.dsList.setColumn(this.dsList.rowposition, "USER_TYPE", "ADMIN");
+		
+		
+		// 트랜잭션 호출 (저장)
+		this.gfnTransaction("saveUserInfoList");
+	});
+	
+};
+
+
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	trace("[fnCallback()] svcID["+svcID+"] errorCode["+errorCode+"] errorMsg["+errorMsg+"]");
+	
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+		return;
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+		
+			// 컴포넌트 초기화
+			this.fnCompInit();
+
+		break;
+		
+		
+		// 저장
+		case "saveUserInfoList":
+			this.gfnAlert("저장 되었습니다.");
+			this.fnSearch();
+		break;
+		
+		
+		
+		
+		// 아이디 중복 체크
+		case "getCheckDupId":
+			
+			// 아이디가 존재하는 경우
+			if(this.dsCheckIdDup.getRowCount() > 0){
+				checkDupIdFlag = false;
+				this.gfnAlert("사용자 아이디가 이미 존재합니다.");
+			}
+			// 아이디가 없는 경우
+			else{
+				checkDupIdFlag = true;
+				this.gfnAlert("사용가능한 아이디 입니다.");
+			}
+			
+		break;
+	
+		case "createSuper":
+			this.gfnAlert("생성되었습니다.");
+		break;
+		
+		
+		default :
+		break;
+	}
+};
+
+/***********************************************************************************************
+ * @function	: fnPopupCallBack
+ * @description	: popup Callback
+ * @param		: popupId	- String
+ * @param		: dsObj		- nexacro.NormalDataset
+ * @return N/A
+ ***********************************************************************************************/
+this.fnPopupCallback = function(sPopupId, dsObj)
+{
+	//trace("[fnPopupCallback()] sPopupId["+sPopupId+"] rtnMsg["+JSON.stringify(rtnObj)+"]");
+
+	switch(sPopupId) {
+		
+		case "pop1" :
+			this.tab00.Tabpage1.form.divTab1.form.edtShipperId.set_value(dsObj.getColumn(0,"CUST_ID"));	
+			this.tab00.Tabpage1.form.divTab1.form.edtShipperNm.set_value(dsObj.getColumn(0,"CUST_NM"));		
+			
+		break;
+		
+		case "itemPop1":
+			this.edtItemCd_sc.set_value(dsObj.getColumn(0,"ITEM_CD"));
+			this.edtItemNm_sc.set_value(dsObj.getColumn(0,"ITEM_NM"));
+			
+		break;
+		
+		case "itemGrpPop1":
+			this.tab00.Tabpage1.form.divTab1.form.edtItemGrpCd.set_value(dsObj.getColumn(0,"ITEM_GRP_CD"));	
+			this.tab00.Tabpage1.form.divTab1.form.edtDescript.set_value(dsObj.getColumn(0,"DESCRIPT"));		
+			
+		break;
+		
+		case "custPop1" :
+			this.edtCustCd_sc.set_value(dsObj.getColumn(0,"CUST_ID"));
+			this.edtCustNm_sc.set_value(dsObj.getColumn(0,"CUST_NM"));
+		break;
+		
+		default :
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+* USER FUNCTION
+***********************************************************************************************/
+ /***********************************************************************************************
+ * @function: fnCompInit
+ * @description: 컴포넌트 초기화 함수.
+ * @param  N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnCompInit = function()
+{
+	// 시스템구분
+	this.fnAddCodeDef(this.dsSysDv, '선택');
+
+}
+
+
+ /***********************************************************************************************
+ * @function	: fnAfterCodeDef
+ * @description	: 코드조회후 선택,전체 추가
+ * @param		: dsObj	- Dataset Object
+ * @param       : strText - String
+ * @return N/A
+/***********************************************************************************************/
+this.fnAddCodeDef = function(dsObj:nexacro.NormalDataset, strText:String) 
+{
+	dsObj.insertRow();
+	dsObj.setColumn(0,'CD','');
+	dsObj.setColumn(0,'CD_NM', strText);
+}
+
+
+/***********************************************************************************************
+ * @function		: fnPopOpen
+ * @description		: 팝업 화면 오픈
+ * @param 			: obj	- Button object
+ * @param 			: e		- Button event 
+ * @return 			: N/A
+***********************************************************************************************/
+this.fnOpenPop = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var btnName		= obj.name;
+	
+	switch(btnName)
+	{
+		case "btnOpenPopSearchShipper1" :	this.fnOpenPopSearchShipper("btnOpenPopSearchShipper1"); break; 													
+		case "btnOpenPopSearchItem1" 	:	this.fnOpenPopSearchItem("btnOpenPopSearchItem1"); break; 		
+		case "btnOpenPopSearchItemGrp" 	:	this.fnOpenPopItemGrp(); break; 	
+		 // 검색-고객
+		case "btnCustSearch" :
+			this.fn_OpenPopCust("btnCustSearch"); break;
+		break;
+		
+		default 		: 	break;
+	}
+};
+
+
+
+ /************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+// 그리드 헤더 클릭
+this.grdOnHeadClick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var objDs = this.lookup(obj.binddataset);
+	
+	this.gfnGridSort(obj, e);
+};
+
+
+this.dsList_oncolumnchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSColChangeEventInfo)
+{
+	if(e.columnid == "ID"){
+		checkDupIdFlag = false;
+	}
+};
+
+this.dsList_onrowposchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSRowPosChangeEventInfo)
+{
+	if(this.dsList.getRowType(e.newrow) == Dataset.ROWTYPE_INSERT){
+		this.tab00.Tabpage1.form.divTab1.form.btnMenuAuth.set_enable(false);
+	}
+	else{
+		this.tab00.Tabpage1.form.divTab1.form.btnMenuAuth.set_enable(true);
+	}
+};
+]]></Script>
+    <Objects>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+            <Col id="OUT_DATASET_LIST">dsSysDv=ds1 dsDefaultPw=ds2</Col>
+            <Col id="QUERY_LIST">q1=SM1000 q2=SM1001</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getCheckDupId</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSubSearch1</Col>
+            <Col id="OUT_DATASET_LIST">dsCheckIdDup=ds1</Col>
+            <Col id="QUERY_LIST">q1=baimUserMgmtService.getCheckDupId</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">saveUserInfoList</Col>
+            <Col id="IN_DATASET_LIST">dsSaveList=dsList:U</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">baimUserMgmtService</Col>
+            <Col id="SERVICE_METHOD">saveUserInfoList_syst</Col>
+            <Col id="OUT_DATASET_LIST"/>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getUserList</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsList=dsUserList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">baimUserMgmtService</Col>
+            <Col id="SERVICE_METHOD">getUserList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">createSuper</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SERVICE_BEANNAME">baimUserMgmtService</Col>
+            <Col id="SERVICE_METHOD">createSuper_syst</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsSearch" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="USER_ID" type="STRING" size="256"/>
+          <Column id="USER_NM" type="STRING" size="256"/>
+          <Column id="USER_TYPE" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="USER_TYPE">ADMIN</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsList" oncolumnchanged="dsList_oncolumnchanged" onrowposchanged="dsList_onrowposchanged">
+        <ColumnInfo>
+          <Column id="ID" type="STRING" size="256"/>
+          <Column id="PW" type="STRING" size="256"/>
+          <Column id="SYS_DV" type="STRING" size="256"/>
+          <Column id="NAME" type="STRING" size="256"/>
+          <Column id="TEL_NO" type="STRING" size="256"/>
+          <Column id="TEL1" type="STRING" size="256"/>
+          <Column id="TEL2" type="STRING" size="256"/>
+          <Column id="TEL3" type="STRING" size="256"/>
+          <Column id="MOBILE_NO" type="STRING" size="256"/>
+          <Column id="MOBILE1" type="STRING" size="256"/>
+          <Column id="MOBILE2" type="STRING" size="256"/>
+          <Column id="MOBILE3" type="STRING" size="256"/>
+          <Column id="EMAIL" type="STRING" size="256"/>
+          <Column id="EMAIL1" type="STRING" size="256"/>
+          <Column id="EMAIL2" type="STRING" size="256"/>
+          <Column id="USER_TYPE" type="STRING" size="256"/>
+          <Column id="AUTH_CD" type="STRING" size="256"/>
+          <Column id="USER_ID" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSysDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">01</Col>
+            <Col id="CD_NM">운임구분1</Col>
+          </Row>
+          <Row>
+            <Col id="CD">02</Col>
+            <Col id="CD_NM">운임구분2</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsTelCd">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">02</Col>
+            <Col id="CD_NM">02</Col>
+          </Row>
+          <Row>
+            <Col id="CD">031</Col>
+            <Col id="CD_NM">031</Col>
+          </Row>
+          <Row>
+            <Col id="CD">032</Col>
+            <Col id="CD_NM">032</Col>
+          </Row>
+          <Row>
+            <Col id="CD">033</Col>
+            <Col id="CD_NM">033</Col>
+          </Row>
+          <Row>
+            <Col id="CD">041</Col>
+            <Col id="CD_NM">041</Col>
+          </Row>
+          <Row>
+            <Col id="CD">042</Col>
+            <Col id="CD_NM">042</Col>
+          </Row>
+          <Row>
+            <Col id="CD">043</Col>
+            <Col id="CD_NM">043</Col>
+          </Row>
+          <Row>
+            <Col id="CD">044</Col>
+            <Col id="CD_NM">044</Col>
+          </Row>
+          <Row>
+            <Col id="CD">051</Col>
+            <Col id="CD_NM">051</Col>
+          </Row>
+          <Row>
+            <Col id="CD">052</Col>
+            <Col id="CD_NM">052</Col>
+          </Row>
+          <Row>
+            <Col id="CD">053</Col>
+            <Col id="CD_NM">053</Col>
+          </Row>
+          <Row>
+            <Col id="CD">054</Col>
+            <Col id="CD_NM">054</Col>
+          </Row>
+          <Row>
+            <Col id="CD">055</Col>
+            <Col id="CD_NM">055</Col>
+          </Row>
+          <Row>
+            <Col id="CD">061</Col>
+            <Col id="CD_NM">061</Col>
+          </Row>
+          <Row>
+            <Col id="CD">062</Col>
+            <Col id="CD_NM">062</Col>
+          </Row>
+          <Row>
+            <Col id="CD">063</Col>
+            <Col id="CD_NM">063</Col>
+          </Row>
+          <Row>
+            <Col id="CD">064</Col>
+            <Col id="CD_NM">064</Col>
+          </Row>
+          <Row>
+            <Col id="CD">070</Col>
+            <Col id="CD_NM">070</Col>
+          </Row>
+          <Row>
+            <Col id="CD">010</Col>
+            <Col id="CD_NM">010</Col>
+          </Row>
+          <Row>
+            <Col id="CD">011</Col>
+            <Col id="CD_NM">011</Col>
+          </Row>
+          <Row>
+            <Col id="CD">016</Col>
+            <Col id="CD_NM">016</Col>
+          </Row>
+          <Row>
+            <Col id="CD">017</Col>
+            <Col id="CD_NM">017</Col>
+          </Row>
+          <Row>
+            <Col id="CD">018</Col>
+            <Col id="CD_NM">018</Col>
+          </Row>
+          <Row>
+            <Col id="CD">019</Col>
+            <Col id="CD_NM">019</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsSubSearch1" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="USER_ID" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsCheckIdDup"/>
+      <Dataset id="dsAuth">
+        <ColumnInfo>
+          <Column id="AUTH_CD" type="STRING" size="256"/>
+          <Column id="AUTH_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="AUTH_CD">A0000000</Col>
+            <Col id="AUTH_NM">시스템관리자권한</Col>
+          </Row>
+          <Row>
+            <Col id="AUTH_CD">A0000001</Col>
+            <Col id="AUTH_NM">관리자권한</Col>
+          </Row>
+          <Row>
+            <Col id="AUTH_CD">A0000002</Col>
+            <Col id="AUTH_NM">창고관리자권한</Col>
+          </Row>
+          <Row>
+            <Col id="AUTH_CD">A0000003</Col>
+            <Col id="AUTH_NM">배송관리자권한</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsAuthDetail">
+        <ColumnInfo>
+          <Column id="AUTH_CD" type="STRING" size="256"/>
+          <Column id="MENU_CD" type="STRING" size="256"/>
+          <Column id="MENU_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="AUTH_CD">A0000001</Col>
+            <Col id="MENU_CD">BAIM0001</Col>
+          </Row>
+          <Row>
+            <Col id="AUTH_CD">A0000001</Col>
+            <Col id="MENU_CD">BAIM0002</Col>
+          </Row>
+          <Row>
+            <Col id="AUTH_CD">A0000001</Col>
+            <Col id="MENU_CD">BAIM0003</Col>
+          </Row>
+          <Row>
+            <Col id="AUTH_CD">A0000001</Col>
+            <Col id="MENU_CD">BAIM0004</Col>
+          </Row>
+          <Row>
+            <Col id="AUTH_CD">A0000001</Col>
+            <Col id="MENU_CD">BAIM0005</Col>
+          </Row>
+          <Row>
+            <Col id="AUTH_CD">A0000001</Col>
+            <Col id="MENU_CD">BAIM0006</Col>
+          </Row>
+          <Row>
+            <Col id="AUTH_CD">A0000001</Col>
+            <Col id="MENU_CD">BAIM0007</Col>
+          </Row>
+          <Row>
+            <Col id="AUTH_CD">A0000001</Col>
+            <Col id="MENU_CD">BAIM0008</Col>
+          </Row>
+          <Row>
+            <Col id="AUTH_CD">A0000001</Col>
+            <Col id="MENU_CD">BAIM0010</Col>
+          </Row>
+          <Row>
+            <Col id="AUTH_CD">A0000001</Col>
+            <Col id="MENU_CD">BAIM0011</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">DLVY0001</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">DLVY0002</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">DLVY0003</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">DLVY0004</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">DLVY0005</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">DLVY0006</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">DLVY0007</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">DLVY0008</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">DLVY0009</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">RCPT0001</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">RCPT0002</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">RCPT0003</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">RCPT0004</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">RSRV0001</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">RSRV0003</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">RSRV0004</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">STCK0001</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">STCK0002</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">STCK0003</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">STCK0004</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">STCK0005</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">STCK0006</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">SYST0001</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">SYST0002</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">SYST0003</Col>
+          </Row>
+          <Row>
+            <Col id="MENU_CD">SYST0005</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsEmailCd">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD_NM">직접입력</Col>
+          </Row>
+          <Row>
+            <Col id="CD">naver.com</Col>
+            <Col id="CD_NM">naver.com</Col>
+          </Row>
+          <Row>
+            <Col id="CD">dreamwiz.com</Col>
+            <Col id="CD_NM">dreamwiz.com</Col>
+          </Row>
+          <Row>
+            <Col id="CD">empal.com</Col>
+            <Col id="CD_NM">empal.com</Col>
+          </Row>
+          <Row>
+            <Col id="CD">chol.com</Col>
+            <Col id="CD_NM">chol.com</Col>
+          </Row>
+          <Row>
+            <Col id="CD">freechal.com</Col>
+            <Col id="CD_NM">freechal.com</Col>
+          </Row>
+          <Row>
+            <Col id="CD">gmail.com</Col>
+            <Col id="CD_NM">gmail.com</Col>
+          </Row>
+          <Row>
+            <Col id="CD">hanmail.net</Col>
+            <Col id="CD_NM">hanmail.net</Col>
+          </Row>
+          <Row>
+            <Col id="CD">hotmail.com</Col>
+            <Col id="CD_NM">hotmail.com</Col>
+          </Row>
+          <Row>
+            <Col id="CD">korea.com</Col>
+            <Col id="CD_NM">korea.com</Col>
+          </Row>
+          <Row>
+            <Col id="CD">nate.com</Col>
+            <Col id="CD_NM">nate.com</Col>
+          </Row>
+          <Row>
+            <Col id="CD">paran.com</Col>
+            <Col id="CD_NM">paran.com</Col>
+          </Row>
+          <Row>
+            <Col id="CD">yahoo.com</Col>
+            <Col id="CD_NM">yahoo.com</Col>
+          </Row>
+          <Row>
+            <Col id="CD">yahoo.co.kr</Col>
+            <Col id="CD_NM">yahoo.co.kr</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsDefaultPw">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="256"/>
+          <Column id="CD_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="tab00.Tabpage1.form.divTab1.form.edtId" propid="value" datasetid="dsList" columnid="ID"/>
+      <BindItem id="item1" compid="tab00.Tabpage1.form.divTab1.form.edtPw" propid="value" datasetid="dsList" columnid="PW"/>
+      <BindItem id="item2" compid="tab00.Tabpage1.form.divTab1.form.cboSysDv" propid="value" datasetid="dsList" columnid="SYS_DV"/>
+      <BindItem id="item3" compid="tab00.Tabpage1.form.divTab1.form.edtName" propid="value" datasetid="dsList" columnid="NAME"/>
+      <BindItem id="item4" compid="tab00.Tabpage1.form.divTab1.form.cboTel1" propid="value" datasetid="dsList" columnid="TEL1"/>
+      <BindItem id="item5" compid="tab00.Tabpage1.form.divTab1.form.edtTel2" propid="value" datasetid="dsList" columnid="TEL2"/>
+      <BindItem id="item6" compid="tab00.Tabpage1.form.divTab1.form.edtTel3" propid="value" datasetid="dsList" columnid="TEL3"/>
+      <BindItem id="item7" compid="tab00.Tabpage1.form.divTab1.form.cboMobile1" propid="value" datasetid="dsList" columnid="MOBILE1"/>
+      <BindItem id="item8" compid="tab00.Tabpage1.form.divTab1.form.edtMobile2" propid="value" datasetid="dsList" columnid="MOBILE2"/>
+      <BindItem id="item9" compid="tab00.Tabpage1.form.divTab1.form.edtMobile3" propid="value" datasetid="dsList" columnid="MOBILE3"/>
+      <BindItem id="item10" compid="tab00.Tabpage1.form.divTab1.form.edtEmail1" propid="value" datasetid="dsList" columnid="EMAIL1"/>
+      <BindItem id="item11" compid="tab00.Tabpage1.form.divTab1.form.edtEmail2" propid="value" datasetid="dsList" columnid="EMAIL2"/>
+      <BindItem id="item12" compid="tab00.Tabpage1.form.divTab1.form.cboEmail3" propid="value" datasetid="dsList" columnid="EMAIL2"/>
+    </Bind>
+  </Form>
+</FDL>

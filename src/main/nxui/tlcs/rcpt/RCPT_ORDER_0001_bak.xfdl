@@ -1,0 +1,467 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form height="800" id="WHIB_MNG_0001" oninit="form_oninit" onload="form_onload" titletext="입고관리" width="1566">
+    <Layouts>
+      <Layout height="800" mobileorientation="landscape" stepcount="0" width="1566">
+        <Static cssclass="top_search_ty01" height="41" id="stSearch" left="-10" onclick="divSearch_staSearch_onclick" right="30" taborder="1" text="" top="20"/>
+        <Button cssclass="btn_ty01_search" domainId="T0877" fittocontents="none" height="23" id="btnSearch" onclick="btnOnClick" right="112" taborder="0" text="조회" top="29" width="56"/>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp" left="10" taborder="2" text="주문접수일자" top="29" width="82" onclick="staExeCorp_onclick"/>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp00" left="365" taborder="3" text="고객" top="29" width="32" onclick="staExeCorp_onclick"/>
+        <Div async="true" cssclass="inp_cal01" height="24" id="divDate" left="104" taborder="4" text="" top="28" url="cmm::cmmCalFromTo.xfdl" visible="true" width="240"/>
+        <Edit cssclass="inp_ty01" enable="true" height="23" id="edtCustCd" left="402" onkeydown="editOnKeyDown" onkeyup="edtOnKeyUp" taborder="5" top="28" width="90"/>
+        <Button cssclass="btn_search01" height="23" id="btnCust" left="492" onclick="fn_PopOpen" taborder="6" top="28" width="25"/>
+        <Edit cssclass="inp_ty01" enable="true" height="23" id="edtCustNm" left="516" taborder="7" top="28" width="130"/>
+        <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cbo04" innerdataset="dsBizCd" left="739" taborder="8" top="28" type="filterlike" width="130"/>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp01" left="664" taborder="9" top="29" width="62" onclick="staExeCorp_onclick" text="분할여부"/>
+        <Static cssclass="in_tit01" domainId="T0198" height="31" id="stTitle00_00" left="0" taborder="10" text="엑셀업로드" width="71" bottom="11"/>
+        <Edit id="edt00" taborder="11" width="386" height="24" bottom="13" left="70"/>
+        <Button cssclass="btn_ty01" domainId="T0672" fittocontents="none" height="23" id="btnSampleDownload" onclick="btnOnClick" taborder="12" text="양식 다운로드" width="102" bottom="12" left="560"/>
+        <Button cssclass="btn_ty01" domainId="T0683" fittocontents="none" height="23" id="btnxlsUpld" onclick="btnOnClick" taborder="13" text="엑셀 업로드" width="94" bottom="12" left="463"/>
+        <Grid autoenter="select" autofittype="col" binddataset="dsList" bottom="50" cellsizingtype="col" cssclass="tb_ty01" id="grd_Main" left="0" onheadclick="grdOnHeadClick" right="30" taborder="15" top="72" autoupdatetype="itemselect">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="40"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell edittype="checkbox" displaytype="checkboxcontrol"/>
+                <Cell col="1" text="No"/>
+                <Cell col="2" text="고객사코드"/>
+                <Cell col="3" text="전표일자"/>
+                <Cell col="4" text="전표번호"/>
+                <Cell col="5" text="쇼핑몰전표번호"/>
+                <Cell col="6" text="작업구분"/>
+                <Cell col="7" text="품목코드"/>
+                <Cell col="8" text="품목명"/>
+                <Cell col="9" text="주문수량"/>
+                <Cell col="10" text="등록자"/>
+              </Band>
+              <Band id="body">
+                <Cell displaytype="checkboxcontrol" edittype="checkbox" text="bind:CHK"/>
+                <Cell col="1" displaytype="normal" expr="currow+1"/>
+                <Cell col="2" text="bind:CUST_CD" edittype="normal"/>
+                <Cell col="3" text="bind:SLIP_YMD" edittype="normal"/>
+                <Cell col="4" text="bind:SLIP_NO" edittype="normal"/>
+                <Cell col="5" text="bind:SHP_MALL_SLIP_NO" edittype="normal"/>
+                <Cell col="6" text="bind:WORK_DV_CD" edittype="normal"/>
+                <Cell col="7" text="bind:GDS_CD" edittype="normal"/>
+                <Cell col="8" edittype="normal"/>
+                <Cell col="9" text="bind:ORD_QTY" edittype="normal" displaytype="normal"/>
+                <Cell col="10" text="bind:REG_EMP_ID" edittype="normal"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Button cssclass="btn_ty01_new" domainId="T0645" fittocontents="none" height="23" id="btnAdd" onclick="btnOnClick" right="245" taborder="16" text="신규" top="29" width="68"/>
+        <Button cssclass="btn_ty01_delete" domainId="T0519" fittocontents="none" height="23" id="btnDel" onclick="btnOnClick" right="172" taborder="17" text="삭제" top="29" width="68"/>
+        <Button cssclass="btn_ty01_save" domainId="T0830" fittocontents="none" height="23" id="btnSave" onclick="btnOnClick" right="42" taborder="18" text="저장" top="29" width="68"/>
+        <Grid autoenter="select" autofittype="col" autosizebandtype="body" autosizingtype="none" binddataset="dsExcelSample" bottom="-85" cellsizingtype="col" cssclass="tb_ty01" id="grdExcelData" left="4" oncellclick="grdShprList_oncellclick" taborder="14" top="810" visible="false" width="51.60%">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+              </Columns>
+              <Rows>
+                <Row band="head" size="24"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="CUST_CD"/>
+                <Cell col="1" text="SLIP_YMD"/>
+                <Cell col="2" text="SLIP_NO"/>
+                <Cell col="3" text="SHP_MALL_SLIP_NO"/>
+                <Cell col="4" text="GDS_CD"/>
+                <Cell col="5" text="ORD_QTY"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:CUST_CD"/>
+                <Cell col="1" text="bind:SLIP_YMD"/>
+                <Cell col="2" text="bind:SLIP_NO"/>
+                <Cell col="3" text="bind:SHP_MALL_SLIP_NO"/>
+                <Cell col="4" text="bind:GDS_CD"/>
+                <Cell col="5" text="bind:ORD_QTY"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  점소 등록
+*  @MenuPath       	
+*  @FileName 		BAIM_BAIM_SAMPLE.xfdl
+*  @Creator 		Kim Jin Hwan
+*  @CreateDate 		2020.02.05
+*  @Desction        샘플
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.02.05		Kim Jin Hwan			최초 생성
+************************************************************************************************
+*/
+
+/************************************************************************************************
+* include 선언부																				*
+ ************************************************************************************************/
+include "lib::lib_Form.xjs";
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+this.objApp;
+ 
+ 
+ /***********************************************************************************************
+ * @function: form_onload
+ * @description: FORM 온로드
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	// 초기화
+	this.fnInit();
+};
+
+
+ /***********************************************************************************************
+ * @function	: form_onload
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnInit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	// 공통코드조회
+	this.gfnTransaction("commonCode");
+};
+
+
+/***********************************************************************************************
+ * @function	: btnOnClick
+ * @description	: 버튼이벤트 제어
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		// 조회
+		case "btnSearch" : 
+			this.fnSearch();
+		break;
+		
+		// 저장
+		case "btnSave" :
+			this.fnSave();
+		break;
+		
+		// 초기화
+		case "btnReset" :
+			this.fnInit();
+		break;
+		
+		// 엑셀샘플업로드
+		case "btnSampleDownload" :
+			this.fnSampleDownload();
+		break;
+		
+		// 엑셀업로드
+		case "btnxlsUpld" :
+			this.fnXlsUpld();
+		break;
+		
+		default :	
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearch = function() {
+	// 조회조건 필수입력 체크
+	/*
+	this.dsSearch.setColumn(0, "LOGIN_ID"		, sUserId);
+	this.dsSearch.setColumn(0, "LOGINTYPE"		, "NEXA");
+	this.dsSearch.setColumn(0, "USER_LANG"		, "KO");
+	this.dsSearch.setColumn(0, "PASSWORD"		, sPassword);
+	this.dsSearch.setColumn(0, "USER_ID"		, "");
+	*/
+	//alert(this.objApp.gv_warehCd);
+	//alert(this.objApp.gv_userId);
+	
+	//this.dsSearch.clearData();
+	
+	this.gfnTransaction("selectRcptOrd");
+};
+
+/***********************************************************************************************
+ * @function	: fnSave
+ * @description	: 저장.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSave = function() {
+	/** 저장할 데이터 유효성 체크*********************************************************************/
+	
+	
+	/****************************************************************************************************/
+	
+	if(!this.gfnConfirm("저장하시겠습니까?")) return;
+	
+	// 트랜잭션 호출 (저장)
+	this.gfnTransaction("insertRcptOrdDecis");
+};
+
+
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	trace("[fnCallback()] svcID["+svcID+"] errorCode["+errorCode+"] errorMsg["+errorMsg+"]");
+	
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+			// 컴포넌트 초기화
+			this.fnCompInit();
+		break;
+		
+		case "insertRcptOrdDecis":
+			alert("저장되었습니다.");
+			this.fnSearch();
+		break;
+		
+		default :
+		break;
+	}
+	
+};
+
+/***********************************************************************************************
+ * @function	: fnPopupCallBack
+ * @description	: popup Callback
+ * @param		: popupId	- String
+ * @param		: dsObj		- nexacro.NormalDataset
+ * @return N/A
+ ***********************************************************************************************/
+this.fnPopupCallback = function(sPopupId, dsObj)
+{
+	//trace("[fnPopupCallback()] sPopupId["+sPopupId+"] rtnMsg["+JSON.stringify(rtnObj)+"]");
+
+	switch(sPopupId) {
+		
+		default :
+		break;
+	}
+};
+
+
+
+/***********************************************************************************************
+* USER FUNCTION
+***********************************************************************************************/
+//엑셀샘플
+this.fnSampleDownload = function(obj:nexacro.Button,e:nexacro.ClickEventInfo) {
+	//var sDateTime = this.gfnGetDate("time");
+	this.gfnExcelExport(this.grdExcelData, "sheet1", "OrderExcelSample");
+}
+
+//엑셀업로드
+this.fnXlsUpld = function() {
+	this.dsList.clearData();
+	this.dsTemp.clearData();
+	this.gfnExcelImport("dsTemp", "sheet1", "A2", "fnImportCallback", "importExcel", this);
+}
+
+this.fnImportCallback = function (sImportId)
+{
+	//엑셀temp저장	
+	this.gfnTransaction("insertRcptOrdTemp");	
+}
+ /************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+this.grd00_oncellclick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	alert(this.test.getColumn(0,"NUM") );
+};
+]]></Script>
+    <Objects>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+            <Col id="OUT_DATASET_LIST">dsCpDv=ds1</Col>
+            <Col id="QUERY_LIST">q1=MS005</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">selectRcptOrd</Col>
+            <Col id="IN_DATASET_LIST">dsSearch=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsList=dsList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">rcptMgmtService</Col>
+            <Col id="SERVICE_METHOD">selectRcptOrd</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">insertRcptOrdTemp</Col>
+            <Col id="IN_DATASET_LIST">dsTemp=dsTemp</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_METHOD">insertRcptOrdTemp</Col>
+            <Col id="SERVICE_BEANNAME">rcptMgmtService</Col>
+            <Col id="OUT_DATASET_LIST">dsList=dsList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">insertRcptOrdDecis</Col>
+            <Col id="IN_DATASET_LIST">dsList=dsList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_METHOD">insertRcptOrdDecis</Col>
+            <Col id="SERVICE_BEANNAME">rcptMgmtService</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsSearch" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="CUST_ID" size="256" type="STRING"/>
+          <Column id="CUST_NM" size="256" type="STRING"/>
+          <Column id="CP_DV" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsList">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="256"/>
+          <Column id="CUST_CD" type="STRING" size="256"/>
+          <Column id="SLIP_YMD" type="STRING" size="256"/>
+          <Column id="SLIP_NO" size="256" type="STRING"/>
+          <Column id="SHP_MALL_SLIP_NO" type="STRING" size="256"/>
+          <Column id="WORK_DV_CD" size="256" type="STRING"/>
+          <Column id="GDS_CD" type="STRING" size="256"/>
+          <Column id="ORD_QTY" type="STRING" size="256"/>
+          <Column id="REG_EMP_ID" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsXlsUpld">
+        <ColumnInfo>
+          <Column id="NUM" size="256" type="STRING"/>
+          <Column id="AAA" size="256" type="STRING"/>
+          <Column id="BBB" size="256" type="STRING"/>
+          <Column id="CCC" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsExcelSample">
+        <ColumnInfo>
+          <Column id="CUST_CD" size="256" type="STRING"/>
+          <Column id="SLIP_YMD" size="256" type="STRING"/>
+          <Column id="SLIP_NO" size="256" type="STRING"/>
+          <Column id="SHP_MALL_SLIP_NO" type="STRING" size="256"/>
+          <Column id="GDS_CD" type="STRING" size="256"/>
+          <Column id="ORD_QTY" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CUST_CD">123</Col>
+            <Col id="SLIP_YMD">20200301</Col>
+            <Col id="SLIP_NO">202003010001</Col>
+            <Col id="ORD_QTY">10</Col>
+            <Col id="SHP_MALL_SLIP_NO">12345</Col>
+            <Col id="GDS_CD">1111</Col>
+          </Row>
+          <Row>
+            <Col id="CUST_CD">123</Col>
+            <Col id="SLIP_YMD">20200301</Col>
+            <Col id="SLIP_NO">202003010001</Col>
+            <Col id="ORD_QTY">20</Col>
+            <Col id="SHP_MALL_SLIP_NO">12345</Col>
+            <Col id="GDS_CD">2222</Col>
+          </Row>
+          <Row>
+            <Col id="CUST_CD">456</Col>
+            <Col id="SLIP_YMD">20200302</Col>
+            <Col id="SLIP_NO">202003010002</Col>
+            <Col id="SHP_MALL_SLIP_NO">67890</Col>
+            <Col id="GDS_CD">3333</Col>
+            <Col id="ORD_QTY">30</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsTemp">
+        <ColumnInfo>
+          <Column id="CUST_CD" type="STRING" size="256"/>
+          <Column id="SLIP_YMD" type="STRING" size="256"/>
+          <Column id="SLIP_NO" type="STRING" size="256"/>
+          <Column id="SHP_MALL_SLIP_NO" type="STRING" size="256"/>
+          <Column id="GDS_CD" type="STRING" size="256"/>
+          <Column id="ORD_QTY" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="edtCustCd" propid="value" datasetid="dsSearch" columnid="SHPR_ID"/>
+      <BindItem id="item2" compid="cbo04" propid="value" datasetid="dsInfo" columnid="BIZ_CD"/>
+    </Bind>
+  </Form>
+</FDL>

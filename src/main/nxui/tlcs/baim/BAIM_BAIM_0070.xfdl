@@ -1,0 +1,1133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form cssclass="bg_pop01" height="830" id="BAIM_BAIM_0070" onload="form_onload" titletext="단가등록" width="1300" oninit="form_oninit">
+    <Layouts>
+      <Layout description="" height="830" width="1300">
+        <Static cssclass="pop_tit_txt01" domainId="T0167" height="34" id="sta01" left="15" taborder="0" text="단가등록" top="0" width="99"/>
+        <Static bottom="0" cssclass="pop_cont" id="sta00" left="0" right="0" taborder="1" top="34" text=""/>
+        <Button cssclass="btn_pop_img_close" height="22" id="btnClose00" onclick="btnClose_onclick" right="15" taborder="2" top="5" width="22" text=""/>
+        <Static cssclass="top_search_ty01" height="40" id="staSearchArea" left="0" right="0" taborder="3" top="34"/>
+        <Button cssclass="btn_ty01_search" domainId="T0877" height="23" id="btnSearch" right="160" taborder="4" text="조회" top="43" width="68" onclick="btnOnClick"/>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp" left="1108" taborder="5" text="발송고객명" top="560" width="72"/>
+        <Button cssclass="btn_ty01_new" domainId="T0645" fittocontents="none" height="23" id="btnAdd" onclick="btnOnClick" right="87" taborder="6" text="신규" top="43" width="68"/>
+        <Button cssclass="btn_ty01_save" domainId="T0830" height="23" id="btnSave" onclick="btnOnClick" right="14" taborder="7" text="저장" top="43" width="68"/>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp00" left="25" taborder="8" text="기업고객" top="43" width="56"/>
+        <Edit id="edtCustId_sc" taborder="9" left="84" top="42" width="120" height="23" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown" enable="false"/>
+        <Edit id="edtCustNm_sc" taborder="10" left="206" top="42" width="170" height="23" enable="false" cssclass="inp_ty01"/>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp00_00" left="395" taborder="11" text="협력사코드" top="43" width="67"/>
+        <Edit id="edtCustMgmtDlcmCd_sc" taborder="12" left="466" top="42" width="120" height="23" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown" enable="false"/>
+        <Div id="div01" taborder="13" left="11" top="82" width="1280" height="340" border="2px solid #1a3867,1px solid #dddddd,1px solid #dddddd" boxShadow="0px 6px 6px #dddddd" background="#ffffff">
+          <Layouts>
+            <Layout>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001" left="0" taborder="24" text="기업고객" top="0" width="120" textAlign="center"/>
+              <Static id="sta00" taborder="25" left="119" top="0" width="1159" height="49" cssclass="sta_tbody_td01"/>
+              <Edit id="edtCustId" taborder="0" left="135" top="13" width="141" height="23" enable="false" cssclass="inp_ty01"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00" left="0" taborder="26" text="계약기간" top="48" width="120" textAlign="center"/>
+              <Static id="sta00_00" taborder="27" left="119" top="48" width="1159" height="49" cssclass="sta_tbody_td01"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_00" left="0" taborder="28" text="발송구분" top="96" width="120" textAlign="center"/>
+              <Static id="sta00_00_00" taborder="29" left="119" top="96" width="1159" height="49" cssclass="sta_tbody_td01"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_00_00" left="0" taborder="30" text="운임적용구분" top="192" width="120" textAlign="center"/>
+              <Static id="sta00_00_00_00" taborder="31" left="119" top="192" width="1159" height="49" cssclass="sta_tbody_td01"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_00_00_00" left="0" taborder="32" text="단가" top="288" width="120" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_01_00" left="0" taborder="33" text="전담구분" top="240" width="120" textAlign="center"/>
+              <Static id="sta00_00_01_00" taborder="34" left="119" top="240" width="1159" height="49" cssclass="sta_tbody_td01"/>
+              <Static id="sta00_00_00_00_00" taborder="35" left="119" top="288" width="1159" height="49" cssclass="sta_tbody_td01"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_00_01_00" left="0" taborder="36" text="운임구분" top="144" width="120" textAlign="center"/>
+              <Static id="sta00_00_00_01" taborder="37" left="119" top="144" width="1159" height="49" cssclass="sta_tbody_td01"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_00_00_00_00_00_01" left="660" taborder="38" text="운임권역구분" top="144" width="120" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_00_00_00_00_00_01_01" left="660" taborder="39" text="협력사코드" top="48" width="120" textAlign="center" onclick="div02_00_sta001_00_00_00_00_00_00_01_01_onclick"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_00_00_00_00_00_01_00_00" left="660" taborder="40" text="택배상품명" top="96" width="120" textAlign="center"/>
+              <Calendar id="calCntrStartYmd" taborder="4" left="135" top="61" width="127" height="23" cssclass="cal_ty01" canchange="div00_cal00_00_canchange" enable="false"/>
+              <Static id="sta07_00" taborder="41" text="-" left="269" top="61" width="8" height="23" color="black"/>
+              <Calendar id="calCntrEndYmd" taborder="5" left="281" top="61" width="127" height="23" cssclass="cal_ty01" enable="false"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_01" left="660" taborder="42" text="발송고객" top="0" width="120" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_00_00_00_00_00_01_00" left="660" taborder="43" text="비례단가" top="288" width="120" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_00_00_00_00_00_01_00_00_00" left="660" taborder="44" text="대리점" top="240" width="120" textAlign="center"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_00_00_00_00_00_01_01_00" left="660" taborder="45" text="계약품목" top="192" width="120" textAlign="center" onclick="div02_00_sta001_00_00_00_00_00_00_01_01_onclick"/>
+              <Edit id="edtCustNm" taborder="1" left="280" top="13" width="368" height="23" enable="false" cssclass="inp_ty01"/>
+              <Edit id="edtSendCustNo" taborder="2" left="795" top="13" width="141" height="23" enable="false" cssclass="inp_ty01"/>
+              <Static cssclass="sta_tbody_th01" domainId="T1133" height="49" id="sta001_00_00_00_00_00" left="330" taborder="46" text="제주운임" top="288" width="120" textAlign="center"/>
+              <Edit id="edtBranCd" taborder="18" left="795" top="253" width="110" height="23" enable="true" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown" background="papayawhip"/>
+              <Button id="btnSearchBran" taborder="19" left="905" top="253" height="23" width="25" cssclass="btn_search01" onclick="fnOpenPop"/>
+              <Button id="btnSearchCntrItem" taborder="15" left="905" top="205" height="23" width="25" cssclass="btn_search01" onclick="fnOpenPop"/>
+              <Edit id="edtCntrItemCd" taborder="14" left="795" top="205" width="110" height="23" enable="true" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown" background="papayawhip"/>
+              <Edit id="edtCustMgmtDlcmCd" taborder="6" left="795" top="61" width="141" height="23" enable="false" cssclass="inp_ty01"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cboSendDv" left="135" taborder="7" top="109" type="filterlike" width="141" innerdataset="dsSendDv" background="papayawhip"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cboFrtDv" left="135" taborder="9" top="156" type="filterlike" width="141" innerdataset="dsFrtDv" background="papayawhip"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cboFrtCalcDv" left="135" taborder="11" top="205" type="filterlike" width="141" innerdataset="dsFrtCalcDv" background="papayawhip"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cboFchrgDv" left="135" taborder="17" top="252" type="filterlike" width="141" innerdataset="dsFchrgDv" background="papayawhip"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cboDlvGdsCd" left="795" taborder="8" top="109" type="filterlike" width="141" innerdataset="dsDlvGdsCd" background="papayawhip"/>
+              <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cboZnDv" left="795" taborder="10" top="156" type="filterlike" width="141" innerdataset="dsZnDv"/>
+              <Edit id="edtSendCustNm" taborder="3" left="940" top="13" width="324" height="23" enable="false" cssclass="inp_ty01"/>
+              <Edit id="edtCntrItemNm" taborder="16" left="934" top="205" width="330" height="23" enable="true" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown" background="papayawhip"/>
+              <Edit id="edtBranNm" taborder="20" left="934" top="253" width="330" height="23" enable="true" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown" background="papayawhip"/>
+              <MaskEdit id="mskUprice" taborder="21" left="135" top="301" width="183" height="23" limitbymask="both" type="number" textAlign="right" format="#,###,###,###,###,###,###,###" background="papayawhip" cssclass="inp_ty01"/>
+              <MaskEdit id="mskAirRateUprice" taborder="22" left="465" top="301" width="183" height="23" limitbymask="both" type="number" textAlign="right" format="#,###,###,###,###,###,###,###" cssclass="inp_ty01"/>
+              <MaskEdit id="mskUpriceFxrat" taborder="23" left="795" top="301" width="141" height="23" limitbymask="both" type="number" textAlign="right" format="##.###" background="papayawhip" cssclass="inp_ty01"/>
+              <Static id="sta07_00_00" taborder="47" text="~" left="421" top="205" width="8" height="23" color="black"/>
+              <Edit id="edtFrtFr" taborder="12" left="283" top="205" width="131" height="23" enable="true" cssclass="inp_ty01" maxlength="10" background="papayawhip"/>
+              <Edit id="edtFrtTo" taborder="13" left="436" top="205" width="131" height="23" enable="true" cssclass="inp_ty01" maxlength="10" background="papayawhip"/>
+            </Layout>
+          </Layouts>
+        </Div>
+        <Div id="div02" taborder="14" left="12" top="438" width="1280" border="2px solid #1a3867,1px solid #dddddd,1px solid #dddddd" boxShadow="0px 6px 6px #dddddd" background="#ffffff" height="372">
+          <Layouts>
+            <Layout>
+              <Grid autoenter="select" autofittype="none" cellsizingtype="none" cssclass="tb_ty02" enable="true" id="grid" taborder="0" width="1278" height="369" left="0" top="0" binddataset="dsList" oncellposchanged="div02_grid_oncellposchanged">
+                <Formats>
+                  <Format id="default">
+                    <Columns>
+                      <Column size="40"/>
+                      <Column size="110"/>
+                      <Column size="159"/>
+                      <Column size="116"/>
+                      <Column size="159"/>
+                      <Column size="159"/>
+                      <Column size="112"/>
+                      <Column size="112"/>
+                      <Column size="159"/>
+                      <Column size="159"/>
+                      <Column size="109"/>
+                      <Column size="132"/>
+                      <Column size="132"/>
+                    </Columns>
+                    <Rows>
+                      <Row size="30" band="head"/>
+                      <Row size="24"/>
+                    </Rows>
+                    <Band id="head">
+                      <Cell text="No"/>
+                      <Cell col="1" accessibilitydescription="T0160" text="택배상품명"/>
+                      <Cell col="2" accessibilitydescription="T0712" text="발송구분"/>
+                      <Cell col="3" accessibilitydescription="T0712" text="운임구분"/>
+                      <Cell col="4" accessibilitydescription="T0712" text="운임권역구분"/>
+                      <Cell col="5" accessibilitydescription="T0712" text="단가적용구분"/>
+                      <Cell col="6" accessibilitydescription="T0712" text="From Range"/>
+                      <Cell col="7" accessibilitydescription="T0712" text="To Range"/>
+                      <Cell col="8" accessibilitydescription="T0712" text="계약품목"/>
+                      <Cell col="9" accessibilitydescription="T0712" text="전담구분"/>
+                      <Cell col="10" accessibilitydescription="T0712" text="대리점"/>
+                      <Cell col="11" accessibilitydescription="T0712" text="단가"/>
+                      <Cell col="12" accessibilitydescription="T0712" text="비례단가"/>
+                    </Band>
+                    <Band id="body">
+                      <Cell expr="currow+1"/>
+                      <Cell col="1" text="bind:DLV_GDS_CD" displaytype="combotext" combodataset="dsDlvGdsCd" combocodecol="CD" combodatacol="CD_NM"/>
+                      <Cell col="2" text="bind:SEND_DV" displaytype="combotext" combodataset="dsSendDv" combocodecol="CD" combodatacol="CD_NM"/>
+                      <Cell col="3" text="bind:FRT_DV" displaytype="combotext" combodataset="dsFrtDv" combocodecol="CD" combodatacol="CD_NM"/>
+                      <Cell col="4" text="bind:ZN_DV" displaytype="combotext" combodataset="dsZnDv" combocodecol="CD" combodatacol="CD_NM"/>
+                      <Cell col="5" text="bind:FRT_CALC_DV" displaytype="combotext" combodataset="dsFrtCalcDv" combocodecol="CD" combodatacol="CD_NM"/>
+                      <Cell col="6" text="bind:FRT_FR"/>
+                      <Cell col="7" text="bind:FRT_TO"/>
+                      <Cell col="8" text="bind:CNTR_ITEM_NM" textAlign="left"/>
+                      <Cell col="9" text="bind:FCHRG_DV" displaytype="combotext" combodataset="dsFchrgDv" combocodecol="CD" combodatacol="CD_NM" textAlign="left"/>
+                      <Cell col="10" text="bind:BRAN_NM" textAlign="left"/>
+                      <Cell col="11" text="bind:UPRICE" textAlign="right"/>
+                      <Cell col="12" text="bind:UPRICE_FXRAT" textAlign="right"/>
+                    </Band>
+                  </Format>
+                </Formats>
+              </Grid>
+            </Layout>
+          </Layouts>
+        </Div>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  품목별 계약단가 등록
+*  @MenuPath        
+*  @FileName 		BAIM_BAIM_0070.xfdl
+*  @Creator 		Kim Jin Hwan
+*  @CreateDate		2020.02.17
+*  @Desction        품목별 계약단가 등록
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.02.17		Kim Jin Hwan			최초 생성
+************************************************************************************************
+*/
+
+
+ include "lib::lib_Form.xjs";
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+// 폼 접근 변수
+var divFm = this.div01.form;
+
+/***********************************************************************************************
+* FORM EVENT 영역(onload)
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	// 초기화
+	this.fnInit();
+	
+};
+
+/***********************************************************************************************
+ * @function	: forOninit
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.form_oninit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication();
+};
+
+
+
+ /***********************************************************************************************
+ * @function	: form_onload
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnInit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	// 공통코드조회
+	this.gfnTransaction("commonCode");
+	
+	// 조회조건 셋팅.
+	this.dsSearch.setColumn(0, "CUST_ID", this.getOwnerFrame().pCustId);	//고객번호
+	this.dsSearch.setColumn(0, "CUST_NM", this.getOwnerFrame().pCustNm);	//고객명
+	this.dsSearch.setColumn(0, "CUST_MGMT_DLCM_CD", this.getOwnerFrame().pCustMgmtDlcmCd);	//협력사코드
+	this.dsSearch.setColumn(0, "SEND_CUST_NO", this.getOwnerFrame().pSendCustNo);	//발송고객번호
+	this.dsSearch.setColumn(0, "SEND_CUST_NM", this.getOwnerFrame().pSendCustNm);	//발송고객명
+	this.dsSearch.setColumn(0, "CNTR_START_YMD", this.getOwnerFrame().pCntrStartYmd);	//계약시작일
+	
+	// 기본값 셋팅.
+	this.fnSetDefaultValue();
+	
+	
+	// 조회
+	this.fnSearch();
+};
+
+
+ /***********************************************************************************************
+ * @function	: fnSetDefaultValue
+ * @description	: 파라미터로 전달받은 값 셋팅.
+ * @param		: 
+ * @return N/A
+/***********************************************************************************************/
+this.fnSetDefaultValue = function()
+{
+	divFm.edtCustId.set_value(this.getOwnerFrame().pCustId);					// 기업고객번호
+	divFm.edtCustNm.set_value(this.getOwnerFrame().pCustNm);					// 기업고객명
+	divFm.edtSendCustNo.set_value(this.getOwnerFrame().pSendCustNo);			// 발송고객번호
+	divFm.edtSendCustNm.set_value(this.getOwnerFrame().pSendCustNm);			// 발송고객명
+	divFm.edtCustMgmtDlcmCd.set_value(this.getOwnerFrame().pCustMgmtDlcmCd);	// 협력사코드
+	divFm.calCntrStartYmd.set_value(this.getOwnerFrame().pCntrStartYmd);		// 계약시작일
+	divFm.calCntrEndYmd.set_value(this.getOwnerFrame().pCntrEndYmd);			// 계약종료일
+	
+	
+	
+}
+
+
+
+/************************************************************************************************
+* TRANSACTION 서비스 호출 처리
+************************************************************************************************/
+
+/************************************************************************************************
+ * CALLBACK 콜백 처리부분
+ ************************************************************************************************/
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	trace("[fnCallback()] svcID["+svcID+"] errorCode["+errorCode+"] errorMsg["+errorMsg+"]");
+	
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+		return;
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+
+		break;
+		
+		// 조회
+		case "getItemPerCntrUpriceInfoList":
+		
+			this.fnSetEnableComp(0);
+		
+		break;
+		
+		
+		
+		// 저장
+		case "saveItemPerCntrUpriceInfo":
+			this.gfnAlert("저장되었습니다.");
+			
+			this.fnSearch();
+		break;
+
+		default :
+		break;
+	}
+};
+
+
+ /************************************************************************************************
+ * 사용자 FUNCTION 영역
+ ************************************************************************************************/
+ this.fnSetEnableComp = function(nRow)
+ {
+	var nRowType = this.dsList.getRowType(nRow);
+	
+	//신규
+	if(nRowType == Dataset.ROWTYPE_INSERT){
+	
+		divFm.cboSendDv.set_enable(true);
+		divFm.cboDlvGdsCd.set_enable(true);
+		divFm.cboFrtDv.set_enable(true);
+		divFm.cboZnDv.set_enable(true);
+		
+		divFm.cboFrtCalcDv.set_enable(true);
+		divFm.edtFrtFr.set_enable(true);
+		divFm.edtFrtTo.set_enable(true);
+		divFm.edtCntrItemCd.set_enable(true);
+		divFm.btnSearchCntrItem.set_enable(true);
+		divFm.edtCntrItemNm.set_enable(true);
+		
+		divFm.cboFchrgDv.set_enable(true);
+		divFm.edtBranCd.set_enable(true);
+		divFm.btnSearchBran.set_enable(true);
+		divFm.edtBranNm.set_enable(true);
+		
+	}else{
+	
+		divFm.cboSendDv.set_enable(false);
+		divFm.cboDlvGdsCd.set_enable(false);
+		divFm.cboFrtDv.set_enable(false);
+		divFm.cboZnDv.set_enable(false);
+		
+		divFm.cboFrtCalcDv.set_enable(false);
+		divFm.edtFrtFr.set_enable(false);
+		divFm.edtFrtTo.set_enable(false);
+		divFm.edtCntrItemCd.set_enable(false);
+		divFm.btnSearchCntrItem.set_enable(false);
+		divFm.edtCntrItemNm.set_enable(false);
+		
+		divFm.cboFchrgDv.set_enable(false);
+		divFm.edtBranCd.set_enable(false);
+		divFm.btnSearchBran.set_enable(false);
+		divFm.edtBranNm.set_enable(false);
+	}
+	
+	
+ 
+ }
+ 
+ 
+ 
+ /***********************************************************************************************
+ * @function: fnCompInit
+ * @description: 컴포넌트 초기화 함수.
+ * @param  N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnCompInit = function()
+{
+	// 발송구분
+	this.fnAddCodeDef(this.dsSendDv, '선택');
+	divFm.cboSendDv.set_index(0);
+	
+	// 택배상품명
+	this.fnAddCodeDef(this.dsDlvGdsCd, '선택');
+	divFm.cboDlvGdsCd.set_index(0);
+	
+	// 운임구분
+	this.fnAddCodeDef(this.dsFrtDv, '선택');
+	divFm.cboFrtDv.set_index(0);
+	
+	// 운임권역구분
+	this.fnAddCodeDef(this.dsZnDv, '선택');
+	divFm.cboZnDv.set_index(0);
+	
+	// 운임적용구분
+	this.fnAddCodeDef(this.dsFrtCalcDv, '선택');
+	divFm.cboFrtCalcDv.set_index(0);
+	
+	// 전담구분
+	this.fnAddCodeDef(this.dsFchrgDv, '선택');
+	divFm.cboFchrgDv.set_index(0);
+	
+}
+
+ /***********************************************************************************************
+ * @function	: fnAfterCodeDef
+ * @description	: 코드조회후 선택,전체 추가
+ * @param		: dsObj	- Dataset Object
+ * @param       : strText - String
+ * @return N/A
+/***********************************************************************************************/
+this.fnAddCodeDef = function(dsObj:nexacro.NormalDataset, strText:String) {
+	dsObj.insertRow();
+	dsObj.setColumn(0,'CD','');
+	dsObj.setColumn(0,'CD_NM', strText);
+}
+ 
+ 
+ /***********************************************************************************************
+ * @function	: fnAdd
+ * @description	: FORM init
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnAdd = function()
+{
+	// 조회 데이터가 없는경우
+	if(this.dsList.rowcount == 0){
+		this.dsList.assign( this.dsList_empty );
+	}
+	
+	var lastRowType = this.dsList.getRowType(this.dsList.getRowCount()-1);
+	
+	if(lastRowType != Dataset.ROWTYPE_INSERT){
+		var nRow = this.dsList.addRow();
+		
+		this.dsList.setColumn(nRow, "CUST_ID", this.getOwnerFrame().pCustId); 					//고객번호
+		this.dsList.setColumn(nRow, "CUST_NM", this.getOwnerFrame().pCustNm); 					//고객명
+		this.dsList.setColumn(nRow, "SEND_CUST_NO", this.getOwnerFrame().pSendCustNo); 			//발송고객번호
+		this.dsList.setColumn(nRow, "SEND_CUST_NM", this.getOwnerFrame().pSendCustNm); 			//발송고객명
+		this.dsList.setColumn(nRow, "CUST_MGMT_DLCM_CD", this.getOwnerFrame().pCustMgmtDlcmCd); //협력사코드
+		this.dsList.setColumn(nRow, "CNTR_START_YMD", this.getOwnerFrame().pCntrStartYmd); 		//계약시작일
+		this.dsList.setColumn(nRow, "CNTR_END_YMD", this.getOwnerFrame().pCntrEndYmd); 			//계약종료일
+		
+		this.fnCompInit();
+	}
+}
+
+
+
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 조회
+ * @param		: obj	- nexacro.Button
+ * @param		: e		- nexacro.ClickEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnSearch = function()
+{
+
+	/** 조회조건 필수입력 체크********************************************************/
+	
+	
+	/************************************************************************************/
+	
+
+	
+	this.gfnTransaction("getItemPerCntrUpriceInfoList");
+};
+
+
+
+/***********************************************************************************************
+ * @function	: fnSave
+ * @description	: 저장.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSave = function() 
+{
+	// 저장할 행이 없는경우.
+	if(this.dsList.rowcount==0) return;
+	
+	/** 저장할 데이터 유효성 체크*********************************************************************/
+	for(var i=0; i<this.dsList.rowcount; i++){
+	
+		// 로우상태
+		var nRowType = this.dsList.getRowType(i);
+			
+		// 데이터셋 상태가 신규 또는 수정인 데이터만 체크한다.	
+		if(nRowType != Dataset.ROWTYPE_INSERT && nRowType != Dataset.ROWTYPE_UPDATE){
+			continue;
+		}
+	
+		var edtCustIdValue 				= this.dsList.getColumn(i, "CUST_ID"); 				// 기업고객번호
+		var edtCustMgmtDlcmCdValue		= this.dsList.getColumn(i, "CUST_MGMT_DLCM_CD"); 	// 협력사코드
+		var calCntrStartYmdValue 		= this.dsList.getColumn(i, "CNTR_START_YMD");		// 계약시작일자
+		var calCntrEndYmdValue 			= this.dsList.getColumn(i, "CNTR_END_YMD");			// 계약종료일자
+		var cboSendDvValue	 			= this.dsList.getColumn(i, "SEND_DV");				// 발송구분
+		var cboDlvGdsCdValue 			= this.dsList.getColumn(i, "DLV_GDS_CD");			// 택배상품명
+		var cboFrtDvValue	 			= this.dsList.getColumn(i, "FRT_DV");				// 운임구분
+		var cboFrtCalcDvValue 			= this.dsList.getColumn(i, "FRT_CALC_DV");			// 운임적용구분
+		var edtFrtFrValue 				= this.dsList.getColumn(i, "FRT_FR");				// 운임구간(FROM)
+		var edtFrtToValue	 			= this.dsList.getColumn(i, "FRT_TO");				// 운임구간(TO)
+		var cboFchrgDvValue 			= this.dsList.getColumn(i, "FCHRG_DV");				// 전담구분
+		var mskUpriceValue 				= this.dsList.getColumn(i, "UPRICE");				// 단가
+		var mskUpriceFxratValue 		= this.dsList.getColumn(i, "UPRICE_FXRAT");			// 비례단가
+		var edtCntrItemCdValue 			= this.dsList.getColumn(i, "CNTR_ITEM_CD");			// 계약품목코드
+		var edtCntrItemNmValue 			= this.dsList.getColumn(i, "CNTR_ITEM_NM");			// 계약품목명
+		
+		var edtBranCdValue 				= this.dsList.getColumn(i, "BRAN_CD");			// 대리점코드
+		var edtBranNmValue 				= this.dsList.getColumn(i, "BRAN_NM");			// 대리점명
+		
+		
+		// 기업고객번호
+		if(this.gfnIsNull(this.gfnTrim(edtCustIdValue)) ){
+			this.gfnAlert((i+1)+"행의 기업고객번호를 확인해주세요.");
+			return;
+		}
+		// 협력사코드
+		if(this.gfnIsNull(this.gfnTrim(edtCustMgmtDlcmCdValue)) ){
+			this.gfnAlert((i+1)+"행의 협력사코드를 확인해주세요.");
+			this.dsList.set_rowposition(i);
+			return;
+		}
+		//계약시작일자
+		if(this.gfnIsNull(this.gfnTrim(calCntrStartYmdValue)) ){
+			this.gfnAlert((i+1)+"행의 계약시작일자를 확인해주세요.");
+			this.dsList.set_rowposition(i);
+			return;
+		}
+		/*
+		//계약종료일자
+		if(this.gfnIsNull(this.gfnTrim(calCntrEndYmdValue)) ){
+			this.gfnAlert((i+1)+"행의 계약종료일자를 확인해주세요.");
+			this.dsList.set_rowposition(i);
+			return;
+		}
+		*/
+		//발송구분
+		if(this.gfnIsNull(this.gfnTrim(cboSendDvValue)) ){
+			this.gfnAlert((i+1)+"행의 발송구분을 선택해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.cboSendDv.setFocus();
+			return;
+		}
+		//택배상품명
+		if(this.gfnIsNull(this.gfnTrim(cboDlvGdsCdValue)) ){
+			this.gfnAlert((i+1)+"행의 택배상품명을 선택해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.cboDlvGdsCd.setFocus();
+			return;
+		}
+		//운임구분
+		if(this.gfnIsNull(this.gfnTrim(cboFrtDvValue)) ){
+			this.gfnAlert((i+1)+"행의 운임구분을 선택해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.cboFrtDv.setFocus();
+			return;
+		}
+		//운임적용구분
+		if(this.gfnIsNull(this.gfnTrim(cboFrtCalcDvValue)) ){
+			this.gfnAlert((i+1)+"행의 운임적용구분을 선택해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.cboFrtCalcDv.setFocus();
+			return;
+		}
+		//운임구간(FROM)
+		if(this.gfnIsNull(this.gfnTrim(edtFrtFrValue)) ){
+			this.gfnAlert((i+1)+"행의 운임구간(FROM)을 입력해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.edtFrtFr.setFocus();
+			return;
+		}
+		//운임구간(TO)
+		if(this.gfnIsNull(this.gfnTrim(edtFrtToValue)) ){
+			this.gfnAlert((i+1)+"행의 운임구간(TO)을 입력해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.edtFrtTo.setFocus();
+			return;
+		}
+		//전담구분
+		if(this.gfnIsNull(this.gfnTrim(cboFchrgDvValue)) ){
+			this.gfnAlert((i+1)+"행의 전담구분을 선택해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.cboFchrgDv.setFocus();
+			return;
+		}
+		//대리점코드
+		if(this.gfnIsNull(this.gfnTrim(edtBranCdValue)) ){
+			this.gfnAlert((i+1)+"행의 대리점코드를 입력해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.edtBranCd.setFocus();
+			return;
+		}
+		//대리점명
+		if(this.gfnIsNull(this.gfnTrim(edtBranNmValue)) ){
+			this.gfnAlert((i+1)+"행의 대리점명을 입력해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.edtBranNm.setFocus();
+			return;
+		}
+		//단가
+		if(this.gfnIsNull(this.gfnTrim(mskUpriceValue)) ){
+			this.gfnAlert((i+1)+"행의 단가를 입력해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.mskUprice.setFocus();
+			return;
+		}
+		//비례단가
+		if(this.gfnIsNull(this.gfnTrim(mskUpriceFxratValue)) ){
+			this.gfnAlert((i+1)+"행의 비례단가를 입력해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.mskUpriceFxrat.setFocus();
+			return;
+		}
+		
+		//계약품목코드
+		if(this.gfnIsNull(this.gfnTrim(edtCntrItemCdValue)) ){
+			this.gfnAlert((i+1)+"행의 계약품목코드를 입력해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.edtCntrItemCd.setFocus();
+			return;
+		}
+		
+		//계약품목명
+		if(this.gfnIsNull(this.gfnTrim(edtCntrItemNmValue)) ){
+			this.gfnAlert((i+1)+"행의 계약품목명을 입력해주세요.");
+			this.dsList.set_rowposition(i);
+			divFm.edtCntrItemNm.setFocus();
+			return;
+		}
+
+	}
+	
+	/****************************************************************************************************/
+	
+	
+	if(!this.gfnConfirm("저장하시겠습니까?")) return;
+	
+	
+	
+	// 트랜잭션 호출 (저장)
+	this.gfnTransaction("saveItemPerCntrUpriceInfo");
+	
+
+};
+
+
+
+
+/***********************************************************************************************
+ * @function		: fnPopOpen
+ * @description		: 팝업 화면 오픈
+ * @param 			: obj	- Button object
+ * @param 			: e		- Button event 
+ * @return 			: N/A
+***********************************************************************************************/
+this.fnOpenPop = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var btnName		= obj.name;
+	
+	switch(btnName)
+	{
+		case "btnSearchBran" : this.fnOpenPopBran(); break;
+		case "btnSearchCntrItem" : this.fnOpenPopCntrItem(); break;
+		
+		
+		default 		: 	break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnOpenPopBran
+ * @description	: 점소 조회 팝업을 호출한다.
+ * @param		: 
+ * @return N/A
+/***********************************************************************************************/
+this.fnOpenPopBran = function()
+{
+	// 파라미터 설정
+	var popupId = 'popSearchBran';	//팝업ID
+	var pBranCdValue = divFm.edtBranCd.value;	// 점소코드
+	var pBranNmValue = '';	// 점소명
+
+	// 팝업 호출
+	var oArg = {
+				  pBranCd       : pBranCdValue									// 점소코드
+				, pBranNm       : pBranNmValue  								// 점소명
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_BAIM_P010.xfdl", oArg, sPopupCallBack, oOption);
+}
+
+
+/***********************************************************************************************
+ * @function	: fnOpenPopCntrItem
+ * @description	: 계약품목 조회 팝업을 호출한다.
+ * @param		: 
+ * @return N/A
+/***********************************************************************************************/
+this.fnOpenPopCntrItem = function()
+{
+	// 파라미터 설정
+	var popupId = 'popSearchCntrItem';	//팝업ID
+	var pCustIdValue = divFm.edtCustId.value;					// 기업고객번호
+	var pCustMgmtDlcmCdValue = divFm.edtCustMgmtDlcmCd.value;	// 협력사코드
+	var pCntrStartYmdValue = divFm.calCntrStartYmd.value;		// 계약시작일자
+	var pCntrItemCdValue = divFm.edtCntrItemCd.value;			// 품목코드
+	var pCntrItemNmValue = divFm.edtCntrItemNm.value;			// 품목명
+
+	// 팝업 호출
+	var oArg = {
+				  pCustId 			: pCustIdValue								// 기업고객번호
+				, pCustMgmtDlcmCd   : pCustMgmtDlcmCdValue						// 협력사코드
+				, pCntrStartYmd   	: pCntrStartYmdValue						// 계약시작일자
+				, pCntrItemCd   : pCntrItemCdValue								// 품목코드
+				, pCntrItemNm   : pCntrItemNmValue  							// 품목명
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_BAIM_P050.xfdl", oArg, sPopupCallBack, oOption);
+}
+
+
+
+
+
+/***********************************************************************************************
+ * @function	: fnPopupCallBack
+ * @description	: popup Callback
+ * @param		: popupId	- String
+ * @param		: dsObj		- nexacro.NormalDataset
+ * @return N/A
+ ***********************************************************************************************/
+this.fnPopupCallback = function(sPopupId, dsObj)
+{
+	//trace("[fnPopupCallback()] sPopupId["+sPopupId+"] rtnMsg["+JSON.stringify(rtnObj)+"]");
+
+
+	switch(sPopupId) {
+
+		case "popSearchBran" :
+			divFm.edtBranCd.set_value(dsObj.getColumn(0, "BRAN_CD"));
+			divFm.edtBranNm.set_value(dsObj.getColumn(0, "BRAN_NM"));
+		break;
+
+		
+		case "popSearchCntrItem" :
+			divFm.edtCntrItemCd.set_value(dsObj.getColumn(0, "CNTR_ITEM_CD"));
+			divFm.edtCntrItemNm.set_value(dsObj.getColumn(0, "CNTR_ITEM_NM"));
+		break;
+		
+
+		
+		
+		
+		default :
+		break;
+	}
+};
+
+
+
+ 
+ /************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+/**
+ * @description popup close
+*/
+this.btnClose_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.close();
+};
+
+
+
+/***********************************************************************************************
+ * @function	: gridCellDbClick
+ * @description	: button onClick event
+ * @param		: obj	- nexacro.Grid
+ * @param		: e		- nexacro.GridClickEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.gridCellDbClick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var row = e.row;
+	if( row !== -1 ) {
+		// return dataSet 초기화
+		this.fnReturnClose(row);
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnReturnClose
+ * @description	: 
+ * @param		: obj	- nexacro.Edit
+ * @return N/A
+/***********************************************************************************************/
+this.fnReturnClose = function(row:Number) {
+
+	if( row !== -1 ) {
+		// return dataSet 초기화
+		this.dsResult.clearData();
+		this.dsResult.copyRow(this.dsResult.addRow(), this.dsList, row);
+		
+		var json = {
+			ds : this.dsResult.saveXML(),
+			callFn : this.getOwnerFrame().callbackFn
+		}
+		  
+		this.close(JSON.stringify(json));
+	}
+}
+
+
+/***********************************************************************************************
+ * @function	: btnOnClick
+ * @description	: 버튼이벤트 제어
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		// 조회
+		case "btnSearch" : 
+			this.fnSearch();	
+		break;
+		
+		// 신규
+		case "btnAdd" : 
+			this.fnAdd();	
+		break;
+		
+		
+		// 저장
+		case "btnSave" :
+			this.fnSave();
+		break;
+		
+		default :	
+		break;
+	}
+};
+
+
+
+this.edtBranCd_onkeydown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	if(e.keycode == 13){
+		obj.updateToDataset();	// 데이터셋에 변경값 적용.
+		this.fnSearch();
+	}
+};
+
+
+
+
+this.div02_grid_oncellposchanged = function(obj:nexacro.Grid,e:nexacro.GridSelectEventInfo)
+{
+
+	this.fnSetEnableComp(e.row)
+
+};
+
+
+
+/***********************************************************************************************
+ * @function	: editOnKeyDown
+ * @description	: edit onkeydown
+ * @param		: obj	- nexacro.Edit
+ * @param		: e		- nexacro.KeyEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnEditOnKeyDown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	var objName = obj.name;
+	
+	if( e.keycode === 13 ) {
+	
+		obj.updateToDataset();
+		switch( objName ) {
+			case	'edtCntrItemCd' : divFm.btnSearchCntrItem.click(); break;
+			case	'edtCntrItemNm' : divFm.btnSearchCntrItem.click(); break;
+			
+			case	'edtCntrEmp' : divFm.btnSearchEmp1.click(); break;
+			case	'edtMgmtEmp' : divFm.btnSearchEmp2.click(); break;
+			
+			default	: 	break;
+		}
+	}
+	else{
+		switch( objName ) {
+			case	'edtCntrItemCd' : divFm.edtCntrItemNm.set_value(''); break;
+			case	'edtCntrItemNm' : divFm.edtCntrItemCd.set_value(''); break;
+			
+			case	'edtCntrEmp' : divFm.edtCntrEmpNm.set_value(''); break;
+			case	'edtMgmtEmp' : divFm.edtMgmtEmpNm.set_value(''); break;
+			default		: 	break;
+		}
+	}
+};
+
+
+]]></Script>
+    <Objects>
+      <Dataset id="dsSearch" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="CUST_ID" size="256" type="STRING"/>
+          <Column id="CUST_NM" type="STRING" size="256"/>
+          <Column id="CUST_MGMT_DLCM_CD" type="STRING" size="256"/>
+          <Column id="CUST_MGMT_DLCM_NM" type="STRING" size="256"/>
+          <Column id="SEND_CUST_NO" type="STRING" size="256"/>
+          <Column id="SEND_CUST_NM" type="STRING" size="256"/>
+          <Column id="CNTR_START_YMD" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsList">
+        <ColumnInfo>
+          <Column id="CUST_ID" size="256" type="STRING"/>
+          <Column id="CUST_NM" size="256" type="STRING"/>
+          <Column id="CUST_MGMT_DLCM_CD" type="STRING" size="256"/>
+          <Column id="CUST_MGMT_DLCM_NM" type="STRING" size="256"/>
+          <Column id="SEND_CUST_NO" type="STRING" size="256"/>
+          <Column id="SEND_CUST_NM" type="STRING" size="256"/>
+          <Column id="CNTR_START_YMD" type="STRING" size="256"/>
+          <Column id="CNTR_END_YMD" type="STRING" size="256"/>
+          <Column id="DLV_GDS_CD" type="STRING" size="256"/>
+          <Column id="DATA_DV_CD" type="STRING" size="256"/>
+          <Column id="ZN_DV" type="STRING" size="256"/>
+          <Column id="SEND_DV" type="STRING" size="256"/>
+          <Column id="FRT_DV" type="STRING" size="256"/>
+          <Column id="CNTR_ITEM_CD" type="STRING" size="256"/>
+          <Column id="CNTR_ITEM_NM" type="STRING" size="256"/>
+          <Column id="BOX_TYPE_CD" type="STRING" size="256"/>
+          <Column id="FRT_CALC_DV" type="STRING" size="256"/>
+          <Column id="FRT_FR" type="STRING" size="256"/>
+          <Column id="FRT_TO" type="STRING" size="256"/>
+          <Column id="UPRICE_FXRAT" type="STRING" size="256"/>
+          <Column id="FCHRG_DV" type="STRING" size="256"/>
+          <Column id="BRAN_CD" type="STRING" size="256"/>
+          <Column id="BRAN_NM" type="STRING" size="256"/>
+          <Column id="UPRICE" type="STRING" size="256"/>
+          <Column id="AIR_RATE_UPRICE" type="STRING" size="256"/>
+          <Column id="HANDLE_FRT" type="STRING" size="256"/>
+          <Column id="INSTALL_CHRG" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="OUT_DATASET_LIST">dsFchrgDv=ds1 dsSendDv=ds2 dsDlvGdsCd=ds3 dsFrtDv=ds4 dsZnDv=ds5 dsFrtCalcDv=ds6</Col>
+            <Col id="QUERY_LIST">q1=MS045 q2=CS008 q3=CS010 q4=CS006 q5=CS029 q6=CS016</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getItemPerCntrUpriceInfoList</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="OUT_DATASET_LIST">dsList=ds1</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">baimItemPerCntrUpriceMgmtService</Col>
+            <Col id="SERVICE_METHOD">getItemPerCntrUpriceInfoList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">saveItemPerCntrUpriceInfo</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">baimItemPerCntrUpriceMgmtService</Col>
+            <Col id="SERVICE_METHOD">saveItemPerCntrUpriceInfo</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="IN_DATASET_LIST">dsSave=dsList:U</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsSendDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">01</Col>
+            <Col id="CD_NM">발송구분1</Col>
+          </Row>
+          <Row>
+            <Col id="CD">02</Col>
+            <Col id="CD_NM">발송구분2</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsDlvGdsCd">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">01</Col>
+            <Col id="CD_NM">상품명1</Col>
+          </Row>
+          <Row>
+            <Col id="CD">02</Col>
+            <Col id="CD_NM">상품명2</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsFrtDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">01</Col>
+            <Col id="CD_NM">운임구분1</Col>
+          </Row>
+          <Row>
+            <Col id="CD">02</Col>
+            <Col id="CD_NM">운임구분2</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsZnDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">01</Col>
+            <Col id="CD_NM">권역구분1</Col>
+          </Row>
+          <Row>
+            <Col id="CD">02</Col>
+            <Col id="CD_NM">권역구분2</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsFrtCalcDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">01</Col>
+            <Col id="CD_NM">운임적용구분1</Col>
+          </Row>
+          <Row>
+            <Col id="CD">02</Col>
+            <Col id="CD_NM">운임적용구분2</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsFchrgDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">01</Col>
+            <Col id="CD_NM">전담구분1</Col>
+          </Row>
+          <Row>
+            <Col id="CD">02</Col>
+            <Col id="CD_NM">전담구분2</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsList_empty">
+        <ColumnInfo>
+          <Column id="CUST_ID" size="256" type="STRING"/>
+          <Column id="CUST_NM" size="256" type="STRING"/>
+          <Column id="CUST_MGMT_DLCM_CD" type="STRING" size="256"/>
+          <Column id="CUST_MGMT_DLCM_NM" type="STRING" size="256"/>
+          <Column id="SEND_CUST_NO" type="STRING" size="256"/>
+          <Column id="SEND_CUST_NM" type="STRING" size="256"/>
+          <Column id="CNTR_START_YMD" type="STRING" size="256"/>
+          <Column id="CNTR_END_YMD" type="STRING" size="256"/>
+          <Column id="DLV_GDS_CD" type="STRING" size="256"/>
+          <Column id="DATA_DV_CD" type="STRING" size="256"/>
+          <Column id="ZN_DV" type="STRING" size="256"/>
+          <Column id="SEND_DV" type="STRING" size="256"/>
+          <Column id="FRT_DV" type="STRING" size="256"/>
+          <Column id="CNTR_ITEM_CD" type="STRING" size="256"/>
+          <Column id="CNTR_ITEM_NM" type="STRING" size="256"/>
+          <Column id="BOX_TYPE_CD" type="STRING" size="256"/>
+          <Column id="FRT_CALC_DV" type="STRING" size="256"/>
+          <Column id="FRT_FR" type="STRING" size="256"/>
+          <Column id="FRT_TO" type="STRING" size="256"/>
+          <Column id="UPRICE_FXRAT" type="STRING" size="256"/>
+          <Column id="FCHRG_DV" type="STRING" size="256"/>
+          <Column id="BRAN_CD" type="STRING" size="256"/>
+          <Column id="BRAN_NM" type="STRING" size="256"/>
+          <Column id="UPRICE" type="STRING" size="256"/>
+          <Column id="AIR_RATE_UPRICE" type="STRING" size="256"/>
+          <Column id="HANDLE_FRT" type="STRING" size="256"/>
+          <Column id="INSTALL_CHRG" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item2" compid="edtCustId_sc" propid="value" datasetid="dsSearch" columnid="CUST_ID"/>
+      <BindItem id="item3" compid="edtCustNm_sc" propid="value" datasetid="dsSearch" columnid="CUST_NM"/>
+      <BindItem id="item4" compid="edtCustMgmtDlcmCd_sc" propid="value" datasetid="dsSearch" columnid="CUST_MGMT_DLCM_CD"/>
+      <BindItem id="item10" compid="div01.form.cboSendDv" propid="value" datasetid="dsList" columnid="SEND_DV"/>
+      <BindItem id="item11" compid="div01.form.cboDlvGdsCd" propid="value" datasetid="dsList" columnid="DLV_GDS_CD"/>
+      <BindItem id="item12" compid="div01.form.cboFrtDv" propid="value" datasetid="dsList" columnid="FRT_DV"/>
+      <BindItem id="item13" compid="div01.form.cboZnDv" propid="value" datasetid="dsList" columnid="ZN_DV"/>
+      <BindItem id="item14" compid="div01.form.cboFrtCalcDv" propid="value" datasetid="dsList" columnid="FRT_CALC_DV"/>
+      <BindItem id="item15" compid="div01.form.edtCntrItemCd" propid="value" datasetid="dsList" columnid="CNTR_ITEM_CD"/>
+      <BindItem id="item16" compid="div01.form.edtCntrItemNm" propid="value" datasetid="dsList" columnid="CNTR_ITEM_NM"/>
+      <BindItem id="item17" compid="div01.form.cboFchrgDv" propid="value" datasetid="dsList" columnid="FCHRG_DV"/>
+      <BindItem id="item18" compid="div01.form.edtBranCd" propid="value" datasetid="dsList" columnid="BRAN_CD"/>
+      <BindItem id="item19" compid="div01.form.edtBranNm" propid="value" datasetid="dsList" columnid="BRAN_NM"/>
+      <BindItem id="item20" compid="div01.form.mskUprice" propid="value" datasetid="dsList" columnid="UPRICE"/>
+      <BindItem id="item21" compid="div01.form.mskAirRateUprice" propid="value" datasetid="dsList" columnid="AIR_RATE_UPRICE"/>
+      <BindItem id="item22" compid="div01.form.mskUpriceFxrat" propid="value" datasetid="dsList" columnid="UPRICE_FXRAT"/>
+      <BindItem id="item23" compid="div01.form.edtFrtFr" propid="value" datasetid="dsList" columnid="FRT_FR"/>
+      <BindItem id="item24" compid="div01.form.edtFrtTo" propid="value" datasetid="dsList" columnid="FRT_TO"/>
+    </Bind>
+  </Form>
+</FDL>

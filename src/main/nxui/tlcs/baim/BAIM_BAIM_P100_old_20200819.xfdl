@@ -1,0 +1,583 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form cssclass="bg_pop01" height="600" id="BAIM_BAIM_P100" titletext="주소 검색" width="910" onload="form_onload">
+    <Layouts>
+      <Layout description="" height="600" width="910">
+        <Static cssclass="pop_tit_txt01" domainId="T1310" height="30" id="staTitle" left="15" taborder="6" text="주소 검색" top="0" width="435"/>
+        <Static background="#ffffff" bottom="2" id="sta00" left="2" right="2" taborder="7" top="34"/>
+        <Grid autoenter="select" autofittype="col" autosizebandtype="body" binddataset="dsList" bottom="20" cellsizingtype="col" cssclass="tb_ty01" id="grdList" left="15" oncelldblclick="gridCellDbClick" right="15" taborder="8" top="120">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="23"/>
+                <Column size="330"/>
+                <Column size="120"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" accessibilitydescription="T1261" text="주소"/>
+                <Cell col="2" accessibilitydescription="T0710" text="우편번호"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1" textAlign="right"/>
+                <Cell col="1" suppress="1" textAlign="left" text="bind:ADDR"/>
+                <Cell col="2" textAlign="center" text="bind:ZIP_NO"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static cssclass="top_search_ty01" height="74" id="staSearchArea" left="0" right="0" taborder="9" top="34"/>
+        <Static cssclass="top_search_tx01" domainId="T1260" height="23" id="staUserNm" left="15" taborder="10" text="시도" top="43" width="75"/>
+        <Button cssclass="btn_ty01_search" domainId="T0877" height="23" id="btnSearch" onclick="btnOnClick" right="86" taborder="5" text="조회" top="73" width="68"/>
+        <Static cssclass="top_search_tx01" domainId="T1258" height="23" id="staUserNm00" left="185" taborder="11" text="시군구" top="43" width="75"/>
+        <Static cssclass="top_search_tx01" domainId="T1312" height="23" id="staUserNm01" left="356" taborder="12" text="읍면동" top="43" width="75"/>
+        <Button cssclass="btn_pop_img_close" enable="true" fittocontents="none" height="22" id="btnClose" right="10" taborder="13" top="7" visible="true" width="22" onclick="btnClose_onclick"/>
+        <Static cssclass="top_search_tx01" domainId="T1312" height="23" id="staUserNm01_00" left="15" taborder="14" text="구분" top="73" width="75"/>
+        <Combo displayrowcount="20" height="20" id="cboZipAddrDv" left="53" taborder="3" text="cbo00" top="74" width="107" innerdataset="dsZipAddrDv" codecolumn="CD" datacolumn="CD_NM"/>
+        <Static cssclass="top_search_tx01" domainId="T1312" height="23" id="staUserNm01_01" left="356" taborder="15" text="주소지" top="73" width="75"/>
+        <Edit autoselect="true" height="20" id="edtDetailAddr" left="404" onkeydown="fnEditOnKeyDown" taborder="4" top="74" width="214"/>
+        <Combo displayrowcount="20" height="20" id="cboSkk" left="246" taborder="1" text="cbo00" top="44" width="85" innerdataset="dsSkk" codecolumn="CD" datacolumn="CD_NM" type="filterlike" onitemchanged="fnChangeBjdongComp"/>
+        <Combo displayrowcount="20" height="20" id="cboEmdong" left="404" taborder="2" text="cbo00" top="44" width="85" innerdataset="dsEmdong" codecolumn="CD" datacolumn="CD_NM" type="filterlike"/>
+        <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" displayrowcount="20" height="20" id="cboSido" innerdataset="dsSido" left="53" taborder="0" top="44" type="filterlike" width="107" onitemchanged="fnChangeBjdongComp"/>
+        <Button cssclass="btn_ty04" domainId="T0683" fittocontents="none" height="23" id="btnChoice" onclick="btnOnClick" taborder="16" text="선택" width="67" right="14" top="73"/>
+        <Static cssclass="top_search_tx01" domainId="T1258" height="23" id="staUserNm00_00" left="185" taborder="17" text="우편번호" top="73" width="75"/>
+        <MaskEdit id="mskZipNo" taborder="18" left="246" top="74" width="85" height="20" cssclass="inp_ty01" format="###'-'###" type="string"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  우편번호 주소 조회
+*  @MenuPath       	
+*  @FileName 		BAIM_BAIM_P100.xfdl
+*  @Creator 		Kim Jin Hwan
+*  @CreateDate 		2020.02.12
+*  @Desction        우편번호 주소 조회
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.02.12		Kim Jin Hwan			최초 생성
+************************************************************************************************
+*/
+
+/************************************************************************************************
+* include 선언부																				*
+ ************************************************************************************************/
+include "lib::lib_Form.xjs";
+
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+this.objApp;
+ 
+ 
+ /***********************************************************************************************
+ * @function: form_onload
+ * @description: FORM 온로드
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	// 초기화
+	this.fnInit();
+	
+	
+	// 우편번호, 주소지 둘중 하나라도 있으면 조회처리.
+	var mskZipNoValue = this.mskZipNo.value;
+	var edtDetailAddrValue = this.edtDetailAddr.value;
+	
+	if( !this.gfnIsNull(mskZipNoValue) || !this.gfnIsNull(edtDetailAddrValue) ){
+		this.fnSearch();
+	}
+};
+
+
+ /***********************************************************************************************
+ * @function	: form_onload
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnInit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	// 공통코드조회
+	//this.gfnTransaction("commonCode");
+	
+	// 주소구분
+	this.cboZipAddrDv.set_index(0);
+	
+	
+	// 시도 리스트 조회
+	this.gfnTransaction("getSidoList");
+	
+	
+	// 주소지 포커스
+	this.edtDetailAddr.setFocus();
+	
+	
+	// 조회조건 셋팅
+	this.dsSearch.setColumn(0, "ZIP_NO", this.getOwnerFrame().pZipNo);
+	this.dsSearch.setColumn(0, "DETAIL_ADDR", this.getOwnerFrame().pAddr);
+	this.dsSearch.setColumn(0, "ZIP_ADDR_DV", this.gfnIsNull(this.getOwnerFrame().pZipAddrDv)?"01":this.getOwnerFrame().pZipAddrDv);
+};
+
+
+/***********************************************************************************************
+ * @function	: btnOnClick
+ * @description	: 버튼이벤트 제어
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		// 조회
+		case "btnSearch" : 
+			this.fnSearch();	
+		break;
+		
+		
+		// 초기화
+		case "btnReset" :
+			this.fnInit();
+		break;
+		
+		// 선택
+		case "btnChoice" :
+			this.fnChoise();
+		break;
+		
+		default :	
+		break;
+	}
+};
+
+
+this.fnChoise = function()
+{
+	var row = this.dsList.rowposition;
+	if( row !== -1 ) {
+		// return dataSet 초기화
+		this.fnReturnClose(row);
+	}
+}
+
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 우편번호 주소 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearch = function() {
+	var cboSidoValue = this.cboSido.value;		//시도
+	var cboSkkValue = this.cboSkk.value;		//시군구
+	var cboEmdongValue = this.cboEmdong.value;	//읍면동
+	var cboZipAddrDvValue = this.cboZipAddrDv.value;	//주소구분
+	var edtDetailAddrValue = this.edtDetailAddr.value;	//주소지
+	var mskZipNoValue = this.mskZipNo.value;	//우편번호
+	
+	// 조회조건 필수입력 체크
+	/*if(this.gfnIsNull(cboSidoValue)){
+		this.gfnAlert("조회조건의 시도를 입력해주세요.");
+		this.cboSido.setFocus();
+		return;
+	}
+	if(this.gfnIsNull(cboSkkValue)){
+		this.gfnAlert("조회조건의 시군구를 입력해주세요.");
+		this.cboSkk.setFocus();
+		return;
+	}
+	if(this.gfnIsNull(cboEmdongValue)){
+		this.gfnAlert("조회조건의 읍면동을 입력해주세요.");
+		this.cboEmdong.setFocus();
+		return;
+	}*/
+	
+	if(this.gfnIsNull(edtDetailAddrValue) && this.gfnIsNull(mskZipNoValue)){
+		this.gfnAlert("조회조건의 우편번호 또는 주소지를 입력해주세요.");
+		this.edtDetailAddr.setFocus();
+		return;
+	}
+
+
+	// 우편번호 빈칸제거
+	if(!this.gfnIsNull(mskZipNoValue)){
+		this.dsSearch.setColumn(0, "ZIP_NO", this.gfnAllTrim(this.dsSearch.getColumn(0, "ZIP_NO")));
+	}
+	
+	
+	this.gfnTransaction("getZipAddrInfoList");
+
+};
+
+
+
+
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	trace("[fnCallback()] svcID["+svcID+"] errorCode["+errorCode+"] errorMsg["+errorMsg+"]");
+	
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+		return;
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+		
+			// 컴포넌트 초기화
+			this.fnCompInit();
+
+		break;
+		
+		// 시도 리스트 조회
+		case "getSidoList" :
+			// 시도
+			this.fnAddCodeDef(this.dsSido, "전체");
+			this.cboSido.set_index(0);
+		
+		break;
+		
+		
+		// 시군구 리스트 조회
+		case "getSkkList" :
+			
+			// 시도
+			this.fnAddCodeDef(this.dsSkk, "전체");
+			this.cboSkk.set_index(0);
+			
+		break;
+		
+		
+		// 읍면동 리스트 조회
+		case "getEmdongList" :
+			
+			// 시도
+			this.fnAddCodeDef(this.dsEmdong, "전체");
+			this.cboEmdong.set_index(0);
+			
+		break;
+		
+		
+		// 조회
+		case "getZipAddrInfoList" :
+			this.grdList.setFocus();
+		
+		break;
+		
+		
+		default :
+		break;
+	}
+};
+
+/***********************************************************************************************
+ * @function	: fnPopupCallBack
+ * @description	: popup Callback
+ * @param		: popupId	- String
+ * @param		: dsObj		- nexacro.NormalDataset
+ * @return N/A
+ ***********************************************************************************************/
+this.fnPopupCallback = function(sPopupId, rtnObj)
+{
+	trace("[fnPopupCallback()] sPopupId["+sPopupId+"] rtnMsg["+JSON.stringify(rtnObj)+"]");
+
+	switch(sPopupId) {
+		case "recommandedPopup" :
+			if(rtnObj.result == true) {
+				this.fnSearch();
+			}
+		break;
+		
+		case "vhclSearchPopup" :
+			if(!this.gfnIsEmpty(rtnMsg.result)) {
+				this.fnSearch();
+			}
+		break;
+	
+		default :
+		break;
+	}
+};
+
+
+
+/***********************************************************************************************
+* USER FUNCTION
+***********************************************************************************************/
+/***********************************************************************************************
+ * @function: fnCompInit
+ * @description: 컴포넌트 초기화 함수.
+ * @param  N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnCompInit = function()
+{
+	
+}
+
+
+ /************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+this.btnClose_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.close();
+};
+
+
+/***********************************************************************************************
+ * @function	: gridCellDbClick
+ * @description	: button onClick event
+ * @param		: obj	- nexacro.Grid
+ * @param		: e		- nexacro.GridClickEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.gridCellDbClick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var row = e.row;
+	if( row !== -1 ) {
+		// return dataSet 초기화
+		this.fnReturnClose(row);
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnReturnClose
+ * @description	: 
+ * @param		: row	- Number
+ * @return N/A
+/***********************************************************************************************/
+this.fnReturnClose = function(row:Number) {
+
+	if( row !== -1 ) {
+		// return dataSet 초기화
+		this.dsResult.clearData();
+		this.dsResult.copyRow(this.dsResult.addRow(), this.dsList, row);
+		
+		var json = {
+			ds : this.dsResult.saveXML(),
+			callFn : this.getOwnerFrame().callbackFn
+		}
+		  
+		this.close(JSON.stringify(json));
+	}
+}
+
+
+
+/***********************************************************************************************
+ * @function	: fnAfterCodeDef
+ * @description	: 코드조회후 선택,전체 추가
+ * @param		: dsObj	- Dataset Object
+ * @param       : strText - String
+ * @return N/A
+/***********************************************************************************************/
+this.fnAddCodeDef = function(dsObj:nexacro.NormalDataset, strText:String) {
+
+	dsObj.insertRow();
+	dsObj.setColumn(0,'CD','');
+	dsObj.setColumn(0,'CD_NM', strText);
+}
+
+
+
+this.fnEditOnKeyDown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	if( e.keycode === 13 ) {
+		obj.updateToDataset();
+		this.fnSearch();
+	}
+};
+
+
+ /***********************************************************************************************
+ * @function		: fnChangeBjdongComp
+ * @description		: 법정동 컴포넌트 변경시 발생 이벤트
+ * @param			: obj 	- Combo object
+ * @param			: e 	- Combo event
+ * @return 			: N/A
+***********************************************************************************************/
+this.fnChangeBjdongComp = function(obj:nexacro.Combo,e:nexacro.ItemChangeEventInfo)
+{
+	obj.updateToDataset();
+	
+	// 시도
+	if(obj.name == "cboSido"){
+		
+		this.dsSkk.clearData();
+		this.dsEmdong.clearData();
+		
+		// 시도를 "전체"로 시군구 조회 X.
+		if( this.gfnIsNull(e.postvalue) ){
+			return;
+		}
+	
+		// 시군구 리스트 조회
+		this.gfnTransaction("getSkkList");
+	}
+	// 시군구
+	else if(obj.name == "cboSkk"){
+		
+		this.dsEmdong.clearData();
+		
+		// 시군구를 "전체"로 변경시 읍면동 리스트 조회 X.
+		if( this.gfnIsNull(e.postvalue) ){
+			return;
+		}
+	
+		// 읍면동 리스트 조회
+		this.gfnTransaction("getEmdongList");
+		
+	}
+	
+};
+
+]]></Script>
+    <Objects>
+      <Dataset id="dsSearch" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SIDO_NM" type="STRING" size="256"/>
+          <Column id="SKK_NM" type="STRING" size="256"/>
+          <Column id="EMDONG_NM" type="STRING" size="256"/>
+          <Column id="ZIP_ADDR_DV" type="STRING" size="256"/>
+          <Column id="DETAIL_ADDR" type="STRING" size="256"/>
+          <Column id="ZIP_NO" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">getZipAddrInfoList</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsList=dsList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getZipAddrInfoList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getSidoList</Col>
+            <Col id="OUT_DATASET_LIST">dsSido=dsList</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="IN_DATASET_LIST"/>
+            <Col id="SERVICE_METHOD">getSidoList</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getSkkList</Col>
+            <Col id="OUT_DATASET_LIST">dsSkk=dsList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getSkkList</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getEmdongList</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsEmdong=dsList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getEmdongList</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsList" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="ADDR" size="100" type="STRING"/>
+          <Column id="ZIP_NO" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsZipAddrDv">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">01</Col>
+            <Col id="CD_NM">지번</Col>
+          </Row>
+          <Row>
+            <Col id="CD">02</Col>
+            <Col id="CD_NM">도로명</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsResult">
+        <ColumnInfo>
+          <Column id="ADDR" size="256" type="STRING"/>
+          <Column id="ZIP_NO" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSido">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="256"/>
+          <Column id="CD_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSkk">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="256"/>
+          <Column id="CD_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsEmdong">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="256"/>
+          <Column id="CD_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="cboSido" propid="value" datasetid="dsSearch" columnid="SIDO_NM"/>
+      <BindItem id="item1" compid="cboSkk" propid="value" datasetid="dsSearch" columnid="SKK_NM"/>
+      <BindItem id="item2" compid="cboEmdong" propid="value" datasetid="dsSearch" columnid="EMDONG_NM"/>
+      <BindItem id="item3" compid="cboZipAddrDv" propid="value" datasetid="dsSearch" columnid="ZIP_ADDR_DV"/>
+      <BindItem id="item4" compid="edtDetailAddr" propid="value" datasetid="dsSearch" columnid="DETAIL_ADDR"/>
+      <BindItem id="item5" compid="mskZipNo" propid="value" datasetid="dsSearch" columnid="ZIP_NO"/>
+    </Bind>
+  </Form>
+</FDL>

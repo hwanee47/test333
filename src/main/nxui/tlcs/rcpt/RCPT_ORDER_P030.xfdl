@@ -1,0 +1,1083 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form cssclass="bg_pop01" height="710" id="RCPT_ORDER_P010" onload="form_onload" titletext="엑셀업로드 양식 선택" width="430" oninit="form_oninit">
+    <Layouts>
+      <Layout description="" height="710" width="430">
+        <Static bottom="0" cssclass="pop_cont" id="sta00" left="0" right="0" taborder="5" top="34" text=""/>
+        <Static cssclass="top_search_ty01" height="72" id="stSearch" left="0" onclick="divSearch_staSearch_onclick" right="0" taborder="11" text="" top="35"/>
+        <Static cssclass="pop_tit_txt01" domainId="T0167" height="34" id="sta01" left="15" taborder="4" text="엑셀업로드 양식 선택" top="0" width="195"/>
+        <Button cssclass="btn_pop_img_close" height="22" id="btnClose00" onclick="btnClose_onclick" right="15" taborder="6" top="5" width="22" text=""/>
+        <Grid autoenter="select" autofittype="none" cellsizingtype="none" id="grdCustom" taborder="7" top="181" scrolltype="vertical" background="(bottomatbottombottom,bottom,bottom) aqua" selecttype="row" bottom="20" left="22" width="378" scrollbartype="none fixed" binddataset="dsExcelForm">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="365"/>
+              </Columns>
+              <Rows>
+                <Row size="24"/>
+              </Rows>
+              <Band id="body">
+                <Cell text="bind:COL_NM"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static cssclass="in_tit01" domainId="T0198" id="stTitle00" left="22" taborder="8" text="엑셀양식" top="140" width="100" height="50"/>
+        <Static id="sta02" taborder="9" text="선택" left="356" top="162" width="43" height="16" textAlign="center" font="bold 11px/normal &quot;나눔고딕&quot;" border="1px solid #c7c7c7"/>
+        <Static id="sta02_00" taborder="10" text="필수" left="313" top="162" width="43" height="16" background="#5a7db6" textAlign="center" font="bold 11px/normal &quot;나눔고딕&quot;" color="#ffffff"/>
+        <Static cssclass="top_search_tx01" domainId="T1075" height="23" id="staDropLoc00" left="25" taborder="0" text="고객" top="44" width="45"/>
+        <Edit id="edtCustId_sc" taborder="1" left="72" top="44" width="90" height="23" cssclass="inp_ty01_req" onkeydown="fnEditOnKeyDown" inputmode="upper" inputtype="normal"/>
+        <Button id="btnCustSearch" taborder="2" left="162" top="44" height="23" width="25" cssclass="btn_search01" onclick="fnPopOpen"/>
+        <Edit id="edtCustNm_sc" taborder="3" left="186" top="44" width="130" height="23" enable="true" cssclass="inp_ty01_req" onkeydown="fnEditOnKeyDown"/>
+        <Static cssclass="top_search_tx01" domainId="T1075" height="23" id="staDropLoc00_00" left="25" taborder="12" text="양식" top="76" width="45"/>
+        <Combo autoselect="true" codecolumn="XLS_FRM_NM" datacolumn="XLS_FRM_NM" displayrowcount="6" height="23" id="cboXlsFrmNm_sc" index="-1" taborder="13" top="76" type="dropdown" value="ko" visible="true" width="188" left="72" cssclass="sel_ty01_req" innerdataset="dsXlsFrmNm" onitemchanged="cboXlsFrmNm_sc_onitemchanged"/>
+        <Button cssclass="btn_ty04" domainId="T0672" fittocontents="none" height="23" id="btnOk" onclick="btnOnClick" taborder="14" text="확인" width="68" left="351" top="76"/>
+        <Grid autoenter="select" autofittype="none" autosizebandtype="body" autosizingtype="none" bottom="-270" cellsizingtype="col" cssclass="tb_ty01" id="grdExcel" left="6" taborder="15" top="845" visible="false" width="245.12%" binddataset="ds00">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="0"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:NO"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static domainId="T0198" height="31" id="stTitle01" left="80" taborder="16" text="※ 업로드할 양식을 선택해주세요!" top="120" width="270" font="normal 700 15px/normal &quot;나눔고딕&quot;" color="#004473" textAlign="center"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  주문접수 엑셀 양식 변경
+*  @MenuPath        
+*  @FileName 		RCPT_ORDER_P010.xfdl
+*  @Creator 		Kim Jin Hwan
+*  @CreateDate		2020.05.07
+*  @Desction        주문접수 엑셀 양식 변경 팝업
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.05.07		Kim Jin Hwan			최초 생성
+************************************************************************************************
+*/
+
+ include "lib::lib_Form.xjs";
+ 
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+var objUserProperty;
+
+
+
+/***********************************************************************************************
+* FORM EVENT 영역(onload)
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	// 초기화
+	this.fnInit();
+	
+	
+};
+
+
+/***********************************************************************************************
+ * @function	: forOninit
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.form_oninit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication();
+	
+	// 조회조건 셋팅
+	this.dsSearch.setColumn(0, "CUST_ID", this.getOwnerFrame().pCustId);
+	this.dsSearch.setColumn(0, "CUST_NM", this.getOwnerFrame().pCustNm);
+	
+
+};
+
+
+ /***********************************************************************************************
+ * @function	: form_onload
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnInit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+
+	// 저장된 양식 리스트 조회
+	this.fnSearchXlsFrmList();
+	
+	
+	
+	// 조회
+	//this.fnSearch();
+	
+};
+
+
+/************************************************************************************************
+* TRANSACTION 서비스 호출 처리
+************************************************************************************************/
+/***********************************************************************************************
+ * @function	: fnSearchXlsFrmList
+ * @description	: 저장된 양식 리스트 조회
+ * @param		: obj	- nexacro.Button
+ * @param		: e		- nexacro.ClickEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnSearchXlsFrmList = function()
+{
+
+	/** 조회조건 필수입력 체크********************************************************/
+	
+	// 고객정보 필수 입력
+	var vCustId_sc = this.edtCustId_sc.value;
+	var vCustNm_sc = this.edtCustNm_sc.value;
+	
+	if(this.gfnIsNull(vCustId_sc) || this.gfnIsNull(vCustNm_sc)){
+
+		return;
+	}
+	
+	this.dsXlsFrmNm.clearData();
+
+	// 로그인계정 주문접수 엑셀양식리스트 조회
+	this.gfnTransaction("getExcelFormList");
+
+};
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 조회
+ * @return N/A
+/***********************************************************************************************/
+this.fnSearch = function()
+{
+
+	/** 조회조건 필수입력 체크********************************************************/
+	
+	// 고객정보 필수 입력
+	var vCustId_sc = this.edtCustId_sc.value;
+	var vCustNm_sc = this.edtCustNm_sc.value;
+	
+	if(this.gfnIsNull(vCustId_sc) || this.gfnIsNull(vCustNm_sc)){
+		
+		this.gfnAlert("고객정보를 입력해주세요.");
+		this.edtCustNm_sc.setFocus();
+		return;
+	}
+	
+	/************************************************************************************/
+	
+	this.fnSetDefaultExcelForm();
+	
+	
+	// 로그인계정 주문접수 엑셀양식 조회
+	this.gfnTransaction("getRcptOrdExcelForm");
+
+};
+
+
+/************************************************************************************************
+* 각 COMPONENT 별 EVENT 영역
+************************************************************************************************/
+/***********************************************************************************************
+ * @function	: btnOnClick
+ * @description	: 버튼이벤트 제어
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		// 조회
+		case "btnSearch" : 
+			this.fnSearch();	
+		break;
+		
+		// 확인
+		case "btnOk" :
+			if(this.gfnIsNull(this.cboXlsFrmNm_sc.value)){
+				this.gfnAlert("업로드할 양식을 선택해주세요.");
+				return;
+			}
+			
+			
+			var colId;
+			for(var i=0; i<this.dsExcelForm.rowcount; i++){
+				colId = this.dsExcelForm.getColumn(i, "COL_ID");
+				this.dsResult.addColumn(colId, "STRING");
+			}
+			
+			// return dataSet 초기화
+			
+			var json = {
+				ds : this.dsResult.saveXML(),
+				callFn : this.getOwnerFrame().callbackFn
+			}
+			  
+			this.close(JSON.stringify(json));
+			
+		break;
+		
+		
+		default :	
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: editOnKeyDown
+ * @description	: edit onkeydown
+ * @param		: obj	- nexacro.Edit
+ * @param		: e		- nexacro.KeyEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnEditOnKeyDown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	var objName = obj.name;
+
+	if( e.keycode === 13 ) {
+	
+		obj.updateToDataset();
+		switch( objName ) {
+			case	'edtCustId_sc' : this.gfnTransaction("getCustInfo"); break;
+			case	'edtCustNm_sc' : this.gfnTransaction("getCustInfo"); break;
+
+			default	: 	break;
+		}
+	}
+	else{
+		switch( objName ) {
+			case	'edtCustId_sc' : this.edtCustNm_sc.set_value(''); break;
+			case	'edtCustNm_sc' : this.edtCustId_sc.set_value(''); break;
+			
+		}
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnPopOpen
+ * @description	: 팝업버튼 제어
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.fnPopOpen = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var btnName	= obj.name;
+	
+	switch(btnName)
+	{
+		 // 검색-고객
+		case "btnCustSearch" :
+			this.fnOpenPopCust("btnCustSearch"); break;
+		break;
+		
+		default :
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: btnClose_onclick
+ * @description	: 팝업 닫기 버튼 클릭 이벤트
+ * @return N/A
+/***********************************************************************************************/
+this.btnClose_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.close();
+};
+
+
+/***********************************************************************************************
+ * @function	: cboXlsFrmNm_sc_onitemchanged
+ * @description	: 양식 변경 이벤트
+ * @return N/A
+/***********************************************************************************************/
+this.cboXlsFrmNm_sc_onitemchanged = function(obj:nexacro.Combo,e:nexacro.ItemChangeEventInfo)
+{
+	// 변경할때 마다 양식 조회 처리.
+	this.fnSearch();
+};
+ 
+
+/************************************************************************************************
+* 사용자 FUNCTION 영역
+************************************************************************************************/
+/***********************************************************************************************
+ * @function: fnCompInit
+ * @description: 컴포넌트 초기화 함수.
+ * @param  N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnCompInit = function()
+{
+	
+}
+
+
+/***********************************************************************************************
+ * @function	: fnSetDefaultExcelForm
+ * @description	: 관리항목 & 엑셀양식 초기화
+/***********************************************************************************************/
+this.fnSetDefaultExcelForm = function()
+{
+	
+	this.dsExcelForm.clearData();
+
+	this.dsList.clearData();
+	
+	
+	for(var i = this.grdExcel.getCellCount("body"); i>=1; i--){
+		this.grdExcel.deleteContentsCol("body", i);
+	}
+}
+
+
+/***********************************************************************************************
+ * @function	: fnSetExcelForm
+ * @description	: 조회한 주문접수 양식 형태에 맞게 셋팅
+/***********************************************************************************************/
+this.fnSetExcelForm = function()
+{
+	var dsObj = this.dsList;
+	
+	// 저장된 양식이 없으면 기본양식 셋팅.
+	if(this.dsList.rowcount==0){
+		dsObj = this.dsDefaultColumn;
+		
+		for(var i=0; i<dsObj.rowcount; i++){
+			var nRow = this.dsExcelForm.addRow();
+			var defaultColId = dsObj.getColumn(i,"COL_ID");
+			this.dsExcelForm.setColumn(nRow, "COL_ID", defaultColId);
+			this.dsExcelForm.setColumn(nRow, "COL_NM", this.dsMgmtColumn.lookup("COL_ID", defaultColId, "COL_NM"));
+			this.dsExcelForm.setColumn(nRow, "REQUIRED", this.dsMgmtColumn.lookup("COL_ID", defaultColId, "REQUIRED"));
+
+			this.grdCustom.setCellProperty("body", nRow, "cssclass", "expr:REQUIRED=='Y'? 'excel_required' : 'excel_selected'");
+		}
+		
+	}
+	// 저장된 양식이 있는 경우.
+	else{
+	
+		var strColId = dsObj.getColumn(0, "COL_ID");
+	
+		var arrColId = strColId.split("|");
+		
+		for(var i=0; i<arrColId.length; i++){
+			var nRow = this.dsExcelForm.addRow();
+			this.dsExcelForm.setColumn(nRow, "COL_ID", arrColId[i]);
+			this.dsExcelForm.setColumn(nRow, "COL_NM", this.dsMgmtColumn.lookup("COL_ID", arrColId[i], "COL_NM"));
+			this.dsExcelForm.setColumn(nRow, "REQUIRED", this.dsMgmtColumn.lookup("COL_ID", arrColId[i], "REQUIRED"));
+
+			this.grdCustom.setCellProperty("body", nRow, "cssclass", "expr:REQUIRED=='Y'? 'excel_required' : 'excel_selected'");
+			
+		}
+		
+	}
+	
+	
+	this.fnSetExcelGridForm();
+}
+
+/***********************************************************************************************
+ * @function	: fnSetExcelGridForm
+ * @description	: 엑셀 그리드 항목 셋팅 (다운로드용). 
+/***********************************************************************************************/
+this.fnSetExcelGridForm = function()
+{	
+	var nFindRow;
+	var nCol;
+	var nColWidth = 150; 	// Default column width 
+	for(var i=0; i<this.dsExcelForm.rowcount; i++){
+		
+		nCol = this.grdExcel.appendContentsCol("body");
+		
+		this.grdExcel.setCellProperty("head", nCol, "text", this.dsExcelForm.getColumn(i,"COL_NM"));
+		this.dsMgmtColumn.getColumn("COL_WIDTH");
+		
+		nFindRow = this.dsMgmtColumn.findRow("COL_NM", this.dsExcelForm.getColumn(i,"COL_NM"));
+		
+		if(nFindRow != -1){
+			nColWidth = this.dsMgmtColumn.getColumn(nFindRow, "COL_WIDTH");
+		}
+		
+		this.grdExcel.setRealColSize("body", nCol, nColWidth);
+		
+	}
+}
+
+
+/***********************************************************************************************
+ * @function	: fnOpenPopCust
+ * @description	: 고객 조회 팝업을 호출한다.
+ * @param		: btnName	- String
+ * @return N/A
+/***********************************************************************************************/
+this.fnOpenPopCust = function(btnName:String)
+{
+	// 파라미터 설정
+	var popupId = '';	//팝업ID
+	var pCustIdValue = '';	// 고객ID
+	var pCustNmValue = '';	// 고객명
+	
+	if(btnName == "btnCustSearch"){
+		popupId = 'custPop1';
+		pCustIdValue = this.edtCustId_sc.value;
+		pCustNmValue = this.edtCustNm_sc.value;
+	}
+	
+	
+	// 팝업 호출
+	var oArg = {
+				  pCustId		: pCustIdValue									// 고객ID
+				, pCustNm		: pCustNmValue									// 고객명
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_WMS_P060.xfdl", oArg, sPopupCallBack, oOption);
+
+};
+
+
+/************************************************************************************************
+ * CALLBACK 콜백 처리부분
+ ************************************************************************************************/
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+
+	if(errorCode < 0) {    
+		this.gfnAlert(errorMsg);
+		
+		return;
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+		
+			// 컴포넌트 초기화
+			this.fnCompInit();
+
+		break;
+		
+		// 양식리스트 조회
+		case "getExcelFormList" :
+			
+			
+		
+			// 기본양식 추가		
+			this.dsXlsFrmNm.insertRow(0);
+			this.dsXlsFrmNm.setColumn(0, "XLS_FRM_NM", "기본양식");
+			
+				
+			this.cboXlsFrmNm_sc.set_index(0);
+			
+			
+			this.fnSetDefaultExcelForm();
+			
+			// 양식 조회
+			this.fnSearch();
+			
+			
+		break;
+		
+		
+		// 조회
+		case "getRcptOrdExcelForm" :
+			
+			
+			// 엑셀양식 설정
+			this.fnSetExcelForm();
+			
+			
+		break;
+		
+		
+		// 고객 조회조건 처리.
+		case "getCustInfo":
+		
+			// 1건 조회된 경우 조회조건에 셋팅.
+			if(this.dsCustInfo.getRowCount() == 1){
+			
+				this.dsSearch.setColumn(0, "CUST_ID", this.dsCustInfo.getColumn(0,"CUST_ID"));
+				this.dsSearch.setColumn(0, "CUST_NM", this.dsCustInfo.getColumn(0,"CUST_NM"));
+				
+				// 저장된 양식 리스트 조회
+				this.fnSearchXlsFrmList();
+				
+				
+			}
+			// 2건 이상 조회된 경우 팝업창 띄움.
+			else{
+				this.btnCustSearch.click();
+			}
+		
+		break;
+
+		default :
+		break;
+	}
+};
+
+/***********************************************************************************************
+ * @function	: fnPopupCallBack
+ * @description	: popup Callback
+ * @param		: popupId	- String
+ * @param		: dsObj		- nexacro.NormalDataset
+ * @return N/A
+ ***********************************************************************************************/
+this.fnPopupCallback = function(sPopupId, dsObj)
+{
+	var telNo = "";
+	switch(sPopupId) {		
+		case "custPop1" :
+			this.edtCustId_sc.set_value(dsObj.getColumn(0,"CUST_ID"));
+			this.edtCustNm_sc.set_value(dsObj.getColumn(0,"CUST_NM"));
+			
+			// 저장된 양식 리스트 조회
+			this.fnSearchXlsFrmList();
+			
+			
+		break;
+		
+		
+		
+		default :
+		break;
+	}
+};
+
+
+]]></Script>
+    <Objects>
+      <Dataset id="dsSearch" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="CUST_ID" size="256" type="STRING"/>
+          <Column id="CUST_NM" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM" type="STRING" size="256"/>
+          <Column id="WAREIO_DV" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="WAREIO_DV">O1</Col>
+            <Col id="XLS_FRM_NM"/>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="OUT_DATASET_LIST">dsCpDv=ds1</Col>
+            <Col id="QUERY_LIST">q1=MS005</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getRcptOrdExcelForm</Col>
+            <Col id="IN_DATASET_LIST">dsSearch=dsSearch</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="OUT_DATASET_LIST">dsList=dsList</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="SERVICE_BEANNAME">rcptMgmtService</Col>
+            <Col id="SERVICE_METHOD">getRcptOrdExcelForm</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">saveRcptOrdExcelForm</Col>
+            <Col id="SERVICE_BEANNAME">rcptMgmtService</Col>
+            <Col id="SERVICE_METHOD">saveRcptOrdExcelForm</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="IN_DATASET_LIST">dsSaveMaster=dsSaveMaster dsSave=dsExcelForm:A</Col>
+            <Col id="OUT_DATASET_LIST"/>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">deleteRcptOrdExcelForm</Col>
+            <Col id="SERVICE_BEANNAME">rcptMgmtService</Col>
+            <Col id="SERVICE_METHOD">deleteRcptOrdExcelForm</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="IN_DATASET_LIST">dsSaveMaster=dsSaveMaster</Col>
+            <Col id="OUT_DATASET_LIST"/>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getCustInfo</Col>
+            <Col id="SERVICE_BEANNAME"/>
+            <Col id="SERVICE_METHOD"/>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsCustInfo=ds1</Col>
+            <Col id="QUERY_LIST">q1=baimCommonService.getCustInfo</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getExcelFormList</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsXlsFrmNm=dsXlsFrmNm</Col>
+            <Col id="QUERY_LIST"/>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getExcelFormList</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsFixColumn">
+        <ColumnInfo>
+          <Column id="COL_ID" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="COL_ID">NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">SLIP_YMD</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">SHP_MALL_SLIP_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">GDS_CD</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORD_QTY</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">FR_NM</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">FR_ZIP_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">FR_BASIC_ADDR</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">FR_DETAIL_ADDR</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">FR_TEL_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">FR_CELL_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">TO_NM</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">TO_ZIP_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">TO_BASIC_ADDR</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">TO_DETAIL_ADDR</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">TO_TEL_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">TO_CELL_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORDRR_NM</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORDRR_ZIP_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORDRR_ADDR</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORDRR_DETAIL_ADDR</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORDRR_TEL_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORDRR_CELL_NO</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsMgmtColumn">
+        <ColumnInfo>
+          <Column id="COL_ID" type="STRING" size="256"/>
+          <Column id="COL_NM" type="STRING" size="256"/>
+          <Column id="COL_WIDTH" type="STRING" size="256"/>
+          <Column id="SEQ" type="STRING" size="256"/>
+          <Column id="REQUIRED" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="COL_NM">접수일자</Col>
+            <Col id="COL_ID">SLIP_YMD</Col>
+            <Col id="COL_WIDTH">100</Col>
+            <Col id="SEQ">0</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">고객사용번호(고객사 주문번호)</Col>
+            <Col id="COL_ID">SHP_MALL_SLIP_NO</Col>
+            <Col id="COL_WIDTH">250</Col>
+            <Col id="SEQ">1</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">GDS_CD</Col>
+            <Col id="COL_NM">품목코드</Col>
+            <Col id="COL_WIDTH">100</Col>
+            <Col id="SEQ">2</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">주문수량</Col>
+            <Col id="COL_ID">ORD_QTY</Col>
+            <Col id="COL_WIDTH">80</Col>
+            <Col id="SEQ">3</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">송화인명</Col>
+            <Col id="COL_ID">FR_NM</Col>
+            <Col id="COL_WIDTH">100</Col>
+            <Col id="SEQ">4</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">송화인우편번호</Col>
+            <Col id="COL_ID">FR_ZIP_NO</Col>
+            <Col id="COL_WIDTH">120</Col>
+            <Col id="SEQ">5</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">송화인주소</Col>
+            <Col id="COL_ID">FR_BASIC_ADDR</Col>
+            <Col id="COL_WIDTH">150</Col>
+            <Col id="SEQ">6</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">송화인상세주소</Col>
+            <Col id="COL_ID">FR_DETAIL_ADDR</Col>
+            <Col id="COL_WIDTH">230</Col>
+            <Col id="SEQ">7</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">송화인전화번호</Col>
+            <Col id="COL_ID">FR_TEL_NO</Col>
+            <Col id="COL_WIDTH">120</Col>
+            <Col id="SEQ">8</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">송화인휴대폰번호</Col>
+            <Col id="COL_ID">FR_CELL_NO</Col>
+            <Col id="COL_WIDTH">140</Col>
+            <Col id="SEQ">9</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">수화인명</Col>
+            <Col id="COL_ID">TO_NM</Col>
+            <Col id="SEQ">10</Col>
+            <Col id="COL_WIDTH">100</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">수화인우편번호</Col>
+            <Col id="COL_ID">TO_ZIP_NO</Col>
+            <Col id="SEQ">11</Col>
+            <Col id="COL_WIDTH">120</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">수화인주소</Col>
+            <Col id="COL_ID">TO_BASIC_ADDR</Col>
+            <Col id="SEQ">12</Col>
+            <Col id="COL_WIDTH">150</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">수화인상세주소</Col>
+            <Col id="COL_ID">TO_DETAIL_ADDR</Col>
+            <Col id="SEQ">13</Col>
+            <Col id="COL_WIDTH">230</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">수화인전화번호</Col>
+            <Col id="COL_ID">TO_TEL_NO</Col>
+            <Col id="SEQ">14</Col>
+            <Col id="COL_WIDTH">120</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">수화인휴대폰번호</Col>
+            <Col id="COL_ID">TO_CELL_NO</Col>
+            <Col id="SEQ">15</Col>
+            <Col id="COL_WIDTH">140</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">주문자명</Col>
+            <Col id="COL_ID">ORDRR_NM</Col>
+            <Col id="SEQ">16</Col>
+            <Col id="COL_WIDTH">100</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">주문자우편번호</Col>
+            <Col id="COL_ID">ORDRR_ZIP_NO</Col>
+            <Col id="SEQ">17</Col>
+            <Col id="COL_WIDTH">120</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">주문자주소</Col>
+            <Col id="COL_ID">ORDRR_ADDR</Col>
+            <Col id="SEQ">18</Col>
+            <Col id="COL_WIDTH">150</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">주문자상세주소</Col>
+            <Col id="COL_ID">ORDRR_DETAIL_ADDR</Col>
+            <Col id="SEQ">19</Col>
+            <Col id="COL_WIDTH">230</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">주문자전화번호</Col>
+            <Col id="COL_ID">ORDRR_TEL_NO</Col>
+            <Col id="SEQ">20</Col>
+            <Col id="COL_WIDTH">120</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">주문자휴대폰번호</Col>
+            <Col id="COL_ID">ORDRR_CELL_NO</Col>
+            <Col id="SEQ">21</Col>
+            <Col id="COL_WIDTH">140</Col>
+            <Col id="REQUIRED">Y</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">운송장번호</Col>
+            <Col id="COL_ID">WAYBILL_NO</Col>
+            <Col id="SEQ">22</Col>
+            <Col id="COL_WIDTH">100</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">합포장번호</Col>
+            <Col id="COL_ID">MPCK_KEY</Col>
+            <Col id="SEQ">23</Col>
+            <Col id="COL_WIDTH">100</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">합포장SEQ</Col>
+            <Col id="COL_ID">MPCK_SEQ</Col>
+            <Col id="SEQ">24</Col>
+            <Col id="COL_WIDTH">80</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">접수구분(01:일반, 02:반품)</Col>
+            <Col id="COL_ID">RCPT_DV</Col>
+            <Col id="SEQ">25</Col>
+            <Col id="COL_WIDTH">160</Col>
+          </Row>
+          <Row>
+            <Col id="COL_NM">고객요청메세지</Col>
+            <Col id="COL_ID">CUST_REQ_MSG</Col>
+            <Col id="SEQ">26</Col>
+            <Col id="COL_WIDTH">250</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsExcelForm">
+        <ColumnInfo>
+          <Column id="COL_ID" type="STRING" size="256"/>
+          <Column id="COL_NM" type="STRING" size="256"/>
+          <Column id="REQUIRED" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsList">
+        <ColumnInfo>
+          <Column id="COL_ID" type="STRING" size="256"/>
+          <Column id="COL_NM" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM_ORG" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsDefaultColumn">
+        <ColumnInfo>
+          <Column id="COL_ID" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="COL_ID">SLIP_YMD</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">SHP_MALL_SLIP_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">GDS_CD</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORD_QTY</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">FR_NM</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">FR_ZIP_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">FR_BASIC_ADDR</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">FR_DETAIL_ADDR</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">FR_TEL_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">FR_CELL_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">TO_NM</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">TO_ZIP_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">TO_BASIC_ADDR</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">TO_DETAIL_ADDR</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">TO_TEL_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">TO_CELL_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORDRR_NM</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORDRR_ZIP_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORDRR_ADDR</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORDRR_DETAIL_ADDR</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORDRR_TEL_NO</Col>
+          </Row>
+          <Row>
+            <Col id="COL_ID">ORDRR_CELL_NO</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsSortMgmtColumn">
+        <ColumnInfo>
+          <Column id="COL_ID" type="STRING" size="256"/>
+          <Column id="COL_NM" type="STRING" size="256"/>
+          <Column id="SEQ" type="INT" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSortMgmtColumnCopy">
+        <ColumnInfo>
+          <Column id="COL_ID" type="STRING" size="256"/>
+          <Column id="COL_NM" type="STRING" size="256"/>
+          <Column id="SEQ" type="INT" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsCustInfo">
+        <ColumnInfo>
+          <Column id="CUST_ID" type="STRING" size="256"/>
+          <Column id="CUST_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSaveMaster">
+        <ColumnInfo>
+          <Column id="CUST_ID" type="STRING" size="256"/>
+          <Column id="WAREIO_DV" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM_NEW" type="STRING" size="256"/>
+          <Column id="SAVE_MODE" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsXlsFrmNm">
+        <ColumnInfo>
+          <Column id="CUST_ID" type="STRING" size="256"/>
+          <Column id="XLS_FRM_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsResult"/>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="edtCustId_sc" propid="value" datasetid="dsSearch" columnid="CUST_ID"/>
+      <BindItem id="item1" compid="edtCustNm_sc" propid="value" datasetid="dsSearch" columnid="CUST_NM"/>
+      <BindItem id="item2" compid="cboXlsFrmNm_sc" propid="value" datasetid="dsSearch" columnid="XLS_FRM_NM"/>
+    </Bind>
+  </Form>
+</FDL>

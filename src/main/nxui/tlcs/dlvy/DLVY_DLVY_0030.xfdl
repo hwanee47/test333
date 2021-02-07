@@ -1,0 +1,603 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form id="PDDS12Q" width="1566" height="800" titletext="미배송 현황" oninit="fnInitForm" onload="form_onload">
+    <Layouts>
+      <Layout height="800" mobileorientation="landscape" width="1566">
+        <Static cssclass="top_search_ty01" height="40" id="sta00" left="0" right="30" taborder="7" text="" top="35"/>
+        <Static cssclass="top_search_tx01" domainId="T0564" height="23" id="sta01" left="16" taborder="8" text="점소" top="44" width="52"/>
+        <Edit id="edtBranCd" taborder="0" left="64" top="44" width="60" height="23" cssclass="inp_ty01_req" onkeydown="edtBranCd_onkeydown"/>
+        <Edit id="edtBranNm" taborder="9" left="146" top="44" width="106" height="23" cssclass="inp_ty01_req" enable="false"/>
+        <Button cssclass="btn_search01" height="23" id="btnBranPop" left="123" onclick="btnOnClick" taborder="1" top="44" width="25"/>
+        <Static cssclass="top_search_tx01" domainId="T0564" height="23" id="sta02" left="278" taborder="10" text="일자" top="44" width="52"/>
+        <Calendar autoselect="true" cssclass="cal_ty01_req" dateformat="yyyy-MM-dd ddd" height="23" id="calStartYmd" left="326" taborder="2" top="44" width="131"/>
+        <Static color="#ffffff" height="23" id="sta04" left="462" taborder="11" text="-" top="44" width="8"/>
+        <Calendar autoselect="true" cssclass="cal_ty01_req" height="23" id="calEndYmd" left="473" taborder="3" top="44" width="131"/>
+        <Static cssclass="top_search_tx01" domainId="T0564" height="23" id="sta03" left="628" taborder="12" text="구분" top="44" width="52"/>
+        <Combo autoselect="true" codecolumn="CD" cssclass="sel_ty01_req" datacolumn="CD_NM" displayrowcount="6" height="23" id="cboDiv" innerdataset="dsDiv" left="674" taborder="4" text="" top="43" type="filterlike" width="160"/>
+        <Grid id="grd_master" taborder="5" left="0" top="sta00:3" width="321" cssclass="tb_ty01" bottom="0" oncelldblclick="grd_master_oncelldblclick" binddataset="dsList">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="27"/>
+                <Column size="100"/>
+                <Column size="142"/>
+                <Column size="50"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+                <Row size="24" band="summ"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" text="점소코드"/>
+                <Cell col="2" text="점소명"/>
+                <Cell col="3" text="건수"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1"/>
+                <Cell col="1" text="bind:BRAN_CD"/>
+                <Cell col="2" text="bind:BRAN_NM"/>
+                <Cell col="3" text="bind:DELAY_CNT" textAlign="right"/>
+              </Band>
+              <Band id="summary">
+                <Cell text="expr:dataset.rowcount"/>
+                <Cell col="1" text="합계"/>
+                <Cell col="2"/>
+                <Cell col="3" textAlign="right" text="expr:dataset.getSum('parseInt(DELAY_CNT)')" edittype="mask" maskedittype="number" maskeditformat="#,##0" maskeditlimitbymask="decimal" displaytype="mask"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Grid id="grd_detail" taborder="6" left="grd_master:5" top="sta00:3" right="30" bottom="0" cssclass="tb_ty01" binddataset="dsDetailList">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="96"/>
+                <Column size="160"/>
+                <Column size="150"/>
+                <Column size="100"/>
+                <Column size="170"/>
+                <Column size="170"/>
+                <Column size="155"/>
+                <Column size="155"/>
+                <Column size="130"/>
+                <Column size="140"/>
+                <Column size="98"/>
+                <Column size="56"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="102"/>
+                <Column size="250"/>
+                <Column size="120"/>
+                <Column size="120"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+                <Row size="24" band="summ"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" text="일자"/>
+                <Cell col="2" text="운송장번호"/>
+                <Cell col="3" text="SM사원"/>
+                <Cell col="4" text="기업고객"/>
+                <Cell col="5" text="보내는분"/>
+                <Cell col="6" text="받는분"/>
+                <Cell col="7" text="미배송사유"/>
+                <Cell col="8" text="상세사유"/>
+                <Cell col="9" text="최종스캔점소"/>
+                <Cell col="10" text="최종스캔일시"/>
+                <Cell col="11" text="운임구분"/>
+                <Cell col="12" text="수량"/>
+                <Cell col="13" text="총운임"/>
+                <Cell col="14" text="운임"/>
+                <Cell col="15" text="사이즈"/>
+                <Cell col="16" text="중량"/>
+                <Cell col="17" text="원운송장번호"/>
+                <Cell col="18" text="받는분 주소"/>
+                <Cell col="19" text="받는분연락처1"/>
+                <Cell col="20" text="받는분연락처2"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1"/>
+                <Cell col="1" text="bind:PICKUP_YMD"/>
+                <Cell col="2" text="bind:WAYBILL_NO"/>
+                <Cell col="3" text="bind:EMP_NM"/>
+                <Cell col="4" text="bind:CUST_NM" textAlign="left"/>
+                <Cell col="5" text="bind:SENDR_NM" textAlign="left"/>
+                <Cell col="6" text="bind:RCVR_NM" textAlign="left"/>
+                <Cell col="7" text="bind:DELAY_RSN" textAlign="left"/>
+                <Cell col="8" text="bind:DETAIL_RSN" textAlign="left"/>
+                <Cell col="9" text="bind:BRAN_CD"/>
+                <Cell col="10" text="bind:WORK_TIME"/>
+                <Cell col="11" text="bind:FRT_DV_NM"/>
+                <Cell col="12" text="bind:QTY" textAlign="right" maskeditformat="#,#0.00" displaytype="mask"/>
+                <Cell col="13" text="bind:WT_FRT" textAlign="right" maskeditformat="#,#0.00" displaytype="mask"/>
+                <Cell col="14" text="bind:BASIC_FRT" textAlign="right" displaytype="mask" edittype="none" maskeditformat="#,#0.00"/>
+                <Cell col="15" text="bind:SIZE" textAlign="right" maskeditformat="#,#0.00" displaytype="mask"/>
+                <Cell col="16" text="bind:WT" textAlign="right" displaytype="mask" maskeditformat="#,#0.00"/>
+                <Cell col="17" text="bind:OGNTRSPBILLNUM"/>
+                <Cell col="18" text="bind:RCVR_ADDR"/>
+                <Cell col="19" text="bind:RCVR_CELL_NO"/>
+                <Cell col="20" text="bind:RCVR_TEL_NO"/>
+              </Band>
+              <Band id="summary">
+                <Cell text="expr:dataset.rowcount" displaytype="normal" textAlign="right"/>
+                <Cell col="1"/>
+                <Cell col="2"/>
+                <Cell col="3"/>
+                <Cell col="4"/>
+                <Cell col="5"/>
+                <Cell col="6"/>
+                <Cell col="7"/>
+                <Cell col="8"/>
+                <Cell col="9"/>
+                <Cell col="10"/>
+                <Cell col="11"/>
+                <Cell col="12" text="expr:dataset.getSum('parseInt(QTY)')" textAlign="right" displaytype="mask" maskeditformat="#,#0.00"/>
+                <Cell col="13" text="expr:dataset.getSum('parseInt(WT_FRT)')" textAlign="right" displaytype="mask" maskeditformat="#,#0.00"/>
+                <Cell col="14" text="expr:dataset.getSum('parseInt(BASIC_FRT)')" textAlign="right" maskeditformat="#,#0.00" displaytype="mask"/>
+                <Cell col="15" text="expr:dataset.getSum('parseInt(SIZE)')" textAlign="right" maskeditformat="#,#0.00" displaytype="mask"/>
+                <Cell col="16" textAlign="right" edittype="mask" maskeditformat="#,#0.00" displaytype="mask" text="expr:dataset.getSum('parseInt(WT)')" maskedittype="number" maskeditlimitbymask="decimal"/>
+                <Cell col="17"/>
+                <Cell col="18"/>
+                <Cell col="19"/>
+                <Cell col="20"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static fittocontents="width" height="13" id="sta04_00" taborder="13" text="l" textAlign="center" top="11" width="4" left="9" cssclass="top_title_prefix01"/>
+        <Static id="staMenuFullPath" taborder="14" left="21" top="1" width="469" fittocontents="none" onclick="sta09_onclick" height="34" cssclass="top_title_route01" text="MENU_FULL_PATH"/>
+        <Div id="divBtn" taborder="15" top="0" height="34" right="30" text="btnComponent" width="556">
+          <Layouts>
+            <Layout/>
+          </Layouts>
+        </Div>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  @MenuPath       	
+*  @FileName 		
+*  @Creator 		
+*  @CreateDate 		2020.02.10
+*  @Desction        스크립트 표준 및 주석 표준 정의
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2020.02.10								최초 생성
+************************************************************************************************
+*/
+
+/************************************************************************************************
+* include 선언부																				*
+ ************************************************************************************************/
+
+/************************************************************************************************************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+var strDate = "";
+var strTime = "";
+var strToDay	= "";
+ 
+ /***********************************************************************************************
+ * @function: form_onload
+ * @description: FORM 온로드
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	this.fnInitForm();
+};
+
+this.fnInitForm = function()
+{
+	this.edtBranCd.setFocus();
+	//화면 초기화
+	//날짜셋팅	
+	strDate = getFormatDate(new Date());
+	strToDay = strDate.substr(0,8);
+	strTime = strDate.substr(8);
+	
+	this.calStartYmd.set_value(this.gfnGetDate("date"));
+	this.calEndYmd.set_value(this.gfnGetDate("date"));
+	this.cboDiv.set_index(0);
+	// 권한조회
+	
+	// 공통코드조회
+	
+	// 화면 공통코드 조회
+	this.gfnTransaction("commonCode");
+};
+
+ /***********************************************************************************************
+ * @function: btnOnClick
+ * @description: 버튼이벤트 제어
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		
+	
+		//점소조회 팝업
+		case "btnBranPop":
+			this.fnOpenPopBran();
+		break;
+		
+		// 조회
+		case "btnSearch" : 
+			this.fnSearch();	
+		break;
+		
+		// 엑셀
+		case "btnExcel" : 
+			
+		break;
+			
+		default :	
+		break;
+	}
+};
+
+ /***********************************************************************************************
+ * @function: fnSearch
+ * @description: 배달출발 리스트 조회
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.fnSearch = function()
+{
+	if(this.gfnIsNull(this.gfnTrim(this.edtBranCd.value))){
+		this.gfnAlert("점소코드를 입력해주세요.");
+		this.edtBranCd.setFocus();
+		return;
+	}
+	
+	if(this.gfnIsNull(this.gfnTrim(this.calStartYmd.value))){
+		this.gfnAlert("조회일자를 입력해주세요.");
+		this.calStartYmd.setFocus();
+		return;
+	}
+
+	if(this.gfnIsNull(this.gfnTrim(this.calEndYmd.value))){
+		this.gfnAlert("조회일자를 입력해주세요.");
+		this.calEndYmd.setFocus();
+		return;
+	}
+	
+	var workYmdFrom = this.calStartYmd.value;
+	if(workYmdFrom.length > 8){
+		workYmdFrom = workYmdFrom.substr(0,8);
+	}
+	
+	var workYmdTo = this.calEndYmd.value;
+	if(workYmdTo.length > 8){
+		workYmdTo = workYmdTo.substr(0,8);
+	}
+	
+	trace("code:" + this.cboDiv.value);
+	
+	//TODO 사원정보 수정
+	trace(this.edtBranCd.value);
+	this.dsSearch.setColumn(0,"MGMT_UP_BRAN_CD",this.edtBranCd.value);
+	this.dsSearch.setColumn(0,"WORK_YMD_FROM",workYmdFrom);
+	this.dsSearch.setColumn(0,"WORK_YMD_TO",workYmdTo);
+	this.dsSearch.setColumn(0,"CRG_ST",'82');
+	this.dsSearch.setColumn(0,"DS_DIV",this.cboDiv.value);
+	
+	this.dsList.clearData();
+	this.dsDetailList.clearData();
+	
+	this.gfnTransaction("getDlvyDelayStsList");
+};
+
+/***********************************************************************************************
+ * @function	: fnOpenPopBran
+ * @description	: 점소 조회 팝업을 호출한다.
+ * @param		: 
+ * @return N/A
+/***********************************************************************************************/
+this.fnOpenPopBran = function()
+{
+	// 파라미터 설정
+	var popupId = 'popSearchBran';	//팝업ID
+	var pBranCdValue = this.edtBranCd.value;	// 점소코드
+	var pBranNmValue = '';	// 점소명
+
+	// 팝업 호출
+	var oArg = {
+				  pBranCd       : pBranCdValue									// 점소코드
+				, pBranNm       : pBranNmValue  								// 점소명
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_BAIM_P010.xfdl", oArg, sPopupCallBack, oOption);
+}
+
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	trace("[fnCallback()] svcID["+svcID+"] errorCode["+errorCode+"] errorMsg["+errorMsg+"]");
+	
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+		return;
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+			// 예정시간
+			this.cboDiv.set_index(0);
+		break;
+		
+		// 조회
+		case "getDlvyDepatList" :
+		if(this.dsList.rowcount > 0){
+			this.grd_master.setCellPos(0);
+		}
+		break;
+		
+		// 상세조회
+		case "getDlvyDelayStsDetailList" :
+		trace(this.dsDetailList.saveXML());
+		if(this.dsDetailList.rowcount> 0){
+			this.grd_detail.setCellPos(0);
+		}
+		break;
+	}
+};
+
+/***********************************************************************************************
+ * @function	: fnPopupCallBack
+ * @description	: popup Callback
+ * @param		: popupId	- String
+ * @param		: dsObj		- nexacro.NormalDataset
+ * @return N/A
+ ***********************************************************************************************/
+this.fnPopupCallback = function(sPopupId, dsObj)
+{
+	switch(sPopupId) {
+
+		case "popSearchBran" :
+			this.edtBranCd.set_value(dsObj.getColumn(0, "BRAN_CD"));
+			this.edtBranNm.set_value(dsObj.getColumn(0, "BRAN_NM"));
+		break;
+
+		default :
+		break;
+	}
+}
+
+function getFormatDate(date){
+    return date.getFullYear().toString() + pad2(date.getMonth() + 1) + pad2( date.getDate()) + pad2( date.getHours() ) + pad2( date.getMinutes() ) + pad2( date.getSeconds() ) ;
+}
+
+function pad2(n) { return n < 10 ? '0' + n : n }
+
+
+/***********************************************************************************************
+ * @function: btnBranPop_onkeydown
+ * @description: 점소코드 keydown 이벤트
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.edtBranCd_onkeydown = function(obj:nexacro.Button,e:nexacro.KeyEventInfo)
+{
+	if( e.keycode == 13)
+    {		
+		this.fnOpenPopBran();
+	}else{
+		this.edtBranNm.set_value('');
+	}
+};
+
+/***********************************************************************************************
+ * @function: grd_master_oncelldblclick
+ * @description: 그리드 더블클릭 이벤트
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.grd_master_oncelldblclick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	this.dsDetailSearch.clearData();
+	this.dsDetailSearch.addRow();
+
+	var mgmtUpBranCd = this.dsList.getColumn(this.grd_master.currentrow,"MGMT_UP_BRAN_CD");
+	var ymdFrom = this.dsList.getColumn(this.grd_master.currentrow,"WORK_YMD_FROM");
+	var ymdTo = this.dsList.getColumn(this.grd_master.currentrow,"WORK_YMD_TO");
+	var dsDiv = this.dsList.getColumn(this.grd_master.currentrow,"DS_DIV");
+	this.dsDetailSearch.setColumn(0,"MGMT_UP_BRAN_CD",mgmtUpBranCd);
+	this.dsDetailSearch.setColumn(0,"WORK_YMD_FROM",ymdFrom);
+	this.dsDetailSearch.setColumn(0,"WORK_YMD_TO",ymdTo);
+	this.dsDetailSearch.setColumn(0,"DS_DIV",dsDiv);
+	
+	//trace(this.dsDetailSearch.saveXML());
+	this.gfnTransaction("getDlvyDelayStsDetailList");
+};
+]]></Script>
+    <Objects>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="OUT_DATASET_LIST">dsDiv=ds1</Col>
+            <Col id="QUERY_LIST">q1=PD020</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getDlvyDelayStsList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="QUERY_LIST">q1=dlvyDelayMgmtService.getDlvyDelayStsList</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsList=dsList</Col>
+            <Col id="SERVICE_BEANNAME">dlvyDelayMgmtService</Col>
+            <Col id="SERVICE_METHOD">getDlvyDelayStsList</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getDlvyDelayStsDetailList</Col>
+            <Col id="SERVICE_METHOD">getDlvyDelayStsDetailList</Col>
+            <Col id="SERVICE_BEANNAME">dlvyDelayMgmtService</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsDetailSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsDetailList=dsDetailList</Col>
+            <Col id="QUERY_LIST">q1=dlvyDelayMgmtService.getDlvyDelayStsDetailList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsList">
+        <ColumnInfo>
+          <Column id="BRAN_CD" type="STRING" size="256"/>
+          <Column id="BRAN_NM" type="STRING" size="256"/>
+          <Column id="DELAY_CNT" type="STRING" size="256"/>
+          <Column id="MGMT_UP_BRAN_CD" type="STRING" size="256"/>
+          <Column id="WORK_YMD_FROM" type="STRING" size="256"/>
+          <Column id="WORK_YMD_TO" type="STRING" size="256"/>
+          <Column id="DS_DIV" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsDelayRsn">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="256"/>
+          <Column id="CD_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CD">U</Col>
+            <Col id="CD_NM">미배송</Col>
+          </Row>
+          <Row>
+            <Col id="CD">F</Col>
+            <Col id="CD_NM">실패</Col>
+          </Row>
+          <Row>
+            <Col id="CD">R</Col>
+            <Col id="CD_NM">반송</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsDiv">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="256"/>
+          <Column id="CD_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsDetailList">
+        <ColumnInfo>
+          <Column id="PICKUP_YMD" type="STRING" size="256"/>
+          <Column id="WAYBILL_NO" type="STRING" size="256"/>
+          <Column id="EMP_NM" type="STRING" size="256"/>
+          <Column id="CUST_NM" type="STRING" size="256"/>
+          <Column id="SENDR_NM" type="STRING" size="256"/>
+          <Column id="RCVR_NM" type="STRING" size="256"/>
+          <Column id="DELAY_RSN" type="STRING" size="256"/>
+          <Column id="DETAIL_RSN" type="STRING" size="256"/>
+          <Column id="BRAN_CD" type="STRING" size="256"/>
+          <Column id="WORK_TIME" type="STRING" size="256"/>
+          <Column id="FRT_DV_NM" type="STRING" size="256"/>
+          <Column id="QTY" type="STRING" size="256"/>
+          <Column id="WT_FRT" type="STRING" size="256"/>
+          <Column id="BASIC_FRT" type="STRING" size="256"/>
+          <Column id="SIZE" type="STRING" size="256"/>
+          <Column id="WT" type="STRING" size="256"/>
+          <Column id="RCVR_ADDR" type="STRING" size="256"/>
+          <Column id="RCVR_CELL_NO" type="STRING" size="256"/>
+          <Column id="RCVR_TEL_NO" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSearch">
+        <ColumnInfo>
+          <Column id="MGMT_UP_BRAN_CD" type="STRING" size="256"/>
+          <Column id="WORK_YMD_FROM" type="STRING" size="256"/>
+          <Column id="WORK_YMD_TO" type="STRING" size="256"/>
+          <Column id="CRG_ST" type="STRING" size="256"/>
+          <Column id="DS_DIV" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="MGMT_UP_BRAN_CD"/>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsDetailSearch">
+        <ColumnInfo>
+          <Column id="MGMT_UP_BRAN_CD" type="STRING" size="256"/>
+          <Column id="WORK_YMD_FROM" type="STRING" size="256"/>
+          <Column id="WORK_YMD_TO" type="STRING" size="256"/>
+          <Column id="DS_DIV" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsBtn">
+        <ColumnInfo>
+          <Column id="BTN_SEL" type="STRING" size="256"/>
+          <Column id="BTN_ADD" type="STRING" size="256"/>
+          <Column id="BTN_SAV" type="STRING" size="256"/>
+          <Column id="BTN_DEL" type="STRING" size="256"/>
+          <Column id="BTN_XLS" type="STRING" size="256"/>
+          <Column id="BTN_PRT" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="BTN_SEL">1</Col>
+            <Col id="BTN_ADD">0</Col>
+            <Col id="BTN_SAV">0</Col>
+            <Col id="BTN_DEL">0</Col>
+            <Col id="BTN_PRT">0</Col>
+            <Col id="BTN_XLS">1</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+    </Objects>
+  </Form>
+</FDL>

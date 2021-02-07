@@ -1,0 +1,794 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form height="800" id="WHIO_MNG_0002" oninit="form_oninit" onload="form_onload" titletext="출고주문(확정)" width="1566">
+    <Layouts>
+      <Layout height="800" mobileorientation="landscape" stepcount="0" width="1566">
+        <Static cssclass="top_search_ty01" height="70" id="stSearch" left="0" onclick="divSearch_staSearch_onclick" right="30" taborder="22" text="" top="35"/>
+        <Button cssclass="btn_ty01_search" domainId="T0877" fittocontents="none" height="23" id="btnSearch" onclick="btnOnClick" right="178" taborder="20" text="조회" top="37" width="68" visible="false"/>
+        <Button cssclass="btn_ty01_excel" domainId="T0682" fittocontents="none" height="23" id="btnExcel" onclick="btnOnClick" right="32" taborder="21" text="엑셀" top="37" width="68" visible="false"/>
+        <Button cssclass="btn_ty01_save" domainId="T0682" fittocontents="none" height="23" id="btnSave" onclick="btnOnClick" right="105" taborder="19" text="확정" top="37" width="68" visible="false"/>
+        <Grid autoenter="select" autofittype="col" bottom="0" cellsizingtype="col" cssclass="tb_ty01" id="grd_Main" left="0" onheadclick="grdOnHeadClick" right="30" taborder="23" top="stSearch:3" binddataset="dsList" oncellclick="grd_Main_oncellclick">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="30"/>
+                <Column size="0"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="130"/>
+                <Column size="80"/>
+                <Column size="131"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="95"/>
+              </Columns>
+              <Rows>
+                <Row size="24" band="head"/>
+                <Row size="24"/>
+                <Row size="24" band="summ"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="2" text="창고코드"/>
+                <Cell col="3" text="창고코드"/>
+                <Cell col="4" text="창고명"/>
+                <Cell col="5" text="고객코드"/>
+                <Cell col="6" text="접수일자"/>
+                <Cell col="7" text="주문번호"/>
+                <Cell col="8" text="주문상태"/>
+                <Cell col="9" text="합포장번호"/>
+                <Cell col="10" text="합포장순번"/>
+                <Cell col="11" text="품목코드"/>
+                <Cell col="12" text="품목명"/>
+                <Cell col="13" text="주문수량"/>
+                <Cell col="14" text="등록자"/>
+                <Cell col="15" text="등록시간"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1"/>
+                <Cell col="1" displaytype="checkboxcontrol" edittype="checkbox" text="bind:CHK"/>
+                <Cell col="2" text="bind:CENT_CD"/>
+                <Cell col="3" text="bind:WAREH_CD" textAlign="left"/>
+                <Cell col="4" text="bind:WAREH_NM" textAlign="left"/>
+                <Cell col="5" text="bind:CUST_ID"/>
+                <Cell col="6" text="bind:RCPT_YMD" displaytype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="7" text="bind:CUST_USE_NO"/>
+                <Cell col="8" text="bind:WORK_DV_CD" displaytype="combotext" combodataset="dsOrdSt" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="9" text="bind:MPCK_KEY" textAlign="left"/>
+                <Cell col="10" text="bind:MPCK_SEQ"/>
+                <Cell col="11" text="bind:GDS_CD" textAlign="left"/>
+                <Cell col="12" text="bind:GDS_NM" textAlign="left"/>
+                <Cell col="13" text="bind:GDS_QTY" displaytype="number" textAlign="right"/>
+                <Cell col="14" text="bind:REG_EMP_ID"/>
+                <Cell col="15" text="bind:REG_DTIME" displaytype="normal"/>
+              </Band>
+              <Band id="summary">
+                <Cell colspan="13" text="합계"/>
+                <Cell col="13" expr="dataset.getSum('parseInt(GDS_QTY)')" displaytype="number" textAlign="right" padding="0px 3px 0px 0px"/>
+                <Cell col="14" colspan="2"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp00" left="354" taborder="2" text="접수일자" top="44" width="82" onclick="staExeCorp_onclick"/>
+        <Static cssclass="top_search_tx01" domainId="T1075" height="23" id="staDropLoc01" left="707" taborder="5" text="주문번호" top="44" width="55"/>
+        <Edit id="edtOrdNo" taborder="6" left="770" top="44" width="150" height="23" enable="true" cssclass="inp_ty01" onkeydown="fn_editOnKeyDown"/>
+        <Static cssclass="top_search_tx01" domainId="T1075" height="23" id="staDropLoc01_00" left="947" taborder="7" text="합포장번호" top="44" width="92"/>
+        <Edit id="edtMpckNo" taborder="8" left="1018" top="44" width="150" height="23" enable="true" cssclass="inp_ty01" onkeydown="fn_editOnKeyDown"/>
+        <Combo codecolumn="CD" cssclass="sel_ty01" datacolumn="CD_NM" height="23" id="cboOrdSt" innerdataset="dsOrdSt" left="770" taborder="18" top="74" type="dropdown" width="100" text=""/>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp01" left="707" taborder="17" text="주문상태" top="74" width="92" onclick="staExeCorp_onclick"/>
+        <Static cssclass="top_search_tx01" domainId="T1075" height="23" id="staDropLoc00" left="25" taborder="9" text="고객" top="74" width="45"/>
+        <Edit id="edtCustCd_sc" taborder="10" left="88" top="74" width="90" height="23" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown" inputmode="upper" oninput="fnEditOnInput"/>
+        <Button id="btnCustSearch" taborder="11" left="178" top="74" height="23" width="25" cssclass="btn_search01" onclick="fn_PopOpen"/>
+        <Edit id="edtCustNm_sc" taborder="12" left="202" top="74" width="130" height="23" enable="true" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown" oninput="fnEditOnInput"/>
+        <Static cssclass="top_search_tx01" domainId="T1075" height="23" id="staDropLoc" left="354" taborder="13" text="품목" top="74" width="45"/>
+        <Edit id="edtItemCd_sc" taborder="14" left="417" top="74" width="90" height="23" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown" inputmode="upper" oninput="fnEditOnInput"/>
+        <Button id="btnItemSearch" taborder="15" left="507" top="74" height="23" width="25" cssclass="btn_search01" onclick="fn_PopOpen"/>
+        <Edit id="edtItemNm_sc" taborder="16" left="531" top="74" width="130" height="23" enable="true" cssclass="inp_ty01" onkeydown="fnEditOnKeyDown" oninput="fnEditOnInput"/>
+        <Static cssclass="top_search_tx01" domainId="T0655" height="23" id="staExeCorp00_00" left="25" taborder="0" text="창고코드" top="44" width="82" onclick="staExeCorp_onclick"/>
+        <Combo autoselect="true" codecolumn="WAREH_CD" datacolumn="WAREH_NM" displayrowcount="6" height="23" id="cboWareh" index="0" taborder="1" top="44" type="dropdown" value="ko" visible="true" width="161" left="88" innerdataset="gdsWarehAuthList"/>
+        <Static fittocontents="width" height="13" id="sta04" taborder="24" text="l" textAlign="center" top="11" width="4" left="9" cssclass="top_title_prefix01"/>
+        <Calendar id="calYmdTo_sc" taborder="4" left="561" top="44" width="127" height="23" cssclass="cal_ty02"/>
+        <Static id="sta07_00" taborder="25" text="-" left="550" top="43" width="8" height="23" color="white"/>
+        <Calendar id="calYmdFr_sc" taborder="3" left="417" top="44" width="127" height="23" cssclass="cal_ty02"/>
+        <Static id="staMenuFullPath" taborder="26" left="21" top="1" width="469" fittocontents="none" onclick="sta09_onclick" height="34" cssclass="top_title_route01" text="MENU_FULL_PATH"/>
+        <Div id="divBtn" taborder="27" top="0" height="34" right="30" text="btnComponent" width="556">
+          <Layouts>
+            <Layout/>
+          </Layouts>
+        </Div>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/************************************************************************************************
+* include 선언부																				*
+ ************************************************************************************************/
+include "lib::lib_Form.xjs";
+
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+this.objApp;
+ 
+ 
+ /***********************************************************************************************
+ * @function: form_onload
+ * @description: FORM 온로드
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//nexacro application 
+	this.objApp = nexacro.getApplication() ;
+	
+	//화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	// 초기화
+	this.fnInit();
+};
+
+
+ /***********************************************************************************************
+ * @function	: form_onload
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnInit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	// 공통코드조회
+	this.gfnTransaction("commonCode");
+	
+	this.dsSearch.setColumn(0, "STA_DT", this.gfnGetDate("date"));
+	this.dsSearch.setColumn(0, "END_DT", this.gfnGetDate("date")); 
+	
+	this.cboWareh.set_index(0);
+	this.cboOrdSt.set_index(1);
+};
+
+
+/***********************************************************************************************
+ * @function	: btnOnClick
+ * @description	: 버튼이벤트 제어
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		// 조회
+		case "btnSearch" : 
+			this.fnSearch();	
+		break;
+		
+		// 저장
+		case "btnSave" :
+			this.fnSave();
+		break;
+		
+		// 초기화
+		case "btnReset" :
+			this.fnInit();
+		break;
+		
+		case "btnExcel" :
+			this.fnExcel();
+		break;
+		
+		default :	
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearch = function() {
+
+	// 고객 체크
+	var edtCustCd_scValue = this.edtCustCd_sc.value;
+	var edtCustNm_scValue = this.edtCustNm_sc.value;
+	
+	if(	
+		(this.gfnIsNull(edtCustCd_scValue) && !this.gfnIsNull(edtCustNm_scValue)) ||
+		(!this.gfnIsNull(edtCustCd_scValue) && this.gfnIsNull(edtCustNm_scValue))
+	){
+		this.gfnAlert("고객의 코드와 명을 정확히 입력해주세요.", "", function(){
+		
+			if(this.gfnIsNull(edtCustCd_scValue)){
+				this.edtCustCd_sc.setFocus();
+			}else{
+				this.edtCustNm_sc.setFocus();
+			}
+		});
+		
+		return;
+	}
+	
+	
+	// 품목 체크
+	var edtItemCd_scValue = this.edtItemCd_sc.value;
+	var edtItemNm_scValue = this.edtItemNm_sc.value;
+	
+	if(
+		(this.gfnIsNull(edtItemCd_scValue) && !this.gfnIsNull(edtItemNm_scValue)) ||
+		(!this.gfnIsNull(edtItemCd_scValue) && this.gfnIsNull(edtItemNm_scValue))
+	){
+		this.gfnAlert("품목의 코드와 명을 정확히 입력해주세요.", "", function(){
+		
+			if(this.gfnIsNull(edtItemCd_scValue)){
+				this.edtItemCd_sc.setFocus();
+			}else{
+				this.edtItemNm_sc.setFocus();
+			}
+		});
+		
+		return;
+	}
+	
+	this.gfnTransaction("selectDecisOrd");
+
+};
+
+/***********************************************************************************************
+ * @function	: fnSave
+ * @description	: 저장.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSave = function() {
+	//하나라도 체크를 해야함
+	if(this.dsList.getRowCount() == 0) {
+		this.gfnAlert("조회내역이 없습니다.");
+		return;
+	}
+	
+	//하나라도 체크를 해야함
+	if(this.dsList.getCaseCount("CHK==1") <= 0) {
+		this.gfnAlert("1건 이상 선택해야합니다.");
+		return;
+	}
+	
+
+	this.gfnCustomConfirm("출고확정하시겠습니까?", function(sPopId, bResult){
+	
+		if(!bResult) return;
+		
+		this.dsSaveList.clear();
+		this.grd_Main.set_enableredraw(false); // 그리드 새로고침 하지 않음
+		
+		this.dsList.set_filterstr("CHK==1 && WORK_DV_CD=='40'");
+		this.dsSaveList.copyData(this.dsList, true);
+		this.dsList.filter("");
+		
+		this.grd_Main.set_enableredraw(true); // 그리드 새로고침 하지 않음
+		
+		if(this.dsSaveList.getRowCount() <= 0) {
+			this.gfnAlert("주문확정건이 없습니다.");
+			return;
+		}
+		// 출고확정, 택배I/F 저장함 (TB_IFST_RSRV_C)
+		this.gfnTransaction("insertDecisOrd");
+	});
+	
+	
+	
+};
+
+
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+		return;
+	}
+	
+	switch(svcID) {
+		// 공통 코드 조회
+		case "commonCode" :	
+			
+			// 주문상태 데이터셋 "전체" 추가.
+			var nRow = this.dsOrdSt.insertRow();
+			this.dsOrdSt.setColumn(nRow, "CD", "");
+			this.dsOrdSt.setColumn(nRow, "CD_NM", "전체");
+			
+			
+			// 주문상태 데이터셋 필터링 [전체, 피킹완료, 출고확정]
+			this.dsOrdSt.filter("CD == '' || CD == '40' || CD == '50'");
+			
+		break;
+		
+		
+		// 고객 조회조건 처리.
+		case "getCustInfo":
+		
+			// 1건 조회된 경우 조회조건에 셋팅.
+			if(this.dsCustInfo.getRowCount() == 1){
+			
+				this.dsSearch.setColumn(0, "CUST_ID", this.dsCustInfo.getColumn(0,"CUST_ID"));
+				this.dsSearch.setColumn(0, "CUST_NM", this.dsCustInfo.getColumn(0,"CUST_NM"));
+			}
+			// 2건 이상 조회된 경우 팝업창 띄움.
+			else{
+				this.btnCustSearch.click();
+			}
+		
+		break;
+		
+		// 품목 조회조건 처리.
+		case "getItemInfo":
+		
+			// 1건 조회된 경우 조회조건에 셋팅.
+			if(this.dsItemInfo.getRowCount() == 1){
+			
+				this.dsSearch.setColumn(0, "GDS_CD", this.dsItemInfo.getColumn(0,"ITEM_CD"));
+				this.dsSearch.setColumn(0, "ITEM_NM", this.dsItemInfo.getColumn(0,"ITEM_NM"));
+			}
+			// 2건 이상 조회된 경우 팝업창 띄움.
+			else{
+				this.btnItemSearch.click();
+			}
+		
+		break;
+		
+		
+		default :
+		break;
+	}
+};
+
+/***********************************************************************************************
+ * @function	: fn_PopOpen
+ * @description	: 팝업버튼 제어
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.fn_PopOpen = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var btnName	= obj.name;
+	
+	switch(btnName)
+	{
+		 // 검색-고객
+		case "btnCustSearch" :
+			this.fn_OpenPopCust("btnCustSearch"); break;
+		break;
+		
+		//검색-품목
+		case "btnItemSearch" :
+			this.fn_OpenPopItem("btnItemSearch"); break;
+		break;
+		
+		default :
+		break;
+	}
+};
+
+/***********************************************************************************************
+ * @function	: fn_OpenPopCust
+ * @description	: 고객 조회 팝업을 호출한다.
+ * @param		: btnName	- String
+ * @return N/A
+/***********************************************************************************************/
+this.fn_OpenPopCust = function(btnName:String)
+{
+	// 파라미터 설정
+	var popupId = '';	//팝업ID
+	var pCustIdValue = '';	// 품목코드
+	var pCustNmValue = '';	// 품목명
+	
+	if(btnName == "btnCustSearch"){
+		popupId = 'custPop1';
+		pCustIdValue = this.edtCustCd_sc.value;
+		pCustNmValue = this.edtCustNm_sc.value;
+	}
+	
+	// 팝업 호출
+	var oArg = {
+				  pCustId		: pCustIdValue									// 고객코드
+				, pCustNm		: pCustNmValue									// 고객명
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_WMS_P060.xfdl", oArg, sPopupCallBack, oOption);
+
+};
+
+/***********************************************************************************************
+ * @function		: fn_OpenPopItem
+ * @description		: 품목 조회 팝업 호출
+ * @param 			: btnName	- String
+ * @return 			: N/A
+***********************************************************************************************/
+this.fn_OpenPopItem = function(btnName:String)
+{
+	// 파라미터 설정
+	var popupId = '';	//팝업ID
+	var pItemCdValue = '';	// 품목코드
+	var pItemNmValue = '';	// 품목명
+	
+	if(btnName == "btnItemSearch"){
+		popupId = 'itemPop1';
+		pItemCdValue = this.edtItemCd_sc.value;
+		pItemNmValue = this.edtItemNm_sc.value;
+	}else{
+		
+	}
+	
+	// 팝업 호출
+	var oArg = {
+				  pItemCd		: pItemCdValue									// 품목코드
+				, pItemNm		: pItemNmValue									// 품목명
+				, pSeqNo	 	: ""											//
+				, pId			: ""											//
+				, pSelectAll	: "Y"											// 권한만조회
+				, pMultiGb		: "0"											// 1이면 멀티선택가능
+				, pAutosearchGb : "Y"											// 자동 재조회 여부
+				};
+	var oOption = {};															// top, left를 지정하지 않으면 가운데정렬 //"top:20,left:370"
+	var sPopupCallBack = "fnPopupCallback";										// 콜백함수
+	this.gfnOpenPopup(popupId,"baim::BAIM_WMS_P050.xfdl", oArg, sPopupCallBack, oOption);
+};
+
+/***********************************************************************************************
+ * @function	: fnPopupCallBack
+ * @description	: popup Callback
+ * @param		: popupId	- String
+ * @param		: dsObj		- nexacro.NormalDataset
+ * @return N/A
+ ***********************************************************************************************/
+this.fnPopupCallback = function(sPopupId, dsObj)
+{
+	switch(sPopupId) {		
+		case "custPop1" :
+			this.edtCustCd_sc.set_value(dsObj.getColumn(0,"CUST_ID"));
+			this.edtCustNm_sc.set_value(dsObj.getColumn(0,"CUST_NM"));
+		break;
+		
+		case "itemPop1" :
+			this.edtItemCd_sc.set_value(dsObj.getColumn(0,"ITEM_CD"));
+			this.edtItemNm_sc.set_value(dsObj.getColumn(0,"ITEM_NM"));
+		break;
+
+		default :
+		break;
+	}
+};
+
+/***********************************************************************************************
+* USER FUNCTION
+***********************************************************************************************/
+
+
+
+
+ /************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+ 
+/***********************************************************************************************
+ * @function   : gridMain_onheadclick
+ * @description   : 그리드 헤더 클릭 이벤트.
+ * @param      : obj   - nexacro.Grid
+ * @param      : e      - nexacro.GridClickEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.grdOnHeadClick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var strType = obj.getCellProperty("head", e.cell, "edittype");
+   if (strType == "checkbox") {
+      // checkBox Event
+      this.gfnSetGridCheckAll(obj, e);
+   }else {
+      this.gfnGridSort(obj, e);
+   }
+};
+
+/***********************************************************************************************
+ * @function		: fn_CalSetting
+ * @description		: 달력 값 셋팅
+ * @return			: N/A
+/***********************************************************************************************/
+this.fn_CalSetting = function()
+{
+	var dateFm = this.divDate.form;
+	
+	dateFm.fnSetCalFromBindItem("dsSearch", "STA_DT");
+	dateFm.fnSetCalToBindItem("dsSearch", "END_DT");	
+	
+	dateFm.fnSetFromDate(this.gfnGetDate("date").substr(0, 8));
+	dateFm.fnSetToDate(this.gfnGetDate("date").substr(0, 8));
+};
+
+this.fn_editOnKeyDown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	switch( e.keycode ) {
+		case 13 :
+			obj.updateToDataset();
+			this.fnSearch();
+		break;
+		
+		default	:
+		break;
+	}
+};
+
+
+/***********************************************************************************************
+ * @function	: fnExcel,   fnXlsUpld
+ * @description	: 엑셀.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+//엑셀샘플
+this.fnExcel = function(obj:nexacro.Button,e:nexacro.ClickEventInfo) {
+	
+	if(this.grd_Main.rowcount <= 0) {
+		this.gfnAlert("조회내역이 없습니다.");
+		return;
+	}
+	
+	this.gfnExcelExport(this.grd_Main, "sheet1", "출고확정_"+this.gfnGetDate("milli"));
+	
+};
+
+
+
+/***********************************************************************************************
+ * @function	: editOnKeyDown
+ * @description	: edit onkeydown
+ * @param		: obj	- nexacro.Edit
+ * @param		: e		- nexacro.KeyEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnEditOnKeyDown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	var objName = obj.name;
+
+	if( e.keycode === 13 ) {
+	
+		obj.updateToDataset();
+		switch( objName ) {
+			case	'edtCustCd_sc' : this.gfnTransaction("getCustInfo"); break;
+			case	'edtCustNm_sc' : this.gfnTransaction("getCustInfo"); break;
+			case	'edtItemCd_sc' : this.gfnTransaction("getItemInfo"); break;
+			case	'edtItemNm_sc' : this.gfnTransaction("getItemInfo"); break;
+			
+			default	: 	break;
+		}
+	}
+
+};
+
+
+/***********************************************************************************************
+ * @function	: fnEditOnInput
+ * @description	: edit oninput
+ * @param		: obj	- nexacro.Edit
+ * @param		: e		- nexacro.InputEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.fnEditOnInput = function(obj:nexacro.Edit,e:nexacro.InputEventInfo)
+{
+	var objName = obj.name;
+
+	switch( objName ) {
+		case	'edtCustCd_sc' : this.edtCustNm_sc.set_value(''); break;
+		case	'edtCustNm_sc' : this.edtCustCd_sc.set_value(''); break;
+		case	'edtItemCd_sc' : this.edtItemNm_sc.set_value(''); break;
+		case	'edtItemNm_sc' : this.edtItemCd_sc.set_value(''); break;
+		
+	}
+};
+]]></Script>
+    <Objects>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">commonCode</Col>
+            <Col id="OUT_DATASET_LIST">dsOrdSt=ds1</Col>
+            <Col id="QUERY_LIST">q1=WM102</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+            <Col id="SERVICE_BEANNAME">baimCommonService</Col>
+            <Col id="SERVICE_METHOD">getCommonCode</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">selectDecisOrd</Col>
+            <Col id="IN_DATASET_LIST">dsSearch=dsSearch</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="OUT_DATASET_LIST">dsList=dsResult</Col>
+            <Col id="SERVICE_BEANNAME">whobMgmtService</Col>
+            <Col id="SERVICE_METHOD">selectDecisOrd</Col>
+            <Col id="QUERY_LIST"/>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">insertDecisOrd</Col>
+            <Col id="IN_DATASET_LIST">dsSearch=dsSearch dsList=dsSaveList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="OUT_DATASET_LIST">dsList=dsResult</Col>
+            <Col id="SERVICE_BEANNAME">whobMgmtService</Col>
+            <Col id="SERVICE_METHOD">insertDecisOrd</Col>
+            <Col id="QUERY_LIST"/>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getCustInfo</Col>
+            <Col id="SERVICE_BEANNAME"/>
+            <Col id="SERVICE_METHOD"/>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsCustInfo=ds1</Col>
+            <Col id="QUERY_LIST">q1=baimCommonService.getCustInfo</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">getItemInfo</Col>
+            <Col id="SERVICE_BEANNAME"/>
+            <Col id="SERVICE_METHOD"/>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsItemInfo=ds1</Col>
+            <Col id="QUERY_LIST">q1=baimCommonService.getItemInfo</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsList" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="CHK" size="256" type="STRING"/>
+          <Column id="CENT_CD" size="256" type="STRING"/>
+          <Column id="CUST_ID" size="256" type="STRING"/>
+          <Column id="RCPT_YMD" size="256" type="STRING"/>
+          <Column id="CUST_USE_NO" size="256" type="STRING"/>
+          <Column id="MPCK_KEY" size="256" type="STRING"/>
+          <Column id="MPCK_SEQ" type="STRING" size="256"/>
+          <Column id="GDS_CD" type="STRING" size="256"/>
+          <Column id="GDS_NM" type="STRING" size="256"/>
+          <Column id="GDS_QTY" type="STRING" size="256"/>
+          <Column id="REG_EMP_ID" type="STRING" size="256"/>
+          <Column id="REG_DTIME" type="STRING" size="256"/>
+          <Column id="WORK_DV_CD" type="STRING" size="256"/>
+          <Column id="WAREH_CD" type="STRING" size="256"/>
+          <Column id="WAREH_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSaveList" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="CHK" size="256" type="STRING"/>
+          <Column id="CENT_CD" size="256" type="STRING"/>
+          <Column id="CUST_ID" size="256" type="STRING"/>
+          <Column id="RCPT_YMD" size="256" type="STRING"/>
+          <Column id="CUST_USE_NO" size="256" type="STRING"/>
+          <Column id="MPCK_KEY" size="256" type="STRING"/>
+          <Column id="MPCK_SEQ" type="STRING" size="256"/>
+          <Column id="GDS_CD" type="STRING" size="256"/>
+          <Column id="GDS_NM" type="STRING" size="256"/>
+          <Column id="GDS_QTY" type="STRING" size="256"/>
+          <Column id="REG_EMP_ID" type="STRING" size="256"/>
+          <Column id="REG_DTIME" type="STRING" size="256"/>
+          <Column id="WORK_DV_CD" type="STRING" size="256"/>
+          <Column id="WAREH_CD" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsOrdSt" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="CD" size="256" type="STRING"/>
+          <Column id="CD_NM" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSearch" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="STA_DT" size="256" type="STRING"/>
+          <Column id="END_DT" size="256" type="STRING"/>
+          <Column id="CUST_ID" size="256" type="STRING"/>
+          <Column id="GDS_CD" size="256" type="STRING"/>
+          <Column id="CUST_USE_NO" size="256" type="STRING"/>
+          <Column id="MPCK_KEY" size="256" type="STRING"/>
+          <Column id="WORK_DV_CD" size="256" type="STRING"/>
+          <Column id="WAREH_CD" type="STRING" size="256"/>
+          <Column id="CUST_NM" type="STRING" size="256"/>
+          <Column id="ITEM_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsSubSearch1">
+        <ColumnInfo>
+          <Column id="USER_ID" size="256" type="STRING"/>
+          <Column id="DUTY_DV" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsCustInfo">
+        <ColumnInfo>
+          <Column id="CUST_ID" type="STRING" size="256"/>
+          <Column id="CUST_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsItemInfo">
+        <ColumnInfo>
+          <Column id="ITEM_CD" type="STRING" size="256"/>
+          <Column id="ITEM_NM" type="STRING" size="256"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsBtn">
+        <ColumnInfo>
+          <Column id="BTN_SEL" type="STRING" size="256"/>
+          <Column id="BTN_ADD" type="STRING" size="256"/>
+          <Column id="BTN_SAV" type="STRING" size="256"/>
+          <Column id="BTN_DEL" type="STRING" size="256"/>
+          <Column id="BTN_XLS" type="STRING" size="256"/>
+          <Column id="BTN_PRT" type="STRING" size="256"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="BTN_SEL">1</Col>
+            <Col id="BTN_ADD">0</Col>
+            <Col id="BTN_SAV">1</Col>
+            <Col id="BTN_DEL">0</Col>
+            <Col id="BTN_PRT">0</Col>
+            <Col id="BTN_XLS">1</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="edtOrdNo" propid="value" datasetid="dsSearch" columnid="CUST_USE_NO"/>
+      <BindItem id="item1" compid="edtMpckNo" propid="value" datasetid="dsSearch" columnid="MPCK_KEY"/>
+      <BindItem id="item2" compid="cboOrdSt" propid="value" datasetid="dsSearch" columnid="WORK_DV_CD"/>
+      <BindItem id="item3" compid="edtCustCd_sc" propid="value" datasetid="dsSearch" columnid="CUST_ID"/>
+      <BindItem id="item4" compid="edtItemCd_sc" propid="value" datasetid="dsSearch" columnid="GDS_CD"/>
+      <BindItem id="item5" compid="cboWareh" propid="value" datasetid="dsSearch" columnid="WAREH_CD"/>
+      <BindItem id="item6" compid="edtCustNm_sc" propid="value" datasetid="dsSearch" columnid="CUST_NM"/>
+      <BindItem id="item7" compid="edtItemNm_sc" propid="value" datasetid="dsSearch" columnid="ITEM_NM"/>
+      <BindItem id="item8" compid="calYmdTo_sc" propid="value" datasetid="dsSearch" columnid="END_DT"/>
+      <BindItem id="item9" compid="calYmdFr_sc" propid="value" datasetid="dsSearch" columnid="STA_DT"/>
+    </Bind>
+  </Form>
+</FDL>
