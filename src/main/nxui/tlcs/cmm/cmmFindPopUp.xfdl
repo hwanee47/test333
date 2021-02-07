@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form cssclass="bg_pop01" height="130" id="commFindPopUp" onload="Form_com_onload" width="320">
+    <Layouts>
+      <Layout height="130" mobileorientation="landscape" width="320">
+        <Combo codecolumn="index" datacolumn="value" height="28" id="cbo_category" index="-1" innerdataset="@dsCombo" left="10" taborder="0" top="6" value="" width="179"/>
+        <Edit height="28" id="edt_keyword" left="10" onkeydown="edt_keyword_onkeydown" taborder="1" top="46" width="179"/>
+        <Button domainId="T1979" height="28" id="btn_search" left="212" onclick="btn_search_onclick" taborder="2" text="찾기" top="6" width="93"/>
+        <Button height="28" id="btn_next" left="212" onclick="btn_next_onclick" taborder="3" text="Next" top="btn_search:12" width="93"/>
+        <Button height="28" id="btn_back" left="214" onclick="btn_back_onclick" taborder="4" text="Back" top="btn_next:12" width="93"/>
+        <Button height="28" id="btn_close" left="10" onclick="btn_close_onclick" taborder="5" text="Close" top="86" width="179"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[include "lib::lib_Form.xjs"
+
+this.pGrid;
+this.pDsObj;
+
+this.btn_search_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var colId = this.dsCombo.lookup("index", this.cbo_category.value, "body").replace("bind:", "");
+	this.gfnFildRowAs(this.pGrid, this.pDsObj, colId, this.edt_keyword.text);
+};
+
+this.btn_close_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.close();
+};
+
+this.Form_com_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	var objOwnerFrame = this.getOwnerFrame();
+	this.pGrid = objOwnerFrame.param.GRID;
+	this.pDsObj = objOwnerFrame.form.lookup(this.pGrid.binddataset);
+	
+	
+	this.fnGetHeadText();
+	
+// 	var pGridColCnt = pGrid.getCellCount("body");
+// 
+// 	for(var i=0; i<pGridColCnt; i++) {
+// 		var colStr = pGrid.getCellProperty("body", i, "text");
+// 		var colId = colStr.replace("bind:", "");
+// 		var value = pGrid.getCellProperty("head", i, "text");
+// 		var nRow = this.dsCombo.addRow();
+// 		
+// 		this.dsCombo.setColumn(nRow, "CODE", colId);
+// 		this.dsCombo.setColumn(nRow, "VALUE", value);
+// 	}
+};
+
+
+/************************************************************************************************
+ * 사용자 FUNCTION 영역
+ ************************************************************************************************/
+/**
+ * @description 그리드의 헤드정보를 받아와 콤보 세팅
+*/
+this.fnGetHeadText = function ()
+{
+	this.dsCombo.clearData();
+	// 바디의 갯수만큼 디스플레이정보 및 콤보의 정보를 설정한다.     
+    for(var i=0; i<this.pGrid.getCellCount("Body"); i++)
+    {
+        if( this.pGrid.getCellProperty("Body", i, "displaytype") != "image" )
+        {
+			var sText = this.pGrid.getCellProperty("Body", i, "text");	
+			if( sText == "bind:CHK") continue; //공통체크박스 제외
+			var sBind;
+			if ( this.gfnIsNull(sText) == false ){
+				sBind = sText.substr(0, 5);
+			}else {
+				sBind = "";
+			}
+			
+			if (sBind == "bind:")
+			{
+				var nrow = this.dsCombo.addRow();
+				
+				this.dsCombo.setColumn(nrow, "body"			, this.pGrid.getCellProperty("Body", i, "text"));            
+				this.dsCombo.setColumn(nrow, "displaytype"	, this.pGrid.getCellProperty("Body", i, "displaytype"));
+				this.dsCombo.setColumn(nrow, "edittype"		, this.pGrid.getCellProperty("Body", i, "edittype"));
+				this.dsCombo.setColumn(nrow, "index"		,   i);
+			}
+        }
+    }
+	// 바디에 매칭되는 헤더의 타이틀을 설정한다. 
+    for(var i=0;i<this.pGrid.getCellCount("Head");i++)
+    {
+        var title  = this.pGrid.getCellProperty("Head", i,   "text");
+        var col    = this.pGrid.getCellProperty("Head", i,   "col");
+        var body   = this.pGrid.getCellProperty("Body", col, "text");
+			
+            
+        var nrow = this.dsCombo.findRow("body", body);   
+        if( nrow != -1 )
+        {
+            this.dsCombo.setColumn(nrow, "index"	,   col);
+            this.dsCombo.setColumn(nrow, "value"	,    title);
+        }
+    }
+};
+
+this.edt_keyword_onkeydown = function(obj:nexacro.Edit,e:nexacro.KeyEventInfo)
+{
+	if(e.keycode == 13) {
+		var colId = this.dsCombo.lookup("index", this.cbo_category.value, "body").replace("bind:", "");
+		this.gfnFildRowAs(this.pGrid, this.pDsObj, colId, this.edt_keyword.text);
+	}
+};
+
+
+this.btn_next_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	
+};
+
+this.btn_back_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	
+};
+]]></Script>
+    <Objects>
+      <Dataset id="dsCombo">
+        <ColumnInfo>
+          <Column id="value" size="256" type="STRING"/>
+          <Column id="body" size="256" type="STRING"/>
+          <Column id="displaytype" size="256" type="STRING"/>
+          <Column id="edittype" size="256" type="STRING"/>
+          <Column id="index" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+  </Form>
+</FDL>

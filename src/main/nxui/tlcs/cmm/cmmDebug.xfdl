@@ -1,0 +1,1010 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form height="703" id="cmmDebug" left="0" onload="form_onload" titletext="디버깅" top="0" width="1080">
+    <Layouts>
+      <Layout>
+        <Static bottom="0" id="Static04" left="0" right="0" style="border:2 solid black ;" taborder="9" top="0"/>
+        <Static height="20" id="Static00" left="0.74%" right="85.37%" taborder="0" text="Local" top="11"/>
+        <Combo codecolumn="PATH" datacolumn="NAME" displayrowcount="25" height="20" id="cboDataset" innerdataset="@dsDataset" left="4.35%" onitemchanged="cboDataset_onitemchanged" onkeydown="combo_onkeydown" right="68.8%" taborder="1" top="10" type="filterlike"/>
+        <Static height="20" id="Static01" left="0.65%" right="95.83%" taborder="2" text="Global" top="37"/>
+        <Combo codecolumn="NAME" datacolumn="PATH" displayrowcount="25" height="20" id="cboGDS" innerdataset="@dsGDS" left="4.26%" onitemchanged="cboGDS_onitemchanged" onkeydown="combo_onkeydown" right="68.80%" taborder="3" top="36" type="filterlike"/>
+        <Static height="20" id="Static02" left="67.41%" right="25.74%" taborder="4" text="Grid" top="11"/>
+        <Combo codecolumn="NAME" datacolumn="PATH" displayrowcount="25" height="20" id="cboGrid" innerdataset="@dsGrid" left="73.52%" onitemchanged="fnMakeGridFormats" onkeydown="combo_onkeydown" right="0.83%" taborder="5" text="Combo00" top="10"/>
+        <Tab bottom="6" id="tabComponent" left="6" onchanged="tabComponent_onchanged" right="6" scrollbars="autoboth" tabindex="0" taborder="6" top="59">
+          <Tabpages>
+            <Tabpage id="tabpage1" text="Dataset">
+              <Layouts>
+                <Layout>
+                  <Grid binddataset="dsGridDataset" bottom="5" cellmovingtype="col" cellsizingtype="col" id="grdDataset" left="1" right="1" selecttype="row" taborder="0" top="5" useinputpanel="false">
+                    <Formats/>
+                  </Grid>
+                </Layout>
+              </Layouts>
+            </Tabpage>
+            <Tabpage id="tabpage2" text="SaveXML">
+              <Layouts>
+                <Layout>
+                  <TextArea bottom="5" id="txtSaveXML" left="1" right="1" taborder="0" top="5"/>
+                </Layout>
+              </Layouts>
+            </Tabpage>
+            <Tabpage id="tabpage3" text="Dataset To Grid">
+              <Layouts>
+                <Layout>
+                  <TextArea bottom="5" id="txtSetGrid" left="1" right="1" taborder="0" top="5"/>
+                </Layout>
+              </Layouts>
+            </Tabpage>
+            <Tabpage id="tabpage4" text="Grid Format">
+              <Layouts>
+                <Layout>
+                  <TextArea bottom="5" id="txtGridFormat" left="1" right="1" taborder="0" top="5"/>
+                </Layout>
+              </Layouts>
+            </Tabpage>
+            <Tabpage id="tabpage5" text="Components">
+              <Layouts>
+                <Layout>
+                  <Grid autofittype="col" binddataset="dsProperties" bottom="5" cellmovingtype="col" cellsizingtype="col" id="grdProperties" left="1" right="719" selecttype="area" taborder="0" top="5" useinputpanel="false">
+                    <Formats>
+                      <Format id="default">
+                        <Columns>
+                          <Column size="160"/>
+                          <Column size="186"/>
+                        </Columns>
+                        <Rows>
+                          <Row band="head" size="24"/>
+                          <Row size="24"/>
+                        </Rows>
+                        <Band id="head">
+                          <Cell text="Properties Name"/>
+                          <Cell col="1" text="Value"/>
+                        </Band>
+                        <Band id="body">
+                          <Cell style="align:left;" text="bind:NAME"/>
+                          <Cell col="1" edittype="normal" style="align:left;" text="bind:VALUE"/>
+                        </Band>
+                      </Format>
+                    </Formats>
+                  </Grid>
+                  <TextArea bottom="5" id="txtScript" left="355" right="1" taborder="1" top="5"/>
+                </Layout>
+              </Layouts>
+              <InitValue>
+                <TextArea id="txtScript" style="color:black;font:12 Fixedsys;"/>
+              </InitValue>
+            </Tabpage>
+            <Tabpage id="tabpage6" text="Variable">
+              <Layouts>
+                <Layout>
+                  <Grid autofittype="col" binddataset="dsVariable" bottom="5" cellmovingtype="col" cellsizingtype="col" id="grdVariable" left="1" right="1" selecttype="area" taborder="0" top="29" useinputpanel="false">
+                    <Formats>
+                      <Format id="default">
+                        <Columns>
+                          <Column size="340"/>
+                          <Column size="926"/>
+                        </Columns>
+                        <Rows>
+                          <Row band="head" size="24"/>
+                          <Row size="24"/>
+                        </Rows>
+                        <Band id="head">
+                          <Cell text="Variable Name"/>
+                          <Cell col="1" text="Value"/>
+                        </Band>
+                        <Band id="body">
+                          <Cell style="align:left;color:BIND(COLOR);color2:BIND(COLOR);" text="bind:NAME"/>
+                          <Cell col="1" edittype="normal" style="align:left;color:BIND(COLOR);color2:BIND(COLOR);" text="bind:VALUE"/>
+                        </Band>
+                      </Format>
+                    </Formats>
+                  </Grid>
+                  <Combo codecolumn="CODE" datacolumn="NAME" height="20" id="cboVariable" index="0" innerdataset="@dsVariableType" left="85" onitemchanged="tabComponent_tabpage6_cboVariable_onitemchanged" taborder="1" text="Local" top="6" value="LOCAL" width="136"/>
+                  <Static height="20" id="Static00" left="0" taborder="2" text="Variable Type" top="6" width="75"/>
+                </Layout>
+              </Layouts>
+              <InitValue>
+                <Static id="Static00" text="Variable Type"/>
+              </InitValue>
+            </Tabpage>
+            <Tabpage id="tabpage7" text="Run Script">
+              <Layouts>
+                <Layout>
+                  <TextArea bottom="47" id="txtScript" left="1" right="111" taborder="0" top="5"/>
+                  <Button height="40" id="btnRunScript" left="959" onclick="fnExecScript" taborder="1" text="Run Script" top="5" width="108"/>
+                  <TextArea bottom="5" height="39" id="txtResult" left="0.19%" readonly="true" right="110" taborder="2"/>
+                </Layout>
+              </Layouts>
+            </Tabpage>
+          </Tabpages>
+        </Tab>
+        <Static height="20" id="Static03" left="67.41%" right="25.74%" taborder="7" text="Component" top="33"/>
+        <Combo codecolumn="NAME" datacolumn="PATH" displayrowcount="25" height="20" id="cboComponents" innerdataset="@dsComponents" left="73.52%" onitemchanged="cboComponents_onitemchanged" onkeydown="combo_onkeydown" right="0.83%" taborder="8" top="33"/>
+        <Edit height="20" id="edtGlobal" left="37.04%" onkeydown="edt_global_onkeydown" right="33.52%" taborder="10" top="36"/>
+        <Edit height="20" id="edtLocal" left="37.04%" onkeydown="edt_local_onkeydown" right="33.52%" taborder="11" top="10"/>
+        <Button domainId="T2048" height="20" id="btnLocalFilter" left="339" onclick="btnLocalFilter_onclick" taborder="12" text="필터해제" top="10" width="59"/>
+        <Button domainId="T2048" height="20" id="btnGlobalFilter" left="339" onclick="btnGlobalFilter_onclick" taborder="13" text="필터해제" top="36" width="59"/>
+        <Button domainId="T1483" height="20" id="btnCreatSQL" left="1002" onclick="btnCreatSQL_onclick" taborder="14" text="SQL 생성" top="61" width="69"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  컨설팅 표준화 작업
+*  @MenuPath        
+*  @FileName 		cmmDebug.xfdl 
+*  @Creator 			kyk
+*  @CreateDate 	2017.10.17
+*  @Desction         디버그 지원
+************** 소스 수정 이력 ***************************************************
+*  date          		Modifier                Description
+*******************************************************************************
+*  2017.10.17     	kyk       	           최초 생성
+*******************************************************************************
+*/
+
+/***********************************************************************************
+* include 선언부  													                                                                     *
+***********************************************************************************/
+include "lib::cmmInclude.xjs";
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+this.fvCurrentCombo = "cboDataset"; // 현재선택이 로컬데이터셋인지 / GDS인지의 구분처리 
+
+/***********************************************************************************************
+* FORM EVENT 영역(onload)
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	// Form Load 시 공통 기능 처리
+	//this.gfnFormOnLoad(this); //초기화[필수]
+
+    // 로컬 데이터셋을 가져온다. 
+	this.fnSaveDatasetList(this.opener);
+	this.cboDataset.set_index(0);	
+	this.fnMakeDatasetGrid();
+
+	// 글로벌 데이터셋을 가져온다. 
+	this.fnSaveGDSList();
+	this.dsGDS.set_keystring("S:NAME");
+
+    // 화면의 GRID의 목록을 가져온다. 
+	this.fnSaveGridList(this.opener);
+	this.cboGrid.set_index(0);	
+
+    // 화면의 컴포넌트의 목록을 가져온다. 
+	this.fnSaveComponetsList(this.opener);
+	this.cboComponents.set_index(0);	
+
+	// 화면에서 사용되는 변수목록을 가져온다. 
+	this.dsVariable.clearData();
+	this.fnSaveVariableList(this.opener);
+	
+	// 글로벌 변수 목록을 가져온다.
+	this.fnSaveGlobalVariableList();
+	this.dsVariable.set_keystring("S:LVL+NAME");
+};
+
+/************************************************************************************************
+* TRANSACTION 서비스 호출 처리
+************************************************************************************************/
+
+/************************************************************************************************
+ * CALLBACK 콜백 처리부분
+ ************************************************************************************************/
+ 
+  /************************************************************************************************
+ * 사용자 FUNCTION 영역
+ ************************************************************************************************/
+/**
+ * @description 데이터셋의 목록을 찾아 저장한다. 
+*/
+this.fnSaveDatasetList = function(targetObj, fullpath)
+{
+	//trace("=============== targetObj.name : " + targetObj.name);
+    var datasetlist = targetObj.objects;
+    for(var i=0;i<datasetlist.length;i++)
+    {
+		if( datasetlist[i]+"" == "[object Dataset]" )
+		{    
+            var nRow = this.dsDataset.addRow();
+            this.dsDataset.setColumn(nRow, "NAME", datasetlist[i].id);
+
+            if( this.gfnIsNull(fullpath) )
+            {
+                this.dsDataset.setColumn(nRow, "PATH", datasetlist[i].id);
+            }
+            else
+            {
+                // div_work.form. 으로 나오는 걸 잘라낸다. 
+                var displayname = nexacro.replaceAll(fullpath+"."+datasetlist[i].id, "div_work.form.", "");				
+                this.dsDataset.setColumn(nRow, "NAME", displayname);
+                this.dsDataset.setColumn(nRow, "PATH", fullpath+"."+datasetlist[i].id);
+            }
+        }
+    }
+    
+    var objList = targetObj.components;
+    var sObjType;
+    for(var i=0;i<objList.length;i++)
+    {
+        sObjType = objList[i]+"";
+
+        // Div
+        if( sObjType == "[object Div]" )
+        {
+            if( this.gfnIsNull(fullpath) )
+                this.fnSaveDatasetList(objList[i].form, objList[i].id+".form");
+            else
+                this.fnSaveDatasetList(objList[i].form, fullpath+".form."+objList[i].id);
+        }
+        // TabPage
+        else if( sObjType == "[object Tab]" )
+        {
+            var tabPageList = objList[i].form.components;
+            for(var j=0;j<tabPageList.length;j++)
+            {
+                if( this.gfnIsNull(fullpath) )
+                    this.fnSaveDatasetList(tabPageList[j].form, objList[i].id+".form."+tabPageList[j].id);
+                else
+                    this.fnSaveDatasetList(tabPageList[j].form, fullpath+".form."+objList[i].id+"."+tabPageList[j].id);
+            }
+        }
+    }
+};
+
+/**
+ * @description 화면의 그리드목록을 저장한다. 
+*/
+this.fnSaveGridList = function(targetObj, fullpath)
+{
+    var sObjType;
+    
+    var objList = targetObj.components;    
+    for(var i=0;i<objList.length;i++)
+    {
+        sObjType = objList[i]+"";
+        
+		if( objList[i]+"" == "[object Grid]" )
+		{    
+            var nRow = this.dsGrid.addRow();
+            this.dsGrid.setColumn(nRow, "NAME",   objList[i].name);
+
+            if( this.gfnIsNull(fullpath) )
+                this.dsGrid.setColumn(nRow, "PATH", objList[i].name);
+            else
+                this.dsGrid.setColumn(nRow, "PATH", fullpath+"."+objList[i].name);
+        }        
+
+        // Div
+        if( sObjType == "[object Div]" )
+        {
+            if( this.gfnIsNull(fullpath) )
+                this.fnSaveGridList(objList[i].form, objList[i].name+".form");
+            else
+                this.fnSaveGridList(objList[i].form, fullpath+".form."+objList[i].name);
+        }
+        // TabPage
+        else if( sObjType == "[object Tab]" )
+        {
+            var tabPageList = objList[i].components;
+            for(var j=0;j<tabPageList.length;j++)
+            {
+                if( this.gfnIsNull(fullpath) )
+                    this.fnSaveGridList(tabPageList[j].form, objList[i].name+".form."+tabPageList[j].name);
+                else
+                    this.fnSaveGridList(tabPageList[j].form, fullpath+"."+objList[i].name+".form."+tabPageList[j].name);
+            }
+        }
+    }
+};
+
+/**
+ * @description 화면의 모든 Object를 저장한다. 
+*/
+this.fnSaveComponetsList = function(targetObj, fullpath)
+{
+	//trace("=============== fnSaveComponetsList targetObj.name : " + targetObj.name);
+    var sObjType;    
+    var objList = targetObj.components;    
+    for(var i=0;i<objList.length;i++)
+    {
+        sObjType = objList[i]+"";
+
+        // Div
+        if( sObjType == "[object Div]" )
+        {
+            if( this.gfnIsNull(fullpath) )
+                this.fnSaveComponetsList(objList[i].form, objList[i].name+".form");
+            else
+                this.fnSaveComponetsList(objList[i].form, fullpath+"."+objList[i].name+".form");
+        }
+        // TabPage
+        else if( sObjType == "[object Tab]" )
+        {
+            var tabPageList = objList[i].components;
+            for(var j=0;j<tabPageList.length;j++)
+            {
+                if( this.gfnIsNull(fullpath) )
+                    this.fnSaveComponetsList(tabPageList[j].form, objList[i].name+".form."+tabPageList[j].name);
+                else
+                    this.fnSaveComponetsList(tabPageList[j].form, fullpath+"."+objList[i].name+".form."+tabPageList[j].name);
+            }
+        }
+        else
+        {
+            var nRow = this.dsComponents.addRow();
+            this.dsComponents.setColumn(nRow, "NAME",   objList[i].name);
+
+            if( this.gfnIsNull(fullpath) )
+                this.dsComponents.setColumn(nRow, "PATH", objList[i].name);
+            else
+                this.dsComponents.setColumn(nRow, "PATH", fullpath+"."+objList[i].name);
+        }
+    }
+};
+
+/**
+ * @description 글로벌 데이터셋 목록을 만든다.  
+*/
+this.fnSaveGDSList = function()
+{
+	var objApp = nexacro.getApplication();
+    var applicationobj = objApp.all;
+    for(var i=0;i<applicationobj.length;i++)
+    {
+		if( applicationobj[i]+"" == "[object Dataset]" )
+		{
+		    try
+		    {
+                if( applicationobj[i].id.indexOf(".") == -1 )
+                {
+                    var nRow = this.dsGDS.addRow();
+                    this.dsGDS.setColumn(nRow, "NAME", applicationobj[i].id);
+                    this.dsGDS.setColumn(nRow, "PATH", applicationobj[i].id);
+                }
+            }
+            catch(e)
+            {
+				trace(">>>> e Message" + e);
+            }
+		}
+    } 
+};
+
+/**
+ * @description Dataset을 GRID에 표시한다.     
+*/
+this.fnMakeDatasetGrid = function()
+{
+    var dataset;
+
+    if( this.fvCurrentCombo == "cboDataset" )
+    {
+        if( this.cboDataset.index == -1 ) return;
+        
+        dataset = eval("this.opener."+this.cboDataset.value);
+    }
+    else
+    {
+        if( this.cboGDS.index == -1 ) return;
+        
+		var objApp = nexacro.getApplication() ;
+        dataset = objApp[this.cboGDS.text];
+    } 
+    
+    // 데이터셋의 정보가 존재하지 않으면 
+    if( dataset.getColCount() < 1 )
+    {
+        var formats = "";
+        formats += '<Formats>\n';
+        formats += '<Format id="default">\n';
+        formats += '<Columns></Columns>\n';
+        formats += '<Rows><Row size="24" band="head" /><Row size="24" /></Rows>\n';
+        formats += '<Band id="head"></Band>\n';
+        formats += '<Band id="body"></Band>\n';
+        formats += '</Format>\n';
+        formats += '</Formats>';
+        
+        this.tabComponent.tabpage1.form.Grid00.set_formats(formats);
+        return;
+    }
+    
+    var columns = '    <Column size="30" />\n';
+    var head    = '    <Cell col="0" text=""/>\n';
+    //var body    = '    <Cell col="0" displaytype="image" text="expr:(dataset.getRowType(currow)==2)?\'theme://images/sta_n.png\':(dataset.getRowType(currow)==4)?\'theme://images/sta_u.png\':(dataset.getRowType(currow)==8)?\'theme://images/sta_d.png\':\'default\'"/>\n';
+	var body    = '    <Cell col="0" displaytype="normal" text="expr:(dataset.getRowType(currow)==2)?\'I\':(dataset.getRowType(currow)==4)?\'M\':(dataset.getRowType(currow)==8)?\'\':\'\'"/>\n';    
+	
+    for(var i=0;i<dataset.getColCount();i++)
+    {
+        var columinfo = dataset.getColumnInfo(i);
+        var columname = "";
+        var columsize = "";
+        var columtype = "";
+        
+        try
+        {
+             columname = columinfo.name;
+             columsize = parseInt(columinfo.size);
+             columtype = columinfo.type.toUpperCase();
+        }
+        catch(e)
+        {
+             columname = "undefined";
+             columsize = 50;
+             columtype = "STRING";
+        }
+        
+        //Sonar Qube Unused local variables should be removed 조치 JBC 2016-09-20
+        //var columwidth= 100;
+        var align     = "";
+        
+        if( columtype == "STRING" )
+        {
+            columsize = columsize*9;
+            
+            if( columsize < columname.length*9 )
+            {
+                columsize = columname.length*9;
+            }
+            
+            if( columsize > 200 )            
+                columns += '    <Column size="200" />\n';
+            else
+                columns += '    <Column size="'+columsize+'" />\n';                
+                
+            align = 'style="align:left;"';
+        }
+        else if( columtype == "INT" )
+        {
+            columns += '<Column size="80" />\n';
+            align = 'style="align:right;"';
+        }
+        else if( columtype == "FLOAT" )
+        {
+            columns += '<Column size="80" />\n';
+            align = 'style="align:right;"';
+        }
+        else if( columtype == "DATE" )
+        {
+            columns += '<Column size="88" />\n';
+            align = 'style="align:center;"';
+        }
+        else if( columtype == "TIME" )
+        {
+            columns += '<Column size="88" />\n';
+            align = 'style="align:center;"';
+        }
+        else if( columtype == "DATETIME" )
+        {
+            columns += '<Column size="120" />\n';
+            align = 'style="align:center;"';
+        }
+        else if( columtype == "BIGDECIMAL" )
+        {
+            columns += '<Column size="120" />\n';
+            align = 'style="align:right;"';
+        }
+        else 
+        {
+            columns += '<Column size="120" />\n';
+            align = 'style="align:left;"';
+        }
+        
+        head += '    <Cell col="'+(i+1)+'" text="'+columname+'"/>\n';
+        body += '    <Cell col="'+(i+1)+'" '+align+' text="bind:'+columname+'" displaytype="normal" edittype="normal"/>\n';
+    }
+    
+    var formats = "";
+    formats += '<Formats>\n';
+    formats += '<Format id="default">\n';
+    formats += '<Columns>\n'+columns.substring(0,columns.length-1)+'\n</Columns>\n';
+    formats += '<Rows>\n    <Row size="24" band="head" />\n    <Row size="24" />\n</Rows>\n';
+    formats += '<Band id="head">\n'+head.substring(0,head.length-1)+'\n</Band>\n';
+    formats += '<Band id="body">\n'+body.substring(0,body.length-1)+'\n</Band>\n';
+    formats += '</Format>\n';
+    formats += '</Formats>';
+    
+    this.tabComponent.tabpage1.form.grdDataset.set_binddataset(dataset);
+    this.tabComponent.tabpage1.form.grdDataset.set_formats(formats);
+};
+
+/**
+ * @description 데이터셋의 내용을 XML로 표시한다. 
+*/
+this.fnMakeDatasetXml = function()
+{
+    var dataset;
+
+    if( this.fvCurrentCombo == "cboDataset" )
+    {
+        if( this.cboDataset.index == -1 ) return;
+        
+        dataset = eval("this.opener."+this.cboDataset.value);
+    }
+    else
+    {
+        if( this.cboGDS.index == -1 ) return;
+
+		var objApp = nexacro.getApplication() ;
+        dataset = objApp[this.cboGDS.text];
+    }     
+    
+    var text = nexacro.replaceAll(dataset.saveXML(), '<Dataset id="'+dataset.id+'">', '');
+    text = nexacro.replaceAll(text, '</Dataset>', '');
+    this.tabComponent.tabpage2.form.txtSaveXML.set_value(text);
+};
+
+/**
+ * @description 데이터셋을 GRID로 자동생성해준다
+*/ 
+this.fnMakeDatasetGridFormat = function()
+{
+    this.tabComponent.tabpage3.form.txtSetGrid.set_value(this.tabComponent.tabpage1.form.grdDataset.formats);
+};
+
+/**
+ * @description 화면의 그리드의 포맷을 가져온다. 
+*/  
+this.fnMakeGridFormats = function()
+{
+    if( this.cboGrid.index == -1 ) return;
+    
+    var targetgrid = eval("this.opener."+this.cboGrid.text);
+    
+    var formats = nexacro.replaceAll(targetgrid.formats, "><", ">\n<");
+    formats = nexacro.replaceAll(formats, "<Column ", "    <Column ");
+    formats = nexacro.replaceAll(formats, "<Cell ", "    <Cell ");
+    formats = nexacro.replaceAll(formats, "<Row ", "    <Row ");
+
+    // 리사이징한 그리드의 현재 컬럼 사이즈를 계산한다. 
+    var newcolumn = "";    
+    for(var i=0;i<targetgrid.getCellCount("Body");i++)
+    {
+        newcolumn += '    <Column size="'+targetgrid.getRealColSize(i, true)+'"/>\n';
+    }        
+    formats = formats.split("<Columns>")[0]+"<Columns>\n"+newcolumn +"</Columns>"+formats.split("</Columns>")[1]; 
+    
+    this.tabComponent.tabpage4.form.txtGridFormat.set_value(formats);    
+    this.tabComponent.set_tabindex(3);
+};
+
+/**
+ * @description 컴포넌트의 모든속성을 디스플레이한다
+*/ 
+this.fnMakeCompoentsData = function()
+{
+    if( this.cboComponents.index == -1 ) return;
+    
+    var targetobj = eval("this.opener."+this.cboComponents.text);
+    
+    this.dsProperties.clearData();
+    this.dsProperties.set_enableevent(false);
+    for(var name in targetobj)
+    {
+        var value = targetobj[name]+"";
+        
+        if( name[0] == "_" ) continue;
+        if( value == "[object Object]" ) continue;
+        if( value.substring(0, 8) == "function" ) continue;
+        if( value.substring(0, 7) == "control" ) continue;        
+
+        if( this.gfnIsNull(value) ) 
+        {
+            var nrow = this.dsProperties.addRow();
+            this.dsProperties.setColumn(nrow, "NAME", name);
+            this.dsProperties.setColumn(nrow, "VALUE", "");
+        }
+        else
+        {
+            // 이벤트에 대한 처리 
+            if( value.indexOf("[object") != -1 )
+            {
+                if( value.indexOf("EventListener") != -1 )
+                {
+                    var eventhandler = targetobj.getEventHandler(name, 0);
+                    
+                    if( !this.gfnIsNull(eventhandler) ) 
+                    {
+                        var nrow = this.dsProperties.addRow();
+                        this.dsProperties.setColumn(nrow, "NAME",    name);
+                        this.dsProperties.setColumn(nrow, "VALUE",   "function");
+                        this.dsProperties.setColumn(nrow, "FUNCTION", eventhandler);
+                        this.dsProperties.setColumn(nrow, "COLOR",    "red");
+                    }
+                }
+            }
+            else
+            {
+                var nrow = this.dsProperties.addRow();
+                this.dsProperties.setColumn(nrow, "NAME",    name);
+                this.dsProperties.setColumn(nrow, "VALUE", value);
+            }
+        }
+    }
+    this.dsProperties.set_enableevent(true);    
+    this.dsProperties.set_rowposition(0);
+};
+
+/**
+ * @description 화면에서 사용되는 모든 변수를 찾아 데이터셋에 저장한다. 
+*/ 
+this.fnSaveVariableList = function(targetObj, fullpath)
+{
+	//trace("================ fnSaveVariableList targetObj : " + targetObj.name);
+	
+	sObjType = targetObj +"";
+		
+    // 해당 OBJECT의 전역변수를 찾아낸다. 
+    this.dsVariable.set_enableevent(false);
+    for(var name in targetObj)
+    {        
+        // 변수를 찾는방법을 x_ 또는 xx_ 로 해서 처리한다. 
+        if( name[1] == "_" || name[2] == "_" )
+        {
+            // 제외처리대상변수명        
+            var value = targetObj[name]+"";        
+            if( value.indexOf("[object") != -1 ) continue;
+            if( value.substring(0, 8) == "function" ) continue;
+			if( !targetObj.hasOwnProperty(name)) continue;
+			
+            // 글로벌변수 
+            if( name[0].toUpperCase() == "G" )
+            {
+                // 글로벌 변수는 하나만이 존재하기 때문에.. 
+                if( this.dsVariable.findRow("NAME", name) == -1 )
+                {        
+                    var nrow = this.dsVariable.addRow();    
+                    this.dsVariable.setColumn(nrow, "NAME",  name);
+                    this.dsVariable.setColumn(nrow, "VALUE", value);
+                    this.dsVariable.setColumn(nrow, "TYPE",  "GLOBAL");
+                    this.dsVariable.setColumn(nrow, "LVL",   0);
+                }
+            }
+            // 로컬변수 
+            else
+            {
+                if( !this.gfnIsNull(fullpath) )
+                {
+                    name = fullpath+"."+name;
+                }
+            
+                if( this.dsVariable.findRow("NAME", name) == -1 )
+                {
+                    var nrow = this.dsVariable.addRow();    
+                    this.dsVariable.setColumn(nrow, "NAME",  name);
+                    this.dsVariable.setColumn(nrow, "VALUE", value);
+                    this.dsVariable.setColumn(nrow, "TYPE",  "LOCAL");
+                    this.dsVariable.setColumn(nrow, "LVL",   name.split(".").length);
+                }
+            }
+        }
+    }
+	this.dsVariable.set_enableevent(true);
+	
+    // 해당 폼의 하위 OBJECT에 대한 변수도 같이 찾아온다. 
+    var sObjType;    
+    var objList = targetObj.components;    
+    for(var i=0;i<objList.length;i++)
+    {		
+        sObjType = objList[i]+"";
+		
+        // Div
+        if( sObjType == "[object Div]" )
+        {
+            if( this.gfnIsNull(fullpath) )
+                this.fnSaveVariableList(objList[i].form, objList[i].name+".form");
+            else
+                this.fnSaveVariableList(objList[i].form, fullpath+"."+objList[i].name+".form");
+        }
+        // TabPage
+        else if( sObjType == "[object Tab]" )
+        {
+            var tabPageList = objList[i].components;
+            for(var j=0;j<tabPageList.length;j++)
+            {
+                if( this.gfnIsNull(fullpath) )
+                    this.fnSaveVariableList(tabPageList[j].form, objList[i].name+".form."+tabPageList[j].name);
+                else
+                    this.fnSaveVariableList(tabPageList[j].form, fullpath+"."+objList[i].name+".form."+tabPageList[j].name);
+            }
+        }
+    }
+};
+
+/**
+ * @description 글로벌 변수를 찾아 데이터셋에 저장한다. 
+*/ 
+this.fnSaveGlobalVariableList = function()
+{
+	var targetObj = nexacro.getApplication();
+
+	sObjType = targetObj +"";
+		
+    // 해당 OBJECT의 전역변수를 찾아낸다. 
+    this.dsVariable.set_enableevent(false);
+    for(var name in targetObj)
+    {
+        // 글로벌 변수는 gv로 Naming Rule 정의
+        if( name.substr(0,2) == "gv")
+        {
+            // 제외처리대상변수명        
+            var value = targetObj[name]+"";        
+            if( value.indexOf("[object") != -1 ) continue;
+            if( value.substring(0, 8) == "function" ) continue;
+			if( !targetObj.hasOwnProperty(name)) continue;
+			
+			// 글로벌 변수는 하나만이 존재하기 때문에.. 
+			if( this.dsVariable.findRow("NAME", name) == -1 )
+			{        
+				var nrow = this.dsVariable.addRow();    
+				this.dsVariable.setColumn(nrow, "NAME",  name);
+				this.dsVariable.setColumn(nrow, "VALUE", value);
+				this.dsVariable.setColumn(nrow, "TYPE",  "GLOBAL");
+				this.dsVariable.setColumn(nrow, "LVL",   0);
+			}
+        }
+    }
+	this.dsVariable.set_enableevent(true);
+};
+
+/**
+ * @description 화면에서 사용되는 모든 변수를 보여준다. 
+*/
+this.fnMakeVariableList = function()
+{
+    this.dsVariable.filter("TYPE == '"+this.tabComponent.tabpage6.form.cboVariable.value+"'");    
+    this.dsVariable.set_rowposition(0);
+};
+
+/**
+ * @description 문장을 스크립트로 실행한다. 
+*/   
+this.fnExecScript = function(obj:Button,  e:nexacro.ClickEventInfo)
+{
+    try
+    {
+	    var result = eval(this.tabComponent.tabpage7.form.txtScript.text);
+	    
+	    if( this.gfnIsNull(result) ) result = "";
+	    
+	    this.tabComponent.tabpage7.form.txtResult.set_value("★★★ 성공 : "+result);
+	}
+	catch(ex)
+	{
+	    this.tabComponent.tabpage7.form.txtResult.set_value("＠＠＠ 실패 : "+ex);
+	}	
+};
+
+/************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+/**
+ * @description 선택한 TAB에 대한 처리를 한다.   
+*/
+this.tabComponent_onchanged = function(obj:Tab, e:nexacro.TabIndexChangeEventInfo)
+{
+	var tabindex = this.tabComponent.tabindex;
+
+	switch(tabindex)
+	{
+	    case 0: this.fnMakeDatasetGrid();           break;
+	    case 1: this.fnMakeDatasetXml();            break;
+	    case 2: this.fnMakeDatasetGridFormat(); break;
+	    case 3: this.fnMakeGridFormats();           break;
+	    case 4: this.fnMakeCompoentsData();     break;
+	    case 5: this.fnMakeVariableList();           break;
+	    default : break;
+	}
+};
+
+/**
+ * @description 로컬 데이터셋의 내용을 보여준다.
+*/ 
+this.cboDataset_onitemchanged = function(obj:Combo, e:nexacro.ItemChangeEventInfo)
+{
+    this.fvCurrentCombo = obj.name;	
+    this.edtLocal.set_value(obj.text);
+	this.edtGlobal.set_value("");
+    this.tabComponent.set_tabindex(0);
+    this.tabComponent_onchanged();    
+};
+
+/**
+ * @description 글로벌 데이터셋의 내용을 보여준다.
+*/ 
+this.cboGDS_onitemchanged = function(obj:Combo, e:nexacro.ItemChangeEventInfo)
+{
+    this.fvCurrentCombo = obj.name;	
+    this.edtGlobal.set_value(obj.value);
+	this.edtLocal.set_value("");
+    this.tabComponent.set_tabindex(0);
+    this.tabComponent_onchanged();    
+};
+
+/**
+ * @description 컴포넌트의 모든 속성을 디스플레이한다.    
+*/
+this.cboComponents_onitemchanged = function(obj:Combo, e:nexacro.ItemChangeEventInfo)
+{
+    this.tabComponent.set_tabindex(4);
+    this.tabComponent_onchanged();    
+};
+
+/**
+ * @description 변수의 형식을 선택한 타입으로 필터링한다.    
+*/ 
+this.tabComponent_tabpage6_cboVariable_onitemchanged = function(obj:Combo, e:nexacro.ItemChangeEventInfo)
+{
+    this.dsVariable.filter("TYPE == '"+this.tabComponent.tabpage6.form.cboVariable.value+"'");    
+    this.dsVariable.set_rowposition(0);
+};
+
+/**
+ * @description 로컬 데이터셋 바로 찾기 기능
+*/   
+this.edtLocal_onkeydown = function(obj:Edit, e:nexacro.KeyEventInfo)
+{
+    if( e.keycode == 13 )
+    {
+	    var nrow = this.dsDataset.findRow("NAME", obj.value);
+	    if( nrow != -1 )
+	    {
+	        
+	        fvCurrentCombo = "local";
+            this.cboDataset.set_index(nrow);		        
+            this.fnMakeDatasetGrid();
+            this.cboDataset_onitemchanged(this.cboDataset);
+        }
+	}
+};
+
+/**
+ * @description 글로벌 데이터셋 바로 찾기 기능
+*/    
+this.edtGlobal_onkeydown = function(obj:Edit, e:nexacro.KeyEventInfo)
+{
+    if( e.keycode == 13 )
+    {
+	    var nrow = this.dsGDS.findRow("NAME", obj.value);
+	    if( nrow != -1 )
+	    {
+	        fvCurrentCombo = "global";
+            this.cboGDS.set_index(nrow);		        
+            this.cboGDS_onitemchanged(this.cboGDS);
+            //this.fnMakeDatasetGrid();
+	    }
+	}
+};
+
+/**
+ * @description  DATASET 으로 INSERT SQL 만들기
+ */
+this.btnCreatSQL_onclick = function(obj:Button,  e:nexacro.ClickEventInfo)
+{
+    var insertsql = "";
+	var dataset = this.tabComponent.tabpage1.form.Grid00.getBindDataset();
+    for(var i=0;i<dataset.getRowCount();i++)
+    {
+        
+        var columlist = "";
+        var valuelist = "";
+        for(var j=0;j<dataset.getColCount();j++)
+        {
+            var columname  = dataset.getColID(j);
+            var columvalue = this.gfnNvl(dataset.getColumn(i, columname),"NULL");   
+            
+            if( columvalue != "NULL" ) columvalue = "'"+columvalue+"'";
+                                 
+            if( j == 0 )
+            {
+                columlist = columname;
+                valuelist = columvalue;
+            }
+            else
+            {
+                columlist += ", "+columname;            
+                valuelist += ", "+columvalue;
+            }
+        }
+
+        insertsql += "INSERT INTO "+dataset.id+" ("+columlist+") VALUES ("+valuelist+");\n";
+    }        
+        
+	trace( insertsql );
+	system.clearClipboard();
+	system.setClipboard("CF_TEXT", insertsql);    
+};
+
+/**
+ * @description 컴포넌트의 textvalue 값을 클립보드에 복사한다. 
+*/  
+this.combo_onkeydown = function(obj:nexacro.Combo,e:nexacro.KeyEventInfo)
+{
+	trace( obj.text );
+	system.clearClipboard();
+	system.setClipboard("CF_TEXT", obj.text);
+};
+
+/**
+ * @description 로컬 데이터셋 필터 초기화
+*/ 
+this.btnLocalFilter_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+    var dataset = eval("this.opener."+this.cboDataset.value);
+    dataset.filter("");
+};
+/**
+ * @description 글로벌 데이타셋 필터 초기화
+*/
+this.btnGlobalFilter_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var objApp = nexacro.getApplication() ;
+	var dataset = objApp[this.cboGDS.text];
+    dataset.filter("");
+};
+]]></Script>
+    <Objects>
+      <Dataset enableevent="true" firefirstcount="0" firenextcount="0" id="dsDataset" loadfiltermode="keep" loadkeymode="keep" reversesubsum="false" updatecontrol="true" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="PATH" size="256" type="STRING"/>
+          <Column id="NAME" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset enableevent="true" firefirstcount="0" firenextcount="0" id="dsGDS" loadfiltermode="keep" loadkeymode="keep" reversesubsum="false" updatecontrol="true" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="PATH" size="256" type="STRING"/>
+          <Column id="NAME" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset enableevent="true" firefirstcount="0" firenextcount="0" id="dsGrid" loadfiltermode="keep" loadkeymode="keep" reversesubsum="false" updatecontrol="true" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="PATH" size="256" type="STRING"/>
+          <Column id="NAME" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset enableevent="true" firefirstcount="0" firenextcount="0" id="dsGridDataset" loadfiltermode="keep" loadkeymode="keep" reversesubsum="false" updatecontrol="true" useclientlayout="false"/>
+      <Dataset enableevent="true" firefirstcount="0" firenextcount="0" id="dsComponents" loadfiltermode="keep" loadkeymode="keep" reversesubsum="false" updatecontrol="true" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="PATH" size="256" type="STRING"/>
+          <Column id="NAME" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset enableevent="true" firefirstcount="0" firenextcount="0" id="dsProperties" loadfiltermode="keep" loadkeymode="keep" reversesubsum="false" updatecontrol="true" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="NAME" size="256" type="STRING"/>
+          <Column id="VALUE" size="256" type="STRING"/>
+          <Column id="FUNCTION" size="256" type="STRING"/>
+          <Column id="COLOR" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset enableevent="true" firefirstcount="0" firenextcount="0" id="dsVariableType" loadfiltermode="keep" loadkeymode="keep" reversesubsum="false" updatecontrol="true" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="CODE" size="256" type="STRING"/>
+          <Column id="NAME" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="CODE">LOCAL</Col>
+            <Col id="NAME">Local</Col>
+          </Row>
+          <Row>
+            <Col id="CODE">GLOBAL</Col>
+            <Col id="NAME">Global</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset enableevent="true" firefirstcount="0" firenextcount="0" id="dsVariable" loadfiltermode="keep" loadkeymode="keep" reversesubsum="false" updatecontrol="true" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="NAME" size="256" type="STRING"/>
+          <Column id="VALUE" size="256" type="STRING"/>
+          <Column id="TYPE" size="256" type="STRING"/>
+          <Column id="LVL" size="256" type="INT"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem columnid="FUNCTION" compid="tabComponent.tabpage5.form.txtScript" datasetid="dsProperties" id="item0" propid="value"/>
+    </Bind>
+  </Form>
+</FDL>

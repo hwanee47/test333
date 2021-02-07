@@ -1,0 +1,394 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form border="0px none" height="300" id="cmmFindReplace" onload="form_onload" titletext="찾기/바꾸기" width="310">
+    <Layouts>
+      <Layout height="300" mobileorientation="landscape" width="310">
+        <Static domainId="T1604" height="21" id="Static00" left="5" right="15" taborder="0" text="데이터 찾기/바꾸기" top="10"/>
+        <Static domainId="T1593" height="30" id="sta00" left="5" taborder="1" text="대상칼럼" top="48" width="70"/>
+        <Combo codecolumn="index" datacolumn="name" height="21" id="cbo00" innerdataset="@ds00" left="78" onitemchanged="cbo00_onitemchanged" taborder="2" text="cbo00" top="50" width="217"/>
+        <Static domainId="T1980" height="30" id="sta01" left="5" taborder="3" text="찾을 문자열" top="79" width="70"/>
+        <Static domainId="T1682" height="30" id="sta02" left="5" taborder="5" text="바꿀 문자열" top="110" width="70"/>
+        <Static domainId="T1981" height="30" id="sta03" left="5" taborder="7" text="찾을 방향" top="141" width="70"/>
+        <Radio codecolumn="codecolumn" datacolumn="datacolumn" direction="vertical" height="21" id="rdo00" index="1" innerdataset="innerdataset" left="78" taborder="8" top="149" value="next" width="227">
+          <Dataset id="innerdataset">
+            <ColumnInfo>
+              <Column id="codecolumn" size="256"/>
+              <Column id="datacolumn" size="256"/>
+            </ColumnInfo>
+            <Rows>
+              <Row>
+                <Col id="codecolumn">prev</Col>
+                <Col id="datacolumn">이전</Col>
+              </Row>
+              <Row>
+                <Col id="datacolumn">다음</Col>
+                <Col id="codecolumn">next</Col>
+              </Row>
+            </Rows>
+          </Dataset>
+        </Radio>
+        <Static domainId="T1982" height="30" id="sta04" left="5" taborder="9" text="찾을 위치" top="172" width="70"/>
+        <Radio codecolumn="codecolumn" datacolumn="datacolumn" direction="vertical" height="21" id="rdo01" index="0" innerdataset="innerdataset" left="78" taborder="10" top="177" value="current" width="227">
+          <Dataset id="innerdataset">
+            <ColumnInfo>
+              <Column id="codecolumn" size="256"/>
+              <Column id="datacolumn" size="256"/>
+            </ColumnInfo>
+            <Rows>
+              <Row>
+                <Col id="codecolumn">current</Col>
+                <Col id="datacolumn">현재위치</Col>
+              </Row>
+              <Row>
+                <Col id="datacolumn">처음부터</Col>
+                <Col id="codecolumn">first</Col>
+              </Row>
+            </Rows>
+          </Dataset>
+        </Radio>
+        <Static domainId="T1983" height="30" id="sta05" left="5" taborder="11" text="찾을 조건" top="203" width="70"/>
+        <Radio codecolumn="codecolumn" datacolumn="datacolumn" direction="vertical" height="21" id="rdo02" index="0" innerdataset="innerdataset" left="78" taborder="12" top="205" value="equal" width="110">
+          <Dataset id="innerdataset">
+            <ColumnInfo>
+              <Column id="codecolumn" size="256"/>
+              <Column id="datacolumn" size="256"/>
+            </ColumnInfo>
+            <Rows>
+              <Row>
+                <Col id="codecolumn">equal</Col>
+                <Col id="datacolumn">일치</Col>
+              </Row>
+              <Row>
+                <Col id="datacolumn">포함</Col>
+                <Col id="codecolumn">inclusion</Col>
+              </Row>
+            </Rows>
+          </Dataset>
+        </Radio>
+        <CheckBox domainId="T1587" height="21" id="chk00" left="190" taborder="13" text="대/소문자 구분" top="206" width="100"/>
+        <Button domainId="T1979" height="30" id="btn00" left="12" onclick="btn00_onclick" taborder="14" text="찾기" top="259" width="70"/>
+        <Button domainId="T1681" height="30" id="btn01" left="84" onclick="btn01_onclick" taborder="15" text="바꾸기" top="259" width="70"/>
+        <Button domainId="T1661" height="30" id="btn02" left="155" onclick="btn02_onclick" taborder="16" text="모두바꾸기" top="259" width="70"/>
+        <Button domainId="T0237" height="30" id="btn03" left="226" onclick="btn03_onclick" taborder="17" text="닫기" top="259" width="70"/>
+        <Edit height="21" id="edt00" left="78" taborder="4" top="84" width="217"/>
+        <Edit height="21" id="edt01" left="78" taborder="6" top="112" width="217"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  컨설팅 표준화 작업
+*  @MenuPath        cmm > cmmFindReplace.xfdl (공통 그리드 찾기/바꾸기)
+*  @FileName 		cmmFindReplace.xfdl 
+*  @Creator 			soojeong
+*  @CreateDate 	2017.10.19
+*  @Desction         스크립트 표준 및 주석 표준 정의
+************** 소스 수정 이력 ***************************************************
+*  date          		Modifier                Description
+*******************************************************************************
+*  2017.03.09     	soojeong 	           최초 생성 
+*******************************************************************************
+*/
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+this.fvGrid;
+this.fvDs;
+this.fvSelectRow;
+this.fvCellname;
+this.fvCellindex;
+this.fvSelectType;
+/***********************************************************************************************
+* FORM EVENT 영역(onload)
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//this.gfnFormOnLoad(this); //초기화[필수]
+	
+	this.fvGrid = this.getOwnerFrame().pvGrid;	
+	this.fvGrid.set_selecttype("cell"); 
+	this.fvDs = this.fvGrid.getBindDataset();
+	this.fvSelectRow = this.getOwnerFrame().pvStrartRow; 
+	this.fvSelectType = this.getOwnerFrame().pvSelectType;
+	this.fnGetHeadText();
+};
+
+/************************************************************************************************
+ * 사용자 FUNCTION 영역
+ ************************************************************************************************/
+/**
+ * @description 그리드의 헤드정보를 받아와 콤보 세팅
+*/
+this.fnGetHeadText = function ()
+{
+// 	var sDisplaytype;
+// 	var sEdittype;
+// 	var stxt;
+// 	var nHeadCell;
+	
+	this.ds00.clearData();
+	// 바디의 갯수만큼 디스플레이정보 및 콤보의 정보를 설정한다.     
+    for(var i=0; i<this.fvGrid.getCellCount("Body"); i++)
+    {
+        if( this.fvGrid.getCellProperty("Body", i, "displaytype") != "image" )
+        {
+			var sText = this.fvGrid.getCellProperty("Body", i, "text");	
+			if( sText == "bind:gridcmmcheck") continue; //공통체크박스 제외
+			var sBind;
+			if ( this.gfnIsNull(sText) == false ){
+				sBind = sText.substr(0, 5);
+			}else {
+				sBind = "";
+			}
+			
+			if (sBind == "bind:")
+			{
+				var nrow = this.ds00.addRow();
+				
+				this.ds00.setColumn(nrow, "body", 		 this.fvGrid.getCellProperty("Body", i, "text"));            
+				this.ds00.setColumn(nrow, "displaytype", this.fvGrid.getCellProperty("Body", i, "displaytype"));
+				this.ds00.setColumn(nrow, "edittype", 	 this.fvGrid.getCellProperty("Body", i, "edittype"));
+				this.ds00.setColumn(nrow, "index",   i);
+			}
+        }
+    }
+	// 바디에 매칭되는 헤더의 타이틀을 설정한다. 
+    for(var i=0;i<this.fvGrid.getCellCount("Head");i++)
+    {
+        var title  = this.fvGrid.getCellProperty("Head", i,   "text");
+        var col    = this.fvGrid.getCellProperty("Head", i,   "col");
+        var body   = this.fvGrid.getCellProperty("Body", col, "text");
+			
+            
+        var nrow = this.ds00.findRow("body", body);   
+        if( nrow != -1 )
+        {
+            this.ds00.setColumn(nrow, "index",   col);
+            this.ds00.setColumn(nrow, "name",    title);
+        }
+    }
+
+	// 현재 선택된 셀을 선택하도록
+	// 현재 선택된 셀이 검색/바꾸기에 해당되지 않을 경우 INDEX=0으로 세팅
+	var nRow = this.ds00.findRow("index", this.fvGrid.currentcell);
+	if( nRow > -1 ){
+		this.cbo00.set_value(this.ds00.getColumn(nRow,"index"));
+	}else{
+		this.cbo00.set_index(0);
+	}
+	
+	this.fvCellindex = this.cbo00.value;
+	this.fnSetBtnInfo();
+};
+
+/**
+ * @description 찾기옵션세팅
+*/
+this.fnGetFindOption = function()
+{
+	var option = {
+		'direction': this.rdo00.value,
+		'position': this.rdo01.value,
+		'scope': 'col',
+		'condition': this.rdo02.value,
+		'strict': this.chk00.value,
+		'cell': this.cbo00.value,
+	};
+	
+	return option;
+};
+
+/**
+ * @description 각 컬럼 타입별 바꾸기 가능/불가능 설정
+*/
+this.fnCheckType = function (val)
+{
+	var arr = ["normal","text","calendarcontrol","date","editcontrol","number","text","textareacontrol"];
+	for( var i=0; i<arr.length; i++){
+		if ( arr[i] == val ){
+			return true;
+		}
+	}
+	return false;
+};
+
+/**
+ * @description 바꾸기
+*/
+this.replaceText = function (bAllChg)
+{
+	var findText = this.edt00.value;	
+	if ( this.gfnIsNull(findText) )
+	{
+		return;
+	}
+	
+	var grid = this.fvGrid;
+	var option = this.fnGetFindOption();
+	var replaceText = this.edt01.value;
+	if ( this.gfnIsNull(replaceText) )
+	{
+		replaceText = "";
+	}
+	
+	var results = this.gfnReplaceGridText(grid, findText, replaceText, option, bAllChg);
+	
+	var resultCnt = results.length;
+	if ( resultCnt > 0 )
+	{
+		var result;
+		var replaceCnt = 0;
+		for (var i=0; i<resultCnt; i++)
+		{
+			result = results[i];
+			if ( result.replace )
+			{
+				replaceCnt += 1;
+			}	
+		}
+		
+		// 모두 바꾸기
+		if ( bAllChg )
+		{
+			if ( resultCnt == replaceCnt )
+			{
+				// 마지막 변경된 셀로 이동
+				this.markGridFindResult(grid, grid._lastReplaceRow, option.cell);
+				this.setFocus();
+				this.gfnAlert("M0175");
+			}
+			else
+			{
+				var errorCnt = resultCnt - replaceCnt;
+				var message = resultCnt + "건 변경 중 " + errorCnt + "건 오류 발생";
+				this.alert(message);
+			}
+		}
+		else
+		{
+			if ( replaceCnt == 0 )
+			{	
+				this.alert(results[0].message);
+				return;
+			}
+			
+			// 다음 찾기 대상으로 이동
+			findRowCell = this.gfnFindGridText(grid, findText, option);
+			findRow = findRowCell[0];
+			findCell = findRowCell[1];
+			if ( findRow > -1 && findCell > -1 )
+			{
+				this.markGridFindResult(grid, findRow, findCell);
+			}
+			else
+			{
+				// 다음 대상이 없으면 마지막 찾은 셀로 이동
+				this.markGridFindResult(grid, grid.lastReplaceRow, option.cell);
+			}
+			this.setFocus();
+		}
+	}
+	else
+	{
+		this.gfnAlert("M0176");
+	}
+};
+
+/**
+ * @description 바꾸기 결과
+*/
+this.markGridFindResult = function(grid, findRow, findCell)
+{
+	var dataset = this.fvDs;
+	dataset.set_rowposition(findRow);
+	grid.setCellPos(findCell);
+};
+
+/**
+ * @description 버튼세팅
+*/
+this.fnSetBtnInfo = function ()
+{
+	var sDisplaytype = this.fvGrid.getCellProperty("body", this.fvCellindex, "displaytype");
+	
+	if( !this.fnCheckType(sDisplaytype) ){
+		this.btn01.set_enable(false);
+		this.btn02.set_enable(false);
+	}else{
+		this.btn01.set_enable(true);
+		this.btn02.set_enable(true);
+	}
+};
+/************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+/**
+ * @description [닫기]버튼이벤트
+*/
+this.btn03_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.fvGrid.set_selecttype(this.fvSelectType);
+	this.close();
+};
+
+/**
+ * @description [찾기]버튼이벤트
+*/
+this.btn00_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	var txt = this.edt00.value;
+	var option = this.fnGetFindOption();
+	var findRowCell = this.gfnFindGridText(this.fvGrid, txt, option);
+	
+	var findRow = findRowCell[0];
+	var findCell = findRowCell[1];
+	
+	if ( findRow > -1 && findCell > -1 )
+	{
+		this.fvDs.set_rowposition(findRow);
+		this.fvGrid.setCellPos(findCell);
+	}
+	else
+	{
+		this.gfnAlert("M0486");	
+	}
+};
+
+/**
+ * @description [대상컬럼콤보] 변경이벤트
+*/
+this.cbo00_onitemchanged = function(obj:nexacro.Combo,e:nexacro.ItemChangeEventInfo)
+{
+	this.fvCellindex = e.postvalue;
+	this.fnSetBtnInfo();
+};
+
+/**
+ * @description [바꾸기] 변경이벤트
+*/
+this.btn01_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.replaceText(false);
+};
+
+/**
+ * @description [모두바꾸기] 변경이벤트
+*/
+this.btn02_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.replaceText(true);
+};
+
+]]></Script>
+    <Objects>
+      <Dataset id="ds00">
+        <ColumnInfo>
+          <Column id="index" size="256" type="STRING"/>
+          <Column id="name" size="256" type="STRING"/>
+          <Column id="displaytype" size="256" type="STRING"/>
+          <Column id="edittype" size="256" type="STRING"/>
+          <Column id="body" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+  </Form>
+</FDL>

@@ -1,0 +1,241 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form cssclass="bg_pop01" height="690" id="cmmRecptPopup" oninit="formOninit" onload="formOnload" titletext="파일 미리보기" width="460">
+    <Layouts>
+      <Layout height="690" mobileorientation="landscape" width="460">
+        <Static cssclass="pop_tit_txt01" domainId="T2108" height="30" id="staTitle" left="15" taborder="0" text="파일 미리보기" top="0" width="435"/>
+        <Static background="#ffffff" bottom="2" id="sta00" left="2" right="2" taborder="1" top="34"/>
+        <Grid autoenter="select" autofittype="col" autosizebandtype="body" binddataset="dsList" cellsizingtype="col" cssclass="tb_ty01" height="130" id="grdList" left="15" oncelldblclick="grdList_oncelldblclick" right="15" taborder="2" top="70">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="262"/>
+              </Columns>
+              <Rows>
+                <Row band="head" size="24"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell accessibilitydescription="T1360" col="1" text="파일명"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow+1" textAlign="right"/>
+                <Cell col="1" suppress="1" text="expr:comp.parent.gfnIsNull(ORG_RECPT_NM) ? RECPT_NM : ORG_RECPT_NM" textAlign="center"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Button cssclass="btn_pop_img_close" height="22" id="btnClose" onclick="btnOnClick" right="15" taborder="3" top="6" width="22"/>
+        <WebBrowser border="0px" bottom="15" id="webImg" left="15" onloadcompleted="webImg_onloadcompleted" right="15" taborder="4" top="201"/>
+        <Button cssclass="btn_ty01" domainId="T1359" enable="true" fittocontents="none" height="23" id="btnDownload" onclick="fnDownload" right="15" taborder="5" text="파일다운" top="44" width="80"/>
+        <FileDownload height="26" id="fileDownload" left="480" onsuccess="fileDownload_onsuccess" taborder="6" text="fdl00" top="44" visible="false" width="60"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  공통 > 담당자정보
+*  @MenuPath		cmm > cmmRecptPopup.xfdl
+*  @FileName		cmmRecptPopup.xfdl
+*  @Creator			seungmin
+*  @CreateDate		2018.12.17
+*  @Desction		인수증 미리보기 
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2018.08.21		intaekOh				최초 생성
+*************************************************************************************************/
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+this.objApp 	= nexacro.getApplication();
+this.MNF_NO 	= this.getOwnerFrame().mnfNo;
+this.FILE_GB 	= this.getOwnerFrame().fileGb;
+/***********************************************************************************************
+* FORM EVENT 영역(onload)
+/***********************************************************************************************/
+this.formOnload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	// this.MNF_NO = this.getOwnerFrame().mnfNo;
+};
+
+/***********************************************************************************************
+ * @function	: forOninit
+ * @description	: FORM init
+ * @param		: obj	- nexacro.Form
+ * @param		: e		- nexacro.EventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.formOninit = function(obj:nexacro.Form,e:nexacro.EventInfo)
+{
+	//미리보기 이미지 로딩.
+	this.fnCallWebImg();
+};
+
+/************************************************************************************************
+* TRANSACTION 서비스 호출 처리
+************************************************************************************************/
+
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 차량정보 조회.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearch = function() {
+	this.dsSearch.clearData();
+	this.dsSearch.insertRow(0);
+		
+	this.dsSearch.setColumn(0, "MNF_NO"		, this.MNF_NO);		//배차번호
+	this.dsSearch.setColumn(0, "FILE_GB"	, this.FILE_GB);	//인수증 구분 (1:인수중, 2:세금계산서)
+	
+	// 조회 transaction
+	this.gfnTransaction("selectReceiptList");
+};
+
+/***********************************************************************************************
+ * @function	: fnCallback
+ * @description	: 트랜젝션 후 호출 되는 callback 함수.
+ * @param		: svcID - 서비스 id
+ * @param		: errorCode - error 코드
+ * @param		: errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+	}else{
+		if( svcID === 'selectReceiptList' ) {
+			
+		}
+ 	}
+};
+
+/***********************************************************************************************
+ * @function	: btnOnClick
+ * @description	: button onClick event
+ * @param		: obj	- nexacro.Button
+ * @param		: e		- nexacro.ClickEventInfo 
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo) {
+	this.close();
+};
+
+/***********************************************************************************************
+ * @function	: fnCallWebImg
+ * @description	: 미리보기 로딩 함수.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallWebImg = function ()
+{
+	var objEnv = nexacro.getEnvironment();
+	var objSrv = objEnv.services["svcurl"];
+	var url = objSrv.url + "jsp/nexa/recptPreview.jsp";
+	this.webImg.set_url(url);
+};
+
+/***********************************************************************************************
+ * @function	: dsList_onrowposchanged
+ * @description	: 그리드 row 변경 시 미리보기 호출.
+ * @param		: obj	- nexacro.NormalDataset
+ * @param		: e		- nexacro.DSRowPosChangeEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.dsList_onrowposchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSRowPosChangeEventInfo)
+{
+	var filePath = obj.getColumn(e.newrow, "RECPT_PATH");
+	var fileName = obj.getColumn(e.newrow, "RECPT_NM");
+
+	this.webImg.callMethod("fn_preView", filePath, fileName); 
+};
+
+this.webImg_onloadcompleted = function(obj:nexacro.WebBrowser,e:nexacro.WebLoadCompEventInfo)
+{
+	this.fnSearch();
+};
+
+
+/***********************************************************************************************
+ * @function	: fnDownload
+ * @description	: 파일 일괄 다운로드
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnDownload = function(obj:nexacro.Button,e:nexacro.ClickEventInfo){
+	var nRow            = this.dsList.rowposition;
+	var sOrgFilename    = this.dsList.getColumn(nRow, "ORG_RECPT_NM");
+	var sFilename       = this.dsList.getColumn(nRow, "RECPT_NM");
+	var sFilePath       = this.dsList.getColumn(nRow, "RECPT_PATH");
+	
+	if(this.gfnIsNull(sOrgFilename)) sOrgFilename = sFilename;
+	
+	if(!this.gfnIsNull(sFilename)){
+		this.gfnFileDownload(this.fileDownload, sFilename, sOrgFilename, sFilePath);
+	}
+};
+
+this.grdList_oncelldblclick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	if(e.cell == 1) {
+		var nRow            = e.row;
+		var sOrgFilename    = this.dsList.getColumn(nRow, "ORG_RECPT_NM");
+		var sFilename       = this.dsList.getColumn(nRow, "RECPT_NM");
+		var sFilePath       = this.dsList.getColumn(nRow, "RECPT_PATH");
+		
+		if(this.gfnIsNull(sOrgFilename)) sOrgFilename = sFilename;
+		
+		if(!this.gfnIsNull(sFilename)){
+			this.gfnFileDownload(this.fileDownload, sFilename, sOrgFilename, sFilePath);
+		}
+	}
+};
+]]></Script>
+    <Objects>
+      <Dataset id="dsSearch" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="MNF_NO" size="256" type="STRING"/>
+          <Column id="FILE_GB" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">selectReceiptList</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsList=ds1</Col>
+            <Col id="QUERY_LIST">q1=orderMgmService.selectReceiptList</Col>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">N</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsList" onrowposchanged="dsList_onrowposchanged" useclientlayout="true">
+        <ColumnInfo>
+          <Column id="MNF_NO" size="256" type="STRING"/>
+          <Column id="RECPT_ID" size="256" type="STRING"/>
+          <Column id="FILE_GB" size="256" type="STRING"/>
+          <Column id="RECPT_NM" size="256" type="STRING"/>
+          <Column id="ORG_RECPT_NM" size="256" type="STRING"/>
+          <Column id="RECPT_PATH" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+  </Form>
+</FDL>

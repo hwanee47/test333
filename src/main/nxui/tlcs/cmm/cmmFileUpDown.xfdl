@@ -1,0 +1,332 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form cssclass="bg_pop01" height="790" id="ICT_CSL_0010_P02" onload="formOnload" titletext="파일다운" width="890">
+    <Layouts>
+      <Layout description="" height="790" width="890">
+        <Static cssclass="pop_tit_txt01" domainId="T1361" height="34" id="staTitle" left="15" taborder="1" text="파일첨부" top="0" width="110"/>
+        <Static background="#ffffff" bottom="0" id="sta00" left="0" onclick="sta00_onclick" right="0" taborder="2" top="34"/>
+        <Button cssclass="btn_pop_img_close" height="22" id="btnClose" onclick="btnClose_onclick" right="15" taborder="0" top="5" width="22"/>
+        <Grid autofittype="col" binddataset="dsFileList" cssclass="tb_ty01" height="200" id="grdFileList" left="15" oncellclick="grdFileList_oncellclick" right="15" taborder="3" top="80">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="120"/>
+                <Column size="70"/>
+                <Column size="200"/>
+                <Column size="200"/>
+                <Column size="200"/>
+                <Column size="100"/>
+              </Columns>
+              <Rows>
+                <Row band="head" size="24"/>
+                <Row size="24"/>
+              </Rows>
+              <Band id="head">
+                <Cell accessibilitydescription="T2031" text="파일그룹번호"/>
+                <Cell accessibilitydescription="T2033" col="1" text="파일순번"/>
+                <Cell accessibilitydescription="T1149" col="2" text="SOURCE 파일명"/>
+                <Cell accessibilitydescription="T1485" col="3" text="UPLOADED 경로"/>
+                <Cell accessibilitydescription="T1486" col="4" text="UPLOADED 파일명"/>
+                <Cell col="5" text="FILE_SIZE"/>
+              </Band>
+              <Band id="body">
+                <Cell displaytype="normal" text="bind:WRK_NO" textAlign="center"/>
+                <Cell col="1" displaytype="normal" text="bind:FILE_SEQ"/>
+                <Cell col="2" color="blue" text="bind:SOURCE_FILE_NM"/>
+                <Cell col="3" text="bind:UPLOADED_DIR_PATH"/>
+                <Cell col="4" text="bind:UPLOADED_FILE_NM"/>
+                <Cell col="5" text="expr:nexacro.round((nexacro.toNumber(FILE_SIZE)/1000)) + &quot; KB&quot;"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Button cssclass="btn_search_t" domainId="T1359" enable="true" fittocontents="none" height="23" id="btnDownload" onclick="btnOnClick" right="15" taborder="4" text="파일다운" top="44" width="80"/>
+        <FileDownload height="26" id="fileDownload" left="930" onsuccess="fileDownload_onsuccess" taborder="5" text="fdl00" top="44" visible="false" width="60"/>
+        <Button cssclass="btn_search_t" domainId="T2032" enable="true" fittocontents="none" height="23" id="btnDelete" onclick="btnOnClick" right="-199" taborder="6" text="파일삭제" top="44" visible="false" width="80"/>
+        <WebBrowser border="0px" bottom="15" height="500" id="webImg" left="15" onloadcompleted="webImg_onloadcompleted" right="15" taborder="7"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  파일 다운로드
+*  @MenuPath       	cmm > cmmFileUpDown.xfdl
+*  @FileName 		cmmFileUpDown.xfdl
+*  @Creator 		Seungmin
+*  @CreateDate 		2018.11.14
+*  @Desction        사용자의 파일첨부 내역을 조회
+************** 소스 수정 이력 ****************************************************************
+*  date				Modifier				Description
+************************************************************************************************
+*  2018.11.14		DYCho					최초 생성
+************************************************************************************************
+*/
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+ //nexacro application 
+this.objApp 		= nexacro.getApplication();
+this.P_SELECT_ONLY 	= this.getOwnerFrame().sSelectOnly;
+this.P_WRK_NO		= this.getOwnerFrame().sDekalID;
+this.P_TB_NAME		= this.getOwnerFrame().sTbName;
+ /***********************************************************************************************
+ * @function: formOnload
+ * @description: FORM 온로드
+ * @param : obj - form object
+ * @param : e - form event 
+ * @return N/A
+/***********************************************************************************************/
+this.formOnload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	// 화면 공통 기능 처리
+	this.gfnFormOnLoad(obj);
+	
+	//미리보기 이미지 로딩.
+	this.fnCallWebImg();
+};
+
+/***********************************************************************************************
+ * @function	: fnSearch
+ * @description	: 업로드된 파일정보 조회
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSearch = function()
+{	
+	this.dsSearch.clearData();
+	this.dsSearch.insertRow(0);
+	
+	this.dsSearch.setColumn(0, "ID"			, this.objApp.gv_userId);		//아이디
+	this.dsSearch.setColumn(0, "JOIN_TYPE"	, this.objApp.gv_joinType);
+	this.dsSearch.setColumn(0, "AUTH_CD"	, this.objApp.gv_authCd);
+	
+	this.dsSearch.setColumn(0, "WRK_NO"		, this.P_WRK_NO);
+	this.dsSearch.setColumn(0, "TB_NAME"	, this.P_TB_NAME);
+	
+	this.gfnTransaction("getFileList");
+};
+
+/***********************************************************************************************
+ * @function	: btnOnClick
+ * @description	: 버튼이벤트 제어
+ * @param		: obj - nexacro.Button
+ * @param		: e - nexacro.ClickEventInfo
+ * @return N/A
+/***********************************************************************************************/
+this.btnOnClick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	switch(obj.name) 
+	{
+		// 저장
+		case "btnSave" : 
+			this.fnSave();	
+		break;
+		
+		// 파일다운
+		case "btnDownload" : 
+			this.fnDownload();	
+		break;
+		default :	
+			break;
+	}
+};
+
+/***********************************************************************************************
+ * @function	: fnSave
+ * @description	: 파일 변경 내역 저장
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnSave = function()
+{	
+	if(this.dsSave.rowcount > 0) {
+		this.gfnTransaction("updateFileInfo");
+	}
+};
+
+/***********************************************************************************************
+ * @function	: fnDownload
+ * @description	: 파일 일괄 다운로드
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.fnDownload = function(){
+	var nRow            = this.dsFileList.rowposition;
+	var sOrgFilename    = this.dsFileList.getColumn(nRow, "SOURCE_FILE_NM");
+	var sFilename       = this.dsFileList.getColumn(nRow, "UPLOADED_FILE_NM");
+	var sFilePath       = this.dsFileList.getColumn(nRow, "UPLOADED_DIR_PATH");
+	
+	if(!this.gfnIsEmpty(sFilename)){
+		this.dsSave.clearData();
+		this.dsSave.insertRow(0);
+		this.dsSave.copyRow(0, this.dsFileList, nRow);
+			
+		this.gfnFileDownload(this.fileDownload, sFilename, sOrgFilename, sFilePath);
+	}
+};
+
+/***********************************************************************************************
+ * @function: fnCallback
+ * @description: 트랜젝션 후 호출 되는 callback 함수.
+ * @param : svcID - 서비스 id
+ * @param : errorCode - error 코드
+ * @param : errorMsg - error 메세지
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallback = function(svcID, errorCode, errorMsg)
+{
+	if(errorCode < 0) {    
+		this.alert(errorMsg);
+	} else if(svcID == "getFileList"){
+		if(this.dsFileList.rowcount > 0) {
+			this.set_height(790);
+			this.webImg.set_visible(true);
+		} else {
+			this.set_height(290);
+			this.webImg.set_visible(false);
+		}
+		
+ 	} else if(svcID == "updateFileInfo"){
+		this.gfnAlert("M0110");
+		return;
+ 	}
+};
+this.btnClose_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.close();
+};
+
+/***********************************************************************************************
+ * @function	: grdFileList_oncellclick
+ * @description	: 파일 일괄 다운로드
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/ 
+this.grdFileList_oncellclick = function(obj:nexacro.Grid,e:nexacro.GridClickEventInfo)
+{
+	var columnId	= obj.getCellProperty("body", e.cell, "text");
+		columnId 	= columnId.replace("bind:", "");
+		
+	if(columnId == "SOURCE_FILE_NM") {
+		var nRow            = e.row;
+		var sOrgFilename    = this.dsFileList.getColumn(nRow, "SOURCE_FILE_NM");
+		var sFilename       = this.dsFileList.getColumn(nRow, "UPLOADED_FILE_NM");
+		var sFilePath       = this.dsFileList.getColumn(nRow, "UPLOADED_DIR_PATH");
+		
+		if(!this.gfnIsEmpty(sFilename)){
+			this.dsSave.clearData();
+			this.dsSave.insertRow(0);
+			this.dsSave.copyRow(0, this.dsFileList, nRow);
+		
+			this.gfnFileDownload(this.fileDownload, sFilename, sOrgFilename, sFilePath);
+		}
+	}
+};
+
+this.fileDownload_onsuccess = function(obj:nexacro.FileDownload,e:nexacro.FileDownloadEventInfo)
+{
+	this.fnSave();
+};
+
+this.dsFileList_onrowposchanged = function(obj:nexacro.NormalDataset,e:nexacro.DSRowPosChangeEventInfo)
+{
+	var filePath = obj.getColumn(e.newrow, "UPLOADED_DIR_PATH");
+	var fileName = obj.getColumn(e.newrow, "UPLOADED_FILE_NM");
+	trace("filePath  "  + filePath + "   fileName" + fileName);
+	this.webImg.callMethod("fn_preView", filePath, fileName); 
+};
+
+/***********************************************************************************************
+ * @function	: fnCallWebImg
+ * @description	: 미리보기 로딩 함수.
+ * @param		: N/A
+ * @return N/A
+/***********************************************************************************************/
+this.fnCallWebImg = function ()
+{
+	var objEnv = nexacro.getEnvironment();
+	var objSrv = objEnv.services["svcurl"];
+	var url = objSrv.url + "jsp/nexa/recptPreview.jsp";
+	this.webImg.set_url(url);
+};
+
+this.webImg_onloadcompleted = function(obj:nexacro.WebBrowser,e:nexacro.WebLoadCompEventInfo)
+{
+	//업로드된 파일정보 조회
+	this.fnSearch();
+};
+]]></Script>
+    <Objects>
+      <Dataset id="dsSearch" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="ID" size="256" type="STRING"/>
+          <Column id="JOIN_TYPE" size="256" type="STRING"/>
+          <Column id="AUTH_CD" size="256" type="STRING"/>
+          <Column id="WRK_NO" size="256" type="STRING"/>
+          <Column id="TB_NAME" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsService" useclientlayout="false">
+        <ColumnInfo>
+          <Column id="SVC_ID" size="256" type="STRING"/>
+          <Column id="IN_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="OUT_DATASET_LIST" size="256" type="STRING"/>
+          <Column id="QUERY_LIST" size="256" type="STRING"/>
+          <Column id="CALLBACK" size="256" type="STRING"/>
+          <Column id="SYNC_YN" size="256" type="STRING"/>
+          <Column id="SERVICE_BEANNAME" size="256" type="STRING"/>
+          <Column id="SERVICE_METHOD" size="256" type="STRING"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SVC_ID">getFileList</Col>
+            <Col id="IN_DATASET_LIST">ds1=dsSearch</Col>
+            <Col id="OUT_DATASET_LIST">dsFileList=ds1</Col>
+            <Col id="SERVICE_BEANNAME"/>
+            <Col id="SERVICE_METHOD"/>
+            <Col id="QUERY_LIST">q1=commonService.getFileInfo</Col>
+          </Row>
+          <Row>
+            <Col id="SVC_ID">updateFileInfo</Col>
+            <Col id="OUT_DATASET_LIST"/>
+            <Col id="QUERY_LIST"/>
+            <Col id="CALLBACK">fnCallback</Col>
+            <Col id="SYNC_YN">Y</Col>
+            <Col id="SERVICE_BEANNAME">userMgmService</Col>
+            <Col id="SERVICE_METHOD">updateFileInfo</Col>
+            <Col id="IN_DATASET_LIST">dsSave=dsSave</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="dsFileList" onrowposchanged="dsFileList_onrowposchanged" useclientlayout="true">
+        <ColumnInfo>
+          <Column id="WRK_NO" size="256" type="STRING"/>
+          <Column id="REF_KEY" size="256" type="STRING"/>
+          <Column id="FILE_SEQ" size="256" type="STRING"/>
+          <Column id="SOURCE_FILE_FULL_PATH" size="256" type="STRING"/>
+          <Column id="SOURCE_FILE_NM" size="256" type="STRING"/>
+          <Column id="UPLOADED_DIR_PATH" size="256" type="STRING"/>
+          <Column id="UPLOADED_FILE_NM" size="256" type="STRING"/>
+          <Column id="FILE_SIZE" size="256" type="STRING"/>
+          <Column id="CONTENT" size="256" type="STRING"/>
+          <Column id="FILE_GB" size="256" type="STRING"/>
+          <Column id="NEW_SAVE_YN" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="dsSave" useclientlayout="true">
+        <ColumnInfo>
+          <Column id="WRK_NO" size="256" type="STRING"/>
+          <Column id="REF_KEY" size="256" type="STRING"/>
+          <Column id="FILE_SEQ" size="256" type="STRING"/>
+          <Column id="SOURCE_FILE_FULL_PATH" size="256" type="STRING"/>
+          <Column id="SOURCE_FILE_NM" size="256" type="STRING"/>
+          <Column id="UPLOADED_DIR_PATH" size="256" type="STRING"/>
+          <Column id="UPLOADED_FILE_NM" size="256" type="STRING"/>
+          <Column id="FILE_SIZE" size="256" type="STRING"/>
+          <Column id="CONTENT" size="256" type="STRING"/>
+          <Column id="FILE_GB" size="256" type="STRING"/>
+          <Column id="NEW_SAVE_YN" size="256" type="STRING"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+  </Form>
+</FDL>

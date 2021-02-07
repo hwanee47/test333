@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form cssclass="bg_pop01" height="384" id="cmmPopup" onload="form_onload" titletext="팝업샘플" width="512">
+    <Layouts>
+      <Layout description="" height="384" width="512">
+        <Static cssclass="pop_tit_txt01" domainId="T0167" height="34" id="sta01" left="15" taborder="0" text="고객사" top="0" width="99"/>
+        <Static bottom="0" cssclass="pop_cont" id="sta00" left="0" right="0" taborder="1" top="34"/>
+        <Button bottom="20" cssclass="btn_ty01" domainId="T0237" height="23" id="btnClose" left="221" onclick="btnClose_onclick" taborder="2" text="닫기" width="70"/>
+        <Button cssclass="btn_pop_img_close" height="22" id="btnClose00" onclick="btnClose_onclick" right="15" taborder="3" top="5" width="22"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  컨설팅 표준화 작업
+*  @MenuPath        cmm > cmmPopup.xfdl (공통 팝업페이지)
+*  @FileName 		cmmPopup.xfdl 
+*  @Creator 			soojeong
+*  @CreateDate 	2017.10.19
+*  @Desction         스크립트 표준 및 주석 표준 정의
+************** 소스 수정 이력 ***************************************************
+*  date          		Modifier                Description
+*******************************************************************************
+*  2017.03.09     	soojeong 	           최초 생성 
+*******************************************************************************
+*/
+
+ include "lib::lib_Form.xjs";
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+
+/***********************************************************************************************
+* FORM EVENT 영역(onload)
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	//this.gfnFormOnLoad(this); //초기화[필수]
+	trace("paramTitle : " + this.getOwnerFrame().paramTitle);	
+    trace("paramCode : " + this.getOwnerFrame().paramCode);	
+    trace("paramNum : " + this.getOwnerFrame().paramNum);	
+	trace("paramUrl : " + this.getOwnerFrame().paramUrl);	
+	trace("callbackFn : " + this.getOwnerFrame().callbackFn);	
+	
+	//타이틀세팅
+	if( !this.gfnIsNull(this.getOwnerFrame().paramTitle)){
+		this.set_titletext(this.getOwnerFrame().paramTitle);
+	}
+};
+
+/************************************************************************************************
+* TRANSACTION 서비스 호출 처리
+************************************************************************************************/
+
+/************************************************************************************************
+ * CALLBACK 콜백 처리부분
+ ************************************************************************************************/
+
+ /************************************************************************************************
+ * 사용자 FUNCTION 영역
+ ************************************************************************************************/
+ 
+ /************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+/**
+ * @description popup close
+*/
+this.btnClose_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.close();
+};
+]]></Script>
+  </Form>
+</FDL>

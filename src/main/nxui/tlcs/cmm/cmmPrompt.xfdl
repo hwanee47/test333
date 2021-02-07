@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.0">
+  <Form height="160" id="commPushMessage" onload="form_onload" titletext="New Form" width="330">
+    <Layouts>
+      <Layout height="160" mobileorientation="landscape" width="330">
+        <Button bottom="10" domainId="T1119" height="20" id="btnOk" left="140" onclick="btnOk_onclick" taborder="0" text="확인" width="50"/>
+        <Static background="black" color="black" height="20" id="staTitle" left="0" right="0" taborder="1" text="Static00" top="0"/>
+        <TextArea height="85" id="txtMsgContent" left="15" readonly="true" taborder="2" top="26" visible="true" width="300" wordWrap="char"/>
+      </Layout>
+    </Layouts>
+    <Script type="xscript5.1"><![CDATA[/**
+*  컨설팅 표준화 작업
+*  @MenuPath        cmm > commPushMessage (푸시 메세지)
+*  @FileName 		commPushMessage.xfdl 
+*  @Creator 			ssm
+*  @CreateDate 	2018.06.22
+*  @Desction         메세지팝업
+************** 소스 수정 이력 ***************************************************
+*  date          		Modifier                Description
+*******************************************************************************
+*  2017.03.09     	ssm 	           최초 생성 
+*******************************************************************************
+*/
+
+/************************************************************************************************
+ * FORM 변수 선언 영역
+ ************************************************************************************************/
+
+/***********************************************************************************************
+* FORM EVENT 영역(onload)
+/***********************************************************************************************/
+this.form_onload = function(obj:nexacro.Form,e:nexacro.LoadEventInfo)
+{
+	var msg = this.getOwnerFrame().pMsg;
+	this.fnMsgSetting(msg);
+};
+
+
+ /************************************************************************************************
+ * 사용자 FUNCTION 영역
+ ************************************************************************************************/
+/**
+* @description 메세지설정
+*/
+ this.fnMsgSetting = function (sMsgContent)
+ {
+	this.txtMsgContent.set_value(sMsgContent);
+ };
+ 
+  /************************************************************************************************
+ * 각 COMPONENT 별 EVENT 영역
+ ************************************************************************************************/
+/**
+* @description OK버튼이벤트
+*/
+this.btnOk_onclick = function(obj:nexacro.Button,e:nexacro.ClickEventInfo)
+{
+	this.close(true);
+};]]></Script>
+  </Form>
+</FDL>
