@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+         http://www.springframework.org/schema/jdbc  http://www.springframework.org/schema/jdbc/spring-jdbc-4.3.xsd">
+  
+  <!-- DriverSpy 로컬에서만 사용 (서버에서는 성능 부하가 발생 할 수 있어 사용 하지 말것) 오라클 클라우드 -->
+     <!--오라클 DEV 
+     <bean id="dataSourceSpied" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+          <property name="driverClassName" value="net.sf.log4jdbc.DriverSpy" />
+          <property name="url" value="jdbc:oracle:thin:@128.11.1.73:1524/HELLODEV" />
+          <property name="username" value="HLOADM"/>
+          <property name="password" value="dlatladm1!"/>
+     </bean>
+     -->
+     <!--오라클 QA -->
+     <!-- <bean id="dataSourceSpied" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+          <property name="driverClassName" value="net.sf.log4jdbc.DriverSpy" />
+          <property name="url" value="jdbc:oracle:thin:@128.11.1.73:1525/HELLOQA" />
+          <property name="username" value="HLOAPP"/>
+          <property name="password" value="dlatlapQ1!"/>
+     </bean> -->
+     <bean id="dataSourceSpied" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+          <property name="driverClassName" value="net.sf.log4jdbc.DriverSpy" />
+          <property name="url" value="jdbc:log4jdbc:mysql://10.100.1.60:3306/GWDS_DEV?characterEncoding=UTF-8&amp;serverTimezone=UTC" />
+          <property name="username" value="kjh"/>
+          <property name="password" value="1dnjfekf!"/>
+          
+     </bean>
+     
+    <!-- <bean id="dataSourceSpied" class="org.apache.commons.dbcp.BasicDataSource">
+	        <property name="driverClassName" value="core.log.jdbc.driver.MysqlDriver"></property>
+	        <property name="url" value="jdbc:mysql://10.100.1.60:3306/GWDS_DEV?characterEncoding=UTF-8&amp;serverTimezone=UTC"></property>
+	        <property name="username" value="kjh"></property>
+	        <property name="password" value="1dnjfekf!"></property>
+	        <property name="validationQuery" value="select 1"></property>
+	</bean> -->
+
+     
+     <!-- <bean id="dataSourceSpied" class="org.apache.commons.dbcp.BasicDataSource">
+          <property name="driverClassName" value="net.sf.log4jdbc.DriverSpy" />
+          <property name="url" value="jdbc:mysql://183.111.66.52:3306/GWDS_DEV?characterEncoding=UTF-8&amp;serverTimezone=UTC" />
+          <property name="username" value="jsj"/>
+          <property name="password" value="jsj28$*%"/>
+     </bean> -->
+     
+     
+   	<bean id="dataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+         <constructor-arg ref="dataSourceSpied" />
+         <property name="logFormatter">
+             <bean class="net.sf.log4jdbc.tools.Log4JdbcCustomFormatter">
+                 <property name="loggingType" value="MULTI_LINE" />
+                 <property name="sqlPrefix" value="SQL         :  "/>
+             </bean>
+         </property>
+     </bean>
+
+ </beans>
